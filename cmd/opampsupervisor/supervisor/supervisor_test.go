@@ -287,7 +287,7 @@ service:
 					{
 						Key: "service.name",
 						Value: &protobufs.AnyValue{
-							Value: &protobufs.AnyValue_StringValue{StringValue: "otelcol"},
+							Value: &protobufs.AnyValue_StringValue{StringValue: "nrdotplustcol"},
 						},
 					},
 				},
@@ -1548,7 +1548,7 @@ func TestSupervisor_setupOwnTelemetry(t *testing.T) {
 					Key: "service.name",
 					Value: &protobufs.AnyValue{
 						Value: &protobufs.AnyValue_StringValue{
-							StringValue: "otelcol",
+							StringValue: "nrdotplustcol",
 						},
 					},
 				},
@@ -1586,7 +1586,7 @@ func TestSupervisor_setupOwnTelemetry(t *testing.T) {
 					Key: "service.name",
 					Value: &protobufs.AnyValue{
 						Value: &protobufs.AnyValue_StringValue{
-							StringValue: "otelcol",
+							StringValue: "nrdotplustcol",
 						},
 					},
 				},
@@ -1720,7 +1720,7 @@ service:
                             endpoint: localhost-metrics
                             protocol: http/protobuf
         resource:
-            service.name: otelcol
+            service.name: nrdotplustcol
         traces:
             processors:
                 - batch:
@@ -1789,7 +1789,7 @@ service:
 					Key: "service.name",
 					Value: &protobufs.AnyValue{
 						Value: &protobufs.AnyValue_StringValue{
-							StringValue: "otelcol",
+							StringValue: "nrdotplustcol",
 						},
 					},
 				},

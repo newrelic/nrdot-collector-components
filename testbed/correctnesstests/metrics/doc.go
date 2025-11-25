@@ -1,14 +1,14 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-// Package metrics contains functionality for testing an otelcol pipeline end to end for metric correctness.
+// Package metrics contains functionality for testing an nrdotplustcol pipeline end to end for metric correctness.
 // Partly because of how Prometheus works (being pull-based) metrics correctness works differently than
 // the performance testbed in the parent directory. Whereas performance testing sends a relatively large
 // number of data-points into the collector, this package sends metrics in one at a time, and only sends the
 // next datapoint when the previous datapoint has been processed and compared to the original.
 //
 // Mostly similar to the performance testing pipeline, this pipeline looks like the following:
-// [testbed exporter] -> [otelcol receiver] -> [otelcol exporter] -> [testbed receiver] -> [test harness]
+// [testbed exporter] -> [nrdotplustcol receiver] -> [nrdotplustcol exporter] -> [testbed receiver] -> [test harness]
 //
 // the difference being the testHarness, which is connected to [testbed receiver] as its metrics
 // consumer, listening for data-points. To start the process, one datapoint is sent into the testbed

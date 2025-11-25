@@ -1,7 +1,7 @@
 # Contributing
 
 If you would like to contribute please read OpenTelemetry core Collector [contributing
-guidelines](https://github.com/open-telemetry/opentelemetry-collector/blob/main/CONTRIBUTING.md)
+guidelines](https://github.com/newrelic/nrdot-collector-releases/blob/main/CONTRIBUTING.md)
 before you begin your work with the contrib Collector.
 
 ## Local Testing
@@ -13,16 +13,16 @@ repository:
 1. Build the Collector:
 
   ```shell
-  make otelcontribcol
+  make nrdotpluscol
   ```
 
 2. Run the contrib Collector with a local configuration file:
 
   ```shell
-  ./bin/otelcontribcol_<os>_<arch> --config otel-config.yaml
+  ./bin/nrdotpluscol_<os>_<arch> --config otel-config.yaml
   ```
 
-  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/otelcontribcol_linux_amd64`.
+  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/nrdotpluscol_linux_amd64`.
 
 Replace `otel-config.yaml` with the appropriate configuration file as needed.
 
@@ -216,7 +216,7 @@ Components refer to connectors, exporters, extensions, processors, and receivers
 * Implement the [component.Component](https://pkg.go.dev/go.opentelemetry.io/collector/component#Component) interface
 * Provide a configuration structure which defines the configuration of the component
 * Provide the implementation which performs the component operation
-* Have a `metadata.yaml` file and its generated code (using [mdatadgen](https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/README.md)).
+* Have a `metadata.yaml` file and its generated code (using [mdatadgen](https://github.com/newrelic/nrdot-collector-releases/blob/main/cmd/mdatagen/README.md)).
 
 Familiarize yourself with the interface of the component that you want to write, and use existing implementations as a reference.
 [Building a Trace Receiver](https://opentelemetry.io/docs/collector/trace-receiver/) tutorial provides a detailed example of building a component.
@@ -247,7 +247,7 @@ and its contributors.
 - Run `make crosslink` to update intra-repository dependencies. It will add a `replace` directive to `go.mod` file of every intra-repository dependant. This is necessary for your component to be included in the contrib executable.
 - Add your component to `versions.yaml`.
 - All components included in the distribution must be included in
-  [`cmd/otelcontribcol/builder-config.yaml`](./cmd/otelcontribcol/builder-config.yaml)
+  [`cmd/nrdotpluscol/builder-config.yaml`](./cmd/nrdotpluscol/builder-config.yaml)
   and in the respective testing harnesses. To align with the test goal of the
   project, components must be testable within the framework defined within the
   folder. If a component can not be properly tested within the existing
@@ -256,7 +256,7 @@ and its contributors.
   not automatically include any components in official release binaries. See
   [Releasing new components](#releasing-new-components).)**
 
-- Create a `metadata.yaml` file with at minimum the required fields defined in [metadata-schema.yaml](https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/metadata-schema.yaml).
+- Create a `metadata.yaml` file with at minimum the required fields defined in [metadata-schema.yaml](https://github.com/newrelic/nrdot-collector-releases/blob/main/cmd/mdatagen/metadata-schema.yaml).
 Here is a minimal representation:
 ```
 type: <name of your component, such as apache, http, haproxy, postgresql>
@@ -285,7 +285,7 @@ status:
 // Package fooreceiver bars.
 package fooreceiver // import "github.com/newrelic/nrdot-plus-collector-components/receiver/fooreceiver"
 ```
-- Type `make generate`. This will trigger the [metadata generator](https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/README.md#using-the-metadata-generator) to generate the associated code/documentation.
+- Type `make generate`. This will trigger the [metadata generator](https://github.com/newrelic/nrdot-collector-releases/blob/main/cmd/mdatagen/README.md#using-the-metadata-generator) to generate the associated code/documentation.
 - Type `make gencodeowners`. This will trigger the regeneration of the `.github/CODEOWNERS` file. 
 
 When submitting a component to the community, consider breaking it down into separate PRs as follows:
@@ -295,7 +295,7 @@ When submitting a component to the community, consider breaking it down into sep
     factory structs.
   * This PR is usually trivial to review, so the size limit does not apply to
     it.
-  * The component should use [`In Development` Stability](https://github.com/open-telemetry/opentelemetry-collector#development) in its README.
+  * The component should use [`In Development` Stability](https://github.com/newrelic/nrdot-collector-releases#development) in its README.
   * Before submitting a PR, run the following commands from the root of the repository to ensure your new component is meeting the repo linting expectations:
     * `make checkdoc`
     * `make checkmetadata`
@@ -303,8 +303,8 @@ When submitting a component to the community, consider breaking it down into sep
     * `make goporto`
     * `make crosslink`
     * `make gotidy`
-    * `make genotelcontribcol`
-    * `make genoteltestbedcol`
+    * `make gennrdotpluscol`
+    * `make gennrdotplustestbedcol`
     * `make generate`
     * `make multimod-verify`
     * `make generate-gh-issue-templates`
@@ -317,32 +317,32 @@ When submitting a component to the community, consider breaking it down into sep
   * Update its `metadata.yaml` file.
     * Mark the stability as `alpha`
     * Add `contrib` to the list of distributions
-  * Add it to the `cmd/otelcontribcol` binary by updating the `cmd/otelcontribcol/builder-config.yaml` file.
+  * Add it to the `cmd/nrdotpluscol` binary by updating the `cmd/nrdotpluscol/builder-config.yaml` file.
   * Please also run:
     - `make generate`
-    - `make genotelcontribcol`
+    - `make gennrdotpluscol`
  
-  * The component must be enabled only after sufficient testing and only when it meets [`Alpha` stability requirements](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/component-stability.md#alpha).
-* Once your component has reached `Alpha` stability, you may also submit a PR to the [OpenTelemetry Collector Releases](https://github.com/open-telemetry/opentelemetry-collector-releases) repository to include your component in future releases of the OpenTelemetry Collector `contrib` distribution.
+  * The component must be enabled only after sufficient testing and only when it meets [`Alpha` stability requirements](https://github.com/newrelic/nrdot-collector-releases/blob/main/docs/component-stability.md#alpha).
+* Once your component has reached `Alpha` stability, you may also submit a PR to the [OpenTelemetry Collector Releases](https://github.com/newrelic/nrdot-collector-releases) repository to include your component in future releases of the OpenTelemetry Collector `contrib` distribution.
 * Once a new component has been added to the executable:
   * Please add the component
     to the [OpenTelemetry.io registry](https://github.com/open-telemetry/opentelemetry.io#adding-a-project-to-the-opentelemetry-registry).
 
 ### Releasing New Components
 After a component has been merged it must be added to the
-[OpenTelemetry Collector Contrib's release manifest.yaml](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/main/distributions/otelcol-contrib/manifest.yaml)
-to be included in the distributed otelcol-contrib binaries and docker images.
+[OpenTelemetry Collector Contrib's release manifest.yaml](https://github.com/newrelic/nrdot-collector-releases/blob/main/distributions/nrdot-collector/manifest.yaml)
+to be included in the distributed nrdotplustcol binaries and docker images.
 
 ## Semantic Conventions compatibility
 
 When introducing new metrics, attributes or entity attributes to components, ensure that
-[Semantic Conventions' compatibility guidelines](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/coding-guidelines.md#semantic-conventions-compatibility)
+[Semantic Conventions' compatibility guidelines](https://github.com/newrelic/nrdot-collector-releases/blob/main/docs/coding-guidelines.md#semantic-conventions-compatibility)
 are taken into account.
 
 ## Adding metrics to existing receivers
 Following these steps for contributing additional metrics to existing receivers.
- - Read instructions [here](https://github.com/open-telemetry/opentelemetry-collector/blob/main/CONTRIBUTING.md#fork) on how to
-   fork, build and create PRs. The only difference is to change repository name from `opentelemetry-collector` to `opentelemetry-collector-contrib`
+ - Read instructions [here](https://github.com/newrelic/nrdot-collector-releases/blob/main/CONTRIBUTING.md#fork) on how to
+   fork, build and create PRs. The only difference is to change repository name from `nrdot-collector` to `nrdot-collector-contrib`
  - Edit `metadata.yaml` of your metrics receiver to add new metrics, e.g.: `redisreceiver/metadata.yaml`
  - To generate new metrics on top of this updated YAML file.
    - Run `cd receiver/redisreceiver`
@@ -357,7 +357,7 @@ in general try to follow them.
 - Avoid introducing batching, retries or worker pools directly on receivers and exporters. Typically, these are general
   cases that can be better handled via processors (that also can be reused by other receivers and exporters).
 - When implementing exporters try to leverage the exporter helpers from the core repo, see [exporterhelper
-  package](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/exporterhelper). This will
+  package](https://github.com/newrelic/nrdot-collector-releases/tree/main/exporter/exporterhelper). This will
   ensure that the exporter provides [zPages](https://opencensus.io/zpages/) and a standard set of metrics.
 - `replace` statements in `go.mod` files can be automatically inserted by running `make crosslink`. For more information
   on the `crosslink` tool see the README [here](https://github.com/open-telemetry/opentelemetry-go-build-tools/tree/main/crosslink).
@@ -376,7 +376,7 @@ Sometimes a component may be in need of a new or additional Code Owner. A few re
 
 - The existing Code Owners are actively looking for more help.
 - A previous Code Owner stepped down.
-- An existing Code Owner has become unresponsive. See [unmaintained stability status](https://github.com/open-telemetry/opentelemetry-collector#unmaintained).
+- An existing Code Owner has become unresponsive. See [unmaintained stability status](https://github.com/newrelic/nrdot-collector-releases#unmaintained).
 - The component was never assigned a Code Owner.
 
 Code Ownership does not have to be a full-time job. If you can find a couple hours to help out on a recurring basis, please consider pursuing Code Ownership.

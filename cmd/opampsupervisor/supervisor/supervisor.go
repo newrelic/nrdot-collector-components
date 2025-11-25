@@ -2091,7 +2091,7 @@ func (s *Supervisor) getTracer() trace.Tracer {
 // The default koanf behavior is to override lists in the config.
 // Instead, we provide this function, which merges the source and destination config's
 // extension lists by concatenating the two.
-// Will be resolved by https://github.com/open-telemetry/opentelemetry-collector/issues/8754
+// Will be resolved by https://github.com/newrelic/nrdot-collector-releases/issues/8754
 func configMergeFunc(src, dest map[string]any) error {
 	srcExtensions := maps.Search(src, []string{"service", "extensions"})
 	destExtensions := maps.Search(dest, []string{"service", "extensions"})

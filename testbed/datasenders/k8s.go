@@ -31,7 +31,7 @@ var _ testbed.LogDataSender = (*FileLogK8sWriter)(nil)
 // NewFileLogK8sWriter creates a new data sender that will write kubernetes containerd
 // log entries to a file, to be tailed by FileLogReceiver and sent to the collector.
 //
-// config is an Otelcol config appended to the receivers section after executing fmt.Sprintf on it.
+// config is an nrdotplustcol config appended to the receivers section after executing fmt.Sprintf on it.
 // This implies few things:
 //   - it should contain `%s` which will be replaced with the filename
 //   - all `%` should be represented as `%%`

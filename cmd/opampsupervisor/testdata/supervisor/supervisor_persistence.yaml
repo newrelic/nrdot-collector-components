@@ -14,7 +14,7 @@ storage:
   directory: '{{.storage_dir}}'
 
 agent:
-  executable: ../../bin/otelcontribcol_{{.goos}}_{{.goarch}}{{.extension}}
+  executable: ../../bin/nrdotpluscol_{{.goos}}_{{.goarch}}{{.extension}}
   {{- if .use_hup_config_reload }}
   use_hup_config_reload: {{ .use_hup_config_reload }}
   {{- end }}

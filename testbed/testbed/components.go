@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/collector/exporter/otlphttpexporter"
 	"go.opentelemetry.io/collector/extension"
 	"go.opentelemetry.io/collector/extension/zpagesextension"
-	"go.opentelemetry.io/collector/otelcol"
+	"go.opentelemetry.io/collector/nrdotplustcol"
 	"go.opentelemetry.io/collector/processor"
 	"go.opentelemetry.io/collector/processor/batchprocessor"
 	"go.opentelemetry.io/collector/processor/memorylimiterprocessor"
@@ -34,17 +34,17 @@ import (
 
 // Components returns the set of components for tests
 func Components() (
-	otelcol.Factories,
+	nrdotplustcol.Factories,
 	error,
 ) {
 	var errs error
 
-	extensions, err := otelcol.MakeFactoryMap[extension.Factory](
+	extensions, err := nrdotplustcol.MakeFactoryMap[extension.Factory](
 		zpagesextension.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 
-	receivers, err := otelcol.MakeFactoryMap[receiver.Factory](
+	receivers, err := nrdotplustcol.MakeFactoryMap[receiver.Factory](
 		jaegerreceiver.NewFactory(),
 		otlpreceiver.NewFactory(),
 		otelarrowreceiver.NewFactory(),
@@ -54,7 +54,7 @@ func Components() (
 	)
 	errs = multierr.Append(errs, err)
 
-	exporters, err := otelcol.MakeFactoryMap[exporter.Factory](
+	exporters, err := nrdotplustcol.MakeFactoryMap[exporter.Factory](
 		debugexporter.NewFactory(),
 		otlpexporter.NewFactory(),
 		otlphttpexporter.NewFactory(),
@@ -64,19 +64,19 @@ func Components() (
 	)
 	errs = multierr.Append(errs, err)
 
-	processors, err := otelcol.MakeFactoryMap[processor.Factory](
+	processors, err := nrdotplustcol.MakeFactoryMap[processor.Factory](
 		batchprocessor.NewFactory(),
 		memorylimiterprocessor.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 
-	connectors, err := otelcol.MakeFactoryMap[connector.Factory](
+	connectors, err := nrdotplustcol.MakeFactoryMap[connector.Factory](
 		spanmetricsconnector.NewFactory(),
 		routingconnector.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 
-	factories := otelcol.Factories{
+	factories := nrdotplustcol.Factories{
 		Extensions: extensions,
 		Receivers:  receivers,
 		Processors: processors,

@@ -344,9 +344,9 @@ type Metrics struct {
 
 // DefaultSupervisor returns the default supervisor config
 func DefaultSupervisor() Supervisor {
-	defaultStorageDir := "/var/lib/otelcol/supervisor"
+	defaultStorageDir := "/var/lib/nrdotplustcol/supervisor"
 	if runtime.GOOS == "windows" {
-		// Windows default is "%ProgramData%\Otelcol\Supervisor"
+		// Windows default is "%ProgramData%\nrdotplustcol\Supervisor"
 		// If the ProgramData environment variable is not set,
 		// it falls back to C:\ProgramData
 		programDataDir := os.Getenv("ProgramData")
@@ -354,7 +354,7 @@ func DefaultSupervisor() Supervisor {
 			programDataDir = `C:\ProgramData`
 		}
 
-		defaultStorageDir = filepath.Join(programDataDir, "Otelcol", "Supervisor")
+		defaultStorageDir = filepath.Join(programDataDir, "nrdotplustcol", "Supervisor")
 	}
 
 	return Supervisor{

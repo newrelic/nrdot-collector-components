@@ -162,7 +162,7 @@
         "gomod"
       ],
       "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector"
+        "https://github.com/newrelic/nrdot-collector-releases"
       ],
       "groupName": "All OpenTelemetry Collector dev packages",
       "matchUpdateTypes": [
@@ -174,7 +174,7 @@
         "gomod"
       ],
       "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector"
+        "https://github.com/newrelic/nrdot-collector-releases"
       ],
       "groupName": "All OpenTelemetry Collector packages",
       "matchUpdateTypes": [

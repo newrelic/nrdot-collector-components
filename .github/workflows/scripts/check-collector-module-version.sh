@@ -49,7 +49,7 @@ check_collector_versions_correct() {
    fi
 }
 
-MAIN_MOD_FILE="./cmd/otelcontribcol/go.mod"
+MAIN_MOD_FILE="./cmd/nrdotpluscol/go.mod"
 
 
 BETA_MODULE="go.opentelemetry.io/collector"

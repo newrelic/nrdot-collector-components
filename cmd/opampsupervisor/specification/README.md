@@ -120,13 +120,13 @@ capabilities:
 storage:
   # A writable directory where the Supervisor can store data
   # (e.g. cached remote config).
-  # defaults to /var/lib/otelcol/supervisor on posix systems
-  # and %ProgramData%/Otelcol/Supervisor on Windows.
+  # defaults to /var/lib/nrdotplustcol/supervisor on posix systems
+  # and %ProgramData%/nrdotplustcol/Supervisor on Windows.
   directory: /path/to/dir
 
 agent:
   # Path to Collector executable. Required.
-  executable: /opt/otelcol/bin/otelcol
+  executable: /opt/nrdotplustcol/bin/nrdotplustcol
 
   # The interval on which the Collector checks to see if it's been orphaned.
   orphan_detection_interval: 5s
@@ -159,7 +159,7 @@ agent:
       allow: \[/var/log\]
       deny: \[/var/log/secret_logs\]
     write:
-      allow: \[/var/otelcol\]
+      allow: \[/var/nrdotplustcol\]
 
   # Optional key-value pairs to add to either the identifying attributes or
   # non-identifying attributes of the agent description sent to the OpAMP server.
@@ -288,7 +288,7 @@ agent:
 This results in the following Collector process invocation:
 
 ```shell
-./otel-binary --config /var/lib/otelcol/supervisor/effective.yaml --feature-gates exporter.datadogexporter.UseLogsAgentExporter,exporter.datadogexporter.metricexportnativeclient
+./otel-binary --config /var/lib/nrdotplustcol/supervisor/effective.yaml --feature-gates exporter.datadogexporter.UseLogsAgentExporter,exporter.datadogexporter.metricexportnativeclient
 ```
 
 ### Operation When OpAMP Server is Unavailable
@@ -426,7 +426,7 @@ service.instance.id attribute under the service.telemetry.resource
 setting.
 
 Note: if [Make generated service.instance.id available to
-extensions](https://github.com/open-telemetry/opentelemetry-collector/issues/6599)
+extensions](https://github.com/newrelic/nrdot-collector-releases/issues/6599)
 is implemented then the instance_uid setting in the opamp extension is
 no longer necessary.
 
@@ -553,14 +553,14 @@ client with a small subset of OpAMP agent capabilities:
 - ReportsEffectiveConfig. The extension reports the Collector's
     effective config on startup and any time the config changes. In
     order to do this the opamp extension needs [access to the effective
-    config](https://github.com/open-telemetry/opentelemetry-collector/issues/6596).
+    config](https://github.com/newrelic/nrdot-collector-releases/issues/6596).
 - ReportsHealth. The extension reports Collector's health on startup
     and any time the health changes. In order to do this the opamp
     extension needs access to the health of the Collector. The very
     basic health capability can be replicated by mirroring the
     functionality of the healthcheck extension, a more advanced
     capability depends on the [component status
-    reporting](https://github.com/open-telemetry/opentelemetry-collector/pull/6560).
+    reporting](https://github.com/newrelic/nrdot-collector-releases/pull/6560).
 
 The messages received from the opamp extension are forwarded by the
 Supervisor to the destination OpAMP Backend and replies to these
@@ -608,7 +608,7 @@ other OpAMP capabilities are available in this operation model.
 When the opamp extension is used without the Supervisor it will need to
 know what service.instance.id the Collector's telemetry is using. There
 is an [open
-issue](https://github.com/open-telemetry/opentelemetry-collector/issues/6599)
+issue](https://github.com/newrelic/nrdot-collector-releases/issues/6599)
 to allow this.
 
 *Open Question: when used with Supervisor do we want the Supervisor to
@@ -632,4 +632,4 @@ on opamp extension to report the health when it changes?*
 - Example Supervisor implementation:
     [https://github.com/open-telemetry/opamp-go/tree/main/internal/examples/supervisor](https://github.com/open-telemetry/opamp-go/tree/main/internal/examples/supervisor)
 - OpAMP Milestone in the Collector:
-    [https://github.com/open-telemetry/opentelemetry-collector/milestone/29](https://github.com/open-telemetry/opentelemetry-collector/milestone/29)
+    [https://github.com/newrelic/nrdot-collector-releases/milestone/29](https://github.com/newrelic/nrdot-collector-releases/milestone/29)

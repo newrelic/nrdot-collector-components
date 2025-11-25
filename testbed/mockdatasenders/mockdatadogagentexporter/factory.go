@@ -40,7 +40,7 @@ func CreateTracesExporter(
 ) (exporter.Traces, error) {
 	c := cfg.(*Config)
 	if c.Endpoint == "" {
-		// TODO https://github.com/open-telemetry/opentelemetry-collector/issues/215
+		// TODO https://github.com/newrelic/nrdot-collector-releases/issues/215
 		return nil, errors.New("exporter config requires a non-empty 'endpoint'")
 	}
 

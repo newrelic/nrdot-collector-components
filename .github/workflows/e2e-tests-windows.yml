@@ -45,10 +45,10 @@ jobs:
       - name: Install Tools
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
-      - name: Generate otelcontribcol files
-        run: make genotelcontribcol
+      - name: Generate nrdotpluscol files
+        run: make gennrdotpluscol
       - name: Build Collector
-        run: make otelcontribcol
+        run: make nrdotpluscol
       - name: Upload Collector Binary
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:

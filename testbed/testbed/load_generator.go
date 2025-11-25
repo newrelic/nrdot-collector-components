@@ -19,7 +19,7 @@ import (
 
 var printer = message.NewPrinter(message.MatchLanguage("en"))
 
-// LoadGenerator is intended to be exercised by a TestCase to generate and send telemetry to an OtelcolRunner instance.
+// LoadGenerator is intended to be exercised by a TestCase to generate and send telemetry to an nrdotplustcolRunner instance.
 // The simplest ready implementation is the ProviderSender that unites a DataProvider with a DataSender.
 type LoadGenerator interface {
 	Start(options LoadOptions)

@@ -2,8 +2,8 @@
 cmd/codecovgen cmd/codecovgen
 cmd/golden cmd/golden
 cmd/opampsupervisor cmd/opampsupervisor
-cmd/otelcontribcol cmd/otelcontribcol
-cmd/oteltestbedcol cmd/oteltestbedcol
+cmd/nrdotpluscol cmd/nrdotpluscol
+cmd/nrdotplustestbedcol cmd/nrdotplustestbedcol
 cmd/telemetrygen cmd/telemetrygen
 confmap/provider/aesprovider confmap/provider/aesprovider
 confmap/provider/googlesecretmanagerprovider confmap/provider/googlesecretmanagerprovider

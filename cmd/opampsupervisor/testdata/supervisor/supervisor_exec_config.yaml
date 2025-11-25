@@ -13,7 +13,7 @@ storage:
   directory: '{{.storage_dir}}'
 
 agent:
-  executable: ../../bin/otelcontribcol_{{.goos}}_{{.goarch}}{{.extension}}
+  executable: ../../bin/nrdotpluscol_{{.goos}}_{{.goarch}}{{.extension}}
   config_files: 
     - './testdata/collector/simple_pipeline_env.yaml'
   env:

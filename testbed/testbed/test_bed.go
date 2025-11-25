@@ -48,9 +48,9 @@ var GlobalConfig = struct {
 	// that is passed to the TestCase.
 	DefaultAgentExeRelativeFile string
 }{
-	// DefaultAgentExeRelativeFile the default exe that is produced by Makefile "otelcol" target relative
+	// DefaultAgentExeRelativeFile the default exe that is produced by Makefile "nrdotplustcol" target relative
 	// to testbed/tests directory.
-	DefaultAgentExeRelativeFile: "../../bin/oteltestbedcol_{{.GOOS}}_{{.GOARCH}}",
+	DefaultAgentExeRelativeFile: "../../bin/nrdotplustestbedcol_{{.GOOS}}_{{.GOARCH}}",
 }
 
 // DoTestMain is intended to be run from TestMain somewhere in the test suit.

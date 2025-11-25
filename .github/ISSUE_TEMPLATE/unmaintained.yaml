@@ -20,8 +20,8 @@ body:
       - cmd/codecovgen
       - cmd/golden
       - cmd/opampsupervisor
-      - cmd/otelcontribcol
-      - cmd/oteltestbedcol
+      - cmd/nrdotpluscol
+      - cmd/nrdotplustestbedcol
       - cmd/telemetrygen
       - confmap/provider/aesprovider
       - confmap/provider/googlesecretmanagerprovider
@@ -370,7 +370,7 @@ body:
         - [ ] On <date 6 weeks from now>, 6 weeks from now, the component will be labeled as unmaintained if the original code owner is still unresponsive and no other code owner for the component has been found
         - [ ] On <date 6 months from now>, 6 months from now, the component will be removed
 
-        https://github.com/open-telemetry/opentelemetry-collector#unmaintained
+        https://github.com/newrelic/nrdot-collector-releases#unmaintained
         
         ## Pull requests / Issues
         

@@ -2,14 +2,14 @@ include ./Makefile.Common
 
 RUN_CONFIG?=local/config.yaml
 CMD?=
-OTEL_VERSION=main
-OTEL_STABLE_VERSION=main
+NRDOT_PLUS_VERSION=main
+NRDOT_PLUS_STABLE_VERSION=main
 
 VERSION=$(shell git describe --always --match "v[0-9]*" HEAD)
 TRIMMED_VERSION=$(shell grep -o 'v[^-]*' <<< "$(VERSION)" | cut -c 2-)
-CORE_VERSIONS=$(SRC_PARENT_DIR)/opentelemetry-collector/versions.yaml
+CORE_VERSIONS=$(SRC_PARENT_DIR)/nrdot-collector/versions.yaml
 
-COMP_REL_PATH=cmd/otelcontribcol/components.go
+COMP_REL_PATH=cmd/nrdotpluscol/components.go
 MOD_NAME=github.com/newrelic/nrdot-plus-collector-components
 
 GROUP ?= all
@@ -42,7 +42,7 @@ EXTENSION_MODS := $(shell find ./extension/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR
 CONNECTOR_MODS := $(shell find ./connector/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 INTERNAL_MODS := $(shell find ./internal/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/otel*col/*" -exec $(TO_MOD_DIR) )
+CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/nrdotplus*col/*" -exec $(TO_MOD_DIR) )
 CMD_MODS := $(CMD_MODS_0)
 OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
@@ -53,7 +53,7 @@ FIND_INTEGRATION_TEST_MODS={ find . -type f -name "*integration_test.go" & find 
 INTEGRATION_MODS := $(shell $(FIND_INTEGRATION_TEST_MODS) | xargs $(TO_MOD_DIR) | uniq)
 
 # Excluded from ALL_MODS
-GENERATED_MODS := $(shell find ./cmd/otel*col/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR))
+GENERATED_MODS := $(shell find ./cmd/nrdotplus*col/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR))
 
 ifeq ($(GOOS),windows)
 	EXTENSION := .exe
@@ -90,14 +90,14 @@ all-groups:
 	@echo -e "\ngenerated: $(GENERATED_MODS)"
 
 .PHONY: all
-all: install-tools all-common goporto multimod-verify gotest otelcontribcol
+all: install-tools all-common goporto multimod-verify gotest nrdotpluscol
 
 .PHONY: all-common
 all-common:
 	@$(MAKE) $(FOR_GROUP_TARGET) TARGET="common"
 
 .PHONY: e2e-test
-e2e-test: otelcontribcol oteltestbedcol
+e2e-test: nrdotpluscol nrdotplustestbedcol
 	$(MAKE) --no-print-directory -C testbed run-tests
 
 .PHONY: integration-test
@@ -110,7 +110,7 @@ integration-tests-with-cover:
 
 # Long-running e2e tests
 .PHONY: stability-tests
-stability-tests: otelcontribcol
+stability-tests: nrdotpluscol
 	@echo Stability tests are disabled until we have a stable performance environment.
 	@echo To enable the tests replace this echo by $(MAKE) -C testbed run-stability-tests
 
@@ -150,8 +150,8 @@ tidylist: $(CROSSLINK)
 	$(CROSSLINK) tidylist \
 		--validate \
 		--allow-circular allow-circular.txt \
-		--skip cmd/otelcontribcol/go.mod \
-		--skip cmd/oteltestbedcol/go.mod \
+		--skip cmd/nrdotpluscol/go.mod \
+		--skip cmd/nrdotplustestbedcol/go.mod \
 		tidylist.txt
 
 # internal/tidylist/tidylist.txt lists modules in topological order, to ensure `go mod tidy` converges.
@@ -330,7 +330,7 @@ all-pwd:
 
 .PHONY: run
 run:
-	cd ./cmd/otelcontribcol && GO111MODULE=on $(GOCMD) run --race . --config ../../${RUN_CONFIG} ${RUN_ARGS}
+	cd ./cmd/nrdotpluscol && GO111MODULE=on $(GOCMD) run --race . --config ../../${RUN_CONFIG} ${RUN_ARGS}
 
 .PHONY: docker-component # Not intended to be used directly
 docker-component: check-component
@@ -345,12 +345,12 @@ ifndef COMPONENT
 	$(error COMPONENT variable was not defined)
 endif
 
-.PHONY: docker-otelcontribcol
-docker-otelcontribcol:
-	COMPONENT=otelcontribcol $(MAKE) docker-component
+.PHONY: docker-nrdotpluscol
+docker-nrdotpluscol:
+	COMPONENT=nrdotpluscol $(MAKE) docker-component
 
-.PHONY: docker-supervisor-otelcontribcol
-docker-supervisor-otelcontribcol: docker-otelcontribcol
+.PHONY: docker-supervisor-nrdotpluscol
+docker-supervisor-nrdotpluscol: docker-nrdotpluscol
 	COMPONENT=opampsupervisor $(MAKE) docker-component
 
 .PHONY: docker-telemetrygen
@@ -408,37 +408,37 @@ chlog-preview: $(CHLOGGEN)
 chlog-update: $(CHLOGGEN)
 	$(CHLOGGEN) update --config $(CHLOGGEN_CONFIG) --version $(VERSION)
 
-.PHONY: genotelcontribcol
-genotelcontribcol: $(BUILDER)
-	./internal/buildscripts/ocb-add-replaces.sh otelcontribcol
-	$(BUILDER) --skip-compilation --config cmd/otelcontribcol/builder-config-replaced.yaml
+.PHONY: gennrdotpluscol
+gennrdotpluscol: $(BUILDER)
+	./internal/buildscripts/ocb-add-replaces.sh nrdotpluscol
+	$(BUILDER) --skip-compilation --config cmd/nrdotpluscol/builder-config-replaced.yaml
 
 # Build the Collector executable.
-.PHONY: otelcontribcol
-otelcontribcol: genotelcontribcol
-	cd ./cmd/otelcontribcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/otelcontribcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
+.PHONY: nrdotpluscol
+nrdotpluscol: gennrdotpluscol
+	cd ./cmd/nrdotpluscol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/nrdotpluscol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) .
 
 # Build the Collector executable without the symbol table, debug information, and the DWARF symbol table.
-.PHONY: otelcontribcollite
-otelcontribcollite: genotelcontribcol
-	cd ./cmd/otelcontribcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/otelcontribcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
+.PHONY: nrdotpluscollite
+nrdotpluscollite: gennrdotpluscol
+	cd ./cmd/nrdotpluscol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/nrdotpluscol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
 
-.PHONY: genoteltestbedcol
-genoteltestbedcol: $(BUILDER)
-	./internal/buildscripts/ocb-add-replaces.sh oteltestbedcol
-	$(BUILDER) --skip-compilation --config cmd/oteltestbedcol/builder-config-replaced.yaml
+.PHONY: gennrdotplustestbedcol
+gennrdotplustestbedcol: $(BUILDER)
+	./internal/buildscripts/ocb-add-replaces.sh nrdotplustestbedcol
+	$(BUILDER) --skip-compilation --config cmd/nrdotplustestbedcol/builder-config-replaced.yaml
 
 # Build the Collector executable, with only components used in testbed.
-.PHONY: oteltestbedcol
-oteltestbedcol: genoteltestbedcol
-	cd ./cmd/oteltestbedcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/oteltestbedcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
+.PHONY: nrdotplustestbedcol
+nrdotplustestbedcol: gennrdotplustestbedcol
+	cd ./cmd/nrdotplustestbedcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/nrdotplustestbedcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) .
 
-.PHONY: oteltestbedcollite
-oteltestbedcollite: genoteltestbedcol
-	cd ./cmd/oteltestbedcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/oteltestbedcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
+.PHONY: nrdotplustestbedcollite
+nrdotplustestbedcollite: gennrdotplustestbedcol
+	cd ./cmd/nrdotplustestbedcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/nrdotplustestbedcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
 
 # Build the telemetrygen executable.
@@ -502,21 +502,21 @@ define updatehelper
 endef
 
 
-.PHONY: update-otel
-update-otel:$(MULTIMOD)
-	# Make sure cmd/otelcontribcol/go.mod and cmd/oteltestbedcol/go.mod are present
-	$(MAKE) genotelcontribcol
-	$(MAKE) genoteltestbedcol
-	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m stable --commit-hash "$(OTEL_STABLE_VERSION)"
+.PHONY: update-nrdotplus
+update-nrdotplus:$(MULTIMOD)
+	# Make sure cmd/nrdotpluscol/go.mod and cmd/nrdotplustestbedcol/go.mod are present
+	$(MAKE) gennrdotpluscol
+	$(MAKE) gennrdotplustestbedcol
+	$(MULTIMOD) sync -s=true -o ../nrdot-collector -m stable --commit-hash "$(NRDOT_PLUS_STABLE_VERSION)"
 	git add . && git commit -s -m "[chore] multimod update stable modules" ; \
-	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m beta --commit-hash "$(OTEL_VERSION)"
+	$(MULTIMOD) sync -s=true -o ../nrdot-collector -m beta --commit-hash "$(NRDOT_PLUS_VERSION)"
 	git add . && git commit -s -m "[chore] multimod update beta modules" ; \
 	$(MAKE) gotidy
-	$(call updatehelper,$(CORE_VERSIONS),./cmd/otelcontribcol/go.mod,./cmd/otelcontribcol/builder-config.yaml)
-	$(call updatehelper,$(CORE_VERSIONS),./cmd/oteltestbedcol/go.mod,./cmd/oteltestbedcol/builder-config.yaml)
+	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotpluscol/go.mod,./cmd/nrdotpluscol/builder-config.yaml)
+	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotplustestbedcol/go.mod,./cmd/nrdotplustestbedcol/builder-config.yaml)
 	$(MAKE) -B install-tools
-	$(MAKE) genotelcontribcol
-	$(MAKE) genoteltestbedcol
+	$(MAKE) gennrdotpluscol
+	$(MAKE) gennrdotplustestbedcol
 	$(MAKE) generate
 	$(MAKE) crosslink
 	# Tidy again after generating code
@@ -524,39 +524,39 @@ update-otel:$(MULTIMOD)
 	$(MAKE) remove-toolchain
 	git add . && git commit -s -m "[chore] mod and toolchain tidy" --allow-empty ; \
 
-.PHONY: otel-from-tree
-otel-from-tree:
-	# This command allows you to make changes to your local checkout of otel core and build
+.PHONY: nrdotplus-from-tree
+nrdotplus-from-tree:
+	# This command allows you to make changes to your local checkout of nrdotplus core and build
 	# contrib against those changes without having to push to github and update a bunch of
 	# references. The workflow is:
 	#
-	# 1. Hack on changes in core (assumed to be checked out in ../opentelemetry-collector from this directory)
-	# 2. Run `make otel-from-tree` (only need to run it once to remap go modules)
-	# 3. You can now build contrib and it will use your local otel core changes.
-	# 4. Before committing/pushing your contrib changes, undo by running `make otel-from-lib`.
+	# 1. Hack on changes in core (assumed to be checked out in ../nrdot-collector from this directory)
+	# 2. Run `make nrdotplus-from-tree` (only need to run it once to remap go modules)
+	# 3. You can now build contrib and it will use your local nrdotplus core changes.
+	# 4. Before committing/pushing your contrib changes, undo by running `make nrdotplus-from-lib`.
 	@source $(MODULES) && \
 	replace_args=""; \
-	echo "# BEGIN otel-from-tree" >> "./cmd/otelcontribcol/builder-config.yaml"; \
-	echo "# BEGIN otel-from-tree" >> "./cmd/oteltestbedcol/builder-config.yaml"; \
+	echo "# BEGIN nrdotplus-from-tree" >> "./cmd/nrdotpluscol/builder-config.yaml"; \
+	echo "# BEGIN nrdotplus-from-tree" >> "./cmd/nrdotplustestbedcol/builder-config.yaml"; \
 	for module in "$${beta_modules[@]}" "$${stable_modules[@]}"; do \
 		subpath=$${module#go.opentelemetry.io/collector}; \
 		if [ "$${subpath}" = "$${module}" ]; then subpath=""; fi; \
-		replace_args="$${replace_args} -replace $${module}=$(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}"; \
-		echo "  - $${module} => $(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}" >> "./cmd/otelcontribcol/builder-config.yaml"; \
-		echo "  - $${module} => $(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}" >> "./cmd/oteltestbedcol/builder-config.yaml"; \
+		replace_args="$${replace_args} -replace $${module}=$(SRC_PARENT_DIR)/nrdot-collector$${subpath}"; \
+		echo "  - $${module} => $(SRC_PARENT_DIR)/nrdot-collector$${subpath}" >> "./cmd/nrdotpluscol/builder-config.yaml"; \
+		echo "  - $${module} => $(SRC_PARENT_DIR)/nrdot-collector$${subpath}" >> "./cmd/nrdotplustestbedcol/builder-config.yaml"; \
 	done; \
 	$(MAKE) for-all CMD="$(GOCMD) mod edit $${replace_args}"
 
-.PHONY: otel-from-lib
-otel-from-lib:
-	# Sets opentelemetry core to be not be pulled from local source tree. (Undoes otel-from-tree.)
+.PHONY: nrdotplus-from-lib
+nrdotplus-from-lib:
+	# Sets opentelemetry core to be not be pulled from local source tree. (Undoes nrdotplus-from-tree.)
 	@source $(MODULES) && \
 	dropreplace_args=""; \
 	for module in "$${beta_modules[@]}" "$${stable_modules[@]}"; do \
 		dropreplace_args="$${dropreplace_args} -dropreplace $${module}"; \
 	done; \
-	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/otelcontribcol/builder-config.yaml"; \
-	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/oteltestbedcol/builder-config.yaml"; \
+	sed -i '' '/# BEGIN nrdotplus-from-tree/,$$d' "./cmd/nrdotpluscol/builder-config.yaml"; \
+	sed -i '' '/# BEGIN nrdotplus-from-tree/,$$d' "./cmd/nrdotplustestbedcol/builder-config.yaml"; \
 	$(MAKE) for-all CMD="$(GOCMD) mod edit $${dropreplace_args}"
 
 .PHONY: build-examples
@@ -567,9 +567,9 @@ build-examples:
 .PHONY: deb-rpm-package
 %-package: ARCH ?= amd64
 %-package:
-	GOOS=linux GOARCH=$(ARCH) $(MAKE) otelcontribcol
-	docker build -t otelcontribcol-fpm internal/buildscripts/packaging/fpm
-	docker run --rm -v $(CURDIR):/repo -e PACKAGE=$* -e VERSION=$(VERSION) -e ARCH=$(ARCH) otelcontribcol-fpm
+	GOOS=linux GOARCH=$(ARCH) $(MAKE) nrdotpluscol
+	docker build -t nrdotpluscol-fpm internal/buildscripts/packaging/fpm
+	docker run --rm -v $(CURDIR):/repo -e PACKAGE=$* -e VERSION=$(VERSION) -e ARCH=$(ARCH) nrdotpluscol-fpm
 
 # Verify existence of READMEs for components specified as default components in the collector.
 .PHONY: checkdoc
@@ -590,14 +590,14 @@ kind-ready:
 	@if [ -n "$(shell kind get clusters -q)" ]; then echo "kind is ready"; else echo "kind not ready"; exit 1; fi
 
 .PHONY: kind-build
-kind-build: kind-ready docker-otelcontribcol
-	docker tag otelcontribcol otelcontribcol-dev:0.0.1
-	kind load docker-image otelcontribcol-dev:0.0.1
+kind-build: kind-ready docker-nrdotpluscol
+	docker tag nrdotpluscol nrdotpluscol-dev:0.0.1
+	kind load docker-image nrdotpluscol-dev:0.0.1
 
 .PHONY: kind-install-daemonset
 kind-install-daemonset: kind-ready kind-uninstall-daemonset## Install a local Collector version into the cluster.
 	@echo "Installing daemonset collector"
-	helm install daemonset-collector-dev open-telemetry/opentelemetry-collector --values ./examples/kubernetes/daemonset-collector-dev.yaml
+	helm install daemonset-collector-dev newrelic/nrdot-collector-releases --values ./examples/kubernetes/daemonset-collector-dev.yaml
 
 .PHONY: kind-uninstall-daemonset
 kind-uninstall-daemonset: kind-ready
@@ -607,7 +607,7 @@ kind-uninstall-daemonset: kind-ready
 .PHONY: kind-install-deployment
 kind-install-deployment: kind-ready kind-uninstall-deployment## Install a local Collector version into the cluster.
 	@echo "Installing deployment collector"
-	helm install deployment-collector-dev open-telemetry/opentelemetry-collector --values ./examples/kubernetes/deployment-collector-dev.yaml
+	helm install deployment-collector-dev newrelic/nrdot-collector-releases --values ./examples/kubernetes/deployment-collector-dev.yaml
 
 .PHONY: kind-uninstall-deployment
 kind-uninstall-deployment: kind-ready
@@ -650,7 +650,7 @@ multimod-prerelease: $(MULTIMOD)
 
 .PHONY: multimod-sync
 multimod-sync: $(MULTIMOD)
-	$(MULTIMOD) sync -a=true -s=true -o ../opentelemetry-collector
+	$(MULTIMOD) sync -a=true -s=true -o ../nrdot-collector
 	$(MAKE) gotidy
 
 .PHONY: crosslink
@@ -685,8 +685,8 @@ checks:
 	$(MAKE) -j4 goporto
 	$(MAKE) crosslink
 	$(MAKE) -j4 gotidy
-	$(MAKE) genotelcontribcol
-	$(MAKE) genoteltestbedcol
+	$(MAKE) gennrdotpluscol
+	$(MAKE) gennrdotplustestbedcol
 	$(MAKE) gendistributions
 	$(MAKE) -j4 generate
 	$(MAKE) multimod-verify

@@ -29,11 +29,11 @@ import (
 	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
-// childProcessCollector implements the OtelcolRunner interface as a child process on the same machine executing
+// childProcessCollector implements the nrdotplustcolRunner interface as a child process on the same machine executing
 // the test. The process can be monitored and the output of which will be written to a log file.
 type childProcessCollector struct {
 	// Path to agent executable. If unset the default executable in
-	// bin/otelcol_{{.GOOS}}_{{.GOARCH}} will be used.
+	// bin/nrdotplustcol_{{.GOOS}}_{{.GOARCH}} will be used.
 	// Can be set for example to use the unstable executable for a specific test.
 	agentExePath string
 
@@ -91,8 +91,8 @@ type childProcessCollector struct {
 
 type ChildProcessOption func(*childProcessCollector)
 
-// NewChildProcessCollector creates a new OtelcolRunner as a child process on the same machine executing the test.
-func NewChildProcessCollector(options ...ChildProcessOption) OtelcolRunner {
+// NewChildProcessCollector creates a new nrdotplustcolRunner as a child process on the same machine executing the test.
+func NewChildProcessCollector(options ...ChildProcessOption) nrdotplustcolRunner {
 	col := &childProcessCollector{additionalEnv: map[string]string{}}
 
 	for _, option := range options {
@@ -172,7 +172,7 @@ func expandExeFileName(exeName string) string {
 // Start a child process.
 //
 // cp.AgentExePath defines the executable to run. If unspecified
-// "../../bin/otelcol_{{.GOOS}}_{{.GOARCH}}" will be used.
+// "../../bin/nrdotplustcol_{{.GOOS}}_{{.GOARCH}}" will be used.
 // {{.GOOS}} and {{.GOARCH}} will be expanded to the current OS and ARCH correspondingly.
 //
 // Parameters:

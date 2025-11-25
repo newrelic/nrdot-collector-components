@@ -4,7 +4,7 @@
 import { simpleGit } from 'simple-git';
 const git = simpleGit();
 
-const REPO_NAME = "opentelemetry-collector-contrib"
+const REPO_NAME = "nrdot-collector-contrib"
 const REPO_OWNER = "open-telemetry"
 
 const firstTimeContributorText = "We are thrilled to welcome our first-time contributors to this project. Thank you for your contributions "

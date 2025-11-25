@@ -3,10 +3,10 @@ module github.com/newrelic/nrdot-plus-collector-components
 // NOTE:
 // This go.mod is NOT used to build any official binary.
 // To see the builder manifests used for official binaries,
-// check https://github.com/open-telemetry/opentelemetry-collector-releases
+// check https://github.com/newrelic/nrdot-collector-releases
 //
 // For the OpenTelemetry Collector Contrib distribution specifically, see
-// https://github.com/open-telemetry/opentelemetry-collector-releases/tree/main/distributions/otelcol-contrib
+// https://github.com/newrelic/nrdot-collector-releases/distributions/nrdot-collector
 
 go 1.24
 

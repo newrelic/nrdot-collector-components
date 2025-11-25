@@ -15,5 +15,5 @@ storage:
   directory: '{{.storage_dir}}'
 
 agent:
-  executable: ../../bin/otelcontribcol_{{.goos}}_{{.goarch}}{{.extension}}
+  executable: ../../bin/nrdotpluscol_{{.goos}}_{{.goarch}}{{.extension}}
   opamp_server_port: {{ .supervisor_opamp_server_port }} 

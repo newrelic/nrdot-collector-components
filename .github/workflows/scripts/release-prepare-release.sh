@@ -26,7 +26,7 @@ BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
 # If the version is blank, multimod will use the version from versions.yaml
-make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION=""
+make update-otel NRDOT_PLUS_VERSION="" NRDOT_PLUS_STABLE_VERSION=""
 
 make update-core-module-list
 git add internal/buildscripts/modules
@@ -41,14 +41,14 @@ find . -name "*.bak" -type f -delete
 git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
-sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/oteltestbedcol/builder-config.yaml
-sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/otelcontribcol/builder-config.yaml
-sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/otelcontribcol/builder-config.yaml
-sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/oteltestbedcol/builder-config.yaml
+sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/nrdotplustestbedcol/builder-config.yaml
+sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/nrdotpluscol/builder-config.yaml
+sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/nrdotpluscol/builder-config.yaml
+sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/nrdotplustestbedcol/builder-config.yaml
 
 find . -name "*.bak" -type f -delete
-make genotelcontribcol
-make genoteltestbedcol
+make gennrdotpluscol
+make gennrdotplustestbedcol
 git add .
 git commit -m "builder config changes ${CANDIDATE_BETA}" || (echo "no builder config changes to commit")
 
@@ -56,10 +56,10 @@ make multimod-prerelease
 git add .
 git commit -m "make multimod-prerelease changes ${CANDIDATE_BETA}" || (echo "no multimod changes to commit")
 
-pushd cmd/otelcontribcol
+pushd cmd/nrdotpluscol
 go mod tidy
 popd
-make otelcontribcol
+make nrdotpluscol
 
 git push --set-upstream origin "${BRANCH}"
 

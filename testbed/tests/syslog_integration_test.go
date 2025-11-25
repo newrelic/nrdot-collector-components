@@ -12,7 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/collector/otelcol"
+	"go.opentelemetry.io/collector/nrdotplustcol"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 
@@ -99,7 +99,7 @@ func TestSyslogComplementaryRFC3164(t *testing.T) {
 	complementaryTest(t, "rfc3164", expectedData)
 }
 
-func componentFactories(t *testing.T) otelcol.Factories {
+func componentFactories(t *testing.T) nrdotplustcol.Factories {
 	factories, err := testbed.Components()
 	require.NoError(t, err)
 	return factories

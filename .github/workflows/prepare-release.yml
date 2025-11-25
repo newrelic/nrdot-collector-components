@@ -15,7 +15,7 @@ name: Automation - Prepare Release
 permissions:
   contents: read
 jobs:
-  # Releasing opentelemetry-collector-contrib
+  # Releasing nrdot-collector-contrib
   prepare-release:
     permissions:
       contents: write # required for pushing changes in release-prepare-release.sh
@@ -23,12 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
-          repository: "open-telemetry/opentelemetry-collector"
-          path: opentelemetry-collector
+          repository: "newrelic/nrdot-collector-releases"
+          path: nrdot-collector
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
-          path: opentelemetry-collector-contrib
-      - run: opentelemetry-collector-contrib/.github/workflows/scripts/free-disk-space.sh
+          path: nrdot-collector-contrib
+      - run: nrdot-collector-contrib/.github/workflows/scripts/free-disk-space.sh
       - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
         with:
           go-version: oldstable
@@ -39,7 +39,7 @@ jobs:
           app-id: ${{ vars.OTELBOT_APP_ID }}
           private-key: ${{ secrets.OTELBOT_PRIVATE_KEY }}
       - name: Prepare release for contrib
-        working-directory: opentelemetry-collector-contrib
+        working-directory: nrdot-collector-contrib
         env:
           GITHUB_TOKEN: ${{ steps.otelbot-token.outputs.token }}
           REPO: newrelic/nrdot-plus-collector-components

@@ -189,7 +189,7 @@ require (
 	go.opentelemetry.io/collector/internal/memorylimiter v0.140.0 // indirect
 	go.opentelemetry.io/collector/internal/sharedcomponent v0.140.0 // indirect
 	go.opentelemetry.io/collector/internal/telemetry v0.140.0 // indirect
-	go.opentelemetry.io/collector/otelcol v0.140.0 // indirect
+	go.opentelemetry.io/collector/nrdotplustcol v0.140.0 // indirect
 	go.opentelemetry.io/collector/pdata/pprofile v0.140.0 // indirect
 	go.opentelemetry.io/collector/pdata/testdata v0.140.0 // indirect
 	go.opentelemetry.io/collector/pdata/xpdata v0.140.0 // indirect

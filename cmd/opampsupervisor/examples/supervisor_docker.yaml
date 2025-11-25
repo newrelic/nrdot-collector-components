@@ -16,7 +16,7 @@ capabilities:
   reports_remote_config: true
 
 agent:
-  executable: /otelcontribcol
+  executable: /nrdotpluscol
 
 storage:
   directory: /etc/otel/supervisor-data/

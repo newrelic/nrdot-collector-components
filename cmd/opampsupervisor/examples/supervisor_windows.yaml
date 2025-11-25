@@ -16,7 +16,7 @@ capabilities:
   reports_remote_config: true
 
 agent:
-  executable: ../../bin/otelcontribcol_windows_amd64.exe
+  executable: ../../bin/nrdotpluscol_windows_amd64.exe
 
 storage:
   directory: .

@@ -17,4 +17,4 @@ storage:
 agent:
   executable: ./testdata/collector/no_pipelines_fg.sh
   env:
-    COLLECTOR_BIN: ../../bin/otelcontribcol_{{.goos}}_{{.goarch}}{{.extension}}
+    COLLECTOR_BIN: ../../bin/nrdotpluscol_{{.goos}}_{{.goarch}}{{.extension}}

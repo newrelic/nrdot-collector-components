@@ -9,7 +9,7 @@
 package tests
 
 // The tests in this file measure the effect of batching on collector performance.
-// Their primary intent is to measure the performance impact of https://github.com/open-telemetry/opentelemetry-collector/issues/8122.
+// Their primary intent is to measure the performance impact of https://github.com/newrelic/nrdot-collector-releases/issues/8122.
 
 import (
 	"fmt"

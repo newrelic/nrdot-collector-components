@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This issue tracks the progress of the component towards beta stability, according to the [stability levels definition](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/component-stability.md).
+        This issue tracks the progress of the component towards beta stability, according to the [stability levels definition](https://github.com/newrelic/nrdot-collector-releases/blob/main/docs/component-stability.md).
   - type: dropdown
     id: component
     attributes:
@@ -18,8 +18,8 @@ body:
       - cmd/codecovgen
       - cmd/golden
       - cmd/opampsupervisor
-      - cmd/otelcontribcol
-      - cmd/oteltestbedcol
+      - cmd/nrdotpluscol
+      - cmd/nrdotplustestbedcol
       - cmd/telemetrygen
       - confmap/provider/aesprovider
       - confmap/provider/googlesecretmanagerprovider

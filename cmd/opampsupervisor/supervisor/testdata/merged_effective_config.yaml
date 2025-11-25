@@ -47,4 +47,4 @@ service:
       error_output_paths: ["stderr"]
       output_paths: ["stdout"]
     resource:
-      service.name: otelcol
+      service.name: nrdotplustcol

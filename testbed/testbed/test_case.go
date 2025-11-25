@@ -32,7 +32,7 @@ type TestCase struct {
 	resourceSpec ResourceSpec
 
 	// Agent process.
-	agentProc OtelcolRunner
+	agentProc nrdotplustcolRunner
 
 	receiver DataReceiver
 
@@ -69,7 +69,7 @@ func NewTestCase(
 	dataProvider DataProvider,
 	sender DataSender,
 	receiver DataReceiver,
-	agentProc OtelcolRunner,
+	agentProc nrdotplustcolRunner,
 	validator TestCaseValidator,
 	resultsSummary TestResultsSummary,
 	opts ...TestCaseOption,
@@ -79,7 +79,7 @@ func NewTestCase(
 	return NewLoadGeneratorTestCase(t, loadGenerator, receiver, agentProc, validator, resultsSummary, opts...)
 }
 
-func NewLoadGeneratorTestCase(t *testing.T, loadGenerator LoadGenerator, receiver DataReceiver, agentProc OtelcolRunner, validator TestCaseValidator, resultsSummary TestResultsSummary, opts ...TestCaseOption) *TestCase {
+func NewLoadGeneratorTestCase(t *testing.T, loadGenerator LoadGenerator, receiver DataReceiver, agentProc nrdotplustcolRunner, validator TestCaseValidator, resultsSummary TestResultsSummary, opts ...TestCaseOption) *TestCase {
 	tc := TestCase{
 		t:                 t,
 		errorSignal:       make(chan struct{}),

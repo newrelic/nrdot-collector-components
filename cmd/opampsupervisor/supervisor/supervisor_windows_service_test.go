@@ -26,7 +26,7 @@ const (
 // To test locally:
 // * Build the supervisor and collector binaries. Note you'll need to update the name of the collector binary in the supervisor config file
 //   - cd cmd/opampsupervisor; go build
-//   - make otelcontribcol
+//   - make nrdotpluscol
 //
 // * Install the Windows service
 //   - New-Service -Name "opampsupervisor" -StartupType "Manual" -BinaryPathName "${PWD}\cmd\opampsupervisor --config ${PWD}\cmd\opampsupervisor\supervisor\testdata\supervisor_windows_service_test_config.yaml\"

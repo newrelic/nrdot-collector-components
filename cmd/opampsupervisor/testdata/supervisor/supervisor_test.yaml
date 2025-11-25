@@ -16,4 +16,4 @@ storage:
   directory: '{{.storage_dir}}'
 
 agent:
-  executable: ../../bin/otelcontribcol_darwin_arm64
+  executable: ../../bin/nrdotpluscol_darwin_arm64

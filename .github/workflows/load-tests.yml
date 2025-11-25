@@ -40,8 +40,8 @@ jobs:
       - name: Install Tools
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
-      - run: make genoteltestbedcol
-      - run: make oteltestbedcol
+      - run: make gennrdotplustestbedcol
+      - run: make nrdotplustestbedcol
       - name: Upload Testbed Binaries
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:

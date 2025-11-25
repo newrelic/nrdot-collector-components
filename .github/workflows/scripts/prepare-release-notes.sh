@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 touch release-notes.md
-echo "The OpenTelemetry Collector Contrib contains everything in the [opentelemetry-collector release](https://github.com/open-telemetry/opentelemetry-collector/releases/tag/$RELEASE_TAG), be sure to check the release notes there as well." >> release-notes.md
+echo "The OpenTelemetry Collector Contrib contains everything in the [nrdot-collector release](https://github.com/newrelic/nrdot-collector-releases/releases/tag/$RELEASE_TAG), be sure to check the release notes there as well." >> release-notes.md
 echo "" >> release-notes.md
 echo "## End User Changelog" >> release-notes.md
 

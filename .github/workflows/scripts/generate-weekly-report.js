@@ -6,7 +6,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 
 
-const REPO_NAME = "opentelemetry-collector-contrib"
+const REPO_NAME = "nrdot-collector-contrib"
 const REPO_OWNER = "open-telemetry"
 const ISSUE_CHAR_LIMIT = 65536
 

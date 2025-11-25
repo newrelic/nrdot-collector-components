@@ -332,8 +332,8 @@ module-sets:
       - github.com/newrelic/nrdot-plus-collector-components/testbed/mockdatasenders/mockdatadogagentexporter
 
 excluded-modules:
-  - github.com/newrelic/nrdot-plus-collector-components/cmd/otelcontribcol
-  - github.com/newrelic/nrdot-plus-collector-components/cmd/oteltestbedcol
+  - github.com/newrelic/nrdot-plus-collector-components/cmd/nrdotpluscol
+  - github.com/newrelic/nrdot-plus-collector-components/cmd/nrdotplustestbedcol
   - github.com/newrelic/nrdot-plus-collector-components/internal/tools
   - github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/e2etest
   - github.com/newrelic/nrdot-plus-collector-components/cmd/checkapi/internal/badpkg/receiver/badreceiver

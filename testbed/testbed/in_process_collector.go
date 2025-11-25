@@ -17,17 +17,17 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
 	"go.opentelemetry.io/collector/confmap/provider/fileprovider"
-	"go.opentelemetry.io/collector/otelcol"
+	"go.opentelemetry.io/collector/nrdotplustcol"
 
 	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
-// inProcessCollector implements the OtelcolRunner interfaces running a single otelcol as a go routine within the
+// inProcessCollector implements the nrdotplustcolRunner interfaces running a single nrdotplustcol as a go routine within the
 // same process as the test executor.
 type inProcessCollector struct {
-	factories  otelcol.Factories
+	factories  nrdotplustcol.Factories
 	configStr  string
-	svc        *otelcol.Collector
+	svc        *nrdotplustcol.Collector
 	stopped    bool
 	configFile string
 	wg         sync.WaitGroup
@@ -35,7 +35,7 @@ type inProcessCollector struct {
 }
 
 // NewInProcessCollector creates a new inProcessCollector using the supplied component factories.
-func NewInProcessCollector(factories otelcol.Factories) OtelcolRunner {
+func NewInProcessCollector(factories nrdotplustcol.Factories) nrdotplustcolRunner {
 	return &inProcessCollector{
 		factories: factories,
 	}
@@ -63,10 +63,10 @@ func (ipp *inProcessCollector) Start(StartParams) error {
 	}
 	ipp.configFile = confFile.Name()
 
-	settings := otelcol.CollectorSettings{
+	settings := nrdotplustcol.CollectorSettings{
 		BuildInfo: component.NewDefaultBuildInfo(),
-		Factories: func() (otelcol.Factories, error) { return ipp.factories, nil },
-		ConfigProviderSettings: otelcol.ConfigProviderSettings{
+		Factories: func() (nrdotplustcol.Factories, error) { return ipp.factories, nil },
+		ConfigProviderSettings: nrdotplustcol.ConfigProviderSettings{
 			ResolverSettings: confmap.ResolverSettings{
 				URIs:              []string{ipp.configFile},
 				ProviderFactories: []confmap.ProviderFactory{fileprovider.NewFactory()},
@@ -75,7 +75,7 @@ func (ipp *inProcessCollector) Start(StartParams) error {
 		SkipSettingGRPCLogger: true,
 	}
 
-	ipp.svc, err = otelcol.NewCollector(settings)
+	ipp.svc, err = nrdotplustcol.NewCollector(settings)
 	if err != nil {
 		return err
 	}
@@ -91,12 +91,12 @@ func (ipp *inProcessCollector) Start(StartParams) error {
 
 	for {
 		switch state := ipp.svc.GetState(); state {
-		case otelcol.StateStarting:
+		case nrdotplustcol.StateStarting:
 			time.Sleep(time.Second)
-		case otelcol.StateRunning:
+		case nrdotplustcol.StateRunning:
 			return nil
 		default:
-			return fmt.Errorf("unable to start, otelcol state is %d", state)
+			return fmt.Errorf("unable to start, nrdotplustcol state is %d", state)
 		}
 	}
 }

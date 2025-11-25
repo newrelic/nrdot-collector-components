@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/collector/otelcol"
+	"go.opentelemetry.io/collector/nrdotplustcol"
 
 	"github.com/newrelic/nrdot-plus-collector-components/testbed/correctnesstests"
 	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
@@ -20,7 +20,7 @@ type correctnessTestCase struct {
 	sender    testbed.DataSender
 	receiver  testbed.DataReceiver
 	harness   *testHarness
-	collector testbed.OtelcolRunner
+	collector testbed.nrdotplustcolRunner
 }
 
 func newCorrectnessTestCase(
@@ -91,7 +91,7 @@ func (tc *correctnessTestCase) waitForAllMetrics() {
 	}
 }
 
-func componentFactories(t *testing.T) otelcol.Factories {
+func componentFactories(t *testing.T) nrdotplustcol.Factories {
 	factories, err := testbed.Components()
 	require.NoError(t, err)
 	return factories

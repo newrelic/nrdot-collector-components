@@ -904,7 +904,7 @@ func TestSupervisorBootstrapsCollector(t *testing.T) {
 			name: "Without service.AllowNoPipelines",
 			cfg:  "no_fg",
 			env: []string{
-				"COLLECTOR_BIN=../../bin/otelcontribcol_" + runtime.GOOS + "_" + runtime.GOARCH,
+				"COLLECTOR_BIN=../../bin/nrdotpluscol_" + runtime.GOOS + "_" + runtime.GOARCH,
 			},
 			precheck: func(t *testing.T) {
 				if runtime.GOOS == "windows" {
