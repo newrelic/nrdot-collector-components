@@ -10,7 +10,7 @@ TRIMMED_VERSION=$(shell grep -o 'v[^-]*' <<< "$(VERSION)" | cut -c 2-)
 CORE_VERSIONS=$(SRC_PARENT_DIR)/opentelemetry-collector/versions.yaml
 
 COMP_REL_PATH=cmd/otelcontribcol/components.go
-MOD_NAME=github.com/open-telemetry/opentelemetry-collector-contrib
+MOD_NAME=github.com/newrelic/nrdot-plus-collector-components
 
 GROUP ?= all
 FOR_GROUP_TARGET=for-$(GROUP)-target
@@ -238,7 +238,7 @@ for-generated:
 
 COMMIT?=HEAD
 MODSET?=contrib-core
-REMOTE?=git@github.com:open-telemetry/opentelemetry-collector-contrib.git
+REMOTE?=git@github.com:newrelic/nrdot-plus-collector-components.git
 .PHONY: push-tags
 push-tags: $(MULTIMOD)
 	$(MULTIMOD) verify
@@ -377,7 +377,7 @@ gendistributions: $(GITHUBGEN)
 	$(GITHUBGEN) distributions
 
 gencodecov: $(CODECOVGEN)
-	$(CODECOVGEN) --base-prefix github.com/open-telemetry/opentelemetry-collector-contrib --skipped-modules **/*test,**/examples/**,pkg/**,cmd/**,internal/**,*/encoding/**
+	$(CODECOVGEN) --base-prefix github.com/newrelic/nrdot-plus-collector-components --skipped-modules **/*test,**/examples/**,pkg/**,cmd/**,internal/**,*/encoding/**
 
 .PHONY: update-codeowners
 update-codeowners: generate gengithub

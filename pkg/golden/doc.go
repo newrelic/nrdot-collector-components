@@ -3,4 +3,4 @@
 
 //go:generate mdatagen metadata.yaml
 
-package golden // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+package golden // import "github.com/newrelic/nrdot-plus-collector-components/pkg/golden"

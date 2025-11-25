@@ -1,10 +1,10 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/e2etest
+module github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/e2etest
 
 go 1.24.0
 
 require (
-	github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen v0.140.1
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/common v0.140.1
+	github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen v0.140.1
+	github.com/newrelic/nrdot-plus-collector-components/internal/common v0.140.1
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/collector/component/componenttest v0.140.0
 	go.opentelemetry.io/collector/config/configoptional v1.46.0
@@ -111,6 +111,6 @@ retract (
 	v0.65.0
 )
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/common => ../../../../internal/common
+replace github.com/newrelic/nrdot-plus-collector-components/internal/common => ../../../../internal/common
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen => ../..
+replace github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen => ../..

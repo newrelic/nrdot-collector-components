@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package internal // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/internal"
+package internal // import "github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/internal"
 
 import (
 	"fmt"

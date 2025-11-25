@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
 func TestNewInProcessPipeline(t *testing.T) {

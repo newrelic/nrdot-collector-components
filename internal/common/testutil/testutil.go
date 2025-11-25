@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package testutil // import "github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+package testutil // import "github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 
 import (
 	"fmt"
@@ -161,7 +161,7 @@ func EndpointForPort(port int) string {
 // possibly due to an interaction with the -count argument in `go test`. It does not do any cleanup (i.e. the directory is left on the filesystem).
 // Prefer using tb.TempDir directly if possible.
 //
-// See https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/42639
+// See https://github.com/newrelic/nrdot-plus-collector-components/issues/42639
 func TempDir(tb testing.TB) string {
 	if runtime.GOOS == "windows" {
 		name := sanitizePattern(tb.Name())

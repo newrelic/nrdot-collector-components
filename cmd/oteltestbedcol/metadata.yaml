@@ -1,7 +1,0 @@
-type: oteltestbedcol
-
-status:
-  disable_codecov_badge: true
-  class: cmd
-  codeowners:
-    active: []

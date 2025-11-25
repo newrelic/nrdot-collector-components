@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib
+module github.com/newrelic/nrdot-plus-collector-components
 
 // NOTE:
 // This go.mod is NOT used to build any official binary.

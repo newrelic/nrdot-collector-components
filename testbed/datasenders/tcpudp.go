@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package datasenders // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
+package datasenders // import "github.com/newrelic/nrdot-plus-collector-components/testbed/datasenders"
 
 import (
 	"bytes"
@@ -14,8 +14,8 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/plog"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/traceutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal/traceutil"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 type TCPUDPWriter struct {

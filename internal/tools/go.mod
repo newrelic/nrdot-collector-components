@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/internal/tools
+module github.com/newrelic/nrdot-plus-collector-components/internal/tools
 
 go 1.24.4
 
@@ -10,7 +10,7 @@ require (
 	github.com/google/addlicense v1.2.0
 	github.com/jcchavezs/porto v0.6.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/cmd/codecovgen v0.140.1
+	github.com/newrelic/nrdot-plus-collector-components/cmd/codecovgen v0.140.1
 	github.com/rhysd/actionlint v1.7.8
 	go.opentelemetry.io/build-tools/checkapi v0.29.0
 	go.opentelemetry.io/build-tools/checkfile v0.29.0
@@ -293,7 +293,7 @@ retract (
 	v0.65.0
 )
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/cmd/codecovgen => ../../cmd/codecovgen
+replace github.com/newrelic/nrdot-plus-collector-components/cmd/codecovgen => ../../cmd/codecovgen
 
 replace github.com/tdakkota/asciicheck v0.4.1 => github.com/golangci/asciicheck v0.5.0
 

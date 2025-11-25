@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package testbed // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+package testbed // import "github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 
 import (
 	"log"
@@ -15,9 +15,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/pipeline"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/goldendataset"
-	idutils "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal/goldendataset"
+	idutils "github.com/newrelic/nrdot-plus-collector-components/pkg/core/xidutils"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/golden"
 )
 
 // DataProvider defines the interface for generators of test data used to drive various end-to-end tests.

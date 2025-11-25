@@ -411,7 +411,7 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
 - `datadogexporter`: Deprecate zorkian codepath (#17373)
   Feature gate exporter.datadogexporter.metricexportnativeclient is now deprecated; the default metrics exporter is now 
   Metrics Export Serializer unless feature gate exporter.datadogexporter.metricexportserializerclient is disabled. 
-  See https://github.com/open-telemetry/opentelemetry-collector-contrib/releases/tag/v0.122.0 and #37930 for more 
+  See https://github.com/newrelic/nrdot-plus-collector-components/releases/tag/v0.122.0 and #37930 for more 
   info about Metrics Export Serializer. 
   
 - `elasticsearchexporter`: Upgrade profiles proto to 1.8.0 (#42526)
@@ -616,7 +616,7 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
 - `all`: Increase minimum Go version to 1.24 (#41968)
 - `signaltometricsconnector`: Use configoptional for optional metric fields (#41922)
 - `routingprocessor`: Remove deprecated component routingprocessor (#19739)
-  Please use the [routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/routingconnector) instead.
+  Please use the [routing connector](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/connector/routingconnector) instead.
 
 ### 💡 Enhancements 💡
 
@@ -821,7 +821,7 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
   
 - `kineticaexporter`: Remove the kineticaexporter (#38911)
 - `exporter/loki`: The `Loki Exporter` component has been removed from the repo and is no longer being published as it has been deprecated since 9th July 2024. (#41413)
-  Users of the `lokiexporter` can migrate to using an OTLP exporter. See https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33916
+  Users of the `lokiexporter` can migrate to using an OTLP exporter. See https://github.com/newrelic/nrdot-plus-collector-components/issues/33916
 
 ### 🚩 Deprecations 🚩
 
@@ -1113,7 +1113,7 @@ The frequency of recording pipeline lag can be configured with `lag_record_frequ
   Previously, the receiver would allow configurations that were guaranteed to cause a Collector panic. The Collector will now fail to start with friendly error messages.
 - `pkg/ottl`: Fix an issue where the attribute values were amended in the profiles dictionary. (#40738)
 - `pkg/ottl`: Fixes the OTTL nanoseconds formatter to correctly handle 9 digits of nanoseconds, ensuring accurate time formatting and parsing. (#41144)
-  Places that import "github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/timeutils" are likely affected by this change. For example, `FormatTime`and `Time` OTTL functions are affected. See [here](https://github.com/search?q=repo%3Aopen-telemetry%2Fopentelemetry-collector-contrib+%22github.com%2Fopen-telemetry%2Fopentelemetry-collector-contrib%2Finternal%2Fcoreinternal%2Ftimeutils%22&type=code) for a full list of affected functionalities.
+  Places that import "github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal/timeutils" are likely affected by this change. For example, `FormatTime`and `Time` OTTL functions are affected. See [here](https://github.com/search?q=repo%3Aopen-telemetry%2Fopentelemetry-collector-contrib+%22github.com%2Fopen-telemetry%2Fopentelemetry-collector-contrib%2Finternal%2Fcoreinternal%2Ftimeutils%22&type=code) for a full list of affected functionalities.
 - `receiver/prometheusremotewrite`: Handle metrics with unspecified types without panicking. (#41005)
 - `sqlserverreceiver`: Fix incorrect configuration used in query sample collection. It was intended to retrieve the maximum number of rows per query from config.MaxRowsPerQuery, but it was mistakenly using config.TopQueryCount instead.
  (#40943)
@@ -1467,7 +1467,7 @@ The frequency of recording pipeline lag can be configured with `lag_record_frequ
   simply by adding the
   `extract: { metadata: ["service.namespace", "service.name", "service.version", "service.instance.id"] }`
   configuration to the `k8sattributesprocessor` processor.
-  See the [documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/k8sattributesprocessor/README.md#configuring-recommended-resource-attributes) for more details.
+  See the [documentation](https://github.com/newrelic/nrdot-plus-collector-components/blob/main/processor/k8sattributesprocessor/README.md#configuring-recommended-resource-attributes) for more details.
   
 - `signaltometricsconnector`: Add support for parsing gauge metrics from any signal types (#37093)
 - `receiver/sqlserver`: Add new metric for disk IO rate on a resource pool (#39977)
@@ -1821,7 +1821,7 @@ The frequency of recording pipeline lag can be configured with `lag_record_frequ
   If you are using the file log receiver, you can now create the same resource attributes as traces (via OTLP) received
   from an application instrumented with the OpenTelemetry Operator -
   simply by adding the `extract: { otel_annotations: true }` configuration to the `k8sattributesprocessor` processor.
-  See the [documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/k8sattributesprocessor/README.md#config-example) for more details.
+  See the [documentation](https://github.com/newrelic/nrdot-plus-collector-components/blob/main/processor/k8sattributesprocessor/README.md#config-example) for more details.
   
 - `signaltometricsconnector`: Allow to configure `optional` attributes which are copied as-is to the output metric. (#38600)
 - `oracledbreceiver`: Add support for parallel operations metrics (#39215)
@@ -2155,7 +2155,7 @@ The frequency of recording pipeline lag can be configured with `lag_record_frequ
 - `sqlqueryreceiver`: Allow users to specify the maximum number of concurrent open connections to DB server using `max_open_conn` config parameter (#36752)
 - `pkg/stanza`: Prevent data loss in Stanza-based receivers on ungraceful shutdown of the collector (#35456)
   Enable the `stanza.synchronousLogEmitter` feature gate to unlock this feature.
-  See the [documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/stanza/README.md) for more information.
+  See the [documentation](https://github.com/newrelic/nrdot-plus-collector-components/blob/main/pkg/stanza/README.md) for more information.
   
 - `telemetrygen`: Support integer values in `--telemetry-attributes` and `--otlp-attributes` flags (#38392)
   - Previously, all attribute values had to be strings wrapped in double quotes.
@@ -2210,7 +2210,7 @@ The frequency of recording pipeline lag can be configured with `lag_record_frequ
 - `processor/k8sattributes`: Move k8sattr.fieldExtractConfigRegex.disallow feature gate to stable (#25128)
 - `signalfxexporter`: Remove the deprecated configuration option `translation_rules` (#35332)
   Please use processors to handle desired metric transformations instead. Find migration guidance in the
-  [translation rules migration guide](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/signalfxexporter/docs/translation_rules_migration_guide.md).
+  [translation rules migration guide](https://github.com/newrelic/nrdot-plus-collector-components/blob/main/exporter/signalfxexporter/docs/translation_rules_migration_guide.md).
   
 - `signaltometricsconnector`: `get` OTTL function is removed and expressions are now parsed using `ParseValueExpression` (#38098)
 
@@ -3013,7 +3013,7 @@ This functionality is disabled by default, you can enable it by passing the foll
 ### 🚩 Deprecations 🚩
 
 - `opensearchexporter`: The OpenSearch exporter is now marked as unmaintained and will be removed in 6 months. (#35781)
-  Any codeowners can reinstate the component by submitting a PR to revert the change or commenting on https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/35781.
+  Any codeowners can reinstate the component by submitting a PR to revert the change or commenting on https://github.com/newrelic/nrdot-plus-collector-components/issues/35781.
   
 
 ### 🚀 New components 🚀
@@ -3463,11 +3463,11 @@ arrow.waiter_limit -> admission.waiter_limit
 ### 🛑 Breaking changes 🛑
 
 - `all`: Added support for go1.23, bumped the minimum version to 1.22 (#34658)
-- `lokiexporter`: Update the scope name for telemetry produced by the lokiexporter from `otelcol/loki` to `github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter` (#34612)
-- `azuretranslator`: The scope name has been updated from `otelcol/azureresourcelogs` and `otelcol/azureresourcetraces` to `github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/azure` (#34712)
-- `datadogreceiver`: The scope name has been updated from `otelcol/datadogreceiver` to `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/datadogreceiver/internal/translator` (#34711)
-- `splunkhecexporter`: The scope name has been updated from `otelcol/splunkhec` to `github.com/open-telemetry/opentelemetry-collector-contrib/exporter/splunkhecexporter` (#34710)
-- `googlecloudmonitorreceiver`: The scope name has been updated from `otelcol/googlecloudmonitoringreceiver` to `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/googlecloudmonitoringreceiver` (#34709)
+- `lokiexporter`: Update the scope name for telemetry produced by the lokiexporter from `otelcol/loki` to `github.com/newrelic/nrdot-plus-collector-components/exporter/lokiexporter` (#34612)
+- `azuretranslator`: The scope name has been updated from `otelcol/azureresourcelogs` and `otelcol/azureresourcetraces` to `github.com/newrelic/nrdot-plus-collector-components/pkg/translator/azure` (#34712)
+- `datadogreceiver`: The scope name has been updated from `otelcol/datadogreceiver` to `github.com/newrelic/nrdot-plus-collector-components/receiver/datadogreceiver/internal/translator` (#34711)
+- `splunkhecexporter`: The scope name has been updated from `otelcol/splunkhec` to `github.com/newrelic/nrdot-plus-collector-components/exporter/splunkhecexporter` (#34710)
+- `googlecloudmonitorreceiver`: The scope name has been updated from `otelcol/googlecloudmonitoringreceiver` to `github.com/newrelic/nrdot-plus-collector-components/receiver/googlecloudmonitoringreceiver` (#34709)
 - `elasticsearchexporter`: Update OTel mapping mode for logs and metrics; Remove trace_flags (#34472)
   Update logs and metrics OTel mapping mode to always emit "scope" and zero int, but not emit empty strings for known fields. Breaking change to remove trace_flags from logs.
 - `elasticsearchexporter`: Change default retry.retry_on_status to [429] (#32584)
@@ -3583,72 +3583,72 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 
 | Component name | Previous scope | New scope |  PR number |
 |----------------|----------------|-----------|------------|
-| `azureeventhubreceiver` | `otelcol/azureeventhubreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/azureeventhubreceiver` |  #34611 |
-| `cloudfoundryreceiver` | `otelcol/cloudfoundry` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/cloudfoundryreceiver` |  #34612 |
-| `cloudflarereceiver` | `otelcol/cloudflare` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/cloudflarereceiver` |  #34613 |
-| `azuremonitorreceiver` | `otelcol/azuremonitorreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/azuremonitorreceiver` |  #34618 |
-| `fileconsumer` | `otelcol/fileconsumer` | `github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/fileconsumer` |  #34619 |
-| `loadbalancingexporter` | `otelcol/loadbalancing` | `github.com/open-telemetry/opentelemetry-collector-contrib/exporter/loadbalancingexporter` |  #34429 |
-| `sumologicexporter` | `otelcol/sumologic` | `github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sumologicexporter` |  #34438 |
-| `prometheusremotewriteexporter` | `otelcol/prometheusremotewrite` | `github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter` |  #34440 |
-| `activedirectorydsreceiver` | `otelcol/activedirectorydsreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/activedirectorydsreceiver` |  #34492 |
-| `aerospikereceiver` | `otelcol/aerospikereceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver` |  #34518 |
-| `apachereceiver` | `otelcol/apachereceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/apachereceiver` |  #34517 |
-| `apachesparkreceiver` | `otelcol/apachesparkreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/apachesparkreceiver` |  #34519 |
-| `bigipreceiver` | `otelcol/bigipreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/bigipreceiver` |  #34520 |
-| `chronyreceiver` | `otelcol/chronyreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/chronyreceiver` |  #34524 |
-| `couchdbreceiver` | `otelcol/couchdbreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/couchdbreceiver` |  #34525 |
-| `countconnector` | `otelcol/countconnector` | `github.com/open-telemetry/opentelemetry-collector-contrib/connector/countconnector` |  #34583 |
-| `deltatocumulativeprocessor` | `otelcol/deltatocumulative` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor` |  #34550 |
-| `dockerstatsreceiver` | `otelcol/dockerstatsreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/dockerstatsreceiver` |  #34528 |
-| `elasticsearchreceiver` | `otelcol/elasticsearchreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/elasticsearchreceiver` |  #34529 |
-| `expvarreceiver` | `otelcol/expvarreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/expvarreceiver` |  #34530 |
-| `filestatsreceiver` | `otelcol/filestatsreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filestatsreceiver` |  #34429 |
-| `filterprocessor` | `otelcol/filter` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor` |  #34550 |
-| `flinkmetricsreceiver` | `otelcol/flinkmetricsreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/flinkmetricsreceiver` |  #34533 |
-| `fluentforwardreceiver` | `otelcol/fluentforwardreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/fluentforwardreceiver` |  #34534 |
-| `gitproviderreceiver` | `otelcol/gitproviderreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/gitproviderreceiver` |  #34496 |
-| `googlespannerreceiver` | `otelcol/googlecloudspannermetrics` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/googlespannerreceiver` |  #34593 |
-| `grafanacloudconnector` | `otelcol/grafanacloud` | `github.com/open-telemetry/opentelemetry-collector-contrib/connector/grafanacloudconnector` |  #34552 |
-| `groupbyattrsprocessor` | `otelcol/groupbyattrs` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/groupbyattrsprocessor` |  #34550 |
-| `groupbytraceprocessor` | `otelcol/groupbytrace` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/groupbytraceprocessor` |  #34550 |
-| `haproxyreceiver` | `otelcol/haproxyreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/haproxyreceiver` |  #34498 |
-| `hostmetricsreceiver` receiver's scrapers | `otelcol/hostmetricsreceiver/*` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/hostmetricsreceiver/internal/scraper/*` |  #34526 |
-| `httpcheckreceiver` | `otelcol/httpcheckreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/httpcheckreceiver` |  #34497 |
-| `iisreceiver` | `otelcol/iisreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/iisreceiver` |  #34535 |
-| `k8sattributesprocessor` | `otelcol/k8sattributes` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/k8sattributesprocessor` |  #34550 |
-| `k8sclusterreceiver` | `otelcol/k8sclusterreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/k8sclusterreceiver` |  #34536 |
-| `kafkametricsreceiver` | `otelcol/kafkametricsreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kafkametricsreceiver` |  #34538 |
-| `kafkareceiver` | `otelcol/kafkareceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kafkareceiver` |  #34539 |
-| `kubeletstatsreceiver` | `otelcol/kubeletstatsreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kubeletstatsreceiver` |  #34537 |
-| `memcachedreceiver` | `otelcol/memcachedreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/memcachedreceiver` |  #34542 |
-| `mongodbatlasreceiver` | `otelcol/mongodbatlasreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/mongodbatlasreceiver` |  #34543 |
-| `mongodbreceiver` | `otelcol/mongodbreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/mongodbreceiver` |  #34544 |
-| `mysqlreceiver` | `otelcol/mysqlreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/mysqlreceiver` |  #34545 |
-| `nginxreceiver` | `otelcol/nginxreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/nginxreceiver` |  #34493 |
-| `nsxtreceiver` | `otelcol/nsxtreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/nsxtreceiver` |  #34429 |
-| `oracledbreceiver` | `otelcol/oracledbreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/oracledbreceiver` |  #34491 |
-| `otelarrowreceiver` | `otelcol/otelarrowreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/otelarrowreceiver` |  #34546 |
-| `podmanreceiver` | `otelcol/podmanreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/podmanreceiver` |  #34429 |
-| `postgresqlreceiver` | `otelcol/postgresqlreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/postgresqlreceiver` |  #34476 |
-| `probabilisticsamplerprocessor` | `otelcol/probabilisticsampler` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/probabilisticsamplerprocessor` |  #34550 |
-| `prometheusreceiver` | `otelcol/prometheusreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver` |  #34589 |
-| `rabbitmqreceiver` | `otelcol/rabbitmqreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/rabbitmqreceiver` |  #34475 |
-| `sshcheckreceiver` | `otelcol/sshcheckreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/sshcheckreceiver` |  #34448 |
-| `vcenterreceiver` | `otelcol/vcenter` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/vcenterreceiver` |  #34449 |
-| `zookeeperreceiver` | `otelcol/zookeeper` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zookeeperreceiver` |  #34450 |
-| `redisreceiver` | `otelcol/redisreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redisreceiver` |  #34470 |
-| `riakreceiver` | `otelcol/riakreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/riakreceiver` |  #34469 |
-| `routingprocessor` | `otelcol/routing` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/routingprocessor` |  #34550 |
-| `saphanareceiver` | `otelcol/saphanareceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/saphanareceiver` |  #34468 |
-| `servicegraphconnector` | `otelcol/servicegraph` | `github.com/open-telemetry/opentelemetry-collector-contrib/connector/servicegraphconnector` |  #34552 |
-| `snmpreceiver` | `otelcol/snmpreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/snmpreceiver` |  #34592 |
-| `snowflakereceiver` | `otelcol/snowflakereceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/snowflakereceiver` |  #34467 |
-| `solacereceiver` | `otelcol/solacereceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/solacereceiver` |  #34466 |
-| `splunkenterprisereceiver` | `otelcol/splunkenterprisereceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/splunkenterprisereceiver` |  #34452 |
-| `statsdreceiver` | `otelcol/statsdreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/statsdreceiver` |  #34547 |
-| `tailsamplingprocessor` | `otelcol/tailsampling` | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor` |  #34550 |
-| `sqlserverreceiver` | `otelcol/sqlserverreceiver` | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/sqlserverreceiver` |  #34451 |
+| `azureeventhubreceiver` | `otelcol/azureeventhubreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/azureeventhubreceiver` |  #34611 |
+| `cloudfoundryreceiver` | `otelcol/cloudfoundry` | `github.com/newrelic/nrdot-plus-collector-components/receiver/cloudfoundryreceiver` |  #34612 |
+| `cloudflarereceiver` | `otelcol/cloudflare` | `github.com/newrelic/nrdot-plus-collector-components/receiver/cloudflarereceiver` |  #34613 |
+| `azuremonitorreceiver` | `otelcol/azuremonitorreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/azuremonitorreceiver` |  #34618 |
+| `fileconsumer` | `otelcol/fileconsumer` | `github.com/newrelic/nrdot-plus-collector-components/pkg/stanza/fileconsumer` |  #34619 |
+| `loadbalancingexporter` | `otelcol/loadbalancing` | `github.com/newrelic/nrdot-plus-collector-components/exporter/loadbalancingexporter` |  #34429 |
+| `sumologicexporter` | `otelcol/sumologic` | `github.com/newrelic/nrdot-plus-collector-components/exporter/sumologicexporter` |  #34438 |
+| `prometheusremotewriteexporter` | `otelcol/prometheusremotewrite` | `github.com/newrelic/nrdot-plus-collector-components/exporter/prometheusremotewriteexporter` |  #34440 |
+| `activedirectorydsreceiver` | `otelcol/activedirectorydsreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/activedirectorydsreceiver` |  #34492 |
+| `aerospikereceiver` | `otelcol/aerospikereceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/aerospikereceiver` |  #34518 |
+| `apachereceiver` | `otelcol/apachereceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/apachereceiver` |  #34517 |
+| `apachesparkreceiver` | `otelcol/apachesparkreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/apachesparkreceiver` |  #34519 |
+| `bigipreceiver` | `otelcol/bigipreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/bigipreceiver` |  #34520 |
+| `chronyreceiver` | `otelcol/chronyreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/chronyreceiver` |  #34524 |
+| `couchdbreceiver` | `otelcol/couchdbreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/couchdbreceiver` |  #34525 |
+| `countconnector` | `otelcol/countconnector` | `github.com/newrelic/nrdot-plus-collector-components/connector/countconnector` |  #34583 |
+| `deltatocumulativeprocessor` | `otelcol/deltatocumulative` | `github.com/newrelic/nrdot-plus-collector-components/processor/deltatocumulativeprocessor` |  #34550 |
+| `dockerstatsreceiver` | `otelcol/dockerstatsreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/dockerstatsreceiver` |  #34528 |
+| `elasticsearchreceiver` | `otelcol/elasticsearchreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/elasticsearchreceiver` |  #34529 |
+| `expvarreceiver` | `otelcol/expvarreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/expvarreceiver` |  #34530 |
+| `filestatsreceiver` | `otelcol/filestatsreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/filestatsreceiver` |  #34429 |
+| `filterprocessor` | `otelcol/filter` | `github.com/newrelic/nrdot-plus-collector-components/processor/filterprocessor` |  #34550 |
+| `flinkmetricsreceiver` | `otelcol/flinkmetricsreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/flinkmetricsreceiver` |  #34533 |
+| `fluentforwardreceiver` | `otelcol/fluentforwardreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/fluentforwardreceiver` |  #34534 |
+| `gitproviderreceiver` | `otelcol/gitproviderreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/gitproviderreceiver` |  #34496 |
+| `googlespannerreceiver` | `otelcol/googlecloudspannermetrics` | `github.com/newrelic/nrdot-plus-collector-components/receiver/googlespannerreceiver` |  #34593 |
+| `grafanacloudconnector` | `otelcol/grafanacloud` | `github.com/newrelic/nrdot-plus-collector-components/connector/grafanacloudconnector` |  #34552 |
+| `groupbyattrsprocessor` | `otelcol/groupbyattrs` | `github.com/newrelic/nrdot-plus-collector-components/processor/groupbyattrsprocessor` |  #34550 |
+| `groupbytraceprocessor` | `otelcol/groupbytrace` | `github.com/newrelic/nrdot-plus-collector-components/processor/groupbytraceprocessor` |  #34550 |
+| `haproxyreceiver` | `otelcol/haproxyreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/haproxyreceiver` |  #34498 |
+| `hostmetricsreceiver` receiver's scrapers | `otelcol/hostmetricsreceiver/*` | `github.com/newrelic/nrdot-plus-collector-components/receiver/hostmetricsreceiver/internal/scraper/*` |  #34526 |
+| `httpcheckreceiver` | `otelcol/httpcheckreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/httpcheckreceiver` |  #34497 |
+| `iisreceiver` | `otelcol/iisreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/iisreceiver` |  #34535 |
+| `k8sattributesprocessor` | `otelcol/k8sattributes` | `github.com/newrelic/nrdot-plus-collector-components/processor/k8sattributesprocessor` |  #34550 |
+| `k8sclusterreceiver` | `otelcol/k8sclusterreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/k8sclusterreceiver` |  #34536 |
+| `kafkametricsreceiver` | `otelcol/kafkametricsreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/kafkametricsreceiver` |  #34538 |
+| `kafkareceiver` | `otelcol/kafkareceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/kafkareceiver` |  #34539 |
+| `kubeletstatsreceiver` | `otelcol/kubeletstatsreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/kubeletstatsreceiver` |  #34537 |
+| `memcachedreceiver` | `otelcol/memcachedreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/memcachedreceiver` |  #34542 |
+| `mongodbatlasreceiver` | `otelcol/mongodbatlasreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/mongodbatlasreceiver` |  #34543 |
+| `mongodbreceiver` | `otelcol/mongodbreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/mongodbreceiver` |  #34544 |
+| `mysqlreceiver` | `otelcol/mysqlreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/mysqlreceiver` |  #34545 |
+| `nginxreceiver` | `otelcol/nginxreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/nginxreceiver` |  #34493 |
+| `nsxtreceiver` | `otelcol/nsxtreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/nsxtreceiver` |  #34429 |
+| `oracledbreceiver` | `otelcol/oracledbreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/oracledbreceiver` |  #34491 |
+| `otelarrowreceiver` | `otelcol/otelarrowreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/otelarrowreceiver` |  #34546 |
+| `podmanreceiver` | `otelcol/podmanreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/podmanreceiver` |  #34429 |
+| `postgresqlreceiver` | `otelcol/postgresqlreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/postgresqlreceiver` |  #34476 |
+| `probabilisticsamplerprocessor` | `otelcol/probabilisticsampler` | `github.com/newrelic/nrdot-plus-collector-components/processor/probabilisticsamplerprocessor` |  #34550 |
+| `prometheusreceiver` | `otelcol/prometheusreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/prometheusreceiver` |  #34589 |
+| `rabbitmqreceiver` | `otelcol/rabbitmqreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/rabbitmqreceiver` |  #34475 |
+| `sshcheckreceiver` | `otelcol/sshcheckreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/sshcheckreceiver` |  #34448 |
+| `vcenterreceiver` | `otelcol/vcenter` | `github.com/newrelic/nrdot-plus-collector-components/receiver/vcenterreceiver` |  #34449 |
+| `zookeeperreceiver` | `otelcol/zookeeper` | `github.com/newrelic/nrdot-plus-collector-components/receiver/zookeeperreceiver` |  #34450 |
+| `redisreceiver` | `otelcol/redisreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/redisreceiver` |  #34470 |
+| `riakreceiver` | `otelcol/riakreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/riakreceiver` |  #34469 |
+| `routingprocessor` | `otelcol/routing` | `github.com/newrelic/nrdot-plus-collector-components/processor/routingprocessor` |  #34550 |
+| `saphanareceiver` | `otelcol/saphanareceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/saphanareceiver` |  #34468 |
+| `servicegraphconnector` | `otelcol/servicegraph` | `github.com/newrelic/nrdot-plus-collector-components/connector/servicegraphconnector` |  #34552 |
+| `snmpreceiver` | `otelcol/snmpreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/snmpreceiver` |  #34592 |
+| `snowflakereceiver` | `otelcol/snowflakereceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/snowflakereceiver` |  #34467 |
+| `solacereceiver` | `otelcol/solacereceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/solacereceiver` |  #34466 |
+| `splunkenterprisereceiver` | `otelcol/splunkenterprisereceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/splunkenterprisereceiver` |  #34452 |
+| `statsdreceiver` | `otelcol/statsdreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/statsdreceiver` |  #34547 |
+| `tailsamplingprocessor` | `otelcol/tailsampling` | `github.com/newrelic/nrdot-plus-collector-components/processor/tailsamplingprocessor` |  #34550 |
+| `sqlserverreceiver` | `otelcol/sqlserverreceiver` | `github.com/newrelic/nrdot-plus-collector-components/receiver/sqlserverreceiver` |  #34451 |
 
 - `elasticsearchreceiver`: Enable more index metrics by default (#34396)
   This enables the following metrics by default: 
@@ -3765,7 +3765,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 ### 🚩 Deprecations 🚩
 
 - `k8sattributesprocessor`: Deprecate `extract.annotations.regex` and `extract.labels.regex` config fields in favor of the `ExtractPatterns` function in the transform processor. The `FieldExtractConfig.Regex` parameter will be removed in version v0.111.0. (#25128)
-  Deprecating of FieldExtractConfig.Regex parameter means that it is recommended to use the `ExtractPatterns` function from the transform processor instead. To convert your current configuration please check the `ExtractPatterns` function [documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl/ottlfuncs#extractpatterns). You should use the `pattern` parameter of `ExtractPatterns` instead of using the `FieldExtractConfig.Regex` parameter.
+  Deprecating of FieldExtractConfig.Regex parameter means that it is recommended to use the `ExtractPatterns` function from the transform processor instead. To convert your current configuration please check the `ExtractPatterns` function [documentation](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/pkg/ottl/ottlfuncs#extractpatterns). You should use the `pattern` parameter of `ExtractPatterns` instead of using the `FieldExtractConfig.Regex` parameter.
 
 ### 🚀 New components 🚀
 
@@ -3832,7 +3832,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `elasticsearchexporter`: Remove defunct "file" and "fields" configuration settings. (#33803)
   This is a breaking change only because removing the attributes would prevent collector startup if those attributes are specified, but otherwise there is no functional change. These configuration attributes have never done anything.
 - `stanza`: errors from Operator.Process are returned instead of silently ignored. (#33783)
-  This public function is affected: https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza@v0.104.0/operator/helper#WriterOperator.Write
+  This public function is affected: https://pkg.go.dev/github.com/newrelic/nrdot-plus-collector-components/pkg/stanza@v0.104.0/operator/helper#WriterOperator.Write
 - `vcenterreceiver`: Enables various vCenter metrics that were disabled by default until v0.105 (#34022)
   The following metrics will be enabled by default "vcenter.host.network.packet.drop.rate",
   "vcenter.vm.cpu.readiness", "vcenter.host.cpu.capacity", and "vcenter.host.cpu.reserved".
@@ -4246,7 +4246,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
   
 - `sumologicexporter`: remove deprecated configuration options (#32315)
   migration has been described in the following document
-  https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.100.0/exporter/sumologicexporter#migration-to-new-architecture
+  https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.100.0/exporter/sumologicexporter#migration-to-new-architecture
 - `remotetapprocessor`: Make the `limit` configuration work properly. (#32385)
   The `limit` configuration was ignored previously, but now it works according to the configuration and documentation.
   Nothing is required of users.
@@ -4572,7 +4572,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
     `config.global.scrape_protocols` to `[ PrometheusProto, OpenMetricsText1.0.0, OpenMetricsText0.0.1, PrometheusText0.0.4 ]` in the
     receiver configuration. This requirement will be lifted once Prometheus can scrape native histograms over text formats.
   - For more up to date information see the README.md file of the receiver at
-    https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md#prometheus-native-histograms.
+    https://github.com/newrelic/nrdot-plus-collector-components/blob/main/receiver/prometheusreceiver/README.md#prometheus-native-histograms.
   
 - `all`: Add support for ARM build (#12920)
 - `failoverconnector`: Support ignoring `max_retries` setting in failover connector (#9868)
@@ -4607,7 +4607,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `prometheusreceiver`: Remove enable_protobuf_negotiation option on the prometheus receiver. Use config.global.scrape_protocols = [ PrometheusProto, OpenMetricsText1.0.0, OpenMetricsText0.0.1, PrometheusText0.0.4 ] instead. (#30883)
   See https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file for details on setting scrape_protocols.
 - `vcenterreceiver`: Fixed the resource attribute model to more accurately support multi-cluster deployments (#30879)
-  For more information on impacts please refer https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/31113. The main impacts are that
+  For more information on impacts please refer https://github.com/newrelic/nrdot-plus-collector-components/pull/31113. The main impacts are that
   the `vcenter.resource_pool.name`, `vcenter.resource_pool.inventory_path`, and `vcenter.cluster.name` are reported with more accuracy on VM metrics.
   
 
@@ -4771,8 +4771,8 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `exporter/datadogexporter`: Disable APM stats computation in Datadog Exporter by default, `exporter.datadogexporter.DisableAPMStats` is changed to beta (#31219)
 - `extension/storage`: The `filestorage` and `dbstorage` extensions are now standalone modules. (#31040)
   If using the OpenTelemetry Collector Builder, you will need to update your import paths to use the new module(s).
-  - `github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/filestorage`
-  - `github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/dbstorage`
+  - `github.com/newrelic/nrdot-plus-collector-components/extension/storage/filestorage`
+  - `github.com/newrelic/nrdot-plus-collector-components/extension/storage/dbstorage`
   
 
 ### 🚩 Deprecations 🚩
@@ -4829,7 +4829,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 
 - `servicegraphprocessor`: removed deprecated component, use the servicegraph connector instead. (#26091)
 - `datadogconnector`: Enable feature gate `connector.datadogconnector.performance` by default. (#30829)
-  See https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/datadogconnector#feature-gate-for-performance for caveats of this feature gate.
+  See https://github.com/newrelic/nrdot-plus-collector-components/tree/main/connector/datadogconnector#feature-gate-for-performance for caveats of this feature gate.
 - `datadogprocessor`: Delete datadogprocessor which has been deprecated since v0.84.0 (#31026)
   Use datadogconnector instead.
 - `kafkareceiver`: standardizes the default topic name for metrics and logs receivers to the same topic name as the metrics and logs exporters of the kafkaexporter (#27292)
@@ -5254,7 +5254,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
   
 - `dockerstatsreceiver`: cpu.container.percent metric is removed in favor of container.cpu.utilization (#21807)
   The metric `container.cpu.percentage` is now removed. `container.cpu.utilization` is enabled by default as a replacement.
-  For details, see the [docs](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/dockerstatsreceiver#transition-to-cpu-utilization-metric-name-aligned-with-opentelemetry-specification).
+  For details, see the [docs](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/dockerstatsreceiver#transition-to-cpu-utilization-metric-name-aligned-with-opentelemetry-specification).
   
 - `encoding extensions`: Rename encoding extensions for consistency with storage extensions (#24451)
   - `jaegerencoding` -> `jaeger_encoding`
@@ -5387,7 +5387,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `dockerstatsreceiver`: cpu.container.percent metric will be deprecated in v0.79.0 in favor of container.cpu.utilization (#21807)
   The metric `container.cpu.percentage` is now disabled by default and will be removed in v0.88.0.
   As a replacement, the following metric is now enabled by default: `container.cpu.utilization`.
-  For details, see the [docs](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/dockerstatsreceiver#transition-to-cpu-utilization-metric-name-aligned-with-opentelemetry-specification).
+  For details, see the [docs](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/dockerstatsreceiver#transition-to-cpu-utilization-metric-name-aligned-with-opentelemetry-specification).
   
 - `parquetexporter`: Remove the parquet exporter (#27284)
 
@@ -5623,7 +5623,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `googlecloudexporter`: remove retry_on_failure from the googlecloud exporter. The exporter itself handles retries, and retrying can cause issues. (#57233)
 - `vcenterreceiver`: Dimensions performance metrics into metric attribute `object` (#25147)
   The following metrics have been effected to include the new metric attribute to properly dimension the data.`vcenter.vm.network.throughput`,`vcenter.vm.network.usage`,`vcenter.vm.network.packet.count`,`vcenter.vm.disk.latency.avg`,`vcenter.vm.disk.latency.max`,`vcenter.host.network.usage`,`vcenter.host.network.throughput`,`vcenter.host.network.packet.count`,`vcenter.host.network.packet.errors`,
-  `vcenter.host.disk.latency.avg`,`vcenter.host.disk.latency.max`, and `vcenter.host.disk.throughput`. More information on how to migrate can be found at https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/vcenterreceiver#feature-gates
+  `vcenter.host.disk.latency.avg`,`vcenter.host.disk.latency.max`, and `vcenter.host.disk.throughput`. More information on how to migrate can be found at https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/vcenterreceiver#feature-gates
   
 
 ### 🚩 Deprecations 🚩
@@ -6722,7 +6722,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `hostmetricsreceiver`: Remove deprecated process memory metrics (#14327)
   The metrics `process.memory.physical_usage` and `process.memory.virtual_usage` have been deprecated since v0.64.0.
   They are now being removed. You should use the following metrics instead: `process.memory.usage`, `process.memory.virtual`.
-  For details, see the [docs](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.71.0/receiver/hostmetricsreceiver#transition-to-process-memory-metric-names-aligned-with-opentelemetry-specification).
+  For details, see the [docs](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.71.0/receiver/hostmetricsreceiver#transition-to-process-memory-metric-names-aligned-with-opentelemetry-specification).
   
 - `promtailreceiver`: Promtail receiver is completely removed from the repository (#18474, #18493)
   Promtail receiver in its current implementation has a dependency on Loki that leads to a huge amount of |
@@ -6940,7 +6940,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `mysqlreceiver`: add mysql.commands metric with support for delete, insert, select, update (#14138)
 - `exporter/dynatrace`: Provide more logs on the results of metrics submissions (#15248)
 - `prometheusremotewriteexporter`: Add support for converting OTLP Exponential Histograms to Prometheus Native Histograms (#16207)
-- `pkg/pdatautil`: Export comparetest and pdatautil modules under github.com/open-telemetry/opentelemetry-collector-contrib/pkg (#17873)
+- `pkg/pdatautil`: Export comparetest and pdatautil modules under github.com/newrelic/nrdot-plus-collector-components/pkg (#17873)
 - `clickhouseexporter`: export metrics to clickhouse (#16478)
 - `mongodbatlasreceiver`: Adds `mongodbatlas.project.name` and `mongodbatlas.org.id` as polled alerts resource attributes (#17513)
 - `filelogreceiver`: Add `delete_after_read` setting and associated `filelog.allowFileDeletion` feature gate. (#16314)
@@ -7014,7 +7014,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
 - `hostmetricsreceiver`: Disable deprecated process memory metrics (#14327)
   The metrics `process.memory.physical_usage` and `process.memory.virtual_usage` are now disabled by default and will be removed in v0.72.0.
   As a replacement, the following metrics are now enabled by default: `process.memory.usage`, `process.memory.virtual`.
-  For details, see the [docs](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.68.0/receiver/hostmetricsreceiver#transition-to-process-memory-metric-names-aligned-with-opentelemetry-specification).
+  For details, see the [docs](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.68.0/receiver/hostmetricsreceiver#transition-to-process-memory-metric-names-aligned-with-opentelemetry-specification).
 
 
 ### 💡 Enhancements 💡
@@ -7254,7 +7254,7 @@ This release fixes CVE-2024-42368 on the `bearerauthtokenextension` (#34516)
   and the CA is not in the system cert pool
 
 - `pkg/stanza`: Support to Customize bufio.SplitFunc (#14593)
-- `processor/transform`: Adds new configuration options that allow specifying the OTTL context to use when executing statements. See [Transform Processor README](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor#config) for more details. (#15381)
+- `processor/transform`: Adds new configuration options that allow specifying the OTTL context to use when executing statements. See [Transform Processor README](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/transformprocessor#config) for more details. (#15381)
   The existing configuration options will be deprecated in a future release.
 
 - `transformprocessor`: Added OTTL function ConvertCase into the Transform Processor (#16083)
@@ -7813,7 +7813,7 @@ in outgoing logs data.
   2. use Map type for attribute, add secondary index.
 
 - `postgresqlreceiver`: Moves metric attributes `table` and `database` to resource attributes. (#12960)
-  This move has been hidden behind a featuregate. Please see https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/postgresqlreceiver/README.md#feature-gate-configurations for more information transitioning.
+  This move has been hidden behind a featuregate. Please see https://github.com/newrelic/nrdot-plus-collector-components/blob/main/receiver/postgresqlreceiver/README.md#feature-gate-configurations for more information transitioning.
   This affects the following metrics.
   - postgresql.blocks_read
   - postgresql.commits
@@ -7963,14 +7963,14 @@ This version has been skipped.
       - `memcached.network.received`
 - `tracegen`: Moving component under `cmd` for consistency (#12474)
 - `datadogexporter`: Remove deprecated configuration features. (#9099, #9016, #8845, #8783, #8781, #8489, #8396)
-    - [Remove `env` in favor of `deployment.environment` semantic convention](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/9016)
-    - [Remove `version` in favor of `service.version` semantic convention](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/8783)
-    - [Remove `service` in favor of `service.name` semantic convention](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/8781)
-    - [Remove `tags`, `send_metadata` and `use_resource_metadata` in favor of `host_metadata` section](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/9099)
-    - [Remove `metrics::report_quantiles` in favor of `metrics::summaries::mode`](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/8845)
-    - [Remove `metrics::send_monotonic_counter` in favor of `metrics::sums::cumulative_monotonic_mode`](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/8489)
-    - [Remove automatic support for environment variable detection in favor of Collector's `${}` syntax](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/8396)
-    - [Remove `metrics::instrumentation_library_metadata_as_tags` in favor of `metrics::instrumentation_scope_as_tags`](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/11135)
+    - [Remove `env` in favor of `deployment.environment` semantic convention](https://github.com/newrelic/nrdot-plus-collector-components/issues/9016)
+    - [Remove `version` in favor of `service.version` semantic convention](https://github.com/newrelic/nrdot-plus-collector-components/issues/8783)
+    - [Remove `service` in favor of `service.name` semantic convention](https://github.com/newrelic/nrdot-plus-collector-components/issues/8781)
+    - [Remove `tags`, `send_metadata` and `use_resource_metadata` in favor of `host_metadata` section](https://github.com/newrelic/nrdot-plus-collector-components/issues/9099)
+    - [Remove `metrics::report_quantiles` in favor of `metrics::summaries::mode`](https://github.com/newrelic/nrdot-plus-collector-components/issues/8845)
+    - [Remove `metrics::send_monotonic_counter` in favor of `metrics::sums::cumulative_monotonic_mode`](https://github.com/newrelic/nrdot-plus-collector-components/issues/8489)
+    - [Remove automatic support for environment variable detection in favor of Collector's `${}` syntax](https://github.com/newrelic/nrdot-plus-collector-components/issues/8396)
+    - [Remove `metrics::instrumentation_library_metadata_as_tags` in favor of `metrics::instrumentation_scope_as_tags`](https://github.com/newrelic/nrdot-plus-collector-components/pull/11135)
 
 - `datadogexporter`: Remove deprecated `config` package. (#8373)
 - `observiqexporter`: Remove the observiq exporter (#12406)
@@ -8085,7 +8085,7 @@ This version has been skipped.
 - `datadogexporter`: (Under `exporter.datadog.hostname.preview` feature gate) Remove `docker` hostname detector (#11834)
 - `k8sclusterreceiver`: The `receiver.k8sclusterreceiver.reportCpuMetricsAsDouble` feature gate has been removed (#10838)
     - If users were disabling this feature gate, they may have to update
-      monitoring for a few Kubernetes cpu metrics. For more details see [feature-gate-configurations](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.54.0/receiver/k8sclusterreceiver#feature-gate-configurations).
+      monitoring for a few Kubernetes cpu metrics. For more details see [feature-gate-configurations](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.54.0/receiver/k8sclusterreceiver#feature-gate-configurations).
 
 - `prometheusexporter`: Automatically rename metrics with units to follow Prometheus naming convention (#8950)
 
@@ -8420,10 +8420,10 @@ This version has been skipped.
 ### ⚠️ Warning  ⚠️
 
 This release contains an issue in
-[Prometheus receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver)
+[Prometheus receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/prometheusreceiver)
 causing 30% memory consumption increase when there is a lot of target churn. The issue is currently being
 investigated and will be fixed in one of the new releases. More details:
-https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/9278.
+https://github.com/newrelic/nrdot-plus-collector-components/issues/9278.
 
 ### 🛑 Breaking changes 🛑
 
@@ -8437,7 +8437,7 @@ https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/9278.
 - `attributesprocessor`: Remove log names from filters (#9131)
 - `k8sclusterreceiver`: The `receiver.k8sclusterreceiver.reportCpuMetricsAsDouble` feature gate is now enabled by default (#9367)
   - Users may have to update monitoring for a few Kubernetes cpu metrics, for
-    more details see [feature-gate-configurations](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.54.0/receiver/k8sclusterreceiver#feature-gate-configurations).
+    more details see [feature-gate-configurations](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.54.0/receiver/k8sclusterreceiver#feature-gate-configurations).
 
 ### 🚩 Deprecations 🚩
 
@@ -9038,7 +9038,7 @@ https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/9278.
 
 ### 🚀 New components 🚀
 
-- [`journald` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver) to parse Journald events from systemd journal using the [opentelemetry-log-collection](https://github.com/open-telemetry/opentelemetry-log-collection) library
+- [`journald` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/journaldreceiver) to parse Journald events from systemd journal using the [opentelemetry-log-collection](https://github.com/open-telemetry/opentelemetry-log-collection) library
 
 ### 🛑 Breaking changes 🛑
 
@@ -9140,31 +9140,31 @@ https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/9278.
 
 ### 🚀 New components 🚀
 
-- [`cumulativetodelta` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/cumulativetodeltaprocessor) to convert cumulative sum metrics to cumulative delta
+- [`cumulativetodelta` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/cumulativetodeltaprocessor) to convert cumulative sum metrics to cumulative delta
 
-- [`file` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/fileexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`jaeger` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.85.0/exporter/jaegerexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`kafka` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/kafkaexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`opencensus` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.34.0/exporter/opencensusexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`prometheus` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`prometheusremotewrite` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`zipkin` exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/zipkinexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`attribute` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/attributesprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`filter` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`probabilisticsampler` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/probabilisticsamplerprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`resource` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourceprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`span` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/spanprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`hostmetrics` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/hostmetricsreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`jaeger` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/jaegerreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`kafka` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/kafkareceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`opencensus` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.34.0/receiver/opencensusreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`prometheus` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`zipkin` receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/zipkinreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`bearertokenauth` extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/bearertokenauthextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`healthcheck` extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`oidcauth` extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/oidcauthextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`pprof` extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/pprofextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
-- [`testbed`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/testbed) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`file` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/exporter/fileexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`jaeger` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.85.0/exporter/jaegerexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`kafka` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/exporter/kafkaexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`opencensus` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.34.0/exporter/opencensusexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`prometheus` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/exporter/prometheusexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`prometheusremotewrite` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/exporter/prometheusremotewriteexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`zipkin` exporter](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/exporter/zipkinexporter) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`attribute` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/attributesprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`filter` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/filterprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`probabilisticsampler` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/probabilisticsamplerprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`resource` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/resourceprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`span` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/spanprocessor) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`hostmetrics` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/hostmetricsreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`jaeger` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/jaegerreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`kafka` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/kafkareceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`opencensus` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.34.0/receiver/opencensusreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`prometheus` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/prometheusreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`zipkin` receiver](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/receiver/zipkinreceiver) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`bearertokenauth` extension](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/extension/bearertokenauthextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`healthcheck` extension](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/extension/healthcheckextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`oidcauth` extension](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/extension/oidcauthextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`pprof` extension](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/extension/pprofextension) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
+- [`testbed`](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/testbed) from core repository ([#3474](https://github.com/open-telemetry/opentelemetry-collector/issues/3474))
 
 ### 💡 Enhancements 💡
 
@@ -9178,7 +9178,7 @@ The OpenTelemetry Collector Contrib contains everything in the [opentelemetry-co
 
 ### 🚀 New components 🚀
 
-- [`cumulativetodelta` processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/cumulativetodeltaprocessor) to convert cumulative sum metrics to cumulative delta
+- [`cumulativetodelta` processor](https://github.com/newrelic/nrdot-plus-collector-components/tree/main/processor/cumulativetodeltaprocessor) to convert cumulative sum metrics to cumulative delta
 
 ### 💡 Enhancements 💡
 
@@ -9877,7 +9877,7 @@ The OpenTelemetry Collector Contrib contains everything in the [opentelemetry-co
 - Move signalfx correlation code out of `sapm` to `signalfxcorrelation` exporter (#1376)
 - Move Splunk specific utils outside of common (#1306)
 - `stackdriver` exporter:
-    - Config options `metric_prefix` & `skip_create_metric_descriptor` are now nested under `metric`, see [README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.14.0/exporter/stackdriverexporter/README.md).
+    - Config options `metric_prefix` & `skip_create_metric_descriptor` are now nested under `metric`, see [README](https://github.com/newrelic/nrdot-plus-collector-components/blob/v0.14.0/exporter/stackdriverexporter/README.md).
     - Trace status codes no longer reflect gRPC codes as per spec changes: open-telemetry/opentelemetry-specification#1067
 - `datadog` exporter: Remove option to change the namespace prefix (#1483)
 
@@ -10439,9 +10439,9 @@ Released 2020-01-11
 First release of OpenTelemetry Collector Contrib.
 
 
-[v0.3.0]: https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.2.8...v0.3.0
-[v0.2.8]: https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.2.7...v0.2.8
-[v0.2.7]: https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.2.6...v0.2.7
-[v0.2.6]: https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.0.5...v0.2.6
-[v0.0.5]: https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.0.1...v0.0.5
-[v0.0.1]: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.0.1
+[v0.3.0]: https://github.com/newrelic/nrdot-plus-collector-components/compare/v0.2.8...v0.3.0
+[v0.2.8]: https://github.com/newrelic/nrdot-plus-collector-components/compare/v0.2.7...v0.2.8
+[v0.2.7]: https://github.com/newrelic/nrdot-plus-collector-components/compare/v0.2.6...v0.2.7
+[v0.2.6]: https://github.com/newrelic/nrdot-plus-collector-components/compare/v0.0.5...v0.2.6
+[v0.0.5]: https://github.com/newrelic/nrdot-plus-collector-components/compare/v0.0.1...v0.0.5
+[v0.0.1]: https://github.com/newrelic/nrdot-plus-collector-components/tree/v0.0.1

@@ -188,7 +188,7 @@
         "gomod"
       ],
       "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector-contrib"
+        "https://github.com/newrelic/nrdot-plus-collector-components"
       ],
       "groupName": "All OpenTelemetry Collector Contrib packages",
       "matchUpdateTypes": [

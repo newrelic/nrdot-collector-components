@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil
+module github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil
 
 go 1.24.0
 

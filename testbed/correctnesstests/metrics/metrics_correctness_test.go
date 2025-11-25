@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/goldendataset"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/metricstestutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal/goldendataset"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal/metricstestutil"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/correctnesstests"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 // tests with the prefix "TestHarness_" get run in the "correctnesstests-metrics" ci job

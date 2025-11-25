@@ -1,12 +1,12 @@
 name: Lychee Config Check
 
-on:
-  pull_request:
-    paths:
-      - '.github/lychee.toml'
-  push:
-    paths:
-      - '.github/lychee.toml'
+#on:
+#  pull_request:
+#    paths:
+#      - '.github/lychee.toml'
+#  push:
+#    paths:
+#      - '.github/lychee.toml'
 
 permissions:
   contents: read

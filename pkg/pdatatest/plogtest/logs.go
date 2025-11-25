@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package plogtest // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/plogtest"
+package plogtest // import "github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/plogtest"
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/internal"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/internal"
 )
 
 // CompareLogs compares each part of two given Logs and returns

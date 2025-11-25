@@ -16,8 +16,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/config"
-	supervisorTelemetry "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/telemetry"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/config"
+	supervisorTelemetry "github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/telemetry"
 )
 
 func newTestAgentExecutable(t *testing.T) string {

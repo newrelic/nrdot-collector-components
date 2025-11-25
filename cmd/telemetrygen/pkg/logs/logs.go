@@ -21,7 +21,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/log"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/log"
 )
 
 // Start starts the log telemetry generator

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package pmetrictest // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
+package pmetrictest // import "github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/pmetrictest"
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/internal"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/internal"
 )
 
 func CompareMetrics(expected, actual pmetric.Metrics, options ...CompareMetricsOption) error {

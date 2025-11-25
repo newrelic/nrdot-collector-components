@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/plog"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/plogtest"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/plogtest"
 )
 
 func TestFlattenResourceLogs(t *testing.T) {

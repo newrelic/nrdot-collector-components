@@ -1,7 +1,0 @@
-coralogix/logs:
-  private_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  logs:
-    endpoint: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  application_name: "APP_NAME"
-  subsystem_name: "SUBSYSTEM_NAME"
-  timeout: 5s

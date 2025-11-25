@@ -16,7 +16,7 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/config"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/config"
 )
 
 type windowsService struct {

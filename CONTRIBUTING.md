@@ -201,7 +201,7 @@ With above guidelines, you can write code that is more portable and easier to ma
 > host it in your own repository as a Go module and [add it to the OpenTelemetry registry](https://opentelemetry.io/ecosystem/registry/).
 
 You may donate an existing component or propose a whole new one. If you are writing a new component from scratch, **before** any code is written, [open an
-issue](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/new?assignees=&labels=Sponsor+Needed%2Cneeds+triage&projects=&template=new_component.yaml&title=New+component%3A+)
+issue](https://github.com/newrelic/nrdot-plus-collector-components/issues/new?assignees=&labels=Sponsor+Needed%2Cneeds+triage&projects=&template=new_component.yaml&title=New+component%3A+)
 providing the following information:
 
 * Who's the sponsor for your component. A sponsor is an approver or maintainer who will be the official reviewer of the code and a code owner
@@ -283,7 +283,7 @@ status:
 //go:generate mdatagen metadata.yaml
 
 // Package fooreceiver bars.
-package fooreceiver // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/fooreceiver"
+package fooreceiver // import "github.com/newrelic/nrdot-plus-collector-components/receiver/fooreceiver"
 ```
 - Type `make generate`. This will trigger the [metadata generator](https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/README.md#using-the-metadata-generator) to generate the associated code/documentation.
 - Type `make gencodeowners`. This will trigger the regeneration of the `.github/CODEOWNERS` file. 
@@ -370,7 +370,7 @@ See the [OpenTelemetry membership guide](https://github.com/open-telemetry/commu
 
 ### Becoming a Code Owner
 
-A Code Owner is responsible for a component within Collector Contrib, as indicated by the [CODEOWNERS file](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/.github/CODEOWNERS). That responsibility includes maintaining the component, triaging and responding to issues, and reviewing pull requests.
+A Code Owner is responsible for a component within Collector Contrib, as indicated by the [CODEOWNERS file](https://github.com/newrelic/nrdot-plus-collector-components/blob/main/.github/CODEOWNERS). That responsibility includes maintaining the component, triaging and responding to issues, and reviewing pull requests.
 
 Sometimes a component may be in need of a new or additional Code Owner. A few reasons this situation may arise would be:
 

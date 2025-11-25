@@ -1,11 +1,11 @@
 name: build-and-test
-on:
-  push:
-    branches: [main]
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
-  merge_group:
-  pull_request:
+#on:
+#  push:
+#    branches: [main]
+#    tags:
+#      - "v[0-9]+.[0-9]+.[0-9]+*"
+#  merge_group:
+#  pull_request:
 
 permissions: read-all
 
@@ -15,7 +15,7 @@ env:
   # We limit cache download as a whole to 5 minutes.
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 2
 
-# Do not cancel this workflow on main. See https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/16616
+# Do not cancel this workflow on main. See https://github.com/newrelic/nrdot-plus-collector-components/pull/16616
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -540,7 +540,7 @@ jobs:
   publish-dev:
     runs-on: ubuntu-24.04
     needs: [lint, unittest, integration-tests]
-    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'open-telemetry/opentelemetry-collector-contrib'
+    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'newrelic/nrdot-plus-collector-components'
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - run: ./.github/workflows/scripts/free-disk-space.sh
@@ -582,7 +582,7 @@ jobs:
     needs: [lint, unittest, integration-tests]
     env:
       RELEASE_NOTES: release-notes.md
-    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'open-telemetry/opentelemetry-collector-contrib'
+    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'newrelic/nrdot-plus-collector-components'
     permissions:
       contents: write
     steps:
@@ -636,7 +636,7 @@ jobs:
       issues: write # required for managing milestones
     runs-on: ubuntu-24.04
     needs: [publish-stable]
-    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'open-telemetry/opentelemetry-collector-contrib'
+    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'newrelic/nrdot-plus-collector-components'
     steps:
       - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:

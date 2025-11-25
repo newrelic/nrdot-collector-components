@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package ptracetest // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/ptracetest"
+package ptracetest // import "github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/ptracetest"
 
 import (
 	"bytes"
@@ -10,8 +10,8 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/internal"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/internal"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil"
 )
 
 // CompareTracesOption can be used to mutate expected and/or actual traces before comparing.

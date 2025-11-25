@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package main // import "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/golden"
+package main // import "github.com/newrelic/nrdot-plus-collector-components/cmd/golden"
 
 import (
 	"testing"

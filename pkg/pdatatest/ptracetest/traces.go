@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package ptracetest // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/ptracetest"
+package ptracetest // import "github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/ptracetest"
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/internal"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/internal"
 )
 
 // CompareTraces compares each part of two given Traces and returns

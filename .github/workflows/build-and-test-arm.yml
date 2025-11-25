@@ -1,11 +1,11 @@
 name: build-and-test-arm
-on:
-  push:
-    branches: [main]
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
-  merge_group:
-  pull_request:
+#on:
+#  push:
+#    branches: [main]
+#    tags:
+#      - "v[0-9]+.[0-9]+.[0-9]+*"
+#  merge_group:
+#  pull_request:
 env:
   TEST_RESULTS: testbed/tests/results/junit/results.xml
   # Make sure to exit early if cache segment download times out after 2 minutes.
@@ -14,7 +14,7 @@ env:
 
 permissions: read-all
 
-# Do not cancel this workflow on main. See https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/16616
+# Do not cancel this workflow on main. See https://github.com/newrelic/nrdot-plus-collector-components/pull/16616
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true

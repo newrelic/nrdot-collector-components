@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/golden"
 )
 
 func TestCompareTraces(t *testing.T) {

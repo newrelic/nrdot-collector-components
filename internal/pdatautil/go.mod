@@ -1,11 +1,11 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/internal/pdatautil
+module github.com/newrelic/nrdot-plus-collector-components/internal/pdatautil
 
 go 1.24.0
 
 require (
 	github.com/lightstep/go-expohisto v1.0.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.140.1
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil v0.140.1
+	github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest v0.140.1
+	github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil v0.140.1
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/collector/pdata v1.46.0
 )
@@ -23,8 +23,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil => ../../pkg/pdatautil
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil => ../../pkg/pdatautil
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest => ../../pkg/pdatatest
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest => ../../pkg/pdatatest
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden => ../../pkg/golden
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/golden => ../../pkg/golden

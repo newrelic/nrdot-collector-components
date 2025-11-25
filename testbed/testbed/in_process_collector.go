@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package testbed // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+package testbed // import "github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 	"go.opentelemetry.io/collector/confmap/provider/fileprovider"
 	"go.opentelemetry.io/collector/otelcol"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
 // inProcessCollector implements the OtelcolRunner interfaces running a single otelcol as a go routine within the
@@ -106,7 +106,7 @@ func (ipp *inProcessCollector) Stop() (stopped bool, err error) {
 		ipp.stopped = true
 		ipp.svc.Shutdown()
 		// Do not delete temporary files on Windows because it fails too much on scoped tests.
-		// See https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/42639
+		// See https://github.com/newrelic/nrdot-plus-collector-components/issues/42639
 		if runtime.GOOS != "windows" {
 			require.NoError(ipp.t, os.Remove(ipp.configFile))
 		}

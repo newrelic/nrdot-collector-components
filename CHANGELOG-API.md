@@ -93,7 +93,7 @@ If you are looking for user-facing changes, check out [CHANGELOG.md](./CHANGELOG
 - `datadogexporter`: Deprecate zorkian codepath (#17373)
   Feature gate exporter.datadogexporter.metricexportnativeclient is now deprecated; the default metrics exporter is now 
   Metrics Export Serializer unless feature gate exporter.datadogexporter.metricexportserializerclient is disabled. 
-  See https://github.com/open-telemetry/opentelemetry-collector-contrib/releases/tag/v0.122.0 and #37930 for more 
+  See https://github.com/newrelic/nrdot-plus-collector-components/releases/tag/v0.122.0 and #37930 for more 
   info about Metrics Export Serializer. 
   
 - `pkg/translator/prometheusremotewrite`: Function 'OtelMetricsToMetadata' now returns an error if unable to convert a metric to metadata (#42493)
@@ -191,7 +191,7 @@ If you are looking for user-facing changes, check out [CHANGELOG.md](./CHANGELOG
 - `splunkhecexporter`: Update 'batcher' config to use internal deprecated struct instead of the one removed from the core. (#41224)
 - `elasticsearchexporter`: Update 'batcher' config to use internal struct instead of the one removed from the core. (#41225)
 - `sumologicprocessor`: Types that do not contribute to intended API surface will be unexported (#40660)
-  https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/40641
+  https://github.com/newrelic/nrdot-plus-collector-components/issues/40641
 
 ### 💡 Enhancements 💡
 
@@ -445,7 +445,7 @@ If you are looking for user-facing changes, check out [CHANGELOG.md](./CHANGELOG
   The public function is partially implemented and not ready for use
 - `pkg/datadog`: Expose the internal Zaplogger implementation (#37939)
 - `dbstorageextension`: Add DB Transactions to dbstorage.Batch() method as it is expected by Storage API (#37805)
-- `internal/datadog`: create new package `github.com/open-telemetry/opentelemetry-collector-contrib/pkg/datadog/hostmetadata` which exposes `GetSourceProvider` from `github.com/open-telemetry/opentelemetry-collector-contrib/internal/datadog/hostmetadata` (#37668)
+- `internal/datadog`: create new package `github.com/newrelic/nrdot-plus-collector-components/pkg/datadog/hostmetadata` which exposes `GetSourceProvider` from `github.com/newrelic/nrdot-plus-collector-components/internal/datadog/hostmetadata` (#37668)
 - `textutil`: Remove unnecessary copy while decoding and constructing string (#37734)
   This PR affects all log receivers, text extension and kafkareceiver.
 - `telemetrygen`: Exported the API for telemetrygen for test uses. Additionally added new E2E tests and fixed race condition (#36984)
@@ -664,7 +664,7 @@ If you are looking for user-facing changes, check out [CHANGELOG.md](./CHANGELOG
 
 - `opampextension`: Move custom message interfaces to separate package (#32950)
   Moves `CustomCapabilityRegistry`, `CustomCapabilityHandler`, and `CustomCapabilityRegisterOption` to a new module.
-  These types can now be found in the new `github.com/open-telemetry/opentelemetry-collector-contrib/extension/opampcustommessages` module.
+  These types can now be found in the new `github.com/newrelic/nrdot-plus-collector-components/extension/opampcustommessages` module.
   
 - `pkg/stanza`: The internal logger has been changed from zap.SugaredLogger to zap.Logger. (#32177)
   Functions accepting a SugaredLogger, and fields of type SugaredLogger, have been deprecated.
@@ -753,8 +753,8 @@ If you are looking for user-facing changes, check out [CHANGELOG.md](./CHANGELOG
 - `httpforwarderextension`: Rename the extension httpforwarder to httpforwarderextension (#24171)
 - `extension/storage`: The `filestorage` and `dbstorage` extensions are now standalone modules. (#31040)
   If using the OpenTelemetry Collector Builder, you will need to update your import paths to use the new module(s).
-  - `github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/filestorage`
-  - `github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/dbstorage`
+  - `github.com/newrelic/nrdot-plus-collector-components/extension/storage/filestorage`
+  - `github.com/newrelic/nrdot-plus-collector-components/extension/storage/dbstorage`
   
 
 ### 💡 Enhancements 💡

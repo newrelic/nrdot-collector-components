@@ -13,8 +13,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/config"
-	types "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/config"
+	types "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg"
 )
 
 // TestDurationAndMetricsInteraction tests the interaction between duration and metrics parameters

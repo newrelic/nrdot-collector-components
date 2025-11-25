@@ -1,10 +1,10 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package dataconnectors // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors"
+package dataconnectors // import "github.com/newrelic/nrdot-plus-collector-components/testbed/dataconnectors"
 
 import (
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 type SpanMetricDataConnector struct {

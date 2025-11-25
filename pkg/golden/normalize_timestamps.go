@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package golden // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+package golden // import "github.com/newrelic/nrdot-plus-collector-components/pkg/golden"
 
 import (
 	"sort"
@@ -10,7 +10,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil"
 )
 
 func normalizeTimestamps(metrics pmetric.Metrics) {

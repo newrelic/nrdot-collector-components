@@ -9,8 +9,8 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/config"
-	types "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/config"
+	types "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg"
 )
 
 // Config describes the test scenario.

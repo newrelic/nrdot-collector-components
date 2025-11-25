@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package tests // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/tests"
+package tests // import "github.com/newrelic/nrdot-plus-collector-components/testbed/tests"
 
 // This file defines parametrized test scenarios and makes them public so that they can be
 // also used by tests in custom builds of Collector (e.g. Collector Contrib).
@@ -20,8 +20,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/plog"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 var (

@@ -1,12 +1,12 @@
 # This action generates a weekly report as a github issue
-# More details in https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/24672
+# More details in https://github.com/newrelic/nrdot-plus-collector-components/issues/24672
 
-name: 'Generate Weekly Report'
-on:
-  workflow_dispatch: 
-  schedule:
-    # run every tuesday at 1am UTC
-    - cron: "0 1 * * 2"
+#name: 'Generate Weekly Report'
+#on:
+#  workflow_dispatch:
+#  schedule:
+#    # run every tuesday at 1am UTC
+#    - cron: "0 1 * * 2"
 
 permissions:
   contents: read

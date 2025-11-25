@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package internal // import "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/golden/internal"
+package internal // import "github.com/newrelic/nrdot-plus-collector-components/cmd/golden/internal"
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/golden"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/pmetrictest"
 )
 
 var _ consumer.Metrics = (*MetricsSink)(nil)

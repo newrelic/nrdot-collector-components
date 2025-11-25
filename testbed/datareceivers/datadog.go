@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package datareceivers // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
+package datareceivers // import "github.com/newrelic/nrdot-plus-collector-components/testbed/datareceivers"
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/datadogreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/datadogreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 // datadogDataReceiver implements Datadog v3/v4/v5 format receiver.

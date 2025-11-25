@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package golden // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+package golden // import "github.com/newrelic/nrdot-plus-collector-components/pkg/golden"
 
 // WriteMetricsOption is an option for the WriteMetrics function
 type WriteMetricsOption func(*writeMetricsOptions)

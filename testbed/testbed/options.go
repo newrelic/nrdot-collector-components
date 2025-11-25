@@ -4,7 +4,7 @@
 // Package tests contains test cases. To run the tests go to tests directory and run:
 // RUN_TESTBED=1 go test -v
 
-package testbed // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+package testbed // import "github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 
 import (
 	"time"

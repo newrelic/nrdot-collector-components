@@ -14,6 +14,6 @@ cp "$CONFIG_IN" "$CONFIG_OUT"
 local_mods=$(find . -type f -name "go.mod" -exec dirname {} \; | sort)
 for mod_path in $local_mods; do
     mod=${mod_path#"."} # remove initial dot
-    echo "  - github.com/open-telemetry/opentelemetry-collector-contrib$mod => ../..$mod" >> "$CONFIG_OUT"
+    echo "  - github.com/newrelic/nrdot-plus-collector-components$mod => ../..$mod" >> "$CONFIG_OUT"
 done
 echo "Wrote replace statements to $CONFIG_OUT"

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package metrics // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests/metrics"
+package metrics // import "github.com/newrelic/nrdot-plus-collector-components/testbed/correctnesstests/metrics"
 
 import (
 	"log"
@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/otelcol"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/correctnesstests"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 type correctnessTestCase struct {

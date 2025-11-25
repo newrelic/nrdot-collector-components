@@ -15,10 +15,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/datareceivers"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/datasenders"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 func TestLog10kDPS(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/cmd/codecovgen
+module github.com/newrelic/nrdot-plus-collector-components/cmd/codecovgen
 
 go 1.24.0
 

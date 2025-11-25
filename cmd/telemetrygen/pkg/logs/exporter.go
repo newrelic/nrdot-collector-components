@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/config"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/config"
 )
 
 // grpcExporterOptions creates the configuration options for a gRPC-based OTLP log exporter.

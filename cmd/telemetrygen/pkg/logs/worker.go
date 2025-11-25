@@ -20,8 +20,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/config"
-	types "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/config"
+	types "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg"
 )
 
 type worker struct {

@@ -47,10 +47,10 @@ import (
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/config"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/telemetry"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/config"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/telemetry"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 // getTestModes returns the test modes for the supervisor tests.
@@ -887,7 +887,7 @@ func TestSupervisorConfiguresCapabilities(t *testing.T) {
 }
 
 func TestSupervisorBootstrapsCollector(t *testing.T) {
-	t.Skip("broken test: http://github.com/open-telemetry/opentelemetry-collector-contrib/issues/42108")
+	t.Skip("broken test: http://github.com/newrelic/nrdot-plus-collector-components/issues/42108")
 	tests := []struct {
 		name     string
 		cfg      string

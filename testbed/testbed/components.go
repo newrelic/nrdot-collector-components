@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package testbed // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+package testbed // import "github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 
 import (
 	"go.opentelemetry.io/collector/connector"
@@ -20,16 +20,16 @@ import (
 	"go.opentelemetry.io/collector/service/telemetry/otelconftelemetry"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/stefexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/syslogexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/zipkinexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/otelarrowreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/stefreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/connector/routingconnector"
+	"github.com/newrelic/nrdot-plus-collector-components/connector/spanmetricsconnector"
+	"github.com/newrelic/nrdot-plus-collector-components/exporter/stefexporter"
+	"github.com/newrelic/nrdot-plus-collector-components/exporter/syslogexporter"
+	"github.com/newrelic/nrdot-plus-collector-components/exporter/zipkinexporter"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/jaegerreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/otelarrowreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/stefreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/syslogreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/zipkinreceiver"
 )
 
 // Components returns the set of components for tests

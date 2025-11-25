@@ -12,7 +12,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor"
 )
 
 var (

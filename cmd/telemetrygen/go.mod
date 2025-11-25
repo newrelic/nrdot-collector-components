@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen
+module github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen
 
 go 1.24.0
 
@@ -62,4 +62,4 @@ retract (
 )
 
 // IMPORTANT NOTE: Do not add replace statements to this go.mod. This will break go install.
-// See https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/27855.
+// See https://github.com/newrelic/nrdot-plus-collector-components/issues/27855.

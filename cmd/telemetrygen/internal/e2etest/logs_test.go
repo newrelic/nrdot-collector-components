@@ -16,9 +16,9 @@ import (
 	"go.opentelemetry.io/collector/receiver/otlpreceiver"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	types "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg/logs"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+	types "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg/logs"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
 // getOrInsertDefault is a helper function to get or insert a default value for a configoptional.Optional type.

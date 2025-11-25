@@ -52,7 +52,7 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: AAA
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/FakeMetric
+          name: github.com/newrelic/nrdot-plus-collector-components/receiver/FakeMetric
           version: latest
       - metrics:
           - description: Fake Metric
@@ -80,7 +80,7 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: CCCC
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/anotherfakereceiver
+          name: github.com/newrelic/nrdot-plus-collector-components/receiver/anotherfakereceiver
           version: latest
   - resource:
       attributes:
@@ -199,5 +199,5 @@ resourceMetrics:
             - key: b
               value:
                 stringValue: BBB
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/standardization
+          name: github.com/newrelic/nrdot-plus-collector-components/receiver/standardization
           version: latest

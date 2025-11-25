@@ -14,9 +14,9 @@ import (
 	"go.opentelemetry.io/collector/receiver/otlpreceiver"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	types "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg/traces"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+	types "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg/traces"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
 func TestGenerateTraces(t *testing.T) {

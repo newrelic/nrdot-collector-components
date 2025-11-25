@@ -1,12 +1,12 @@
 name: 'Generate component labels'
-on:
-  push:
-    branches: [main]
-    paths:
-      - .github/CODEOWNERS
-      - ./.github/workflows/generate-component-labels.yml
-      - ./.github/workflows/scripts/generate-component-labels.sh
-  workflow_dispatch:
+#on:
+#  push:
+#    branches: [main]
+#    paths:
+#      - .github/CODEOWNERS
+#      - ./.github/workflows/generate-component-labels.yml
+#      - ./.github/workflows/scripts/generate-component-labels.sh
+#  workflow_dispatch:
 
 permissions:
   contents: read

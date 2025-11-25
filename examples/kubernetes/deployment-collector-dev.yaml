@@ -1,12 +1,12 @@
 mode: deployment
 
 image:
-  repository: otelcontribcol-dev
+  repository: nrdotpluscol-dev
   tag: "0.0.1"
   pullPolicy: IfNotPresent
 
 command:
-  name: otelcontribcol
+  name: nrdotpluscol
 
 extraEnvs:
   - name: K8S_NODE_NAME
@@ -74,19 +74,28 @@ clusterRole:
         - list
         - watch
 
-config:
+alternateConfig:
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
   exporters:
+    nopexporter:
     debug:
       verbosity: detailed
   receivers:
+    nopreceiver:
     k8s_cluster:
       collection_interval: 10s
       metrics:
         k8s.container.cpu_limit:
           enabled: false
-
+  processors:
+    batch:
   service:
+    extensions:
+      - health_check
     pipelines:
       metrics:
         receivers: [k8s_cluster]
+        processors: [batch]
         exporters: [debug]

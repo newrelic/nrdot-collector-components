@@ -16,8 +16,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 type batcherTestSpec struct {

@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor
+module github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor
 
 go 1.24.0
 
@@ -10,7 +10,7 @@ require (
 	github.com/knadh/koanf/providers/rawbytes v1.0.0
 	github.com/knadh/koanf/v2 v2.3.0
 	github.com/open-telemetry/opamp-go v0.22.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/testbed v0.140.1
+	github.com/newrelic/nrdot-plus-collector-components/testbed v0.140.1
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/collector/component v1.46.0
 	go.opentelemetry.io/collector/config/confighttp v0.140.0
@@ -99,29 +99,29 @@ require (
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/mostynb/go-grpc-compression v1.2.3 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/stefexporter v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/syslogexporter v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/zipkinexporter v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/common v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/grpcutil v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/otelarrow v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/pdatautil v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/jaeger v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/zipkin v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/otelarrowreceiver v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/stefreceiver v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver v0.140.1 // indirect
-	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/connector/routingconnector v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/connector/spanmetricsconnector v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/exporter/stefexporter v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/exporter/syslogexporter v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/exporter/zipkinexporter v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/internal/common v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/internal/grpcutil v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/internal/otelarrow v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/internal/pdatautil v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/internal/sharedcomponent v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/core/xidutils v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/golden v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/ottl v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/stanza v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/translator/jaeger v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/pkg/translator/zipkin v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/receiver/jaegerreceiver v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/receiver/otelarrowreceiver v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/receiver/stefreceiver v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/receiver/syslogreceiver v0.140.1 // indirect
+	github.com/newrelic/nrdot-plus-collector-components/receiver/zipkinreceiver v0.140.1 // indirect
 	github.com/open-telemetry/otel-arrow/go v0.45.0 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
@@ -245,110 +245,110 @@ require (
 	modernc.org/b/v2 v2.1.0 // indirect
 )
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver => ../../receiver/syslogreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/syslogreceiver => ../../receiver/syslogreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/common => ../../internal/common
+replace github.com/newrelic/nrdot-plus-collector-components/internal/common => ../../internal/common
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza => ../../pkg/stanza
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/stanza => ../../pkg/stanza
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage => ../../extension/storage
+replace github.com/newrelic/nrdot-plus-collector-components/extension/storage => ../../extension/storage
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector => ../../connector/routingconnector
+replace github.com/newrelic/nrdot-plus-collector-components/connector/routingconnector => ../../connector/routingconnector
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/signalfxreceiver => ../../receiver/signalfxreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/signalfxreceiver => ../../receiver/signalfxreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/prometheusremotewrite => ../../pkg/translator/prometheusremotewrite
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/translator/prometheusremotewrite => ../../pkg/translator/prometheusremotewrite
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter => ../../exporter/prometheusexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/prometheusexporter => ../../exporter/prometheusexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/prometheus => ../../pkg/translator/prometheus
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/translator/prometheus => ../../pkg/translator/prometheus
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/zipkinexporter => ../../exporter/zipkinexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/zipkinexporter => ../../exporter/zipkinexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/syslogexporter => ../../exporter/syslogexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/syslogexporter => ../../exporter/syslogexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/batchperresourceattr => ../../pkg/batchperresourceattr
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/batchperresourceattr => ../../pkg/batchperresourceattr
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/zipkin => ../../pkg/translator/zipkin
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/translator/zipkin => ../../pkg/translator/zipkin
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/splunkhecexporter => ../../exporter/splunkhecexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/splunkhecexporter => ../../exporter/splunkhecexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver => ../../receiver/prometheusreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/prometheusreceiver => ../../receiver/prometheusreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/jaeger => ../../pkg/translator/jaeger
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/translator/jaeger => ../../pkg/translator/jaeger
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/pdatautil => ../../internal/pdatautil
+replace github.com/newrelic/nrdot-plus-collector-components/internal/pdatautil => ../../internal/pdatautil
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/experimentalmetricmetadata => ../../pkg/experimentalmetricmetadata
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/experimentalmetricmetadata => ../../pkg/experimentalmetricmetadata
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/testbed/mockdatasenders/mockdatadogagentexporter => ../../testbed/mockdatasenders/mockdatadogagentexporter
+replace github.com/newrelic/nrdot-plus-collector-components/testbed/mockdatasenders/mockdatadogagentexporter => ../../testbed/mockdatasenders/mockdatadogagentexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/carbonexporter => ../../exporter/carbonexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/carbonexporter => ../../exporter/carbonexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry => ../../pkg/resourcetotelemetry
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/resourcetotelemetry => ../../pkg/resourcetotelemetry
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver => ../../receiver/zipkinreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/zipkinreceiver => ../../receiver/zipkinreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent => ../../internal/sharedcomponent
+replace github.com/newrelic/nrdot-plus-collector-components/internal/sharedcomponent => ../../internal/sharedcomponent
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/testbed => ../../testbed
+replace github.com/newrelic/nrdot-plus-collector-components/testbed => ../../testbed
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/datadogreceiver => ../../receiver/datadogreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/datadogreceiver => ../../receiver/datadogreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/carbonreceiver => ../../receiver/carbonreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/carbonreceiver => ../../receiver/carbonreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest => ../../pkg/pdatatest
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest => ../../pkg/pdatatest
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil => ../../pkg/pdatautil
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/pdatautil => ../../pkg/pdatautil
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils => ../../pkg/core/xidutils
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/core/xidutils => ../../pkg/core/xidutils
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/splunk => ../../internal/splunk
+replace github.com/newrelic/nrdot-plus-collector-components/internal/splunk => ../../internal/splunk
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/splunkhecreceiver => ../../receiver/splunkhecreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/splunkhecreceiver => ../../receiver/splunkhecreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter => ../../exporter/signalfxexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/signalfxexporter => ../../exporter/signalfxexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver => ../../receiver/jaegerreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/jaegerreceiver => ../../receiver/jaegerreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl => ../../pkg/ottl
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/ottl => ../../pkg/ottl
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden => ../../pkg/golden
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/golden => ../../pkg/golden
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal => ../../internal/coreinternal
+replace github.com/newrelic/nrdot-plus-collector-components/internal/coreinternal => ../../internal/coreinternal
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector => ../../connector/spanmetricsconnector
+replace github.com/newrelic/nrdot-plus-collector-components/connector/spanmetricsconnector => ../../connector/spanmetricsconnector
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/signalfx => ../../pkg/translator/signalfx
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/translator/signalfx => ../../pkg/translator/signalfx
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/exp/metrics => ../../internal/exp/metrics
+replace github.com/newrelic/nrdot-plus-collector-components/internal/exp/metrics => ../../internal/exp/metrics
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/extension/ackextension => ../../extension/ackextension
+replace github.com/newrelic/nrdot-plus-collector-components/extension/ackextension => ../../extension/ackextension
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter => ../../exporter/prometheusremotewriteexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/prometheusremotewriteexporter => ../../exporter/prometheusremotewriteexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/stefexporter => ../../exporter/stefexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/stefexporter => ../../exporter/stefexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/stefreceiver => ../../receiver/stefreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/stefreceiver => ../../receiver/stefreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor => ../../processor/deltatocumulativeprocessor
+replace github.com/newrelic/nrdot-plus-collector-components/processor/deltatocumulativeprocessor => ../../processor/deltatocumulativeprocessor
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/gopsutilenv => ../../internal/gopsutilenv
+replace github.com/newrelic/nrdot-plus-collector-components/internal/gopsutilenv => ../../internal/gopsutilenv
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/metadataproviders => ../../internal/metadataproviders
+replace github.com/newrelic/nrdot-plus-collector-components/internal/metadataproviders => ../../internal/metadataproviders
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/k8sconfig => ../../internal/k8sconfig
+replace github.com/newrelic/nrdot-plus-collector-components/internal/k8sconfig => ../../internal/k8sconfig
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/datadog => ../../internal/datadog
+replace github.com/newrelic/nrdot-plus-collector-components/internal/datadog => ../../internal/datadog
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/datadog => ../../pkg/datadog
+replace github.com/newrelic/nrdot-plus-collector-components/pkg/datadog => ../../pkg/datadog
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/ecsutil => ../../internal/aws/ecsutil
+replace github.com/newrelic/nrdot-plus-collector-components/internal/aws/ecsutil => ../../internal/aws/ecsutil
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/otelarrow => ../../internal/otelarrow
+replace github.com/newrelic/nrdot-plus-collector-components/internal/otelarrow => ../../internal/otelarrow
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/otelarrowreceiver => ../../receiver/otelarrowreceiver
+replace github.com/newrelic/nrdot-plus-collector-components/receiver/otelarrowreceiver => ../../receiver/otelarrowreceiver
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/otelarrowexporter => ../../exporter/otelarrowexporter
+replace github.com/newrelic/nrdot-plus-collector-components/exporter/otelarrowexporter => ../../exporter/otelarrowexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/grpcutil => ../../internal/grpcutil
+replace github.com/newrelic/nrdot-plus-collector-components/internal/grpcutil => ../../internal/grpcutil

@@ -1,14 +1,14 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package internal // import "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/golden/internal"
+package internal // import "github.com/newrelic/nrdot-plus-collector-components/cmd/golden/internal"
 
 import (
 	"errors"
 	"strings"
 	"time"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
+	"github.com/newrelic/nrdot-plus-collector-components/pkg/pdatatest/pmetrictest"
 )
 
 type Config struct {

@@ -38,9 +38,9 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/config"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/telemetry"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/config"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/telemetry"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 const configTemplate = `

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package datasenders // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
+package datasenders // import "github.com/newrelic/nrdot-plus-collector-components/testbed/datasenders"
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 	"go.opentelemetry.io/collector/exporter/exportertest"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/carbonexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/exporter/carbonexporter"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 // CarbonDataSender implements MetricDataSender for Carbon metrics protocol.

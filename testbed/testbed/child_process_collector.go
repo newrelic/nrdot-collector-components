@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package testbed // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+package testbed // import "github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 
 import (
 	"bytes"
@@ -26,7 +26,7 @@ import (
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/process"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
 )
 
 // childProcessCollector implements the OtelcolRunner interface as a child process on the same machine executing

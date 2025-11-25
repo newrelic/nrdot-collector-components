@@ -11,9 +11,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/config"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/opampsupervisor/supervisor/telemetry"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/config"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/opampsupervisor/supervisor/telemetry"
 )
 
 func main() {

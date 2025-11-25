@@ -290,7 +290,7 @@ type AgentDescription struct {
 
 type Telemetry struct {
 	// TODO: Add more telemetry options
-	// Issue here: https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/35582
+	// Issue here: https://github.com/newrelic/nrdot-plus-collector-components/issues/35582
 	Logs    Logs                           `mapstructure:"logs"`
 	Metrics Metrics                        `mapstructure:"metrics"`
 	Traces  otelconftelemetry.TracesConfig `mapstructure:"traces"`

@@ -3,7 +3,7 @@
 
 //go:build tools
 
-package tools // import "github.com/open-telemetry/opentelemetry-collector-contrib/internal/tools"
+package tools // import "github.com/newrelic/nrdot-plus-collector-components/internal/tools"
 
 // This file follows the recommendation at
 // https://go.dev/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
@@ -34,5 +34,5 @@ import (
 	_ "gotest.tools/gotestsum"
 	_ "mvdan.cc/gofumpt"
 
-	_ "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/codecovgen"
+	_ "github.com/newrelic/nrdot-plus-collector-components/cmd/codecovgen"
 )

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package traces // import "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/traces"
+package traces // import "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/traces"
 
 import (
 	"context"
@@ -21,8 +21,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/config"
-	types "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/pkg"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/internal/config"
+	types "github.com/newrelic/nrdot-plus-collector-components/cmd/telemetrygen/pkg"
 )
 
 type worker struct {

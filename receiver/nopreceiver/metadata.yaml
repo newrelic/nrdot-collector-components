@@ -1,0 +1,7 @@
+type: nopreceiver
+
+status:
+  disable_codecov_badge: true
+  class: receiver
+  stability:
+    beta: [traces, metrics, logs]

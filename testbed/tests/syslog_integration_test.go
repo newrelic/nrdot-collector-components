@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package tests // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/tests"
+package tests // import "github.com/newrelic/nrdot-plus-collector-components/testbed/tests"
 
 import (
 	"fmt"
@@ -16,9 +16,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/datareceivers"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 type expectedDataType struct {
@@ -68,7 +68,7 @@ func TestSyslogComplementaryRFC5424(t *testing.T) {
 }
 
 func TestSyslogComplementaryRFC3164(t *testing.T) {
-	t.Skip("https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/38238")
+	t.Skip("https://github.com/newrelic/nrdot-plus-collector-components/issues/38238")
 	expectedData := []expectedDataType{
 		{
 			message:        "<34>Oct 11 2023 22:14:15 mymachine su: 'su root' failed for lonvick on /dev/pts/8",

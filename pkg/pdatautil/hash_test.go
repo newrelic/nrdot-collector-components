@@ -108,7 +108,7 @@ func TestMapHash(t *testing.T) {
 			equal: true,
 		},
 		{
-			// Specific test to ensure panic described in https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/18910 is fixed.
+			// Specific test to ensure panic described in https://github.com/newrelic/nrdot-plus-collector-components/issues/18910 is fixed.
 			name: "nested_maps_different_order",
 			maps: func() []pcommon.Map {
 				m := []pcommon.Map{pcommon.NewMap(), pcommon.NewMap()}

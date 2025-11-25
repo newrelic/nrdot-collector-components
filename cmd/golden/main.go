@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package main // import "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/golden"
+package main // import "github.com/newrelic/nrdot-plus-collector-components/cmd/golden"
 
 import (
 	"context"
@@ -20,7 +20,7 @@ import (
 	nooptrace "go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/golden/internal"
+	"github.com/newrelic/nrdot-plus-collector-components/cmd/golden/internal"
 )
 
 // insertDefault is a helper function to insert a default value for a configoptional.Optional type.

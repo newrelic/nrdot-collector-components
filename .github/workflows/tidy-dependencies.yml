@@ -1,9 +1,9 @@
 name: "Project: Tidy"
-on:
-  pull_request_target:
-    types: [opened, ready_for_review, synchronize, reopened, labeled, unlabeled]
-    branches:
-      - main
+#on:
+#  pull_request_target:
+#    types: [opened, ready_for_review, synchronize, reopened, labeled, unlabeled]
+#    branches:
+#      - main
 
 permissions:
   contents: read

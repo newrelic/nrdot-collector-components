@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package datareceivers // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
+package datareceivers // import "github.com/newrelic/nrdot-plus-collector-components/testbed/datareceivers"
 
 import (
 	"context"
@@ -13,8 +13,8 @@ import (
 	"go.opentelemetry.io/collector/receiver"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/splunkhecreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-plus-collector-components/receiver/splunkhecreceiver"
+	"github.com/newrelic/nrdot-plus-collector-components/testbed/testbed"
 )
 
 // SplunkHECDataReceiver implements Splunk HEC format receiver.
