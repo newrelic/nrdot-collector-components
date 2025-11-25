@@ -1,0 +1,85 @@
+# This workflow verifies that private New Relic components cannot be fetched
+# without proper authentication. This ensures that OCB (OpenTelemetry Collector Builder)
+# cannot reference private components without authorization.
+
+name: test-authentication
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: read-all
+
+env:
+  # Make sure to exit early if cache segment download times out after 2 minutes.
+  # We limit cache download as a whole to 5 minutes.
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 2
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test-authentication:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Setup Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
+        with:
+          go-version: '1.24'
+          cache: false
+
+      - name: Build OCB tool
+        run: |
+          echo "Building OpenTelemetry Collector Builder..."
+          make .tools/builder
+
+      - name: Test authentication requirement (without credentials)
+        run: |
+          echo "Testing that components CANNOT be accessed without authentication..."
+          ./.github/workflows/scripts/test-authentication-required.sh
+        env:
+          # Explicitly unset any authentication that might be present
+          GOPRIVATE: ""
+          GH_TOKEN: ""
+          GITHUB_TOKEN: ""
+
+      - name: Setup SSH for authenticated tests
+        uses: webfactory/ssh-agent@dc588b651fe13675774614f8e6a936a468676387 # v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Configure git to use SSH
+        run: |
+          git config --global url."git@github.com:".insteadOf "https://github.com/"
+          export GOPRIVATE="github.com/newrelic/*"
+
+      - name: Test authentication success (with credentials)
+        run: |
+          echo "Testing that components CAN be accessed with proper authentication..."
+          ./.github/workflows/scripts/test-authentication-success.sh
+        env:
+          GOPRIVATE: "github.com/newrelic/*"
+
+      - name: Test results
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✓ All authentication tests passed"
+            echo "  • Components CANNOT be accessed without authentication ✓"
+            echo "  • Components CAN be accessed with authentication ✓"
+          else
+            echo "✗ Authentication tests failed"
+            echo "Check the logs above for details"
+            exit 1
+          fi
