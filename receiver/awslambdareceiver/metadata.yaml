@@ -1,9 +1,0 @@
-type: awslambda
-
-status:
-  class: receiver
-  stability:
-    development: [logs]
-  distributions: []
-  codeowners:
-    active: [MichaelKatsoulis, Kavindu-Dodan, axw, pjanotti]
