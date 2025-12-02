@@ -6,10 +6,11 @@ package nopexporter // import "github.com/newrelic/nrdot-collector-components/ex
 import (
 	"context"
 
-	"github.com/newrelic/nrdot-collector-components/exporter/nopexporter/internal/metadata"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/exporter"
+
+	"github.com/newrelic/nrdot-collector-components/exporter/nopexporter/internal/metadata"
 )
 
 // NewFactory returns an exporter.Factory that constructs nop exporters.

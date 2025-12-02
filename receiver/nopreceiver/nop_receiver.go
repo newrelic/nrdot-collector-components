@@ -6,10 +6,11 @@ package nopreceiver // import "github.com/newrelic/nrdot-collector-components/re
 import (
 	"context"
 
-	"github.com/newrelic/nrdot-collector-components/receiver/nopreceiver/internal/metadata"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
+
+	"github.com/newrelic/nrdot-collector-components/receiver/nopreceiver/internal/metadata"
 )
 
 // NewFactory returns a receiver.Factory that constructs nop receivers.
