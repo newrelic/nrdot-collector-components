@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package mockdatadogagentexporter // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/mockdatasenders/mockdatadogagentexporter"
+package mockdatadogagentexporter // import "github.com/newrelic/nrdot-collector-components/testbed/mockdatasenders/mockdatadogagentexporter"
 
 import (
 	"go.opentelemetry.io/collector/component"

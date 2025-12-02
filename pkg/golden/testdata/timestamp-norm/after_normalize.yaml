@@ -91,5 +91,5 @@ resourceMetrics:
               isMonotonic: true
             unit: By
         scope:
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/timestampNormalization
+          name: github.com/newrelic/nrdot-collector-components/receiver/timestampNormalization
           version: latest

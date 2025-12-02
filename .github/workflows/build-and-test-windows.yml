@@ -98,7 +98,7 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' && (contains(github.event.pull_request.labels.*.name, 'Run Windows') || github.event_name == 'push' || github.event_name == 'merge_group') }}
     env:
       # Limit memory usage via GC environment variables to avoid OOM on GH runners, especially for `cmd/nrdotcol`,
-      # see https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/28682#issuecomment-1802296776
+      # see https://github.com/newrelic/nrdot-collector-components/pull/28682#issuecomment-1802296776
       GOGC: 50
       GOMEMLIMIT: 2GiB
       # The gcc installed on the Windows arm64 runner doesn't ship native ARM libraries so we need to disable CGO.
@@ -116,7 +116,7 @@ jobs:
       - name: Build shared test tools
         # If component tests share Makefile targets they need to be added here to avoid
         # concurrent component tests clashing when building such targets. This applies
-        # specifically to Windows, see https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/34691
+        # specifically to Windows, see https://github.com/newrelic/nrdot-collector-components/issues/34691
         run: make "$(${PWD} -replace '\\', '/')/.tools/gotestsum"
       
       # Unit tests without JUnit output are much faster, so it's fine to run on every PR.

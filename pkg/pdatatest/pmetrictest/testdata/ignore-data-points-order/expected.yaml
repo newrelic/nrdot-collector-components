@@ -132,7 +132,7 @@ resourceMetrics:
                   startTimeUnixNano: "1653329630290831862"
                   timeUnixNano: "1653329645321022166"
               isMonotonic: true
-            unit: '{scans}'
+            unit: "{scans}"
           - description: Minimum percentage of contiguous disk space free to the namespace across all devices
             gauge:
               dataPoints:
@@ -140,7 +140,7 @@ resourceMetrics:
                   startTimeUnixNano: "1653329630290831862"
                   timeUnixNano: "1653329645321022166"
             name: aerospike.namespace.disk.available
-            unit: '%'
+            unit: "%"
           - description: Percentage of the namespace's memory which is still free
             gauge:
               dataPoints:
@@ -148,7 +148,7 @@ resourceMetrics:
                   startTimeUnixNano: "1653329630290831862"
                   timeUnixNano: "1653329645321022166"
             name: aerospike.namespace.memory.free
-            unit: '%'
+            unit: "%"
           - description: Memory currently used by each component of the namespace
             name: aerospike.namespace.memory.usage
             sum:
@@ -184,4 +184,4 @@ resourceMetrics:
                   timeUnixNano: "1653329645321022166"
             unit: By
         scope:
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver

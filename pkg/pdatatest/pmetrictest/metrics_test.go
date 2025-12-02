@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+	"github.com/newrelic/nrdot-collector-components/pkg/golden"
 )
 
 func TestCompareMetrics(t *testing.T) {
@@ -385,10 +385,10 @@ func TestCompareMetrics(t *testing.T) {
 				IgnoreMetricsOrder(),
 			},
 			withoutOptions: multierr.Combine(
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.memory.free" expected at index 0, found at index 2`),
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.memory.usage" expected at index 1, found at index 3`),
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.disk.available" expected at index 2, found at index 1`),
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.scan.count" expected at index 3, found at index 0`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.memory.free" expected at index 0, found at index 2`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.memory.usage" expected at index 1, found at index 3`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.disk.available" expected at index 2, found at index 1`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metrics are out of order: metric "aerospike.namespace.scan.count" expected at index 3, found at index 0`),
 			),
 			withOptions: nil,
 		},
@@ -398,9 +398,9 @@ func TestCompareMetrics(t *testing.T) {
 				IgnoreMetricDataPointsOrder(),
 			},
 			withoutOptions: multierr.Combine(
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metric "aerospike.namespace.scan.count": datapoints are out of order: datapoint "map[result:complete type:aggr]" expected at index 1, found at index 2`),
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metric "aerospike.namespace.scan.count": datapoints are out of order: datapoint "map[result:error type:aggr]" expected at index 2, found at index 3`),
-				errors.New(`resource "map[namespace:test]": scope "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver": metric "aerospike.namespace.scan.count": datapoints are out of order: datapoint "map[result:abort type:basic]" expected at index 3, found at index 1`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metric "aerospike.namespace.scan.count": datapoints are out of order: datapoint "map[result:complete type:aggr]" expected at index 1, found at index 2`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metric "aerospike.namespace.scan.count": datapoints are out of order: datapoint "map[result:error type:aggr]" expected at index 2, found at index 3`),
+				errors.New(`resource "map[namespace:test]": scope "github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver": metric "aerospike.namespace.scan.count": datapoints are out of order: datapoint "map[result:abort type:basic]" expected at index 3, found at index 1`),
 			),
 			withOptions: nil,
 		},

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package correctnesstests // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
+package correctnesstests // import "github.com/newrelic/nrdot-collector-components/testbed/correctnesstests"
 
 import (
 	"bufio"

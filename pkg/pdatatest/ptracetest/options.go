@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package ptracetest // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/ptracetest"
+package ptracetest // import "github.com/newrelic/nrdot-collector-components/pkg/pdatatest/ptracetest"
 
 import (
 	"bytes"

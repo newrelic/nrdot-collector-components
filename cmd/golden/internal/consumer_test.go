@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
+	"github.com/newrelic/nrdot-collector-components/pkg/pdatatest/pmetrictest"
 )
 
 func TestConsumeMetrics(t *testing.T) {

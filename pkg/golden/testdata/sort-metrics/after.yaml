@@ -22,7 +22,7 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: CCCC
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/anotherfakereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/anotherfakereceiver
           version: latest
   - resource:
       attributes:
@@ -47,7 +47,7 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: AAAA
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/fakereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/fakereceiver
           version: latest
       - metrics:
           - description: The number of bytes which have flowed through the network interface.
@@ -112,7 +112,7 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: BBBB
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/nsxtreceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/nsxtreceiver
           version: latest
       - metrics:
           - description: This also isn't a real metric
@@ -131,7 +131,7 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: CCCC
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/anotherfakereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/anotherfakereceiver
           version: latest
   - resource:
       attributes:
@@ -156,5 +156,5 @@ resourceMetrics:
             - key: a
               value:
                 stringValue: AAAA
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/questionablyfakereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/questionablyfakereceiver
           version: latest

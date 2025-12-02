@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/internal/common
+module github.com/newrelic/nrdot-collector-components/internal/common
 
 go 1.24.0
 

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package golden // import "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+package golden // import "github.com/newrelic/nrdot-collector-components/pkg/golden"
 
 import (
 	"fmt"

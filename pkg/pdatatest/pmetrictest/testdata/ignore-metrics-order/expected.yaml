@@ -13,7 +13,7 @@ resourceMetrics:
                   startTimeUnixNano: "1653329630290831862"
                   timeUnixNano: "1653329645321022166"
             name: aerospike.namespace.memory.free
-            unit: '%'
+            unit: "%"
           - description: Memory currently used by each component of the namespace
             name: aerospike.namespace.memory.usage
             sum:
@@ -55,7 +55,7 @@ resourceMetrics:
                   startTimeUnixNano: "1653329630290831862"
                   timeUnixNano: "1653329645321022166"
             name: aerospike.namespace.disk.available
-            unit: '%'
+            unit: "%"
           - description: Number of scan operations performed on the namespace
             name: aerospike.namespace.scan.count
             sum:
@@ -182,6 +182,6 @@ resourceMetrics:
                   startTimeUnixNano: "1653329630290831862"
                   timeUnixNano: "1653329645321022166"
               isMonotonic: true
-            unit: '{scans}'
+            unit: "{scans}"
         scope:
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver

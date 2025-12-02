@@ -72,7 +72,7 @@ resourceMetrics:
                   startTimeUnixNano: "1652734551332787000"
                   timeUnixNano: "1652734556334562000"
               isMonotonic: true
-            unit: '{connections}'
+            unit: "{connections}"
           - description: Number of open connections to the node
             name: aerospike.node.connection.open
             sum:
@@ -99,6 +99,6 @@ resourceMetrics:
                         stringValue: heartbeat
                   startTimeUnixNano: "1652734551332787000"
                   timeUnixNano: "1652734556334562000"
-            unit: '{connections}'
+            unit: "{connections}"
         scope:
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/aerospikereceiver

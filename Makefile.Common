@@ -247,7 +247,7 @@ checklinks:
 .PHONY: fmt
 fmt: $(GOFUMPT) $(GOIMPORTS)
 	$(GOFUMPT) -l -w -extra .
-	$(GOIMPORTS) -w -local github.com/open-telemetry/opentelemetry-collector-contrib ./
+	$(GOIMPORTS) -w -local github.com/newrelic/nrdot-collector-components ./
 
 .PHONY: generate-tools
 generate-tools: $(MDATAGEN) $(GENQLIENT)
@@ -314,7 +314,7 @@ moddownload:
 .PHONY: gci
 gci: $(TOOLS_BIN_DIR)/gci
 	@echo "running $(GCI)"
-	@$(GCI) write -s standard -s default -s "prefix(github.com/open-telemetry/opentelemetry-collector-contrib)" $$($(ALL_SRC_AND_DOC_CMD))
+	@$(GCI) write -s standard -s default -s "prefix(github.com/newrelic/nrdot-collector-components)" $$($(ALL_SRC_AND_DOC_CMD))
 
 CHANGED_GOLANG_SOURCES?=$(shell git diff main --name-only | grep -E '.*\.go$$' | grep -v -E '.*_test\.go$$')
 .PHONY: for-affected-components

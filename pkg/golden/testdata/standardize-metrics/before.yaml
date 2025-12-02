@@ -1,6 +1,6 @@
 resourceMetrics:
   - resource:
-     attributes:
+      attributes:
         - key: a
           value:
             stringValue: BBB
@@ -116,7 +116,7 @@ resourceMetrics:
             - key: b
               value:
                 stringValue: BBB
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/standardization
+          name: github.com/newrelic/nrdot-collector-components/receiver/standardization
           version: latest
   - resource:
       attributes:
@@ -147,7 +147,7 @@ resourceMetrics:
               isMonotonic: false
             unit: "1"
         scope:
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/anotherfakereceiver
+          name: github.com/newrelic/nrdot-collector-components/receiver/anotherfakereceiver
           version: latest
           attributes:
             - key: a
@@ -197,7 +197,7 @@ resourceMetrics:
               isMonotonic: false
             unit: "1"
         scope:
-          name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/FakeMetric
+          name: github.com/newrelic/nrdot-collector-components/receiver/FakeMetric
           version: latest
           attributes:
             - key: a

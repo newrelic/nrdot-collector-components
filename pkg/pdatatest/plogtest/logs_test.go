@@ -14,7 +14,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.uber.org/multierr"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+	"github.com/newrelic/nrdot-collector-components/pkg/golden"
 )
 
 func TestCompareLogs(t *testing.T) {
