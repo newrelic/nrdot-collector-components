@@ -43,7 +43,7 @@ jobs:
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - run: make genotelcontribcol
+      - run: make gennrdotcol
       - name: Check Collector Module Version
         run: ./.github/workflows/scripts/check-collector-module-version.sh
   lint-matrix:
@@ -158,7 +158,7 @@ jobs:
       - name: Install Tools
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
-      - run: make genotelcontribcol
+      - run: make gennrdotcol
       - name: CheckDoc
         run: make checkdoc
       - name: CheckMetadata
@@ -451,7 +451,7 @@ jobs:
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - run: make genotelcontribcol
+      - run: make gennrdotcol
       - name: Build Examples
         run: make build-examples
 
@@ -511,9 +511,9 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
       - name: Generate collector files
-        run: make genotelcontribcol
+        run: make gennrdotcol
       - name: Build Collector ${{ matrix.os }} ${{ matrix.arch }} ${{ matrix.arm }}
-        run: make GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} otelcontribcol
+        run: make GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} nrdotcol
       - name: Upload Collector Binaries
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
@@ -560,10 +560,10 @@ jobs:
         run: make install-tools
       - name: Build Docker Image
         run: |
-          make genotelcontribcol
-          make docker-otelcontribcol
-          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:"$GITHUB_SHA"
-          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:latest
+          make gennrdotcol
+          make docker-nrdotcol
+          docker tag nrdotcol:latest otel/opentelemetry-collector-contrib-dev:"$GITHUB_SHA"
+          docker tag nrdotcol:latest otel/opentelemetry-collector-contrib-dev:latest
       - name: Validate Docker Image
         run: |
           docker run otel/opentelemetry-collector-contrib-dev:"$GITHUB_SHA" --version

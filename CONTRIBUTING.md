@@ -13,16 +13,16 @@ repository:
 1. Build the Collector:
 
   ```shell
-  make otelcontribcol
+  make nrdotcol
   ```
 
 2. Run the contrib Collector with a local configuration file:
 
   ```shell
-  ./bin/otelcontribcol_<os>_<arch> --config otel-config.yaml
+  ./bin/nrdotcol_<os>_<arch> --config otel-config.yaml
   ```
 
-  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/otelcontribcol_linux_amd64`.
+  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/nrdotcol_linux_amd64`.
 
 Replace `otel-config.yaml` with the appropriate configuration file as needed.
 
@@ -247,7 +247,7 @@ and its contributors.
 - Run `make crosslink` to update intra-repository dependencies. It will add a `replace` directive to `go.mod` file of every intra-repository dependant. This is necessary for your component to be included in the contrib executable.
 - Add your component to `versions.yaml`.
 - All components included in the distribution must be included in
-  [`cmd/otelcontribcol/builder-config.yaml`](./cmd/otelcontribcol/builder-config.yaml)
+  [`cmd/nrdotcol/builder-config.yaml`](./cmd/nrdotcol/builder-config.yaml)
   and in the respective testing harnesses. To align with the test goal of the
   project, components must be testable within the framework defined within the
   folder. If a component can not be properly tested within the existing
@@ -303,7 +303,7 @@ When submitting a component to the community, consider breaking it down into sep
     * `make goporto`
     * `make crosslink`
     * `make gotidy`
-    * `make genotelcontribcol`
+    * `make gennrdotcol`
     * `make genoteltestbedcol`
     * `make generate`
     * `make multimod-verify`
@@ -317,10 +317,10 @@ When submitting a component to the community, consider breaking it down into sep
   * Update its `metadata.yaml` file.
     * Mark the stability as `alpha`
     * Add `contrib` to the list of distributions
-  * Add it to the `cmd/otelcontribcol` binary by updating the `cmd/otelcontribcol/builder-config.yaml` file.
+  * Add it to the `cmd/nrdotcol` binary by updating the `cmd/nrdotcol/builder-config.yaml` file.
   * Please also run:
     - `make generate`
-    - `make genotelcontribcol`
+    - `make gennrdotcol`
  
   * The component must be enabled only after sufficient testing and only when it meets [`Alpha` stability requirements](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/component-stability.md#alpha).
 * Once your component has reached `Alpha` stability, you may also submit a PR to the [OpenTelemetry Collector Releases](https://github.com/open-telemetry/opentelemetry-collector-releases) repository to include your component in future releases of the OpenTelemetry Collector `contrib` distribution.

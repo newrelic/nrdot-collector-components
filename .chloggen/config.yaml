@@ -11,7 +11,7 @@ components:
     - cmd/codecovgen
     - cmd/golden
     - cmd/opampsupervisor
-    - cmd/otelcontribcol
+    - cmd/nrdotcol
     - cmd/oteltestbedcol
     - cmd/telemetrygen
     - connector/count

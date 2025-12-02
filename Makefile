@@ -9,7 +9,7 @@ VERSION=$(shell git describe --always --match "v[0-9]*" HEAD)
 TRIMMED_VERSION=$(shell grep -o 'v[^-]*' <<< "$(VERSION)" | cut -c 2-)
 CORE_VERSIONS=$(SRC_PARENT_DIR)/opentelemetry-collector/versions.yaml
 
-COMP_REL_PATH=cmd/otelcontribcol/components.go
+COMP_REL_PATH=cmd/nrdotcol/components.go
 MOD_NAME=github.com/open-telemetry/opentelemetry-collector-contrib
 
 GROUP ?= all
@@ -90,14 +90,14 @@ all-groups:
 	@echo -e "\ngenerated: $(GENERATED_MODS)"
 
 .PHONY: all
-all: install-tools all-common goporto multimod-verify gotest otelcontribcol
+all: install-tools all-common goporto multimod-verify gotest nrdotcol
 
 .PHONY: all-common
 all-common:
 	@$(MAKE) $(FOR_GROUP_TARGET) TARGET="common"
 
 .PHONY: e2e-test
-e2e-test: otelcontribcol oteltestbedcol
+e2e-test: nrdotcol oteltestbedcol
 	$(MAKE) --no-print-directory -C testbed run-tests
 
 .PHONY: integration-test
@@ -110,7 +110,7 @@ integration-tests-with-cover:
 
 # Long-running e2e tests
 .PHONY: stability-tests
-stability-tests: otelcontribcol
+stability-tests: nrdotcol
 	@echo Stability tests are disabled until we have a stable performance environment.
 	@echo To enable the tests replace this echo by $(MAKE) -C testbed run-stability-tests
 
@@ -150,7 +150,7 @@ tidylist: $(CROSSLINK)
 	$(CROSSLINK) tidylist \
 		--validate \
 		--allow-circular allow-circular.txt \
-		--skip cmd/otelcontribcol/go.mod \
+		--skip cmd/nrdotcol/go.mod \
 		--skip cmd/oteltestbedcol/go.mod \
 		tidylist.txt
 
@@ -330,7 +330,7 @@ all-pwd:
 
 .PHONY: run
 run:
-	cd ./cmd/otelcontribcol && GO111MODULE=on $(GOCMD) run --race . --config ../../${RUN_CONFIG} ${RUN_ARGS}
+	cd ./cmd/nrdotcol && GO111MODULE=on $(GOCMD) run --race . --config ../../${RUN_CONFIG} ${RUN_ARGS}
 
 .PHONY: docker-component # Not intended to be used directly
 docker-component: check-component
@@ -345,12 +345,12 @@ ifndef COMPONENT
 	$(error COMPONENT variable was not defined)
 endif
 
-.PHONY: docker-otelcontribcol
-docker-otelcontribcol:
-	COMPONENT=otelcontribcol $(MAKE) docker-component
+.PHONY: docker-nrdotcol
+docker-nrdotcol:
+	COMPONENT=nrdotcol $(MAKE) docker-component
 
-.PHONY: docker-supervisor-otelcontribcol
-docker-supervisor-otelcontribcol: docker-otelcontribcol
+.PHONY: docker-supervisor-nrdotcol
+docker-supervisor-nrdotcol: docker-nrdotcol
 	COMPONENT=opampsupervisor $(MAKE) docker-component
 
 .PHONY: docker-telemetrygen
@@ -408,21 +408,21 @@ chlog-preview: $(CHLOGGEN)
 chlog-update: $(CHLOGGEN)
 	$(CHLOGGEN) update --config $(CHLOGGEN_CONFIG) --version $(VERSION)
 
-.PHONY: genotelcontribcol
-genotelcontribcol: $(BUILDER)
-	./internal/buildscripts/ocb-add-replaces.sh otelcontribcol
-	$(BUILDER) --skip-compilation --config cmd/otelcontribcol/builder-config-replaced.yaml
+.PHONY: gennrdotcol
+gennrdotcol: $(BUILDER)
+	./internal/buildscripts/ocb-add-replaces.sh nrdotcol
+	$(BUILDER) --skip-compilation --config cmd/nrdotcol/builder-config-replaced.yaml
 
 # Build the Collector executable.
-.PHONY: otelcontribcol
-otelcontribcol: genotelcontribcol
-	cd ./cmd/otelcontribcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/otelcontribcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
+.PHONY: nrdotcol
+nrdotcol: gennrdotcol
+	cd ./cmd/nrdotcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/nrdotcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) .
 
 # Build the Collector executable without the symbol table, debug information, and the DWARF symbol table.
-.PHONY: otelcontribcollite
-otelcontribcollite: genotelcontribcol
-	cd ./cmd/otelcontribcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/otelcontribcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
+.PHONY: nrdotcollite
+nrdotcollite: gennrdotcol
+	cd ./cmd/nrdotcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/nrdotcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
 
 .PHONY: genoteltestbedcol
@@ -504,18 +504,18 @@ endef
 
 .PHONY: update-otel
 update-otel:$(MULTIMOD)
-	# Make sure cmd/otelcontribcol/go.mod and cmd/oteltestbedcol/go.mod are present
-	$(MAKE) genotelcontribcol
+	# Make sure cmd/nrdotcol/go.mod and cmd/oteltestbedcol/go.mod are present
+	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
 	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m stable --commit-hash "$(OTEL_STABLE_VERSION)"
 	git add . && git commit -s -m "[chore] multimod update stable modules" ; \
 	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m beta --commit-hash "$(OTEL_VERSION)"
 	git add . && git commit -s -m "[chore] multimod update beta modules" ; \
 	$(MAKE) gotidy
-	$(call updatehelper,$(CORE_VERSIONS),./cmd/otelcontribcol/go.mod,./cmd/otelcontribcol/builder-config.yaml)
+	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotcol/go.mod,./cmd/nrdotcol/builder-config.yaml)
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/oteltestbedcol/go.mod,./cmd/oteltestbedcol/builder-config.yaml)
 	$(MAKE) -B install-tools
-	$(MAKE) genotelcontribcol
+	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
 	$(MAKE) generate
 	$(MAKE) crosslink
@@ -536,13 +536,13 @@ otel-from-tree:
 	# 4. Before committing/pushing your contrib changes, undo by running `make otel-from-lib`.
 	@source $(MODULES) && \
 	replace_args=""; \
-	echo "# BEGIN otel-from-tree" >> "./cmd/otelcontribcol/builder-config.yaml"; \
+	echo "# BEGIN otel-from-tree" >> "./cmd/nrdotcol/builder-config.yaml"; \
 	echo "# BEGIN otel-from-tree" >> "./cmd/oteltestbedcol/builder-config.yaml"; \
 	for module in "$${beta_modules[@]}" "$${stable_modules[@]}"; do \
 		subpath=$${module#go.opentelemetry.io/collector}; \
 		if [ "$${subpath}" = "$${module}" ]; then subpath=""; fi; \
 		replace_args="$${replace_args} -replace $${module}=$(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}"; \
-		echo "  - $${module} => $(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}" >> "./cmd/otelcontribcol/builder-config.yaml"; \
+		echo "  - $${module} => $(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}" >> "./cmd/nrdotcol/builder-config.yaml"; \
 		echo "  - $${module} => $(SRC_PARENT_DIR)/opentelemetry-collector$${subpath}" >> "./cmd/oteltestbedcol/builder-config.yaml"; \
 	done; \
 	$(MAKE) for-all CMD="$(GOCMD) mod edit $${replace_args}"
@@ -555,7 +555,7 @@ otel-from-lib:
 	for module in "$${beta_modules[@]}" "$${stable_modules[@]}"; do \
 		dropreplace_args="$${dropreplace_args} -dropreplace $${module}"; \
 	done; \
-	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/otelcontribcol/builder-config.yaml"; \
+	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/nrdotcol/builder-config.yaml"; \
 	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/oteltestbedcol/builder-config.yaml"; \
 	$(MAKE) for-all CMD="$(GOCMD) mod edit $${dropreplace_args}"
 
@@ -567,9 +567,9 @@ build-examples:
 .PHONY: deb-rpm-package
 %-package: ARCH ?= amd64
 %-package:
-	GOOS=linux GOARCH=$(ARCH) $(MAKE) otelcontribcol
-	docker build -t otelcontribcol-fpm internal/buildscripts/packaging/fpm
-	docker run --rm -v $(CURDIR):/repo -e PACKAGE=$* -e VERSION=$(VERSION) -e ARCH=$(ARCH) otelcontribcol-fpm
+	GOOS=linux GOARCH=$(ARCH) $(MAKE) nrdotcol
+	docker build -t nrdotcol-fpm internal/buildscripts/packaging/fpm
+	docker run --rm -v $(CURDIR):/repo -e PACKAGE=$* -e VERSION=$(VERSION) -e ARCH=$(ARCH) nrdotcol-fpm
 
 # Verify existence of READMEs for components specified as default components in the collector.
 .PHONY: checkdoc
@@ -590,9 +590,9 @@ kind-ready:
 	@if [ -n "$(shell kind get clusters -q)" ]; then echo "kind is ready"; else echo "kind not ready"; exit 1; fi
 
 .PHONY: kind-build
-kind-build: kind-ready docker-otelcontribcol
-	docker tag otelcontribcol otelcontribcol-dev:0.0.1
-	kind load docker-image otelcontribcol-dev:0.0.1
+kind-build: kind-ready docker-nrdotcol
+	docker tag nrdotcol nrdotcol-dev:0.0.1
+	kind load docker-image nrdotcol-dev:0.0.1
 
 .PHONY: kind-install-daemonset
 kind-install-daemonset: kind-ready kind-uninstall-daemonset## Install a local Collector version into the cluster.
@@ -685,7 +685,7 @@ checks:
 	$(MAKE) -j4 goporto
 	$(MAKE) crosslink
 	$(MAKE) -j4 gotidy
-	$(MAKE) genotelcontribcol
+	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
 	$(MAKE) gendistributions
 	$(MAKE) -j4 generate
