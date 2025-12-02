@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package maps // import "github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/maps"
+package maps // import "github.com/newrelic/nrdot-collector-components/internal/common/maps"
 
 import (
 	extmaps "maps"

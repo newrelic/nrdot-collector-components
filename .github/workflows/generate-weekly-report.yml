@@ -1,5 +1,5 @@
 # This action generates a weekly report as a github issue
-# More details in https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/24672
+# More details in https://github.com/newrelic/nrdot-collector-components/issues/24672
 
 name: 'Generate Weekly Report'
 on:

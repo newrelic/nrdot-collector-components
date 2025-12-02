@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package testutil // import "github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
+package testutil // import "github.com/newrelic/nrdot-collector-components/internal/common/testutil"
 
 import (
 	"fmt"

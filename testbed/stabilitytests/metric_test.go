@@ -6,11 +6,11 @@ package tests
 import (
 	"testing"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/common/testutil"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
-	scenarios "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/tests"
+	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/datareceivers"
+	"github.com/newrelic/nrdot-collector-components/testbed/datasenders"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
+	scenarios "github.com/newrelic/nrdot-collector-components/testbed/tests"
 )
 
 func TestStabilityMetricsOTLP(t *testing.T) {

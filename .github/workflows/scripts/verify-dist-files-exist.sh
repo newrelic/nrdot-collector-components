@@ -13,7 +13,7 @@ files=(
     bin/nrdotcol_linux_s390x
     bin/nrdotcol_windows_amd64.exe
     bin/nrdotcol_windows_arm64.exe
-    # skip. See https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/10113
+    # skip. See https://github.com/newrelic/nrdot-collector-components/issues/10113
     # dist/otel-contrib-collector-*amd64.msi
 
 );
