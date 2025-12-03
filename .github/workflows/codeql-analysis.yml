@@ -39,8 +39,8 @@ jobs:
 
       - name: Build Artifact
         run: |
-          make genotelcontribcol
-          make otelcontribcol
+          make gennrdotcol
+          make nrdotcol
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@e12f0178983d466f2f6028f5cc7a6d786fd97f4b # v4
