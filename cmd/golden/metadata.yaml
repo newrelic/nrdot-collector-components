@@ -1,8 +1,0 @@
-type: golden
-
-status:
-  class: cmd
-  stability:
-    alpha: [metrics]
-  codeowners:
-    active: [atoulme]
