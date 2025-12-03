@@ -19,7 +19,6 @@ FIND_MOD_ARGS=-type f -name "go.mod"
 TO_MOD_DIR=dirname {} \; | sort | grep -E '^./'
 EX_COMPONENTS=-not -path "./receiver/*" -not -path "./processor/*" -not -path "./exporter/*" -not -path "./extension/*" -not -path "./connector/*"
 EX_INTERNAL=-not -path "./internal/*"
-EX_PKG=-not -path "./pkg/*"
 EX_CMD=-not -path "./cmd/*"
 
 # This includes a final slash
@@ -31,12 +30,9 @@ EXPORTER_MODS := $(shell find ./exporter/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) 
 EXTENSION_MODS := $(shell find ./extension/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 CONNECTOR_MODS := $(shell find ./connector/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 INTERNAL_MODS := $(shell find ./internal/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 CMD_MODS := $(shell find ./cmd/* $(FIND_MOD_ARGS) -not -path "./cmd/otel*col/*" -exec $(TO_MOD_DIR) )
-OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
-
-CGO_MODS := ./receiver/hostmetricsreceiver
+OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
+export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(CMD_MODS) $(OTHER_MODS)
 
 FIND_INTEGRATION_TEST_MODS={ find . -type f -name "*integration_test.go" & find . -type f -name "*e2e_test.go" -not -path "./testbed/*"; }
 INTEGRATION_MODS := $(shell $(FIND_INTEGRATION_TEST_MODS) | xargs $(TO_MOD_DIR) | uniq)
@@ -57,14 +53,10 @@ all-groups:
 	@echo -e "receiver: $(RECEIVER_MODS)"
 	@echo -e "\nprocessor: $(PROCESSOR_MODS)"
 	@echo -e "\nexporter: $(EXPORTER_MODS)"
-	@echo -e "\nextension: $(EXTENSION_MODS)"
-	@echo -e "\nconnector: $(CONNECTOR_MODS)"
 	@echo -e "\ninternal: $(INTERNAL_MODS)"
-	@echo -e "\npkg: $(PKG_MODS)"
 	@echo -e "\ncmd: $(CMD_MODS)"
 	@echo -e "\nother: $(OTHER_MODS)"
 	@echo -e "\nintegration: $(INTEGRATION_MODS)"
-	@echo -e "\ncgo: $(CGO_MODS)"
 	@echo -e "\ngenerated: $(GENERATED_MODS)"
 
 .PHONY: all
@@ -244,17 +236,8 @@ for-processor-target: $(PROCESSOR_MODS)
 .PHONY: for-exporter-target
 for-exporter-target: $(EXPORTER_MODS)
 
-.PHONY: for-extension-target
-for-extension-target: $(EXTENSION_MODS)
-
-.PHONY: for-connector-target
-for-connector-target: $(CONNECTOR_MODS)
-
 .PHONY: for-internal-target
 for-internal-target: $(INTERNAL_MODS)
-
-.PHONY: for-pkg-target
-for-pkg-target: $(PKG_MODS)
 
 .PHONY: for-cmd-target
 for-cmd-target: $(CMD_MODS)
@@ -264,9 +247,6 @@ for-other-target: $(OTHER_MODS)
 
 .PHONY: for-integration-target
 for-integration-target: $(INTEGRATION_MODS)
-
-.PHONY: for-cgo-target
-for-cgo-target: $(CGO_MODS)
 
 # Debugging target, which helps to quickly determine whether for-all-target is working or not.
 .PHONY: all-pwd
@@ -294,25 +274,6 @@ endif
 docker-nrdotcol:
 	COMPONENT=nrdotcol $(MAKE) docker-component
 
-.PHONY: docker-supervisor-nrdotcol
-docker-supervisor-nrdotcol: docker-nrdotcol
-	COMPONENT=opampsupervisor $(MAKE) docker-component
-
-.PHONY: docker-telemetrygen
-docker-telemetrygen:
-	GOOS=linux GOARCH=$(GOARCH) $(MAKE) telemetrygen
-	cp bin/telemetrygen_* cmd/telemetrygen/
-	cd cmd/telemetrygen && docker build --platform linux/$(GOARCH) --build-arg="TARGETOS=$(GOOS)" --build-arg="TARGETARCH=$(GOARCH)" -t telemetrygen:latest .
-	rm cmd/telemetrygen/telemetrygen_*
-
-.PHONY: docker-golden
-docker-golden:
-	GOOS=linux GOARCH=$(GOARCH) $(MAKE) golden
-	cp bin/golden_* cmd/golden/
-	cd cmd/golden && docker build --platform linux/$(GOARCH) --build-arg="TARGETOS=$(GOOS)" --build-arg="TARGETARCH=$(GOARCH)" -t golden:latest .
-	rm cmd/golden/golden_*
-
-
 .PHONY: gengithub
 gengithub: $(GITHUBGEN)
 	$(GITHUBGEN)
@@ -322,7 +283,7 @@ gendistributions: $(GITHUBGEN)
 	$(GITHUBGEN) distributions
 
 gencodecov: $(CODECOVGEN)
-	$(CODECOVGEN) --base-prefix github.com/newrelic/nrdot-collector-components --skipped-modules **/*test,**/examples/**,pkg/**,cmd/**,internal/**,*/encoding/**
+	$(CODECOVGEN) --base-prefix github.com/newrelic/nrdot-collector-components --skipped-modules **/*test,**/examples/**,cmd/**,internal/**,*/encoding/**
 
 .PHONY: update-codeowners
 update-codeowners: generate gengithub
@@ -385,29 +346,6 @@ oteltestbedcol: genoteltestbedcol
 oteltestbedcollite: genoteltestbedcol
 	cd ./cmd/oteltestbedcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/oteltestbedcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
-
-# Build the telemetrygen executable.
-.PHONY: telemetrygen
-telemetrygen:
-	cd ./cmd/telemetrygen && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/telemetrygen_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) .
-
-.PHONY: telemetrygenlite
-telemetrygenlite:
-	cd ./cmd/telemetrygen && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/telemetrygen_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
-
-# Build the Supervisor executable.
-.PHONY: opampsupervisor
-opampsupervisor:
-	cd ./cmd/opampsupervisor && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/opampsupervisor_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) .
-
-# Build the golden executable.
-.PHONY: golden
-golden:
-	cd ./cmd/golden && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/golden_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) .
 
 MODULES="internal/buildscripts/modules"
 .PHONY: update-core-modules
@@ -504,11 +442,6 @@ otel-from-lib:
 	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/oteltestbedcol/builder-config.yaml"; \
 	$(MAKE) for-all CMD="$(GOCMD) mod edit $${dropreplace_args}"
 
-.PHONY: build-examples
-build-examples:
-	cd examples/secure-tracing/certs && $(MAKE) clean && $(MAKE) all && docker compose -f ../docker-compose.yaml build
-	docker compose -f exporter/splunkhecexporter/example/docker-compose.yml build
-
 .PHONY: deb-rpm-package
 %-package: ARCH ?= amd64
 %-package:
@@ -530,58 +463,9 @@ checkmetadata: $(CHECKFILE)
 checkapi: $(CHECKAPI)
 	$(CHECKAPI) -folder . -config .checkapi.yaml
 
-.PHONY: kind-ready
-kind-ready:
-	@if [ -n "$(shell kind get clusters -q)" ]; then echo "kind is ready"; else echo "kind not ready"; exit 1; fi
-
-.PHONY: kind-build
-kind-build: kind-ready docker-nrdotcol
-	docker tag nrdotcol nrdotcol-dev:0.0.1
-	kind load docker-image nrdotcol-dev:0.0.1
-
-.PHONY: kind-install-daemonset
-kind-install-daemonset: kind-ready kind-uninstall-daemonset## Install a local Collector version into the cluster.
-	@echo "Installing daemonset collector"
-	helm install daemonset-collector-dev open-telemetry/opentelemetry-collector --values ./examples/kubernetes/daemonset-collector-dev.yaml
-
-.PHONY: kind-uninstall-daemonset
-kind-uninstall-daemonset: kind-ready
-	@echo "Uninstalling daemonset collector"
-	helm uninstall --ignore-not-found daemonset-collector-dev
-
-.PHONY: kind-install-deployment
-kind-install-deployment: kind-ready kind-uninstall-deployment## Install a local Collector version into the cluster.
-	@echo "Installing deployment collector"
-	helm install deployment-collector-dev open-telemetry/opentelemetry-collector --values ./examples/kubernetes/deployment-collector-dev.yaml
-
-.PHONY: kind-uninstall-deployment
-kind-uninstall-deployment: kind-ready
-	@echo "Uninstalling deployment collector"
-	helm uninstall --ignore-not-found deployment-collector-dev
-
 .PHONY: all-checklinks
 all-checklinks:
 	$(MAKE) $(FOR_GROUP_TARGET) TARGET="checklinks"
-
-# Function to execute a command. Note the empty line before endef to make sure each command
-# gets executed separately instead of concatenated with previous one.
-# Accepts command to execute as first parameter.
-define exec-command
-$(1)
-
-endef
-
-# List of directories where certificates are stored for unit tests.
-CERT_DIRS := receiver/signalfxreceiver/testdata \
-             receiver/splunkhecreceiver/testdata \
-             receiver/mongodbatlasreceiver/testdata/alerts/cert \
-             receiver/mongodbreceiver/testdata/certs \
-             receiver/cloudflarereceiver/testdata/cert
-
-# Generate certificates for unit tests relying on certificates.
-.PHONY: certs
-certs:
-	$(foreach dir, $(CERT_DIRS), $(call exec-command, @internal/buildscripts/gen-certs.sh -o $(dir)))
 
 .PHONY: multimod-verify
 multimod-verify: $(MULTIMOD)

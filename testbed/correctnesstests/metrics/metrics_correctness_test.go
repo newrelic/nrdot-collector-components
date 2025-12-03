@@ -11,8 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
-	"github.com/newrelic/nrdot-collector-components/internal/coreinternal/goldendataset"
-	"github.com/newrelic/nrdot-collector-components/internal/coreinternal/metricstestutil"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/goldendataset"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/metricstestutil"
+
 	"github.com/newrelic/nrdot-collector-components/testbed/correctnesstests"
 	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )

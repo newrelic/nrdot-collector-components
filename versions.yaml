@@ -6,16 +6,13 @@ module-sets:
     version: v0.140.1
     modules:
       - github.com/newrelic/nrdot-collector-components
+      - github.com/newrelic/nrdot-collector-components/internal/common
       - github.com/newrelic/nrdot-collector-components/receiver/nopreceiver
       - github.com/newrelic/nrdot-collector-components/exporter/nopexporter
       - github.com/newrelic/nrdot-collector-components/testbed
 
 excluded-modules:
+  - github.com/newrelic/nrdot-collector-components/cmd/codecovgen
   - github.com/newrelic/nrdot-collector-components/cmd/nrdotcol
   - github.com/newrelic/nrdot-collector-components/cmd/oteltestbedcol
   - github.com/newrelic/nrdot-collector-components/internal/tools
-  - github.com/newrelic/nrdot-collector-components/cmd/telemetrygen/internal/e2etest
-  - github.com/newrelic/nrdot-collector-components/cmd/checkapi/internal/badpkg/receiver/badreceiver
-  - github.com/newrelic/nrdot-collector-components/cmd/checkapi/internal/testpkg/receiver/validreceiver
-  - github.com/newrelic/nrdot-collector-components/cmd/checkapi/internal/altpkg/receiver/badreceiver
-  - github.com/newrelic/nrdot-collector-components/cmd/checkapi/internal/altpkg/receiver/altreceiver
