@@ -12,47 +12,47 @@ dist:
 
 extensions:
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.140.0
-  - gomod: github.com/newrelic/nrdot-collector-components/extension/pprofextension v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/extension/storage/filestorage v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/filestorage v0.140.1
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.140.0
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.140.0
   - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.140.0
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/carbonexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/opensearchexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/otelarrowexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/prometheusexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/sapmexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/signalfxexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/splunkhecexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/stefexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/syslogexporter v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/exporter/zipkinexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/carbonexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/opensearchexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/otelarrowexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sapmexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/splunkhecexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/stefexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/syslogexporter v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/zipkinexporter v0.140.1
 
 processors:
   - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.140.0
   - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.140.0
-  - gomod: github.com/newrelic/nrdot-collector-components/processor/attributesprocessor v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/processor/resourceprocessor v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/processor/transformprocessor v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/processor/filterprocessor v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/attributesprocessor v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.140.1
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.140.0
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/carbonreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/filelogreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/fluentforwardreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/jaegerreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/otelarrowreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/prometheusreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/signalfxreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/splunkhecreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/stefreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/syslogreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/tcplogreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/udplogreceiver v0.140.1
-  - gomod: github.com/newrelic/nrdot-collector-components/receiver/zipkinreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/carbonreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/fluentforwardreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/otelarrowreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/signalfxreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/splunkhecreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/stefreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/tcplogreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/udplogreceiver v0.140.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver v0.140.1
 
 providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.46.0
