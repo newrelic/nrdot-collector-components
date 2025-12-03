@@ -37,9 +37,9 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
       - name: Generate otelcontribcol files
-        run: make genotelcontribcol
+        run: make gennrdotcol
       - name: Build Collector
-        run: make otelcontribcol
+        run: make nrdotcol
       - name: Upload Collector Binary
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
@@ -85,10 +85,10 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
       - name: Generate otelcontribcol files
-        run: make genotelcontribcol
+        run: make gennrdotcol
       - name: Build Docker Image
         run: |
-          make docker-otelcontribcol
+          make docker-nrdotcol
       - name: export image to tar
         run: |
           docker save otelcontribcol:latest > /tmp/otelcontribcol.tar

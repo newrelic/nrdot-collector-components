@@ -37,7 +37,7 @@ jobs:
           git config user.email 197425009+otelbot@users.noreply.github.com
           branch="otelbot/update-otel-$(date +%s)"
           git checkout -b "$branch"
-          make genotelcontribcol
+          make gennrdotcol
           echo "LAST_COMMIT=$LAST_COMMIT" >> "$GITHUB_ENV"
           echo "BRANCH_NAME=$branch" >> "$GITHUB_ENV"
         env:
