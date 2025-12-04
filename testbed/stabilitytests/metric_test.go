@@ -6,10 +6,9 @@ package tests
 import (
 	"testing"
 
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
-	"github.com/newrelic/nrdot-collector-components/testbed/datareceivers"
-	"github.com/newrelic/nrdot-collector-components/testbed/datasenders"
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	scenarios "github.com/newrelic/nrdot-collector-components/testbed/tests"
 )
 
@@ -21,40 +20,6 @@ func TestStabilityMetricsOTLP(t *testing.T) {
 		testbed.ResourceSpec{
 			ExpectedMaxCPU:      50,
 			ExpectedMaxRAM:      80,
-			ResourceCheckPeriod: resourceCheckPeriod,
-		},
-		contribPerfResultsSummary,
-		nil,
-		nil,
-		nil,
-	)
-}
-
-func TestStabilityMetricsCarbon(t *testing.T) {
-	scenarios.Scenario10kItemsPerSecond(
-		t,
-		datasenders.NewCarbonDataSender(testutil.GetAvailablePort(t)),
-		datareceivers.NewCarbonDataReceiver(testutil.GetAvailablePort(t)),
-		testbed.ResourceSpec{
-			ExpectedMaxCPU:      237,
-			ExpectedMaxRAM:      120,
-			ResourceCheckPeriod: resourceCheckPeriod,
-		},
-		contribPerfResultsSummary,
-		nil,
-		nil,
-		nil,
-	)
-}
-
-func TestStabilityMetricsSignalFx(t *testing.T) {
-	scenarios.Scenario10kItemsPerSecond(
-		t,
-		datasenders.NewSFxMetricDataSender(testutil.GetAvailablePort(t)),
-		datareceivers.NewSFxMetricsDataReceiver(testutil.GetAvailablePort(t)),
-		testbed.ResourceSpec{
-			ExpectedMaxCPU:      120,
-			ExpectedMaxRAM:      95,
 			ResourceCheckPeriod: resourceCheckPeriod,
 		},
 		contribPerfResultsSummary,

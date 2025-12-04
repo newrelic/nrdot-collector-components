@@ -10,8 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 var (

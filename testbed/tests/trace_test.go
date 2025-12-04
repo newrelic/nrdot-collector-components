@@ -18,11 +18,12 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	conventions "go.opentelemetry.io/otel/semconv/v1.6.1"
 
+	idutils "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
-	idutils "github.com/newrelic/nrdot-collector-components/pkg/core/xidutils"
-	"github.com/newrelic/nrdot-collector-components/testbed/datareceivers"
-	"github.com/newrelic/nrdot-collector-components/testbed/datasenders"
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 // TestMain is used to initiate setup, execution and tear down of testbed.

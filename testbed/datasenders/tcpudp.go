@@ -14,8 +14,9 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/plog"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/traceutil"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+
+	"github.com/newrelic/nrdot-collector-components/internal/coreinternal/traceutil"
 )
 
 type TCPUDPWriter struct {

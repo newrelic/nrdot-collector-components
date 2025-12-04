@@ -19,17 +19,6 @@ import (
 	"go.opentelemetry.io/collector/receiver/otlpreceiver"
 	"go.opentelemetry.io/collector/service/telemetry/otelconftelemetry"
 	"go.uber.org/multierr"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/stefexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/syslogexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/zipkinexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/otelarrowreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/stefreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver"
 )
 
 // Components returns the set of components for tests
@@ -45,12 +34,7 @@ func Components() (
 	errs = multierr.Append(errs, err)
 
 	receivers, err := otelcol.MakeFactoryMap[receiver.Factory](
-		jaegerreceiver.NewFactory(),
 		otlpreceiver.NewFactory(),
-		otelarrowreceiver.NewFactory(),
-		stefreceiver.NewFactory(),
-		syslogreceiver.NewFactory(),
-		zipkinreceiver.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 
@@ -58,9 +42,6 @@ func Components() (
 		debugexporter.NewFactory(),
 		otlpexporter.NewFactory(),
 		otlphttpexporter.NewFactory(),
-		stefexporter.NewFactory(),
-		syslogexporter.NewFactory(),
-		zipkinexporter.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 
@@ -70,10 +51,7 @@ func Components() (
 	)
 	errs = multierr.Append(errs, err)
 
-	connectors, err := otelcol.MakeFactoryMap[connector.Factory](
-		spanmetricsconnector.NewFactory(),
-		routingconnector.NewFactory(),
-	)
+	connectors, err := otelcol.MakeFactoryMap[connector.Factory]()
 	errs = multierr.Append(errs, err)
 
 	factories := otelcol.Factories{
