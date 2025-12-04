@@ -1,4 +1,4 @@
-# Checks if license files are present in all component directories.
+# Checks for the presence of LICENSE files in all components.
 REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && pwd )"
 
 missing_licenses=false
