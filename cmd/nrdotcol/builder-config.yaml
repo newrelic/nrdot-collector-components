@@ -1,17 +1,13 @@
 # NOTE:
-# This builder configuration is NOT used to build any official binary.
-# To see the builder manifests used for official binaries,
-# check https://github.com/open-telemetry/opentelemetry-collector-releases
-#
-# For the OpenTelemetry Collector Contrib official distribution sources, check
-# https://github.com/open-telemetry/opentelemetry-collector-releases/tree/main/distributions/otelcol-contrib
+# This builder configuration is used to build the New Relic Dot Collector
+# with additional custom components from this repository.
 
 dist:
-  module: github.com/newrelic/nrdot-collector-components/cmd/otelcontribcol
-  name: otelcontribcol
-  description: Local OpenTelemetry Collector Contrib binary, testing only.
+  module: github.com/newrelic/nrdot-collector-components/cmd/nrdotcol
+  name: nrdotcol
+  description: New Relic Dot Collector with additional components.
   version: 0.140.1-dev
-  output_path: ./cmd/otelcontribcol
+  output_path: ./cmd/nrdotcol
 
 extensions:
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.140.0
