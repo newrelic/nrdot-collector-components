@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package metrics // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests/metrics"
+package metrics // import "github.com/newrelic/nrdot-collector-components/testbed/correctnesstests/metrics"
 
 import (
 	"os"

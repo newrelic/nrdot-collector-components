@@ -4,7 +4,7 @@
 # check https://github.com/open-telemetry/opentelemetry-collector-releases
 
 dist:
-  module: github.com/open-telemetry/opentelemetry-collector-contrib/cmd/oteltestbedcol
+  module: github.com/newrelic/nrdot-collector-components/cmd/oteltestbedcol
   name: oteltestbedcol
   description: OpenTelemetry Collector binary for testbed only tests.
   version: 0.140.1-dev

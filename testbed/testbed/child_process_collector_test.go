@@ -3,7 +3,7 @@
 
 //go:build !windows
 
-package testbed // import "github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+package testbed // import "github.com/newrelic/nrdot-collector-components/testbed/testbed"
 
 import (
 	"os"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestAgentExeOption(t *testing.T) {
-	path := "bin/otelcontribcol"
+	path := "bin/nrdotcol"
 	col := NewChildProcessCollector(WithAgentExePath(path))
 
 	cpc, ok := col.(*childProcessCollector)

@@ -12,7 +12,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/open-telemetry/opentelemetry-collector-contrib)
+        - prefix(github.com/newrelic/nrdot-collector-components)
     gofumpt:
       # Choose whether to use the extra rules.
       extra-rules: true
@@ -83,7 +83,7 @@ linters:
           deny:
             - pkg: github.com/azure/go-autorest
               desc: "This package is deprecated (EOL). Please use an alternative Azure SDK."
-              
+
             - pkg: go.uber.org/atomic
               desc: Use 'sync/atomic' instead of go.uber.org/atomic
 
@@ -107,7 +107,7 @@ linters:
 
           # Allow in tests for testing pdata or other receivers/exporters that expect OTLP.
           files:
-            - '!**/*_test.go'
+            - "!**/*_test.go"
 
     exhaustive:
       # Presence of "default" case in switch statements satisfies exhaustiveness,

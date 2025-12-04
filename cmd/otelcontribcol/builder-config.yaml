@@ -7,7 +7,7 @@
 # https://github.com/open-telemetry/opentelemetry-collector-releases/tree/main/distributions/otelcol-contrib
 
 dist:
-  module: github.com/open-telemetry/opentelemetry-collector-contrib/cmd/otelcontribcol
+  module: github.com/newrelic/nrdot-collector-components/cmd/otelcontribcol
   name: otelcontribcol
   description: Local OpenTelemetry Collector Contrib binary, testing only.
   version: 0.140.1-dev
@@ -60,7 +60,6 @@ extensions:
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.140.0
-  - gomod: go.opentelemetry.io/collector/exporter/nopexporter v0.140.0
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.140.0
   - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.140.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alertmanagerexporter v0.140.1
@@ -145,7 +144,6 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/datadogsemanticsprocessor v0.140.1
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/nopreceiver v0.140.0
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.140.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/activedirectorydsreceiver v0.140.1
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/aerospikereceiver v0.140.1
@@ -276,7 +274,7 @@ providers:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider v0.140.1
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider v0.140.1
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/googlesecretmanagerprovider v0.140.1
-# When using `make genotelcontribcol`, the `replaces` content is appended to this
+# When using `make gennrdotcol`, the `replaces` content is appended to this
 # file before passing it to OCB, to ensure that local versions are used for all
 # Contrib modules.
 replaces:
