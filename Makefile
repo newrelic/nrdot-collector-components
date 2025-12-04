@@ -349,13 +349,6 @@ endif
 docker-nrdotcol:
 	COMPONENT=nrdotcol $(MAKE) docker-component
 
-.PHONY: docker-telemetrygen
-docker-telemetrygen:
-	GOOS=linux GOARCH=$(GOARCH) $(MAKE) telemetrygen
-	cp bin/telemetrygen_* cmd/telemetrygen/
-	cd cmd/telemetrygen && docker build --platform linux/$(GOARCH) --build-arg="TARGETOS=$(GOOS)" --build-arg="TARGETARCH=$(GOARCH)" -t telemetrygen:latest .
-	rm cmd/telemetrygen/telemetrygen_*
-
 .PHONY: docker-golden
 docker-golden:
 	GOOS=linux GOARCH=$(GOARCH) $(MAKE) golden
@@ -435,17 +428,6 @@ oteltestbedcol: genoteltestbedcol
 .PHONY: oteltestbedcollite
 oteltestbedcollite: genoteltestbedcol
 	cd ./cmd/oteltestbedcol && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/oteltestbedcol_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
-
-# Build the telemetrygen executable.
-.PHONY: telemetrygen
-telemetrygen:
-	cd ./cmd/telemetrygen && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/telemetrygen_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) .
-
-.PHONY: telemetrygenlite
-telemetrygenlite:
-	cd ./cmd/telemetrygen && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/telemetrygen_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
 
 # Build the golden executable.

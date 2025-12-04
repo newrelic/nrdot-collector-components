@@ -7,8 +7,6 @@ module-sets:
     modules:
       - github.com/newrelic/nrdot-collector-components
       - github.com/newrelic/nrdot-collector-components/cmd/codecovgen
-      - github.com/newrelic/nrdot-collector-components/cmd/opampsupervisor
-      - github.com/newrelic/nrdot-collector-components/cmd/telemetrygen
       - github.com/newrelic/nrdot-collector-components/exporter/nopexporter
       - github.com/newrelic/nrdot-collector-components/internal/common
       - github.com/newrelic/nrdot-collector-components/internal/coreinternal
@@ -19,4 +17,3 @@ excluded-modules:
   - github.com/newrelic/nrdot-collector-components/cmd/nrdotcol
   - github.com/newrelic/nrdot-collector-components/cmd/oteltestbedcol
   - github.com/newrelic/nrdot-collector-components/internal/tools
-  - github.com/newrelic/nrdot-collector-components/cmd/telemetrygen/internal/e2etest
