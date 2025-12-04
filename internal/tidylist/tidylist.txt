@@ -1,6 +1,4 @@
 cmd/codecovgen
-cmd/telemetrygen
-cmd/telemetrygen/internal/e2etest
 internal/common
 internal/coreinternal
 testbed
