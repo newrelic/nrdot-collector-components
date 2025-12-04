@@ -1,5 +1,4 @@
 cmd/codecovgen
-cmd/opampsupervisor
 cmd/telemetrygen
 cmd/telemetrygen/internal/e2etest
 internal/common
