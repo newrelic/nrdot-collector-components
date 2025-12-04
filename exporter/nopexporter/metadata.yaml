@@ -1,0 +1,9 @@
+type: nop
+github_project: newrelic/nrdot-collector-components
+
+status:
+  disable_codecov_badge: true
+  class: exporter
+  stability:
+    beta: [traces, metrics, logs]
+  distributions: [nrdot]

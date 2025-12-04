@@ -1,4 +1,4 @@
-type: otelcontribcol
+type: nrdotcol
 
 status:
   disable_codecov_badge: true
