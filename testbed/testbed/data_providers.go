@@ -15,9 +15,10 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/pipeline"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/goldendataset"
 	idutils "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+
+	"github.com/newrelic/nrdot-collector-components/internal/coreinternal/goldendataset"
 )
 
 // DataProvider defines the interface for generators of test data used to drive various end-to-end tests.

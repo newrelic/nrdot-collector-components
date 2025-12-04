@@ -12,8 +12,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 func TestIdleMode(t *testing.T) {

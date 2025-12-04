@@ -14,10 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pipeline"
 
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
-	"github.com/newrelic/nrdot-collector-components/testbed/datareceivers"
-	"github.com/newrelic/nrdot-collector-components/testbed/datasenders"
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 func TestMetric10kDPS(t *testing.T) {
@@ -28,15 +27,6 @@ func TestMetric10kDPS(t *testing.T) {
 		resourceSpec testbed.ResourceSpec
 		skipMessage  string
 	}{
-		{
-			name:     "Carbon",
-			sender:   datasenders.NewCarbonDataSender(testutil.GetAvailablePort(t)),
-			receiver: datareceivers.NewCarbonDataReceiver(testutil.GetAvailablePort(t)),
-			resourceSpec: testbed.ResourceSpec{
-				ExpectedMaxCPU: 237,
-				ExpectedMaxRAM: 150,
-			},
-		},
 		{
 			name:     "OTLP",
 			sender:   testbed.NewOTLPMetricDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t)),
@@ -53,35 +43,6 @@ func TestMetric10kDPS(t *testing.T) {
 			resourceSpec: testbed.ResourceSpec{
 				ExpectedMaxCPU: 60,
 				ExpectedMaxRAM: 100,
-			},
-		},
-		{
-			name:     "SignalFx",
-			sender:   datasenders.NewSFxMetricDataSender(testutil.GetAvailablePort(t)),
-			receiver: datareceivers.NewSFxMetricsDataReceiver(testutil.GetAvailablePort(t)),
-			resourceSpec: testbed.ResourceSpec{
-				ExpectedMaxCPU: 120,
-				ExpectedMaxRAM: 150,
-			},
-		},
-		{
-			name:     "STEF",
-			sender:   datasenders.NewStefDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t)),
-			receiver: datareceivers.NewStefDataReceiver(testutil.GetAvailablePort(t)),
-			resourceSpec: testbed.ResourceSpec{
-				ExpectedMaxCPU: 60,
-				ExpectedMaxRAM: 150,
-			},
-		},
-		{
-			name: "OtelArrow",
-			sender: datasenders.NewOtelarrowDataSender(
-				testbed.DefaultHost, testutil.GetAvailablePort(t),
-			),
-			receiver: datareceivers.NewOtelarrowDataReceiver(testutil.GetAvailablePort(t)),
-			resourceSpec: testbed.ResourceSpec{
-				ExpectedMaxCPU: 160,
-				ExpectedMaxRAM: 250,
 			},
 		},
 	}
