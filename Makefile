@@ -42,7 +42,7 @@ EXTENSION_MODS := $(shell find ./extension/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR
 CONNECTOR_MODS := $(shell find ./connector/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 INTERNAL_MODS := $(shell find ./internal/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/otel*col/*" -exec $(TO_MOD_DIR) )
+CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/*col*" -exec $(TO_MOD_DIR) )
 CMD_MODS := $(CMD_MODS_0)
 OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
@@ -349,10 +349,6 @@ endif
 docker-nrdotcol:
 	COMPONENT=nrdotcol $(MAKE) docker-component
 
-.PHONY: docker-supervisor-nrdotcol
-docker-supervisor-nrdotcol: docker-nrdotcol
-	COMPONENT=opampsupervisor $(MAKE) docker-component
-
 .PHONY: docker-telemetrygen
 docker-telemetrygen:
 	GOOS=linux GOARCH=$(GOARCH) $(MAKE) telemetrygen
@@ -451,12 +447,6 @@ telemetrygen:
 telemetrygenlite:
 	cd ./cmd/telemetrygen && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/telemetrygen_$(GOOS)_$(GOARCH)$(EXTENSION) \
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
-
-# Build the Supervisor executable.
-.PHONY: opampsupervisor
-opampsupervisor:
-	cd ./cmd/opampsupervisor && GO111MODULE=on CGO_ENABLED=0 $(GOCMD) build -trimpath -o ../../bin/opampsupervisor_$(GOOS)_$(GOARCH)$(EXTENSION) \
-		-tags $(GO_BUILD_TAGS) .
 
 # Build the golden executable.
 .PHONY: golden
