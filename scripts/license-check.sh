@@ -2,7 +2,7 @@
 REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && pwd )"
 
 missing_licenses=false
-MOD_TYPE_DIRS=("receiver")
+MOD_TYPE_DIRS=("receiver" "exporter" "connector" "extension" "processor")
 for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
     component_dirs=$(find "$REPO_DIR/$MOD_TYPE" -mindepth 1 -maxdepth 1 -type d)
     for component in $component_dirs; do
@@ -16,6 +16,7 @@ for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
 done
 
 if [ "$missing_licenses" = true ]; then
+    echo "❌ License validation failed!"
     exit 1
 fi
 
