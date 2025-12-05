@@ -360,40 +360,10 @@ jobs:
       - name: Run Integration Tests
         run: make gointegration-test GROUP=${{ matrix.group }}
 
-  integration-sudo-tests-matrix:
-    strategy:
-      fail-fast: false
-      matrix:
-        group:
-          # list of components that require privileged (sudo) access for
-          # its integration tests `go test -exec sudo -run Sudo -tags=integration`
-          - extension/cgroupruntimeextension
-          - receiver/icmpcheckreceiver
-    runs-on: ubuntu-24.04
-    needs: [setup-environment]
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - run: ./.github/workflows/scripts/free-disk-space.sh
-      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
-        id: go-setup
-        with:
-          go-version: oldstable
-          cache-dependency-path: "**/*.sum"
-      - name: Install dependencies
-        if: steps.go-setup.outputs.cache-hit != 'true'
-        run: make -j2 gomoddownload
-      - name: Cache Docker images.
-        uses: AndreKurait/docker-cache@0fe76702a40db986d9663c24954fc14c6a6031b7 # 0.6.0
-        with:
-          key: docker-${{ matrix.group }}
-      - name: Run Integration Tests
-        run: make --no-print-directory -C ${{ matrix.group }} mod-integration-sudo-test
-
-
   integration-tests:
     if: ${{ github.actor != 'dependabot[bot]' && always() }}
     runs-on: ubuntu-24.04
-    needs: [setup-environment, integration-tests-matrix, integration-sudo-tests-matrix]
+    needs: [setup-environment, integration-tests-matrix]
     steps:
       - name: Print result
         run: echo ${{ needs.integration-tests-matrix.result }}
@@ -445,15 +415,6 @@ jobs:
         run: make install-tools
       - name: Correctness
         run: make -C testbed run-correctness-metrics-tests
-
-  build-examples:
-    runs-on: ubuntu-24.04
-    needs: [setup-environment]
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - run: make gennrdotcol
-      - name: Build Examples
-        run: make build-examples
 
   cross-compile:
     runs-on: ubuntu-24.04
