@@ -1,5 +1,6 @@
 # Checks for the presence of LICENSE files in all components.s
 REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && pwd )"
+NEW_RELIC_SOFTWARE_LICENSE="$(cat $REPO_DIR/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl)"
 
 MOD_TYPE_DIRS=("receiver" "exporter" "connector" "extension" "processor")
 for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
@@ -23,6 +24,10 @@ for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
             declared_license_type=$(echo "$licensing_file_entry" | awk -F' - ' '{print $1}')
             if [[ ! "$declared_license_type" == "New Relic Software License" ]]; then
                 echo "❌ Incorrect license type for $component_path in LICENSING file. Expected New Relic Software License."
+                exit 1
+            fi
+            if [[! "$(cat "$component/$license")" == "$NEW_RELIC_SOFTWARE_LICENSE"]]; then
+                echo "❌ LICENSE file in $component_path does not contain the correct New Relic Software License text."
                 exit 1
             fi
         fi
