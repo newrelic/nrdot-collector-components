@@ -10,8 +10,9 @@ require (
 	github.com/google/addlicense v1.2.0
 	github.com/jcchavezs/porto v0.6.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.140.1
+	github.com/open-telemetry/opentelemetry-collector-contrib/cmd/codecovgen v0.141.0
 	github.com/rhysd/actionlint v1.7.8
+	go.elastic.co/go-licence-detector v0.10.0
 	go.opentelemetry.io/build-tools/checkapi v0.29.0
 	go.opentelemetry.io/build-tools/checkfile v0.29.0
 	go.opentelemetry.io/build-tools/chloggen v0.29.0
@@ -124,6 +125,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-github/v76 v76.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/licenseclassifier v0.0.0-20250213175939-b5d1a3369749 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect
 	github.com/gostaticanalysis/analysisutil v0.7.1 // indirect
