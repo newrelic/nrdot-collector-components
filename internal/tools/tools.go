@@ -34,5 +34,5 @@ import (
 	_ "gotest.tools/gotestsum"
 	_ "mvdan.cc/gofumpt"
 
-	_ "github.com/open-telemetry/opentelemetry-collector-contrib/cmd/codecovgen"
+	_ "github.com/newrelic/nrdot-collector-components/cmd/codecovgen"
 )

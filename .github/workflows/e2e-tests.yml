@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
-      - name: Generate otelcontribcol files
+      - name: Generate nrdotcol files
         run: make gennrdotcol
       - name: Build Collector
         run: make nrdotcol
@@ -60,16 +60,16 @@ jobs:
       - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
-      - name: Generate otelcontribcol files
+      - name: Generate nrdotcol files
         run: make gennrdotcol
       - name: Build Docker Image
         run: |
           make docker-nrdotcol
       - name: export image to tar
         run: |
-          docker save otelcontribcol:latest > /tmp/otelcontribcol.tar
+          docker save nrdotcol:latest > /tmp/nrdotcol.tar
       - name: Upload artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
-          name: otelcontribcol
-          path: /tmp/otelcontribcol.tar
+          name: nrdotcol
+          path: /tmp/nrdotcol.tar

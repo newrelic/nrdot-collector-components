@@ -513,7 +513,7 @@ jobs:
       - name: Generate collector files
         run: make gennrdotcol
       - name: Build Collector ${{ matrix.os }} ${{ matrix.arch }} ${{ matrix.arm }}
-        run: make GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} otelcontribcol
+        run: make GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} nrdotcol
       - name: Upload Collector Binaries
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
@@ -562,21 +562,9 @@ jobs:
         run: |
           make gennrdotcol
           make docker-nrdotcol
-          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:"$GITHUB_SHA"
-          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:latest
       - name: Validate Docker Image
         run: |
-          docker run otel/opentelemetry-collector-contrib-dev:"$GITHUB_SHA" --version
-          docker run otel/opentelemetry-collector-contrib-dev:latest --version
-      - name: Login to Docker Hub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Push Docker Image
-        run: |
-          docker push otel/opentelemetry-collector-contrib-dev:"$GITHUB_SHA"
-          docker push otel/opentelemetry-collector-contrib-dev:latest
+          docker run nrdotcol:latest --version
   publish-stable:
     runs-on: ubuntu-24.04
     needs: [lint, unittest, integration-tests]
