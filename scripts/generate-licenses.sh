@@ -6,7 +6,7 @@ REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && 
 LICENSING="$(cat $REPO_DIR/internal/assets/license/LICENSING.tmpl)\n\n"
 
 APACHE="$(cat $REPO_DIR/internal/assets/license/LICENSE_APACHE_component.tmpl)"
-for component in $(yq '.apache[]' $REPO_DIR/internal/assets/license/component_licenses.yaml); do
+for component in $(yq '.apache[]' $REPO_DIR/component_licenses.yaml); do
     echo "generating license for $component"
     # Remove any existing license files
     find "$REPO_DIR/$component" -maxdepth 1 -type f -iname "LICENSE_*" -delete
@@ -15,7 +15,7 @@ for component in $(yq '.apache[]' $REPO_DIR/internal/assets/license/component_li
 done
 
 NEW_RELIC_SOFTWARE_LICENSE="$(cat $REPO_DIR/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl)"
-for component in $(yq '.new_relic[]' $REPO_DIR/internal/assets/license/component_licenses.yaml); do
+for component in $(yq '.new_relic[]' $REPO_DIR/component_licenses.yaml); do
     echo "generating license for $component"
     find "$REPO_DIR/$component" -maxdepth 1 -type f -iname "LICENSE_*" -delete
     component_path="$REPO_DIR/$component"
