@@ -1,11 +1,9 @@
 # Checks for the presence of LICENSE files in all components.s
 REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && pwd )"
 
-missing_licenses=false
-
 MOD_TYPE_DIRS=("receiver" "exporter" "connector" "extension" "processor")
 for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
-    echo "Checking $MOD_TYPE components for LICENSE files..."
+    echo "📋 Checking $MOD_TYPE components for licenses..."
     component_dirs=$(find "$REPO_DIR/$MOD_TYPE" -mindepth 1 -maxdepth 1 -type d)
     for component in $component_dirs; do
         license=$(basename $(find "$component" -maxdepth 1 -type f -iname "LICENSE*"))
