@@ -16,6 +16,8 @@ import (
 	"unicode"
 
 	"github.com/docker/go-connections/nat"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
@@ -28,9 +30,6 @@ import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
 )
 
 func NewIntegrationTest(f receiver.Factory, opts ...TestOption) *IntegrationTest {

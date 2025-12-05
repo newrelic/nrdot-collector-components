@@ -8,10 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/stretchr/testify/require"
 )
 
 var correctnessResults testbed.TestResultsSummary = &testbed.CorrectnessResults{}

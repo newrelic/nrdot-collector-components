@@ -4,12 +4,10 @@
 package nopreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/nopreceiver"
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/consumer/consumertest"
@@ -23,18 +21,18 @@ func TestNewNopFactory(t *testing.T) {
 	cfg := factory.CreateDefaultConfig()
 	assert.Equal(t, &struct{}{}, cfg)
 
-	traces, err := factory.CreateTraces(context.Background(), receivertest.NewNopSettings(receivertest.NopType), cfg, consumertest.NewNop())
+	traces, err := factory.CreateTraces(t.Context(), receivertest.NewNopSettings(receivertest.NopType), cfg, consumertest.NewNop())
 	require.NoError(t, err)
-	assert.NoError(t, traces.Start(context.Background(), componenttest.NewNopHost()))
-	assert.NoError(t, traces.Shutdown(context.Background()))
+	assert.NoError(t, traces.Start(t.Context(), componenttest.NewNopHost()))
+	assert.NoError(t, traces.Shutdown(t.Context()))
 
-	metrics, err := factory.CreateMetrics(context.Background(), receivertest.NewNopSettings(receivertest.NopType), cfg, consumertest.NewNop())
+	metrics, err := factory.CreateMetrics(t.Context(), receivertest.NewNopSettings(receivertest.NopType), cfg, consumertest.NewNop())
 	require.NoError(t, err)
-	assert.NoError(t, metrics.Start(context.Background(), componenttest.NewNopHost()))
-	assert.NoError(t, metrics.Shutdown(context.Background()))
+	assert.NoError(t, metrics.Start(t.Context(), componenttest.NewNopHost()))
+	assert.NoError(t, metrics.Shutdown(t.Context()))
 
-	logs, err := factory.CreateLogs(context.Background(), receivertest.NewNopSettings(receivertest.NopType), cfg, consumertest.NewNop())
+	logs, err := factory.CreateLogs(t.Context(), receivertest.NewNopSettings(receivertest.NopType), cfg, consumertest.NewNop())
 	require.NoError(t, err)
-	assert.NoError(t, logs.Start(context.Background(), componenttest.NewNopHost()))
-	assert.NoError(t, logs.Shutdown(context.Background()))
+	assert.NoError(t, logs.Start(t.Context(), componenttest.NewNopHost()))
+	assert.NoError(t, logs.Shutdown(t.Context()))
 }
