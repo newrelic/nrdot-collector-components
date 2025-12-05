@@ -358,8 +358,3 @@ run-changed-tests:
 			done \
 		fi \
 	fi
-
-# Validates the top-level and component license files
-.PHONY: checklicensefiles
-checklicensefiles:
-	./scripts/license-file-check.sh
