@@ -9,13 +9,11 @@ for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
         license=$(basename $(find "$component" -maxdepth 1 -type f -iname "LICENSE*"))
         component_path="${component#$REPO_DIR/}"
 
-        # Validate license file exists
         if [ -z "$license" ]; then
             echo "❌ No license file found in $component_path"
             exit 1
         fi
 
-        # Validate that proprietary components are mentioned in LICENSING file
         if [[ "$license" == "LICENSE_NEW_RELIC"* ]]; then
             licensing_file_entry=$(cat $REPO_DIR/LICENSING | grep "$component_path")
             if [ ! -n "$licensing_file_entry" ]; then
@@ -41,6 +39,3 @@ for component_path in $listed_component_paths; do
 done
 
 echo "✅ Licenses validated!"
-
-# Check license file headers
-cat $REPO_DIR/LICENSING | grep License
