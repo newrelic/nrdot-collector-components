@@ -662,3 +662,8 @@ checks:
 .PHONY: all-generate-licenses
 all-generate-licenses:
 	./scripts/generate-licenses.sh
+
+# Validates the top-level and component license files
+.PHONY: all-check-licenses
+checklicensefiles:
+	./scripts/license-file-check.sh
