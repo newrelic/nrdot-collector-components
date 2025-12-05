@@ -232,6 +232,10 @@ checklicense: $(ADDLICENSE)
 		echo "Check License finished successfully"; \
 	fi
 
+.PHONY: checklicensefiles
+checklicensefiles:
+	./scripts/license-file-check.sh
+
 .PHONY: checklinks
 checklinks:
 	command -v $(DOCKERCMD) >/dev/null 2>&1 || { echo >&2 "$(DOCKERCMD) not installed. Install before continuing"; exit 1; }
