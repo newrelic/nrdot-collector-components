@@ -658,3 +658,7 @@ checks:
 	$(MAKE) -j4 generate
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
+
+.PHONY: all-generate-licenses
+all-generate-licenses:
+	./scripts/generate-licenses.sh
