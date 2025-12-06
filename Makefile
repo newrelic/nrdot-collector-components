@@ -659,11 +659,13 @@ checks:
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
-.PHONY: all-generate-licenses
-all-generate-licenses:
-	./scripts/generate-licenses.sh
+.PHONY: all-generate-licensefiles
+all-generate-licensefiles:
+	./scripts/generate-licensefiles.sh
 
-# Validates the top-level and component license files
-.PHONY: all-check-licenses
-checklicensefiles:
-	./scripts/license-file-check.sh
+.PHONY: all-check-licensefiles
+all-check-licensefiles: all-generate-licensefiles
+	@git diff --name-only | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
+		echo "License files out of date, please run \"make all-generate-licensefiles\" and commit the changes in this PR."; exit 1; \
+	} || exit 0
+	./scripts/check-licensefiles.sh

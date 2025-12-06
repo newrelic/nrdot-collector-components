@@ -25,4 +25,3 @@ done
 
 echo "generating top-level LICENSING file"
 echo -e "$LICENSING" > "$REPO_DIR/LICENSING"
-

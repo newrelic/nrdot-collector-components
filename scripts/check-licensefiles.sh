@@ -26,7 +26,7 @@ for MOD_TYPE in "${MOD_TYPE_DIRS[@]}"; do
                 echo "❌ Incorrect license type for $component_path in LICENSING file. Expected New Relic Software License."
                 exit 1
             fi
-            if [[! "$(cat "$component/$license")" == "$NEW_RELIC_SOFTWARE_LICENSE"]]; then
+            if [[ ! "$(cat "$component/$license")" == "$NEW_RELIC_SOFTWARE_LICENSE" ]]; then
                 echo "❌ LICENSE file in $component_path does not contain the correct New Relic Software License text."
                 exit 1
             fi
