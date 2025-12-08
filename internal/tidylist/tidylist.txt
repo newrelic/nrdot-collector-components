@@ -1,5 +1,8 @@
 cmd/codecovgen
+exporter/nopexporter
+.
 internal/common
 internal/coreinternal
+internal/tools
+receiver/nopreceiver
 testbed
-.
