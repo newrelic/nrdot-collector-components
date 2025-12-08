@@ -1,0 +1,62 @@
+name: Push Release Tags
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag (e.g., 0.140.0 - without v prefix)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  push-tags:
+    permissions:
+      contents: write # required for creating and pushing tags
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0 # need full history to find the commit
+
+      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
+        with:
+          go-version: oldstable
+          cache: false
+
+      - name: Verify version format
+        run: |
+          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "Error: Version must follow semver format without 'v' prefix (e.g., 0.140.0)"
+            exit 1
+          fi
+
+      - name: Find release commit
+        id: find-commit
+        run: |
+          # Look for the commit that updated versions.yaml to this version
+          COMMIT=$(git log --all --grep="update version.yaml ${{ inputs.version }}" --format="%H" -n 1)
+          if [ -z "$COMMIT" ]; then
+            echo "Error: Could not find commit for version ${{ inputs.version }}"
+            echo "Looking for commit with message: 'update version.yaml ${{ inputs.version }}'"
+            exit 1
+          fi
+          echo "Found commit: $COMMIT"
+          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Push tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Use the commit we found
+          make push-tags MODSET=beta COMMIT=${{ steps.find-commit.outputs.commit }} REMOTE=origin
+
+          echo "✅ Successfully pushed all module tags for version ${{ inputs.version }}"
+          echo ""
+          echo "Tags pushed:"
+          git tag -l "*${{ inputs.version }}"
