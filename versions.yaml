@@ -2,14 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 module-sets:
-  stable:
-    version: v1.46.0
-    modules: []
   beta:
     version: v0.140.0
-    modules: []
-  nrdot-core:
-    version: v0.140.1
     modules:
       - github.com/newrelic/nrdot-collector-components
       - github.com/newrelic/nrdot-collector-components/cmd/codecovgen

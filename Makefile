@@ -473,7 +473,6 @@ define updatehelper
 	done
 endef
 
-
 .PHONY: update-otel
 update-otel:$(MULTIMOD)
 	# Make sure cmd/nrdotcol/go.mod and cmd/oteltestbedcol/go.mod are present
