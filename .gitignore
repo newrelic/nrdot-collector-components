@@ -15,6 +15,9 @@ vendor/
 # Project IDX
 .idx/
 
+# Claude Code
+.claude/
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

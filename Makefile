@@ -531,11 +531,6 @@ otel-from-lib:
 	sed -i '' '/# BEGIN otel-from-tree/,$$d' "./cmd/oteltestbedcol/builder-config.yaml"; \
 	$(MAKE) for-all CMD="$(GOCMD) mod edit $${dropreplace_args}"
 
-.PHONY: build-examples
-build-examples:
-	cd examples/secure-tracing/certs && $(MAKE) clean && $(MAKE) all && docker compose -f ../docker-compose.yaml build
-	docker compose -f exporter/splunkhecexporter/example/docker-compose.yml build
-
 .PHONY: deb-rpm-package
 %-package: ARCH ?= amd64
 %-package:

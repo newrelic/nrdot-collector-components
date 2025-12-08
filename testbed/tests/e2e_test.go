@@ -10,9 +10,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/stretchr/testify/require"
 
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
 )

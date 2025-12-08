@@ -1,4 +1,4 @@
-name: 'Update contrib to the latest core source'
+name: 'Update nrdot-collector-components to the latest core source'
 on:
   workflow_dispatch:
   schedule:
@@ -13,11 +13,11 @@ jobs:
       contents: write # required for pushing changes
       issues: write # required for creating failure issues
     runs-on: ubuntu-24.04
-    if: ${{ github.repository_owner == 'open-telemetry' }}
+    if: ${{ github.repository_owner == 'newrelic' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
-          path: opentelemetry-collector-contrib
+          path: nrdot-collector-components
       - name: Pull the latest collector repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
@@ -32,7 +32,7 @@ jobs:
         run: |
           exec > >(tee log.out) 2>&1
           LAST_COMMIT="$(git -C ./opentelemetry-collector/ rev-parse HEAD)"
-          cd opentelemetry-collector-contrib
+          cd nrdot-collector-components
           git config user.name otelbot
           git config user.email 197425009+otelbot@users.noreply.github.com
           branch="otelbot/update-otel-$(date +%s)"
@@ -50,11 +50,11 @@ jobs:
           max_attempts: 2
           retry_on: error 
           command: |
-            cd opentelemetry-collector-contrib
+            cd nrdot-collector-components
             make update-otel OTEL_STABLE_VERSION=${{ env.LAST_COMMIT }} OTEL_VERSION=${{ env.LAST_COMMIT }}
       - name: Push and create PR
-        run: |  
-          cd opentelemetry-collector-contrib
+        run: |
+          cd nrdot-collector-components
           git push --set-upstream origin ${{ env.BRANCH_NAME }}
           gh pr create --base main --title "[chore] Update core dependencies" --body "This PR updates the opentelemetry-collector modules to open-telemetry/opentelemetry-collector@${{ env.LAST_COMMIT }}" --draft
         env:
