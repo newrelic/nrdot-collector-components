@@ -7,6 +7,10 @@ on:
         description: 'Version to tag (e.g., 0.140.0 - without v prefix)'
         required: true
         type: string
+      commit:
+        description: 'Optional: Commit SHA to tag'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -36,14 +40,10 @@ jobs:
       - name: Find release commit
         id: find-commit
         run: |
-          # Look for the commit that updated versions.yaml to this version
-          COMMIT=$(git log --all --grep="update version.yaml ${{ inputs.version }}" --format="%H" -n 1)
-          if [ -z "$COMMIT" ]; then
-            echo "Error: Could not find commit for version ${{ inputs.version }}"
-            echo "Looking for commit with message: 'update version.yaml ${{ inputs.version }}'"
-            exit 1
-          fi
-          echo "Found commit: $COMMIT"
+          COMMIT="${{ inputs.commit }}"
+          [ -z "$COMMIT" ] && COMMIT=$(git log --all -G "version: v${{ inputs.version }}" --format="%H" -- versions.yaml | head -n 1)
+          [ -z "$COMMIT" ] && { echo "Error: Could not find commit for v${{ inputs.version }}"; exit 1; }
+          git show $COMMIT:versions.yaml | grep -q "version: v${{ inputs.version }}" || { echo "Error: Commit doesn't contain v${{ inputs.version }}"; exit 1; }
           echo "commit=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Push tags
