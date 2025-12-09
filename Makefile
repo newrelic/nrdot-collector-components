@@ -44,6 +44,7 @@ INTERNAL_MODS := $(shell find ./internal/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) 
 PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/*col*" -exec $(TO_MOD_DIR) )
 CMD_MODS := $(CMD_MODS_0)
+COMPONENT_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(PKG_MODS)
 OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
 
@@ -323,6 +324,9 @@ for-integration-target: $(INTEGRATION_MODS)
 
 .PHONY: for-cgo-target
 for-cgo-target: $(CGO_MODS)
+
+.PHONY: for-component-target
+for-component-target: $(COMPONENT_MODS)
 
 # Debugging target, which helps to quickly determine whether for-all-target is working or not.
 .PHONY: all-pwd
@@ -684,3 +688,30 @@ checks:
 	$(MAKE) -j4 generate
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
+
+.PHONY: component-add-license-files
+component-add-license-files:
+	$(MAKE) for-component-target TARGET="add-license-files"
+
+.PHONY: component-check-license-files
+component-check-license-files: component-add-license-files
+	@git diff --name-only | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
+		echo "License files out of date, please run \"make all-generate-licensefiles\" and commit the changes in this PR."; exit 1; \
+	} || exit 0
+	./scripts/check-licensefiles.sh
+
+.PHONY: component-remove-license-headers
+component-remove-license-headers:
+	$(MAKE) for-component-target TARGET="remove-license-headers"
+
+.PHONY: component-add-license-headers
+component-add-license-headers:
+	$(MAKE) for-component-target TARGET="add-license-headers"
+
+.PHONY: component-replace-license-headers
+component-replace-license-headers:
+	$(MAKE) for-component-target TARGET="replace-license-headers"
+
+.PHONy: component-check-license-headers
+component-check-license-headers:
+	$(MAKE) for-component-target TARGET="check-license-headers"

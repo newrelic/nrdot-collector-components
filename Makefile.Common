@@ -103,7 +103,9 @@ BUILD_TYPE?=release
 # All source code and documents. Used in spell check.
 ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -name "*.yaml" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
-ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c "The OpenTelemetry Authors"
+ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c -"The OpenTelemetry Authors"
+ADDLICENSE_CMD_NR_APACHE := $(ADDLICENSE) -s=only -y "" -c "New Relic"
+ADDLICENSE_CMD_NR_PROPRIETARY := $(ADDLICENSE) -y "" -c "New Relic" -f "$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl"
 
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
@@ -201,37 +203,6 @@ do-integration-tests-with-cover: $(GOTESTSUM)
 benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
-.PHONY: addlicense
-addlicense: $(ADDLICENSE)
-	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		`$(ADDLICENSE_CMD) "$$f" 2>&1`; \
-	done); \
-	if [ "$$ADDLICENSEOUT" ]; then \
-		echo "$(ADDLICENSE) FAILED => add License errors:\n"; \
-		echo "$$ADDLICENSEOUT\n"; \
-		exit 1; \
-	else \
-		echo "Add License finished successfully"; \
-	fi
-
-.PHONY: checklicense
-checklicense: $(ADDLICENSE)
-	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		if awk '/Copyright The OpenTelemetry Authors|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
-			continue; \
-		fi; \
-		if awk '/SPDX-License-Identifier: Apache-2.0|generated|GENERATED/ && NR<=4 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
-			continue; \
-		fi; \
-		$(ADDLICENSE_CMD) -check "$$f" 2>&1 || echo "$$f"; \
-		done); \
-	if [ -n "$${licRes}" ]; then \
-		echo "license header checking failed:"; echo "$${licRes}"; \
-		exit 1; \
-	else \
-		echo "Check License finished successfully"; \
-	fi
-
 .PHONY: checklinks
 checklinks:
 	command -v $(DOCKERCMD) >/dev/null 2>&1 || { echo >&2 "$(DOCKERCMD) not installed. Install before continuing"; exit 1; }
@@ -278,7 +249,7 @@ else
 endif
 
 .PHONY: lint
-lint: $(LINT) checklicense misspell
+lint: $(LINT) check-license-headers misspell
 	$(LINT) run
 
 .PHONY: govulncheck
@@ -357,4 +328,84 @@ run-changed-tests:
 				$(GOTESTSUM) --packages="./..." -- $(GOTEST_OPT) -count=3 ); \
 			done \
 		fi \
+	fi
+
+.PHONY: add-license-headers
+add-license-headers: $(ADDLICENSE)
+	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
+		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_dir); \
+		if [ -n "$$is_proprietary" ]; then \
+			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
+		else \
+			`$(ADDLICENSE_CMD_NR_APACHE) "$$f" 2>&1`; \
+		fi; \
+	done); \
+	if [ "$$ADDLICENSEOUT" ]; then \
+		echo "$(ADDLICENSE) FAILED => add License errors:\n"; \
+		echo "$$ADDLICENSEOUT\n"; \
+		exit 1; \
+	else \
+		echo "Add License finished successfully"; \
+	fi
+
+.PHONY: remove-license-headers
+remove-license-headers:
+	@REMOVELICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
+			continue; \
+		fi; \
+		if head -n 4 $$f | grep -q 'Copyright' && head -n 4 $$f | grep -q 'SPDX'; then \
+			tail -n +4 $$f > $$f.tmp && mv $$f.tmp $$f; \
+			continue; \
+		fi; \
+	done); \
+	if [ "$$REMOVELICENSEOUT" ]; then \
+		echo " FAILED => remove License errors:\n"; \
+		echo "$$REMOVELICENSEOUT\n"; \
+		exit 1; \
+	else \
+		echo "Remove license finished successfully"; \
+	fi
+
+.PHONY: replace-license-headers
+replace-license-headers: remove-license-headers add-license-headers
+
+.PHONY: check-license-headers
+check-license-headers: $(ADDLICENSE)
+	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+		if awk '/Copyright|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
+			continue; \
+		fi; \
+		if awk '/SPDX-License-Identifier:|generated|GENERATED/ && NR<=4 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
+			continue; \
+		fi; \
+		$(ADDLICENSE_CMD) -check "$$f" 2>&1 || echo "$$f"; \
+		done); \
+	if [ -n "$${licRes}" ]; then \
+		echo "license header checking failed:"; echo "$${licRes}"; \
+		exit 1; \
+	else \
+		echo "Check License finished successfully"; \
+	fi
+
+.PHONY: add-license-files
+add-license-files:
+	@filesRes=$$( \
+		component_dir="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_dir); \
+		if [ -n "$$is_proprietary" ]; then \
+			proprietary_license=$$(cat $(SRC_ROOT)/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl); \
+			cat $$proprietary_license > "LICENSE_NEW_RELIC_$$component_dir" 2>&1; \
+		else \
+			apache_license=$$(cat $(SRC_ROOT)/internal/assets/license/LICENSE_APACHE_component.tmpl); \
+			cat $$apache_license > "LICENSE_APACHE_$$component_dir" 2>&1; \
+		fi); \
+	component_dir="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+	echo "$$component_dir"; \
+	if [ -n "$${filesRes}" ]; then \
+		echo "License file add failed:"; echo "$${licRes}"; \
+		exit 1; \
+	else \
+		echo "Added license file successfuly."; \
 	fi
