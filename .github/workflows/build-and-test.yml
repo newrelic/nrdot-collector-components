@@ -54,16 +54,9 @@ jobs:
           - windows
           - linux
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
@@ -214,16 +207,9 @@ jobs:
         go-version: [stable, oldstable]
         runner: [ubuntu-24.04]
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
@@ -325,16 +311,9 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
