@@ -623,25 +623,25 @@ checks:
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
-.PHONY: all-generate-licensefiles
-all-generate-licensefiles:
+.PHONY: component-add-license-files
+component-add-license-files:
 	./scripts/generate-licensefiles.sh
 
-.PHONY: all-check-licensefiles
-all-check-licensefiles: all-generate-licensefiles
+.PHONY: component-check-license-files
+component-check-license-files: all-generate-license-files
 	@git diff --name-only | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
 		echo "License files out of date, please run \"make all-generate-licensefiles\" and commit the changes in this PR."; exit 1; \
 	} || exit 0
 	./scripts/check-licensefiles.sh
 
-.PHONY: component-remove-licenseheaders
-component-remove-licenseheaders:
-	$(MAKE) for-component-target TARGET="removelicenseheaders"
+.PHONY: component-remove-license-headers
+component-remove-license-headers:
+	$(MAKE) for-component-target TARGET="remove-license-headers"
 
-.PHONY: component-add-licenseheaders
-component-add-licenseheaders:
-	$(MAKE) for-component-target TARGET="addlicenseheaders"
+.PHONY: component-add-license-headers
+component-add-license-headers:
+	$(MAKE) for-component-target TARGET="add-license-headers"
 
-.PHONY: component-replace-licenseheaders
-component-replace-licenseheaders:
-	$(MAKE) for-component-target TARGET="replacelicenseheaders"
+.PHONY: component-replace-license-headers
+component-replace-license-headers:
+	$(MAKE) for-component-target TARGET="replace-license-headers"

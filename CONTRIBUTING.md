@@ -309,7 +309,7 @@ When submitting a component to the community, consider breaking it down into sep
     * `make multimod-verify`
     * `make generate-gh-issue-templates`
     * `make gengithub`
-    * `make addlicenseheaders`
+    * `make add-license-headers`
 * **Second PR** should include the concrete implementation of the component. If the
   size of this PR is larger than the recommended size consider splitting it in
   multiple PRs.
