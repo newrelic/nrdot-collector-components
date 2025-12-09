@@ -1,9 +1,7 @@
-<<<<<<< Updated upstream
-=======
+#!/bin/bash
 # Copyright New Relic
 # SPDX-License-Identifier: New-Relic
 
->>>>>>> Stashed changes
 # Checks for the presence of LICENSE files in all components.s
 REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && pwd )"
 NEW_RELIC_SOFTWARE_LICENSE="$(cat $REPO_DIR/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl)"

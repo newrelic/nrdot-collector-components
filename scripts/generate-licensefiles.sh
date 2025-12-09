@@ -1,10 +1,7 @@
 #!/bin/bash
-<<<<<<< Updated upstream
-=======
 # Copyright New Relic
 # SPDX-License-Identifier: New-Relic
 
->>>>>>> Stashed changes
 # Traces through component_licenses.yaml to generate top-level and per-component LICENSE files.
 
 REPO_DIR="$( cd "$(dirname "$( dirname "${BASH_SOURCE[0]}" )")" &> /dev/null && pwd )"
