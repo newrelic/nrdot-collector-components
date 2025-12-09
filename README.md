@@ -1,169 +1,200 @@
----
+<a href="https://opensource.newrelic.com/oss-category/#community-project"><picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/newrelic/opensource-website/raw/main/src/images/categories/dark/Community_Project.png"><source media="(prefers-color-scheme: light)" srcset="https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Community_Project.png"><img alt="New Relic Open Source community project banner." src="https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Community_Project.png"></picture></a>
 
-<p align="center">
-  <strong>
-    <a href="https://opentelemetry.io/docs/collector/getting-started/">Getting Started</a>
-    &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://github.com/open-telemetry/opentelemetry-collector/blob/main/CONTRIBUTING.md">Getting Involved</a>
-    &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://cloud-native.slack.com/archives/C01N6P7KR6W">Getting In Touch</a>
-  </strong>
-</p>
+# New Relic OpenTelemetry Collector Components
 
-<p align="center">
-  <a href="https://github.com/newrelic/nrdot-collector-components/actions/workflows/build-and-test.yml?query=branch%3Amain">
-    <img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/open-telemetry/opentelemetry-collector-contrib/build-and-test.yml?branch=main&style=for-the-badge">
-  </a>
-  <a href="https://goreportcard.com/report/github.com/newrelic/nrdot-collector-components">
-    <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/newrelic/nrdot-collector-components?style=for-the-badge">
-  </a>
-  <a href="https://codecov.io/gh/open-telemetry/opentelemetry-collector-contrib/branch/main/">
-    <img alt="Codecov Status" src="https://img.shields.io/codecov/c/github/open-telemetry/opentelemetry-collector-contrib?style=for-the-badge">
-  </a>
-  <a href="https://github.com/newrelic/nrdot-collector-components/releases">
-    <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/open-telemetry/opentelemetry-collector-contrib?include_prereleases&style=for-the-badge">
-  </a>
-  <img alt="Beta" src="https://img.shields.io/badge/status-beta-informational?style=for-the-badge&logo=data:image/png;base64,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">
-</p>
+[![Build Status](https://img.shields.io/github/actions/workflow/status/newrelic/nrdot-collector-components/build-and-test.yml?branch=main&style=for-the-badge)](https://github.com/newrelic/nrdot-collector-components/actions/workflows/build-and-test.yml?query=branch%3Amain)
+[![Go Report Card](https://goreportcard.com/badge/github.com/newrelic/nrdot-collector-components?style=for-the-badge)](https://goreportcard.com/report/github.com/newrelic/nrdot-collector-components)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/newrelic/nrdot-collector-components?include_prereleases&style=for-the-badge)](https://github.com/newrelic/nrdot-collector-components/releases)
 
-<p align="center">
-  <strong>
-    <a href="https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/vision.md">Vision</a>
-    &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/observability.md">Observability</a>
-    &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-    <a href="https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/security-best-practices.md">Security</a>
-    &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-  </strong>
-</p>
+OpenTelemetry Collector components created and maintained by New Relic. This repository is a focused fork of [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib), containing only the core components and infrastructure needed for New Relic's OpenTelemetry integrations.
 
----
+This project follows semantic versioning and releases are aligned with upstream OpenTelemetry Collector releases. Components in this repository maintain Beta stability for traces, metrics, and logs unless otherwise noted.
 
-# OpenTelemetry Collector Contrib
+## What's Included
 
-This is a repository for OpenTelemetry Collector components that are not suitable for the  [core repository](https://github.com/open-telemetry/opentelemetry-collector) of the collector. 
+This fork includes:
 
-The official distributions, core and contrib, are available as part of the [opentelemetry-collector-releases](https://github.com/open-telemetry/opentelemetry-collector-releases) repository. Some of the components in this repository are part of the "core" distribution, such as the Jaeger and Prometheus components, but most of the components here are only available as part of the "contrib" distribution. Users of the OpenTelemetry Collector are also encouraged to build their own custom distributions with the [OpenTelemetry Collector Builder](https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder), using the components they need from the core repository, the contrib repository, and possibly third-party or internal repositories.
+- **Core Components**: Essential receivers and exporters (nop receiver, nop exporter)
+- **Internal Utilities**: Common libraries and core internal packages for New Relic functionality
+- **Testbed Framework**: Comprehensive end-to-end testing infrastructure for component validation
+- **Build Tools**: Utilities for code generation and repository maintenance
 
-Each component has its own support levels, as defined in the following sections. For each signal that a component supports, there's a stability level, setting the right expectations. It is possible then that a component will be **Stable** for traces but **Alpha** for metrics and **Development** for logs.
+For the complete list of included components, see [`versions.yaml`](versions.yaml).
 
-## Stability levels
+## Installation
 
-Stability level for components in this repository follow the [definitions](https://github.com/open-telemetry/opentelemetry-collector#stability-levels) from the OpenTelemetry Collector repository.
+### Prerequisites
 
-## Gated features
+- Go 1.22 or later
+- Make
 
-Some features are hidden behind feature gates before they are part of the main code path for the component. Note that the feature gates themselves might be at different [lifecycle stages](https://github.com/open-telemetry/opentelemetry-collector/tree/main/featuregate#feature-lifecycle).
+### Clone and Build
+
+```bash
+# Clone the repository
+git clone https://github.com/newrelic/nrdot-collector-components.git
+cd nrdot-collector-components
+
+# Install build tools
+make install-tools
+
+# Build all components
+make build
+
+# Run tests
+make gotest
+```
+
+## Getting Started
+
+### Pre-built Distributions
+
+If you're looking for pre-built OpenTelemetry Collector distributions that use these components, see the [nrdot-collector-releases](https://github.com/newrelic/nrdot-collector-releases) repository.
+
+### Building a Custom Collector
+
+Use the [OpenTelemetry Collector Builder](https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder) to create a custom collector with components from this repository:
+
+```bash
+# Install the builder
+go install go.opentelemetry.io/collector/cmd/builder@latest
+
+# Build using the provided configuration
+cd cmd/otelcontribcol
+builder --config builder-config.yaml
+```
+
+### Testing Components
+
+This repository includes a comprehensive testbed for end-to-end component testing:
+
+```bash
+# Run all testbed tests
+make e2e-test
+
+# Run specific test suite
+TESTS_DIR=correctnesstests/metrics make e2e-test
+
+# Run testbed tests directly
+cd testbed
+make run-tests
+```
+
+For guidance on writing testbed tests for new components, see [`testbed/examples/processor_example_test.go`](testbed/examples/processor_example_test.go).
+
+## Usage
+
+### Adding Components
+
+Components are tracked in [`versions.yaml`](versions.yaml). To add a new component:
+
+1. Create your component following the [contribution guidelines](CONTRIBUTING.md)
+2. Add the component to `versions.yaml` in the appropriate module set
+3. Update [`cmd/otelcontribcol/builder-config.yaml`](cmd/otelcontribcol/builder-config.yaml)
+4. Run `make crosslink` to update intra-repository dependencies
+5. Run `make gotidy` to update Go module dependencies
+
+### Component Stability
+
+Each component has stability levels for each signal type (traces, metrics, logs):
+
+- **Beta**: Ready for production use with backwards compatibility guarantees
+- **Alpha**: Ready for testing, breaking changes may occur
+- **Development**: Experimental, not recommended for production
+
+See component README files for specific stability information.
+
+## Building
+
+### Build Commands
+
+```bash
+# Build all components
+make build
+
+# Build for specific OS/architecture
+make GOOS=linux GOARCH=amd64 build
+
+# Generate code
+make generate
+
+# Lint code
+make lint
+
+# Run all checks (lint + test)
+make checks
+```
+
+### Cross-compilation
+
+```bash
+# Test cross-compilation for all supported platforms
+make cross-compile
+```
+
+## Testing
+
+### Unit Tests
+
+```bash
+# Run all unit tests
+make gotest
+
+# Run tests for specific component
+cd exporter/nopexporter
+make test
+
+# Run tests with coverage
+make gotest-with-cover
+```
+
+### Integration Tests
+
+```bash
+# Run correctness tests
+cd testbed
+make run-correctness-tests
+
+# Run stability tests
+make run-stability-tests
+```
+
+### End-to-End Tests
+
+```bash
+# Run full e2e test suite
+make e2e-test
+
+# Run specific test category
+TESTS_DIR=correctnesstests/traces make e2e-test
+```
 
 ## Support
 
-Each component is supported either by the community of OpenTelemetry Collector Contrib maintainers, as defined by the GitHub group [@open-telemetry/collector-contrib-maintainer](https://github.com/orgs/open-telemetry/teams/collector-contrib-maintainer), or by specific vendors. See the individual README files for information about the specific components.
+New Relic hosts and moderates an online forum where you can interact with New Relic employees as well as other customers to get help and share best practices. Like all official New Relic open source projects, there's a related Community topic in the New Relic Explorers Hub.
 
-The OpenTelemetry Collector Contrib maintainers may at any time downgrade specific components if they are deemed unmaintained or if they pose a risk to the repository and/or binary distribution.
+- [New Relic Documentation](https://docs.newrelic.com/)
+- [New Relic Community Forum](https://forum.newrelic.com/)
+- [OpenTelemetry Collector Documentation](https://opentelemetry.io/docs/collector/)
 
-Even though the OpenTelemetry Collector Contrib maintainers are ultimately responsible for the components hosted here, actual support will likely be provided by individual contributors, typically a code owner for the specific component.
+## Contribute
 
-## Contributing
+We encourage your contributions to improve New Relic OpenTelemetry Collector Components! Keep in mind that when you submit your pull request, you'll need to sign the CLA via the click-through using CLA-Assistant. You only have to sign the CLA one time per project.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+If you have any questions, or to execute our corporate CLA (which is required if your contribution is on behalf of a company), drop us an email at opensource@newrelic.com.
 
-### Maintainers
+**A note about vulnerabilities**
 
-- [Alex Boten](https://github.com/codeboten), Honeycomb
-- [Andrzej Stencel](https://github.com/andrzej-stencel), Elastic
-- [Antoine Toulme](https://github.com/atoulme), Splunk
-- [Bogdan Drutu](https://github.com/bogdandrutu), Snowflake
-- [Dmitrii Anoshin](https://github.com/dmitryax), Splunk
-- [Edmo Vamerlatti Costa](https://github.com/edmocosta), Elastic
-- [Evan Bradley](https://github.com/evan-bradley), Dynatrace
-- [Pablo Baeyens](https://github.com/mx-psi), DataDog
-- [Sean Marciniak](https://github.com/MovieStoreGuy), Splunk
-- [Tyler Helmuth](https://github.com/TylerHelmuth), Honeycomb
-- [Yang Song](https://github.com/songy23), DataDog
+As noted in our [security policy](../../security/policy), New Relic is committed to the privacy and security of our customers and their data. We believe that providing coordinated disclosure by security researchers and engaging with the security community are important means to achieve our security goals.
 
-For more information about the maintainer role, see the [community repository](https://github.com/open-telemetry/community/blob/main/guides/contributor/membership.md#maintainer).
+If you believe you have found a security vulnerability in this project or any of New Relic's products or websites, we welcome and greatly appreciate you reporting it to New Relic through [our bug bounty program](https://docs.newrelic.com/docs/security/security-privacy/information-security/report-security-vulnerabilities/).
 
-### Approvers
+If you would like to contribute to this project, review [these guidelines](./CONTRIBUTING.md).
 
-- [Andrew Wilkins](https://github.com/axw), Elastic
-- [Arthur Silva Sens](https://github.com/ArthurSens), Grafana Labs
-- [Braydon Kains](https://github.com/braydonk), Google
-- [Christos Markou](https://github.com/ChrsMark), Elastic
-- [Curtis Robert](https://github.com/crobert-1), Splunk
-- [David Ashpole](https://github.com/dashpole), Google
-- [Matt Wear](https://github.com/mwear), Lightstep
-- [Paulo Janotti](https://github.com/pjanotti), Splunk
-- [Sam DeHaan](https://github.com/dehaansa), Grafana Labs
-- [Vihas Makwana](https://github.com/VihasMakwana), Elastic
-- [Ziqi Zhao](https://github.com/fatsheep9146), Alibaba
+To all contributors, we thank you! Without your contribution, this project would not be what it is today.
 
-For more information about the approver role, see the [community repository](https://github.com/open-telemetry/community/blob/main/guides/contributor/membership.md#approver).
+## License
 
-### Triagers
+New Relic OpenTelemetry Collector Components is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
 
-- [Benedikt Bongartz](https://github.com/frzifus), Red Hat
-- [Bogdan Stancu](https://github.com/bogdan-st), Adobe
-- [Constança Manteigas](https://github.com/constanca-m), Elastic
-- [Douglas Camata](https://github.com/douglascamata), Coralogix
-- [Florian Bacher](https://github.com/bacherfl), Dynatrace
-- [Israel Blancas](https://github.com/iblancasa), Coralogix
-- [James Moessis](https://github.com/jamesmoessis), Atlassian
-- [Jared Tan](https://github.com/JaredTan95), DaoCloud
-- [Murphy Chen](https://github.com/Frapschen), DaoCloud
-- [Ondrej Dubaj](https://github.com/odubajDT), Dynatrace
-- [Roger Coll](https://github.com/rogercoll), Elastic
-- Actively seeking contributors to triage issues
-
-For more information about the triager role, see the [community repository](https://github.com/open-telemetry/community/blob/main/guides/contributor/membership.md#triager).
-
-### Emeritus Maintainers
-
-- [Daniel Jaglowski](https://github.com/djaglowski)
-- [Juraci Paixão Kröhling](https://github.com/jpkrohling)
-- [Tigran Najaryan](https://github.com/tigrannajaryan)
-
-For more information about the emeritus role, see the [community repository](https://github.com/open-telemetry/community/blob/main/guides/contributor/membership.md#emeritus-maintainerapprovertriager).
-
-### Emeritus Approvers
-
-- [Anthony Mirabella](https://github.com/Aneurysm9)
-- [Bryan Aguilar](https://github.com/bryan-aguilar)
-- [Przemek Maciolek](https://github.com/pmm-sumo)
-- [Ruslan Kovalov](https://github.com/kovrus)
-
-For more information about the emeritus role, see the [community repository](https://github.com/open-telemetry/community/blob/main/guides/contributor/membership.md#emeritus-maintainerapprovertriager).
-
-### Emeritus Triagers
-
-- [Alolita Sharma](https://github.com/alolita)
-- [Gabriel Aszalos](https://github.com/gbbr)
-- [Goutham Veeramachaneni](https://github.com/gouthamve)
-- [Punya Biswal](https://github.com/punya)
-- [Steve Flanders](https://github.com/flands)
-
-For more information about the emeritus role, see the [community repository](https://github.com/open-telemetry/community/blob/main/guides/contributor/membership.md#emeritus-maintainerapprovertriager).
-
-### No Over-Representation
-
-A community member cannot be promoted to be a Collector contrib maintainer if, after their promotion, the resulting maintainers group has more than one-fourth (25%) of the members affiliated with the same employer. Job changes and similar events might result in over-representation, and no new maintainers from the same company can be promoted until representation is balanced again. In the event of confusion or concern, the OpenTelemetry Collector SIG will defer to the CNCF definition of "same employer".
-
-## PRs and Reviews
-
-When creating a PR please follow the process [described
-here](https://github.com/open-telemetry/opentelemetry-collector/blob/main/CONTRIBUTING.md#how-to-structure-prs-to-get-expedient-reviews).
-
-New PRs will be automatically associated with the reviewers based on
-[CODEOWNERS](.github/CODEOWNERS). PRs will be also automatically assigned to one of the
-maintainers or approvers for facilitation.
-
-The facilitator is responsible for helping the PR author and reviewers to make progress
-or if progress cannot be made for closing the PR.
-
-If the reviewers do not have approval rights the facilitator is also responsible
-for the official approval that is required for the PR to be merged and if the facilitator
-is a maintainer they are responsible for merging the PR as well.
-
-The facilitator is not required to perform a thorough review, but they are encouraged to
-enforce Collector best practices and consistency across the codebase and component
-behavior. The facilitators will typically rely on codeowner's detailed review of the code
-when making the final approval decision. 
+This project uses source code from the [OpenTelemetry Collector Contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) project, which is also licensed under Apache 2.0.
