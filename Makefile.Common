@@ -203,7 +203,7 @@ do-integration-tests-with-cover: $(GOTESTSUM)
 benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
-.PHONY: removelicense
+.PHONY: removelicenseheaders
 removelicense:
 	@REMOVELICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
@@ -222,8 +222,8 @@ removelicense:
 		echo "Remove license finished successfully"; \
 	fi
 
-.PHONY: addlicense
-addlicense: $(ADDLICENSE)
+.PHONY: addlicenseheaders
+addlicenseheaders: $(ADDLICENSE)
 	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
 		is_proprietary=$$(dir=$$component_dir yq '.new_relic[] | select(. == strenv(dir))' $(SRC_ROOT)/component_licenses.yaml); \
@@ -241,11 +241,11 @@ addlicense: $(ADDLICENSE)
 		echo "Add License finished successfully"; \
 	fi
 
-.PHONY: replacelicense
-replacelicense: removelicense addlicense
+.PHONY: replacelicenseheaders
+replacelicenseheaders: removelicenseheaders addlicenseheaders
 
-.PHONY: checklicense
-checklicense: $(ADDLICENSE)
+.PHONY: checklicenseheaders
+checklicenseheaders: $(ADDLICENSE)
 	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		if awk '/Copyright|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
 			continue; \
@@ -308,7 +308,7 @@ else
 endif
 
 .PHONY: lint
-lint: $(LINT) checklicense misspell
+lint: $(LINT) checklicenseheaders misspell
 	$(LINT) run
 
 .PHONY: govulncheck
