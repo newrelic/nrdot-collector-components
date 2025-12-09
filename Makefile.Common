@@ -207,11 +207,9 @@ benchmark: $(GOTESTSUM)
 removelicense: $(ADDLICENSE)
 	for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
-			echo "THIS IS GENERATED $$f"; \
 			continue; \
 		fi; \
 		if head -n 4 $$f | grep -q 'Copyright' && head -n 4 $$f | grep -q 'SPDX'; then \
-			echo "THIS IS NOT GENERATED $$f"; \
 			tail -n +5 $$f > $$f.tmp && mv $$f.tmp $$f; \
 			continue; \
 		fi; \
