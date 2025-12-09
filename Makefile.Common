@@ -249,7 +249,7 @@ else
 endif
 
 .PHONY: lint
-lint: $(LINT) checklicenseheaders misspell
+lint: $(LINT) check-license-headers misspell
 	$(LINT) run
 
 .PHONY: govulncheck
