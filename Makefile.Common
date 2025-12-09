@@ -392,17 +392,16 @@ check-license-headers: $(ADDLICENSE)
 .PHONY: add-license-files
 add-license-files:
 	@filesRes=$$( \
-		component_dir="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
-		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_dir); \
+		src_root_dir="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+		current_dir="$$(basename $$(pwd))"; \
+		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$src_root_dir); \
 		if [ -n "$$is_proprietary" ]; then \
 			proprietary_license=$$(cat $(SRC_ROOT)/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl); \
-			cat $$proprietary_license > "LICENSE_NEW_RELIC_$$component_dir" 2>&1; \
+			echo "$$proprietary_license" > "LICENSE_NEW_RELIC_$${current_dir}" 2>&1; \
 		else \
 			apache_license=$$(cat $(SRC_ROOT)/internal/assets/license/LICENSE_APACHE_component.tmpl); \
-			cat $$apache_license > "LICENSE_APACHE_$$component_dir" 2>&1; \
+			echo "$$apache_license" > "LICENSE_APACHE_$${current_dir}" 2>&1; \
 		fi); \
-	component_dir="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
-	echo "$$component_dir"; \
 	if [ -n "$${filesRes}" ]; then \
 		echo "License file add failed:"; echo "$${licRes}"; \
 		exit 1; \
