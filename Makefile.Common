@@ -204,7 +204,7 @@ benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: removelicenseheaders
-removelicense:
+removelicenseheaders:
 	@REMOVELICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
 			continue; \
