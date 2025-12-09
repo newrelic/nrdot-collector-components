@@ -103,7 +103,9 @@ BUILD_TYPE?=release
 # All source code and documents. Used in spell check.
 ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -name "*.yaml" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
-ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c "The OpenTelemetry Authors"
+ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c -"The OpenTelemetry Authors"
+ADDLICENSE_CMD_NR_APACHE := $(ADDLICENSE) -s=only -y "" -c "New Relic"
+ADDLICENSE_CMD_NR_PROPRIETARY := $(ADDLICENSE) -y "" -c "New Relic" -f "$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl"
 
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
@@ -201,10 +203,30 @@ do-integration-tests-with-cover: $(GOTESTSUM)
 benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
+.PHONY: removelicense
+removelicense: $(ADDLICENSE)
+	for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
+			echo "THIS IS GENERATED $$f"; \
+			continue; \
+		fi; \
+		if head -n 4 $$f | grep -q 'Copyright' && head -n 4 $$f | grep -q 'SPDX'; then \
+			echo "THIS IS NOT GENERATED $$f"; \
+			tail -n +5 $$f > $$f.tmp && mv $$f.tmp $$f; \
+			continue; \
+		fi; \
+	done
+
 .PHONY: addlicense
 addlicense: $(ADDLICENSE)
 	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		`$(ADDLICENSE_CMD) "$$f" 2>&1`; \
+		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
+		is_proprietary=$$(dir=$$component_dir yq '.new_relic[] | select(. == strenv(dir))' $(SRC_ROOT)/component_licenses.yaml); \
+		if [ -n $$is_proprietary ]; then \
+			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
+		else \
+			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
+		fi; \
 	done); \
 	if [ "$$ADDLICENSEOUT" ]; then \
 		echo "$(ADDLICENSE) FAILED => add License errors:\n"; \
@@ -217,10 +239,10 @@ addlicense: $(ADDLICENSE)
 .PHONY: checklicense
 checklicense: $(ADDLICENSE)
 	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		if awk '/Copyright The OpenTelemetry Authors|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
+		if awk '/Copyright|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
 			continue; \
 		fi; \
-		if awk '/SPDX-License-Identifier: Apache-2.0|generated|GENERATED/ && NR<=4 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
+		if awk '/SPDX-License-Identifier:|generated|GENERATED/ && NR<=4 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
 			continue; \
 		fi; \
 		$(ADDLICENSE_CMD) -check "$$f" 2>&1 || echo "$$f"; \
