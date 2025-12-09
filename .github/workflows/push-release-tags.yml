@@ -46,6 +46,15 @@ jobs:
           git show $COMMIT:versions.yaml | grep -q "version: v${{ inputs.version }}" || { echo "Error: Commit doesn't contain v${{ inputs.version }}"; exit 1; }
           echo "commit=$COMMIT" >> $GITHUB_OUTPUT
 
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+
       - name: Push tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
