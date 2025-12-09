@@ -695,10 +695,9 @@ component-add-license-files:
 
 .PHONY: component-check-license-files
 component-check-license-files: component-add-license-files
-	@git diff --name-only | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
-		echo "License files out of date, please run \"make all-generate-licensefiles\" and commit the changes in this PR."; exit 1; \
-	} || exit 0
-	./scripts/check-licensefiles.sh
+	@git status --porcelain | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
+		echo "License files out of date, please run \"make component-add-licensefiles\" and commit the changes in this PR."; exit 1; \
+	} || ./scripts/check-licensefiles.sh
 
 .PHONY: component-remove-license-headers
 component-remove-license-headers:
