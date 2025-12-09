@@ -210,7 +210,8 @@ removelicense: $(ADDLICENSE)
 			continue; \
 		fi; \
 		if head -n 4 $$f | grep -q 'Copyright' && head -n 4 $$f | grep -q 'SPDX'; then \
-			tail -n +5 $$f > $$f.tmp && mv $$f.tmp $$f; \
+			echo "THIS IS NOT GENERATED $$f"; \
+			tail -n +4 $$f > $$f.tmp && mv $$f.tmp $$f; \
 			continue; \
 		fi; \
 	done
