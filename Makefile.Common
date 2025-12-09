@@ -204,8 +204,8 @@ benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: removelicense
-removelicense: $(ADDLICENSE)
-	for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+removelicense:
+	@REMOVELICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
 			continue; \
 		fi; \
@@ -213,7 +213,14 @@ removelicense: $(ADDLICENSE)
 			tail -n +4 $$f > $$f.tmp && mv $$f.tmp $$f; \
 			continue; \
 		fi; \
-	done
+	done); \
+	if [ "$$REMOVELICENSEOUT" ]; then \
+		echo " FAILED => remove License errors:\n"; \
+		echo "$$REMOVELICENSEOUT\n"; \
+		exit 1; \
+	else \
+		echo "Remove license finished successfully"; \
+	fi
 
 .PHONY: addlicense
 addlicense: $(ADDLICENSE)
@@ -233,6 +240,9 @@ addlicense: $(ADDLICENSE)
 	else \
 		echo "Add License finished successfully"; \
 	fi
+
+.PHONY: replacelicense
+replacelicense: removelicense addlicense
 
 .PHONY: checklicense
 checklicense: $(ADDLICENSE)
