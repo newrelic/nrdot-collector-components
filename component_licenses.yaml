@@ -1,5 +1,0 @@
-apache:
-- receiver/nopreceiver
-
-new_relic:
-- exporter/nopexporter

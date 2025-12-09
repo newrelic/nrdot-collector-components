@@ -625,10 +625,10 @@ checks:
 
 .PHONY: component-add-license-files
 component-add-license-files:
-	./scripts/generate-licensefiles.sh
+	$(MAKE) for-component-target TARGET="add-license-files"
 
 .PHONY: component-check-license-files
-component-check-license-files: all-generate-license-files
+component-check-license-files: component-add-license-files
 	@git diff --name-only | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
 		echo "License files out of date, please run \"make all-generate-licensefiles\" and commit the changes in this PR."; exit 1; \
 	} || exit 0
@@ -645,3 +645,7 @@ component-add-license-headers:
 .PHONY: component-replace-license-headers
 component-replace-license-headers:
 	$(MAKE) for-component-target TARGET="replace-license-headers"
+
+.PHONy: component-check-license-headers
+component-check-license-headers:
+	$(MAKE) for-component-target TARGET="check-license-headers"
