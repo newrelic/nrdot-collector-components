@@ -33,8 +33,9 @@ CONNECTOR_MODS := $(shell find ./connector/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR
 INTERNAL_MODS := $(shell find ./internal/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR))
 PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/*col*" -exec $(TO_MOD_DIR) )
-CMD_MODS := $(CMD_MODS_0)
+CMD_MODS := $(CMD_MODS_0)s
 OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
+COMPONENT_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(PKG_MODS)
 export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
 
 CGO_MODS := ./receiver/hostmetricsreceiver
@@ -283,6 +284,9 @@ for-integration-target: $(INTEGRATION_MODS)
 
 .PHONY: for-cgo-target
 for-cgo-target: $(CGO_MODS)
+
+.PHONY: for-component-target
+for-component-target: $(COMPONENT_MODS)
 
 # Debugging target, which helps to quickly determine whether for-all-target is working or not.
 .PHONY: all-pwd
@@ -629,3 +633,15 @@ all-check-licensefiles: all-generate-licensefiles
 		echo "License files out of date, please run \"make all-generate-licensefiles\" and commit the changes in this PR."; exit 1; \
 	} || exit 0
 	./scripts/check-licensefiles.sh
+
+.PHONY: component-remove-licenseheaders
+component-remove-licenseheaders:
+	$(MAKE) for-component-target TARGET="removelicenseheaders"
+
+.PHONY: component-add-licenseheaders
+component-add-licenseheaders:
+	$(MAKE) for-component-target TARGET="addlicenseheaders"
+
+.PHONY: component-replace-licenseheaders
+component-replace-licenseheaders:
+	$(MAKE) for-component-target TARGET="replacelicenseheaders"

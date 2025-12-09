@@ -227,10 +227,10 @@ addlicenseheaders: $(ADDLICENSE)
 	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
 		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
 		is_proprietary=$$(dir=$$component_dir yq '.new_relic[] | select(. == strenv(dir))' $(SRC_ROOT)/component_licenses.yaml); \
-		if [ -n $$is_proprietary ]; then \
+		if [ -n "$$is_proprietary" ]; then \
 			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
 		else \
-			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
+			`$(ADDLICENSE_CMD_NR_APACHE) "$$f" 2>&1`; \
 		fi; \
 	done); \
 	if [ "$$ADDLICENSEOUT" ]; then \

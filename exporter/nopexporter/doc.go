@@ -1,5 +1,5 @@
-// Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+// Copyright New Relic
+// SPDX-License-Identifier: New-Relic
 
 //go:generate mdatagen metadata.yaml
 
