@@ -882,8 +882,8 @@ go.mongodb.org/mongo-driver v1.17.4 h1:jUorfmVzljjr0FLzYQsGP8cgN/qzzxlY9Vh0C9KFX
 go.mongodb.org/mongo-driver v1.17.4/go.mod h1:Hy04i7O2kC4RS06ZrhPRqj/u4DTYkFDAAccj+rVKqgQ=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
-go.opentelemetry.io/collector v0.141.0 h1:TrB5VlTVvWBPdx9Kvl4kigvkPr5RI2NhvXcN4CErrFY=
-go.opentelemetry.io/collector v0.141.0/go.mod h1:etSWqFxETgvoEjTINqGu+B/Lm+EbJiu3PZGW+bemo1A=
+go.opentelemetry.io/collector v0.140.0 h1:6RI7/l3TtQj+93xk+gpNh6TpvevOsz9E5KB2s3h00j8=
+go.opentelemetry.io/collector v0.140.0/go.mod h1:myrJeCdIuFeUGCUEgs4lWflywff9VANpuJEtdY1pKEk=
 go.opentelemetry.io/collector/client v1.46.0 h1:nAEVyKIECez8P92RXa78mjRvaynkivYdukT07lzF7Gs=
 go.opentelemetry.io/collector/client v1.46.0/go.mod h1:/Y2bm0RdD8LKIEQOX5YqqjglKNb8AYCdDuKb04/fURw=
 go.opentelemetry.io/collector/component v1.46.0 h1:m+BF5sT4wQ3AiPcMBVgYPhxTZNGYGDkgMcKFivEznSo=
