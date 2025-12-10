@@ -333,8 +333,8 @@ run-changed-tests:
 .PHONY: add-license-headers
 add-license-headers: $(ADDLICENSE)
 	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
-		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_dir); \
+		src_root_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
+		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$src_root_dir); \
 		if [ -n "$$is_proprietary" ]; then \
 			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
 		else \
@@ -377,8 +377,8 @@ check-license-headers: $(ADDLICENSE)
 		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit } END { if (!found) exit 1 }' $$f; then \
 			continue; \
 		fi; \
-		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
-		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_dir); \
+		src_root_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
+		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$src_root_dir); \
 		if [ -n "$$is_proprietary" ]; then \
 			proprietary_header=$$(cat $(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl); \
 			if ! grep -qF "$$proprietary_header" $$f; then \
