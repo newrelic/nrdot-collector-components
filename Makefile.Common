@@ -374,16 +374,29 @@ replace-license-headers: remove-license-headers add-license-headers
 .PHONY: check-license-headers
 check-license-headers: $(ADDLICENSE)
 	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		if awk '/Copyright|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
+		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit } END { if (!found) exit 1 }' $$f; then \
 			continue; \
 		fi; \
-		if awk '/SPDX-License-Identifier:|generated|GENERATED/ && NR<=4 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
+		component_dir="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
+		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_dir); \
+		if [ -n "$$is_proprietary" ]; then \
+			proprietary_header=$$(cat $(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl); \
+			if ! grep -qF "$$proprietary_header" $$f; then \
+				echo -e "$$f  --  wrong or missing license header. Expected NR software license."; \
+			fi; \
+			continue; \
+		fi; \
+		if awk '/Copyright/ && NR<=3 { found=1; next } END { if (!found) print FILENAME "  --  missing copyright." }' $$f; then \
+			continue; \
+		fi; \
+		if awk '/SPDX-License-Identifier:/ && NR<=4 { found=1; next } END { if (!found) print FILENAME "  --  missing SPDX identifier." }' $$f; then \
 			continue; \
 		fi; \
 		$(ADDLICENSE_CMD) -check "$$f" 2>&1 || echo "$$f"; \
 		done); \
 	if [ -n "$${licRes}" ]; then \
 		echo "license header checking failed:"; echo "$${licRes}"; \
+		echo "Run \"make component-replace-license-headers\" if adding new files."; \
 		exit 1; \
 	else \
 		echo "Check License finished successfully"; \
