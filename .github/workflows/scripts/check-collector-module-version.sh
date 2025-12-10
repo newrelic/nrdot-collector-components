@@ -69,4 +69,45 @@ for mod in "${stable_modules[@]}"; do
    check_collector_versions_correct "$mod" "$STABLE_MOD_VERSION"
 done
 
+# Get the latest patch version of contrib for the same minor as collector beta
+get_contrib_version() {
+   beta_version="$1"
+   minor_version=$(echo "$beta_version" | cut -d. -f1,2)
+
+   contrib_version=$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/testbed 2>/dev/null | tr ' ' '\n' | grep "^$minor_version\." | sort -V | tail -1)
+
+   if [ -z "$contrib_version" ]; then
+      echo "$beta_version"
+   else
+      echo "$contrib_version"
+   fi
+}
+
+# Update contrib dependencies (both direct and indirect) to match the target version
+check_contrib_versions_correct() {
+   contrib_version="$1"
+   contrib_prefix="github.com/open-telemetry/opentelemetry-collector-contrib"
+
+   echo "Checking contrib dependencies are using $contrib_version"
+
+   for mod_file in $mod_files; do
+      # Update all contrib dependencies (both direct and indirect)
+      grep "^	$contrib_prefix/" "$mod_file" | while IFS= read -r line; do
+         module=$(echo "$line" | awk '{print $1}')
+         current_version=$(echo "$line" | awk '{print $2}')
+         if [ "$current_version" != "$contrib_version" ]; then
+            echo "Updating $module from $current_version to $contrib_version in $mod_file"
+            if [ "${GNU_SED_INSTALLED}" = false ]; then
+               sed -i '' "s|$module $current_version|$module $contrib_version|g" "$mod_file"
+            else
+               sed -i'' "s|$module $current_version|$module $contrib_version|g" "$mod_file"
+            fi
+         fi
+      done || true
+   done
+}
+
+CONTRIB_VERSION=$(get_contrib_version "$BETA_MOD_VERSION")
+check_contrib_versions_correct "$CONTRIB_VERSION"
+
 git diff --exit-code
