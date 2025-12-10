@@ -498,13 +498,13 @@ update-otel:$(MULTIMOD)
 	CONTRIB_PREFIX="github.com/open-telemetry/opentelemetry-collector-contrib"; \
 	for mod_file in $$(find . -type f -name "go.mod"); do \
 		echo "Updating contrib modules in $$mod_file"; \
-		grep "^	$$CONTRIB_PREFIX/" "$$mod_file" | while IFS= read -r line; do \
-			module=$$(echo "$$line" | awk '{print $$1}'); \
-			current_version=$$(echo "$$line" | awk '{print $$2}'); \
-			if [ "$$current_version" != "$$CONTRIB_VERSION" ]; then \
-				echo "  Updating $$module from $$current_version to $$CONTRIB_VERSION"; \
-				sed -i.bak "s|$$module $$current_version|$$module $$CONTRIB_VERSION|g" "$$mod_file"; \
+		grep "^	$$CONTRIB_PREFIX/" "$$mod_file" | awk '{print $$1}' | while read -r module; do \
+			if go list -m "$$module@$$CONTRIB_VERSION" >/dev/null 2>&1; then \
+				echo "  Updating $$module to $$CONTRIB_VERSION"; \
+				sed -i.bak "s|$$module [^ ]*|$$module $$CONTRIB_VERSION|g" "$$mod_file"; \
 				rm "$$mod_file.bak"; \
+			else \
+				echo "  Skipped $$module (not available at $$CONTRIB_VERSION)"; \
 			fi; \
 		done; \
 	done; \
