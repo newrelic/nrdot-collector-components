@@ -355,10 +355,7 @@ remove-license-headers:
 		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
 			continue; \
 		fi; \
-		if head -n 4 $$f | grep -q 'Copyright' && head -n 4 $$f | grep -q 'SPDX'; then \
-			tail -n +4 $$f > $$f.tmp && mv $$f.tmp $$f; \
-			continue; \
-		fi; \
+		sed -i '' '1,6{/Copyright/d; /SPDX/d;}; 1{/^[[:space:]]*$$/d;}' $$f; \
 	done); \
 	if [ "$$REMOVELICENSEOUT" ]; then \
 		echo " FAILED => remove License errors:\n"; \
