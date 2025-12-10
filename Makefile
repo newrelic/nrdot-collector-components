@@ -483,6 +483,32 @@ update-otel:$(MULTIMOD)
 	git add . && git commit -s -m "[chore] multimod update stable modules" ; \
 	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m beta --commit-hash "$(OTEL_VERSION)"
 	git add . && git commit -s -m "[chore] multimod update beta modules" ; \
+	# Update contrib modules to latest patch for the same minor version as beta
+	@echo "Updating contrib modules to latest patch version..."
+	@BETA_VERSION=$$(grep "go.opentelemetry.io/collector " ./cmd/nrdotcol/go.mod | head -n 1 | awk '{print $$2}'); \
+	MINOR_VERSION=$$(echo $$BETA_VERSION | cut -d. -f1,2); \
+	echo "Beta collector version: $$BETA_VERSION"; \
+	echo "Looking for latest contrib patch for minor version: $$MINOR_VERSION"; \
+	CONTRIB_VERSION=$$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/testbed 2>/dev/null | tr ' ' '\n' | grep "^$$MINOR_VERSION\." | sort -V | tail -1); \
+	if [ -z "$$CONTRIB_VERSION" ]; then \
+		echo "No contrib version found for $$MINOR_VERSION, using $$BETA_VERSION"; \
+		CONTRIB_VERSION=$$BETA_VERSION; \
+	fi; \
+	echo "Using contrib version: $$CONTRIB_VERSION"; \
+	CONTRIB_PREFIX="github.com/open-telemetry/opentelemetry-collector-contrib"; \
+	for mod_file in $$(find . -type f -name "go.mod"); do \
+		echo "Updating contrib modules in $$mod_file"; \
+		grep "^	$$CONTRIB_PREFIX/" "$$mod_file" | while IFS= read -r line; do \
+			module=$$(echo "$$line" | awk '{print $$1}'); \
+			current_version=$$(echo "$$line" | awk '{print $$2}'); \
+			if [ "$$current_version" != "$$CONTRIB_VERSION" ]; then \
+				echo "  Updating $$module from $$current_version to $$CONTRIB_VERSION"; \
+				sed -i.bak "s|$$module $$current_version|$$module $$CONTRIB_VERSION|g" "$$mod_file"; \
+				rm "$$mod_file.bak"; \
+			fi; \
+		done; \
+	done; \
+	git add . && git commit -s -m "[chore] update contrib modules to $$CONTRIB_VERSION" --allow-empty ; \
 	$(MAKE) gotidy
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotcol/go.mod,./cmd/nrdotcol/builder-config.yaml)
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/oteltestbedcol/go.mod,./cmd/oteltestbedcol/builder-config.yaml)
