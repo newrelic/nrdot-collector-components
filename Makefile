@@ -689,16 +689,16 @@ checks:
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
-
 .PHONY: component-check-licenses
 component-check-licenses:
-	$(MAKE) for-component-target TARGET="check-license-file"
+	$(MAKE) for-component-target TARGET="check-component-license-file"
 	$(MAKE) for-component-target TARGET="check-license-headers"
+	$(MAKE) validate-licensing
 
 .PHONY: component-generate-licenses
 component-generate-licenses:
 	echo "REMINDER: If you have a proprietary component, ensure it's listed in LICENSING!"
-	$(MAKE) for-component-target TARGET="add-license-file"
+	$(MAKE) for-component-target TARGET="add-component-license-file"
 	$(MAKE) for-component-target TARGET="replace-license-headers"
 
 .PHONY: component-check-license-files

@@ -346,7 +346,7 @@ add-license-headers: $(ADDLICENSE)
 		echo "$$ADDLICENSEOUT\n"; \
 		exit 1; \
 	else \
-		echo "Add License finished successfully"; \
+		echo "✅ License headers added."; \
 	fi
 
 .PHONY: remove-license-headers
@@ -362,8 +362,6 @@ remove-license-headers:
 		echo " FAILED => remove License errors:\n"; \
 		echo "$$REMOVELICENSEOUT\n"; \
 		exit 1; \
-	else \
-		echo "Remove license finished successfully"; \
 	fi
 
 .PHONY: replace-license-headers
@@ -397,11 +395,11 @@ check-license-headers: $(ADDLICENSE)
 		echo "Run \"make component-replace-license-headers\" if adding new files."; \
 		exit 1; \
 	else \
-		echo "Check License finished successfully"; \
+		echo "✅ License headers valiated."; \
 	fi
 
-.PHONY: add-license-file
-add-license-file:
+.PHONY: add-component-license-file
+add-component-license-file:
 	@filesRes=$$( \
 		component_path="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
 		current_dir="$$(basename $$(pwd))"; \
@@ -417,11 +415,11 @@ add-license-file:
 		echo "License file add failed:"; echo "$${licRes}"; \
 		exit 1; \
 	else \
-		echo "Added license file successfuly."; \
+		echo "✅ License added to $$(pwd | sed 's|^$(SRC_ROOT)/||')."; \
 	fi
 
-.PHONY: check-license-file
-check-license-file:
+.PHONY: check-component-license-file
+check-component-license-file:
 	@checkFileRes=$$( \
 		component_path="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
 		license=$$(basename $$(find "." -maxdepth 1 -type f -iname "LICENSE*") 2>/dev/null); \
@@ -450,7 +448,7 @@ check-license-file:
 		echo "❌ License file check failed:"; echo "$${checkFileRes}"; \
 		exit 1; \
 	else \
-		echo "✅ Valid license file in $$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+		echo "✅ Valid license file in $$(pwd | sed 's|^$(SRC_ROOT)/||')."; \
 	fi
 
 .PHONY: validate-licensing
@@ -467,6 +465,6 @@ validate-licensing:
 		echo "❌ LICENSING file check failed:"; echo "$${res}"; \
 		exit 1; \
 	else \
-		echo "✅ LICENSING file validated."; \
+		echo "✅ LICENSING validated."; \
 	fi
 	
