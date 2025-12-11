@@ -22,6 +22,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          repository: open-telemetry/opentelemetry-collector
+          path: opentelemetry-collector
+
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          path: nrdot-collector-components
+
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
         with:
@@ -29,12 +37,17 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign: true
-      - run: ./.github/workflows/scripts/free-disk-space.sh
+          workdir: nrdot-collector-components
+
+      - run: nrdot-collector-components/.github/workflows/scripts/free-disk-space.sh
+
       - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
         with:
           go-version: oldstable
           cache: false
+
       - name: Prepare release
+        working-directory: nrdot-collector-components
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
