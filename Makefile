@@ -689,16 +689,6 @@ checks:
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
-.PHONY: component-add-license-files
-component-add-license-files:
-	$(MAKE) for-component-target TARGET="add-license-files"
-
-.PHONY: component-check-license-files
-component-check-license-files: component-add-license-files
-	@git status --porcelain | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
-		echo "License files out of date, please run \"make component-add-licensefiles\" and commit the changes in this PR."; exit 1; \
-	} || ./scripts/check-licensefiles.sh
-
 .PHONY: component-remove-license-headers
 component-remove-license-headers:
 	$(MAKE) for-component-target TARGET="remove-license-headers"
@@ -714,3 +704,15 @@ component-replace-license-headers:
 .PHONy: component-check-license-headers
 component-check-license-headers:
 	$(MAKE) for-component-target TARGET="check-license-headers"
+
+.PHONY: component-add-license-files
+component-add-license-files:
+	$(MAKE) for-component-target TARGET="add-license-file"
+
+.PHONY: component-check-license-files
+component-check-license-files: component-add-license-files
+	@git status --porcelain | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
+		echo "License files out of date, please run \"make component-add-licensefiles\" and commit the changes in this PR."; exit 1; \
+	}; \
+	$(MAKE) for-component-target TARGET="check-license-file"
+

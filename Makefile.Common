@@ -400,8 +400,8 @@ check-license-headers: $(ADDLICENSE)
 		echo "Check License finished successfully"; \
 	fi
 
-.PHONY: add-license-files
-add-license-files:
+.PHONY: add-license-file
+add-license-file:
 	@filesRes=$$( \
 		component_path="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
 		current_dir="$$(basename $$(pwd))"; \
@@ -418,4 +418,54 @@ add-license-files:
 		exit 1; \
 	else \
 		echo "Added license file successfuly."; \
+	fi
+
+.PHONY: check-license-file
+check-license-file:
+	@checkFileRes=$$( \
+		component_path="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+		license=$$(basename $$(find "." -maxdepth 1 -type f -iname "LICENSE*") 2>/dev/null); \
+        if [ -z "$$license" ]; then \
+            echo "No license file found in $$component_path"; \
+			exit 1; \
+        fi; \
+		licensing_file_entry=$$(cat ${SRC_ROOT}/LICENSING | grep "$$component_path"); \
+        if [[ "$$license" == "LICENSE_NEW_RELIC"* ]]; then \
+            if [ ! -n "$$licensing_file_entry" ]; then \
+                echo "Component with propietary license $$component_path not listed in LICENSING"; \
+				exit 1; \
+            fi; \
+			NEW_RELIC_SOFTWARE_LICENSE="$$(cat ${SRC_ROOT}/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl)"; \
+            if [[ ! "$$(cat "$$license")" == "$$NEW_RELIC_SOFTWARE_LICENSE" ]]; then \
+                echo "LICENSE file in $$component_path does not contain the correct New Relic Software License text."; \
+				exit 1; \
+            fi; \
+		else \
+			if [ -n "$$licensing_file_entry" ]; then \
+                echo "Component $$component_path listen in LICENSING as proprietary has incorrect license type: $$license"; \
+				exit 1; \
+            fi; \
+        fi);\
+	if [ -n "$${checkFileRes}" ]; then \
+		echo "❌ License file check failed:"; echo "$${checkFileRes}"; \
+		exit 1; \
+	else \
+		echo "✅ Valid license file in $$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+	fi
+
+.PHONY: validate-licensing
+validate-licensing:
+	@res=$$( \
+		components_in_LICENSING=$$(cat ${ROOT_DIR}/LICENSING | grep '^[[:space:]]*-' | sed 's/^[[:space:]]*-[[:space:]]//'); \
+		for component_path in $$components_in_LICENSING; do \
+			if [ ! -d "${ROOT_DIR}/$$component_path" ]; then \
+				echo "Component \"$$component_path\" mentioned in LICENSING file does not exist in the repository."; \
+				exit 1; \
+			fi; \
+		done); \
+	if [ -n "$${res}" ]; then \
+		echo "❌ LICENSING file check failed:"; echo "$${res}"; \
+		exit 1; \
+	else \
+		echo "✅ LICENSING validated."; \
 	fi
