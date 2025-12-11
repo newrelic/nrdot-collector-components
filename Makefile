@@ -689,25 +689,17 @@ checks:
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
-.PHONY: component-remove-license-headers
-component-remove-license-headers:
-	$(MAKE) for-component-target TARGET="remove-license-headers"
 
-.PHONY: component-add-license-headers
-component-add-license-headers:
-	$(MAKE) for-component-target TARGET="add-license-headers"
-
-.PHONY: component-replace-license-headers
-component-replace-license-headers:
-	$(MAKE) for-component-target TARGET="replace-license-headers"
-
-.PHONy: component-check-license-headers
-component-check-license-headers:
+.PHONY: component-check-licenses
+component-check-licenses:
+	$(MAKE) for-component-target TARGET="check-license-file"
 	$(MAKE) for-component-target TARGET="check-license-headers"
 
-.PHONY: component-add-license-files
-component-add-license-files:
+.PHONY: component-generate-licenses
+component-generate-licenses:
+	echo "REMINDER: If you have a proprietary component, ensure it's listed in LICENSING!"
 	$(MAKE) for-component-target TARGET="add-license-file"
+	$(MAKE) for-component-target TARGET="replace-license-headers"
 
 .PHONY: component-check-license-files
 component-check-license-files: component-add-license-files
@@ -715,4 +707,3 @@ component-check-license-files: component-add-license-files
 		echo "License files out of date, please run \"make component-add-licensefiles\" and commit the changes in this PR."; exit 1; \
 	}; \
 	$(MAKE) for-component-target TARGET="check-license-file"
-

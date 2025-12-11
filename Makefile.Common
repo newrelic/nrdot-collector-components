@@ -467,5 +467,6 @@ validate-licensing:
 		echo "❌ LICENSING file check failed:"; echo "$${res}"; \
 		exit 1; \
 	else \
-		echo "✅ LICENSING validated."; \
+		echo "✅ LICENSING file validated."; \
 	fi
+	
