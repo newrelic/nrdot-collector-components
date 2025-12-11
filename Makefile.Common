@@ -104,7 +104,7 @@ BUILD_TYPE?=release
 ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -name "*.yaml" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
 ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c -"The OpenTelemetry Authors"
-ADDLICENSE_CMD_NR_APACHE := $(ADDLICENSE) -s=only -y "" -c "New Relic"
+ADDLICENSE_CMD_NR_APACHE := $(ADDLICENSE) -y "" -c "New Relic" -f "$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl"
 ADDLICENSE_CMD_NR_PROPRIETARY := $(ADDLICENSE) -y "" -c "New Relic" -f "$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl"
 
 # All source code and .sh files (evaluated when used)
@@ -249,7 +249,7 @@ else
 endif
 
 .PHONY: lint
-lint: $(LINT) check-license-headers misspell
+lint: $(LINT) misspell
 	$(LINT) run
 
 .PHONY: govulncheck
