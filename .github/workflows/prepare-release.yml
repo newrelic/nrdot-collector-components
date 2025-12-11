@@ -22,6 +22,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
       - run: ./.github/workflows/scripts/free-disk-space.sh
       - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
         with:
@@ -33,4 +40,7 @@ jobs:
           REPO: ${{ github.repository }}
           CANDIDATE_BETA: ${{ inputs.candidate-beta }}
           CURRENT_BETA: ${{ inputs.current-beta }}
-        run: ./.github/workflows/scripts/release-prepare-release.sh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          ./.github/workflows/scripts/release-prepare-release.sh
