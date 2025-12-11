@@ -19,14 +19,11 @@ fi
 # Expand CURRENT_BETA to escape . character by using [.]
 CURRENT_BETA_ESCAPED=${CURRENT_BETA//./[.]}
 
-git config user.name otelbot
-git config user.email 197425009+otelbot@users.noreply.github.com
-
 BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
 # If the version is blank, multimod will use the version from versions.yaml
-make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION=""
+make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
 
 make update-core-module-list
 git add internal/buildscripts/modules

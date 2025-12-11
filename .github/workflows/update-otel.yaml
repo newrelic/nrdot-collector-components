@@ -26,6 +26,12 @@ jobs:
           path: opentelemetry-collector
           repository: open-telemetry/opentelemetry-collector
 
+      - name: Pull the latest contrib repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          path: opentelemetry-collector-contrib
+          repository: open-telemetry/opentelemetry-collector-contrib
+
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
         with:
@@ -39,6 +45,7 @@ jobs:
         run: |
           exec > >(tee log.out) 2>&1
           LAST_COMMIT="$(git -C ./opentelemetry-collector/ rev-parse HEAD)"
+          LAST_CONTRIB_COMMIT="$(git -C ./opentelemetry-collector-contrib/ rev-parse HEAD)"
           cd nrdot-collector-components
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -46,17 +53,18 @@ jobs:
           git checkout -b "$branch"
           make gennrdotcol
           echo "LAST_COMMIT=$LAST_COMMIT" >> "$GITHUB_ENV"
+          echo "LAST_CONTRIB_COMMIT=$LAST_CONTRIB_COMMIT" >> "$GITHUB_ENV"
           echo "BRANCH_NAME=$branch" >> "$GITHUB_ENV"
       - name: Gets packages from links with retries
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:  
+        with:
           retry_wait_seconds: 1800
           timeout_minutes: 120
           max_attempts: 2
-          retry_on: error 
+          retry_on: error
           command: |
             cd nrdot-collector-components
-            make update-otel OTEL_STABLE_VERSION=${{ env.LAST_COMMIT }} OTEL_VERSION=${{ env.LAST_COMMIT }}
+            make update-otel OTEL_STABLE_VERSION=${{ env.LAST_COMMIT }} OTEL_VERSION=${{ env.LAST_COMMIT }} CONTRIB_VERSION=${{ env.LAST_CONTRIB_COMMIT }}
       - name: Push and create PR
         run: |
           cd nrdot-collector-components

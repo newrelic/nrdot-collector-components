@@ -4,6 +4,7 @@ RUN_CONFIG?=local/config.yaml
 CMD?=
 OTEL_VERSION=main
 OTEL_STABLE_VERSION=main
+CONTRIB_VERSION=main
 
 VERSION=$(shell git describe --always --match "v[0-9]*" HEAD)
 TRIMMED_VERSION=$(shell grep -o 'v[^-]*' <<< "$(VERSION)" | cut -c 2-)
@@ -484,31 +485,50 @@ update-otel:$(MULTIMOD)
 	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m beta --commit-hash "$(OTEL_VERSION)"
 	git add . && git commit -s -m "[chore] multimod update beta modules" ; \
 	# Update contrib modules to latest patch for the same minor version as beta
-	@echo "Updating contrib modules to latest patch version..."
+	@echo "Updating contrib modules..."
 	@BETA_VERSION=$$(grep "go.opentelemetry.io/collector " ./cmd/nrdotcol/go.mod | head -n 1 | awk '{print $$2}'); \
-	MINOR_VERSION=$$(echo $$BETA_VERSION | cut -d. -f1,2); \
-	echo "Beta collector version: $$BETA_VERSION"; \
-	echo "Looking for latest contrib patch for minor version: $$MINOR_VERSION"; \
-	CONTRIB_VERSION=$$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/testbed 2>/dev/null | tr ' ' '\n' | grep "^$$MINOR_VERSION\." | sort -V | tail -1); \
-	if [ -z "$$CONTRIB_VERSION" ]; then \
-		echo "No contrib version found for $$MINOR_VERSION, using $$BETA_VERSION"; \
-		CONTRIB_VERSION=$$BETA_VERSION; \
+	COLLECTOR_MINOR=$$(echo $$BETA_VERSION | grep -oE 'v[0-9]+\.[0-9]+'); \
+	echo "Collector version: $$BETA_VERSION (minor: $$COLLECTOR_MINOR)"; \
+	RESOLVED_CONTRIB_VERSION=""; \
+	if [ -n "$(CONTRIB_VERSION)" ]; then \
+		echo "Attempting to resolve contrib pseudo-version from commit: $(CONTRIB_VERSION)"; \
+		CONTRIB_PSEUDO=$$(go list -m "github.com/open-telemetry/opentelemetry-collector-contrib/testbed@$(CONTRIB_VERSION)" 2>/dev/null || echo ""); \
+		if [ -n "$$CONTRIB_PSEUDO" ]; then \
+			CONTRIB_MINOR=$$(echo "$$CONTRIB_PSEUDO" | grep -oE 'v[0-9]+\.[0-9]+'); \
+			echo "Found contrib pseudo-version: $$CONTRIB_PSEUDO (minor: $$CONTRIB_MINOR)"; \
+			if [ "$$CONTRIB_MINOR" = "$$COLLECTOR_MINOR" ]; then \
+				echo "Minor versions match, using pseudo-version"; \
+				RESOLVED_CONTRIB_VERSION=$$CONTRIB_PSEUDO; \
+			else \
+				echo "Warning: Minor version mismatch (collector: $$COLLECTOR_MINOR, contrib: $$CONTRIB_MINOR)"; \
+			fi; \
+		else \
+			echo "Could not resolve contrib pseudo-version from commit"; \
+		fi; \
 	fi; \
-	echo "Using contrib version: $$CONTRIB_VERSION"; \
+	if [ -z "$$RESOLVED_CONTRIB_VERSION" ]; then \
+		echo "Trying stable contrib release for minor version: $$COLLECTOR_MINOR"; \
+		RESOLVED_CONTRIB_VERSION=$$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/testbed 2>/dev/null | tr ' ' '\n' | grep "^$$COLLECTOR_MINOR\." | sort -V | tail -1); \
+	fi; \
+	if [ -z "$$RESOLVED_CONTRIB_VERSION" ]; then \
+		echo "No matching contrib version found, using latest available"; \
+		RESOLVED_CONTRIB_VERSION=$$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/testbed 2>/dev/null | tr ' ' '\n' | tail -1); \
+	fi; \
+	echo "Using contrib version: $$RESOLVED_CONTRIB_VERSION"; \
 	CONTRIB_PREFIX="github.com/open-telemetry/opentelemetry-collector-contrib"; \
 	for mod_file in $$(find . -type f -name "go.mod"); do \
 		echo "Updating contrib modules in $$mod_file"; \
 		grep "^	$$CONTRIB_PREFIX/" "$$mod_file" | awk '{print $$1}' | while read -r module; do \
-			if go list -m "$$module@$$CONTRIB_VERSION" >/dev/null 2>&1; then \
-				echo "  Updating $$module to $$CONTRIB_VERSION"; \
-				sed -i.bak "s|$$module [^ ]*|$$module $$CONTRIB_VERSION|g" "$$mod_file"; \
+			if go list -m "$$module@$$RESOLVED_CONTRIB_VERSION" >/dev/null 2>&1; then \
+				echo "  Updating $$module to $$RESOLVED_CONTRIB_VERSION"; \
+				sed -i.bak "s|$$module [^ ]*|$$module $$RESOLVED_CONTRIB_VERSION|g" "$$mod_file"; \
 				rm "$$mod_file.bak"; \
 			else \
-				echo "  Skipped $$module (not available at $$CONTRIB_VERSION)"; \
+				echo "  Skipped $$module (not available at $$RESOLVED_CONTRIB_VERSION)"; \
 			fi; \
 		done; \
 	done; \
-	git add . && git commit -s -m "[chore] update contrib modules to $$CONTRIB_VERSION" --allow-empty ; \
+	git add . && git commit -s -m "[chore] update contrib modules to $$RESOLVED_CONTRIB_VERSION" --allow-empty ; \
 	$(MAKE) gotidy
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotcol/go.mod,./cmd/nrdotcol/builder-config.yaml)
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/oteltestbedcol/go.mod,./cmd/oteltestbedcol/builder-config.yaml)
@@ -638,7 +658,7 @@ multimod-verify: $(MULTIMOD)
 
 .PHONY: multimod-prerelease
 multimod-prerelease: $(MULTIMOD)
-	$(MULTIMOD) prerelease -s=true -b=false -v ./versions.yaml -m contrib-base
+	$(MULTIMOD) prerelease -s=true -b=false -v ./versions.yaml -m beta
 	$(MAKE) gotidy
 
 .PHONY: multimod-sync
