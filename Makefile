@@ -690,10 +690,15 @@ checks:
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
 .PHONY: component-check-licenses
-component-check-licenses:
+component-check-licenses: check-all-component-license-files check-all-component-license-headers validate-licensing
+
+.PHONY: check-all-component-license-files
+check-all-component-license-files:
 	$(MAKE) for-component-target TARGET="check-component-license-file"
+
+.PHONY: check-all-component-license-headers
+check-all-component-icense-headers:
 	$(MAKE) for-component-target TARGET="check-license-headers"
-	$(MAKE) validate-licensing
 
 .PHONY: component-generate-licenses
 component-generate-licenses:
