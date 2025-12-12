@@ -123,8 +123,8 @@ jobs:
         run: make component-check-licenses
       - name: Check component licenses up-to-date
         run: |
-          make component-generate-licenses
-          git diff --exit-code || (echo 'Component license files or headers are out of date, please run "make component-generate-licenses" and commit the changes in this PR.' && exit 1)
+          make generate-all-component-licenses
+          git diff --exit-code || (echo 'Component license files or headers are out of date, please run "make generate-all-component-licenses" and commit the changes in this PR.' && exit 1)
   govulncheck:
     strategy:
       fail-fast: false

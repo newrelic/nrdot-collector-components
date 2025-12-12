@@ -103,10 +103,6 @@ BUILD_TYPE?=release
 # All source code and documents. Used in spell check.
 ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -name "*.yaml" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
-ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c -"The OpenTelemetry Authors"
-ADDLICENSE_CMD_NR_APACHE := $(ADDLICENSE) -y "" -c "New Relic" -f "$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl"
-ADDLICENSE_CMD_NR_PROPRIETARY := $(ADDLICENSE) -y "" -c "New Relic" -f "$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl"
-
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
@@ -330,43 +326,40 @@ run-changed-tests:
 		fi \
 	fi
 
-.PHONY: add-license-headers
-add-license-headers: $(ADDLICENSE)
-	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		component_path="$$(realpath $$f | sed 's|^$(SRC_ROOT)/||' | cut -d'/' -f1-2)"; \
+HEADER_APACHE=$(SRC_ROOT)/internal/assets/license/nr_header_apache.tmpl
+HEADER_PROPRIETARY=$(SRC_ROOT)/internal/assets/license/nr_header_proprietary.tmpl
+LICENSE_APACHE=$(SRC_ROOT)/internal/assets/license/LICENSE_APACHE.tmpl
+LICENSE_PROPRIETARY=$(SRC_ROOT)/internal/assets/license/LICENSE_NEW_RELIC.tmpl
+
+.PHONY: generate-component-license
+generate-component-license:
+	@component_path="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
+	res=$$( \
+		find . -maxdepth 1 -name "LICENSE*" -type f ! \( -name "*.tmpl" \) -delete; \
 		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_path); \
 		if [ -n "$$is_proprietary" ]; then \
-			`$(ADDLICENSE_CMD_NR_PROPRIETARY) "$$f" 2>&1`; \
+			cp "$(LICENSE_PROPRIETARY)" "LICENSE_NEW_RELIC_$$(basename $$component_path)" 2>&1; \
+			header="$(HEADER_PROPRIETARY)"; \
 		else \
-			`$(ADDLICENSE_CMD_NR_APACHE) "$$f" 2>&1`; \
+			cp "$(LICENSE_APACHE)" "LICENSE_APACHE_$$(basename $$component_path)" 2>&1; \
+			header="$(HEADER_APACHE)"; \
 		fi; \
-	done); \
-	if [ "$$ADDLICENSEOUT" ]; then \
-		echo "$(ADDLICENSE) FAILED => add License errors:\n"; \
-		echo "$$ADDLICENSEOUT\n"; \
+		for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+			if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
+				continue; \
+			fi; \
+			cat $$f | grep -vF "$$(cat $(HEADER_PROPRIETARY))" | grep -vF "$$(cat $(HEADER_APACHE))" | sed '1{/^[[:space:]]*$$/d;}' > temp && mv temp $$f; \
+			$(ADDLICENSE) -f "$$header" $$f; \
+		done; \
+	); \
+	if [ -n "$${res}" ]; then \
+		echo "license header checking failed:"; echo "$${res}"; \
+		echo "Run \"make component-replace-license-headers\" if adding new files."; \
 		exit 1; \
 	else \
-		echo "✅ License headers added."; \
+		echo "✅ License generated for $$component_path"; \
 	fi
-
-.PHONY: remove-license-headers
-remove-license-headers:
-	@REMOVELICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
-			continue; \
-		fi; \
-		sed -i '' '1,6{/Copyright/d; /SPDX/d;}' $$f; \
-		sed -i '' '1{/^[[:space:]]*$$/d;}' $$f; \
-	done); \
-	if [ "$$REMOVELICENSEOUT" ]; then \
-		echo " FAILED => remove License errors:\n"; \
-		echo "$$REMOVELICENSEOUT\n"; \
-		exit 1; \
-	fi
-
-.PHONY: replace-license-headers
-replace-license-headers: remove-license-headers add-license-headers
-
+	
 .PHONY: check-license-headers
 check-license-headers: $(ADDLICENSE)
 	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
@@ -396,26 +389,6 @@ check-license-headers: $(ADDLICENSE)
 		exit 1; \
 	else \
 		echo "✅ License headers valiated."; \
-	fi
-
-.PHONY: add-component-license-file
-add-component-license-file:
-	@filesRes=$$( \
-		component_path="$$(pwd | sed 's|^$(SRC_ROOT)/||')"; \
-		current_dir="$$(basename $$(pwd))"; \
-		is_proprietary=$$(cat "$(SRC_ROOT)/LICENSING" | grep $$component_path); \
-		if [ -n "$$is_proprietary" ]; then \
-			proprietary_license=$$(cat $(SRC_ROOT)/internal/assets/license/LICENSE_NEW_RELIC_component.tmpl); \
-			echo "$$proprietary_license" > "LICENSE_NEW_RELIC_$${current_dir}" 2>&1; \
-		else \
-			apache_license=$$(cat $(SRC_ROOT)/internal/assets/license/LICENSE_APACHE_component.tmpl); \
-			echo "$$apache_license" > "LICENSE_APACHE_$${current_dir}" 2>&1; \
-		fi); \
-	if [ -n "$${filesRes}" ]; then \
-		echo "License file add failed:"; echo "$${licRes}"; \
-		exit 1; \
-	else \
-		echo "✅ License added to $$(pwd | sed 's|^$(SRC_ROOT)/||')."; \
 	fi
 
 .PHONY: check-component-license-file

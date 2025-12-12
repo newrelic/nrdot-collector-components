@@ -689,6 +689,10 @@ checks:
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
 
+.PHONE: generate-all-component-licenses
+generate-all-component-licenses:
+	$(MAKE) for-component-target TARGET="generate-component-license"
+
 .PHONY: component-check-licenses
 component-check-licenses: check-all-component-license-files check-all-component-license-headers validate-licensing
 
@@ -699,16 +703,3 @@ check-all-component-license-files:
 .PHONY: check-all-component-license-headers
 check-all-component-license-headers:
 	$(MAKE) for-component-target TARGET="check-license-headers"
-
-.PHONY: component-generate-licenses
-component-generate-licenses:
-	echo "REMINDER: If you have a proprietary component, ensure it's listed in LICENSING!"
-	$(MAKE) for-component-target TARGET="add-component-license-file"
-	$(MAKE) for-component-target TARGET="replace-license-headers"
-
-.PHONY: component-check-license-files
-component-check-license-files: component-add-license-files
-	@git status --porcelain | grep "LICENSE_" | grep -v "\.tmpl" | grep -q . && { \
-		echo "License files out of date, please run \"make component-add-licensefiles\" and commit the changes in this PR."; exit 1; \
-	}; \
-	$(MAKE) for-component-target TARGET="check-license-file"
