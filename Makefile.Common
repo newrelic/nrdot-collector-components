@@ -347,8 +347,7 @@ generate-component-license:
 			if awk '/generated|GENERATED/ && NR<=3 { found=1; exit 0 } END { exit !found }' $$f; then \
 				continue; \
 			fi; \
-			preexisting_license=$$(cat $$f | grep -vF "$$(cat $(HEADER_PROPRIETARY))" | grep -vF "$$(cat $(HEADER_APACHE))" | sed '1{/^[[:space:]]*$$/d;}'); \
-			echo "$$preexisting_license" > $$f; \
+			cat $$f | grep -vF "$$(cat $(HEADER_PROPRIETARY))" | grep -vF "$$(cat $(HEADER_APACHE))" | sed '1{/^[[:space:]]*$$/d;}' > temp && mv temp $$f; \
 			$(ADDLICENSE) -f "$$header" $$f; \
 		done; \
 	); \
