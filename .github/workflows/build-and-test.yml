@@ -119,8 +119,10 @@ jobs:
       - name: Install Tools
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
+      - name: Validate LICENSING file
+        run: make validate-licensing-file
       - name: Validate component licenses
-        run: make component-check-licenses
+        run: make check-all-component-licenses
       - name: Check component licenses up-to-date
         run: |
           make generate-all-component-licenses

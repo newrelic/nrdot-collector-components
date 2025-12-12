@@ -693,13 +693,6 @@ checks:
 generate-all-component-licenses:
 	$(MAKE) for-component-target TARGET="generate-component-license"
 
-.PHONY: component-check-licenses
-component-check-licenses: check-all-component-license-files check-all-component-license-headers validate-licensing
-
-.PHONY: check-all-component-license-files
-check-all-component-license-files:
-	$(MAKE) for-component-target TARGET="check-component-license-file"
-
-.PHONY: check-all-component-license-headers
-check-all-component-license-headers:
-	$(MAKE) for-component-target TARGET="check-license-headers"
+.PHONY: check-all-component-licenses
+check-all-component-licenses:
+	$(MAKE) for-component-target TARGET="check-component-license"
