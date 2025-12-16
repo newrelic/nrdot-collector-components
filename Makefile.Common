@@ -69,6 +69,7 @@ $(TOOLS_BIN_NAMES): $(TOOLS_BIN_DIR) $(TOOLS_MOD_DIR)/go.mod
 
 ACTIONLINT          := $(TOOLS_BIN_DIR)/actionlint
 ADDLICENSE          := $(TOOLS_BIN_DIR)/addlicense
+NRLICENSE           := $(TOOLS_BIN_DIR)/nrlicense
 MDLINKCHECK         := $(TOOLS_BIN_DIR)/markdown-link-check
 MISSPELL            := $(TOOLS_BIN_DIR)/misspell -error
 MISSPELL_CORRECTION := $(TOOLS_BIN_DIR)/misspell -w
@@ -202,35 +203,14 @@ benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: addlicense
-addlicense: $(ADDLICENSE)
-	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		`$(ADDLICENSE_CMD) "$$f" 2>&1`; \
-	done); \
-	if [ "$$ADDLICENSEOUT" ]; then \
-		echo "$(ADDLICENSE) FAILED => add License errors:\n"; \
-		echo "$$ADDLICENSEOUT\n"; \
-		exit 1; \
-	else \
-		echo "Add License finished successfully"; \
-	fi
+addlicense: $(NRLICENSE)
+	@echo "Adding/updating license headers with nrlicense..."
+	@$(NRLICENSE) --fix --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: checklicense
-checklicense: $(ADDLICENSE)
-	@licRes=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
-		if awk '/Copyright The OpenTelemetry Authors|generated|GENERATED/ && NR<=3 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
-			continue; \
-		fi; \
-		if awk '/SPDX-License-Identifier: Apache-2.0|generated|GENERATED/ && NR<=4 { found=1; next } END { if (!found) print FILENAME }' $$f; then \
-			continue; \
-		fi; \
-		$(ADDLICENSE_CMD) -check "$$f" 2>&1 || echo "$$f"; \
-		done); \
-	if [ -n "$${licRes}" ]; then \
-		echo "license header checking failed:"; echo "$${licRes}"; \
-		exit 1; \
-	else \
-		echo "Check License finished successfully"; \
-	fi
+checklicense: $(NRLICENSE)
+	@echo "Checking license headers with nrlicense..."
+	@$(NRLICENSE) --check --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: checklinks
 checklinks:
