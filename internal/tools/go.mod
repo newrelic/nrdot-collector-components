@@ -11,6 +11,7 @@ require (
 	github.com/jcchavezs/porto v0.6.0
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.141.0
+	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.141.0
 	github.com/rhysd/actionlint v1.7.8
 	go.opentelemetry.io/build-tools/checkapi v0.29.0
 	go.opentelemetry.io/build-tools/checkfile v0.29.0
@@ -294,6 +295,8 @@ retract (
 )
 
 replace github.com/newrelic/nrdot-collector-components/cmd/codecovgen => ../../cmd/codecovgen
+
+replace github.com/newrelic/nrdot-collector-components/cmd/nrlicense => ../../cmd/nrlicense
 
 replace github.com/tdakkota/asciicheck v0.4.1 => github.com/golangci/asciicheck v0.5.0
 

@@ -35,4 +35,5 @@ import (
 	_ "mvdan.cc/gofumpt"
 
 	_ "github.com/newrelic/nrdot-collector-components/cmd/codecovgen"
+	_ "github.com/newrelic/nrdot-collector-components/cmd/nrlicense"
 )

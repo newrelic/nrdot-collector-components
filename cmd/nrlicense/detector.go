@@ -1,0 +1,178 @@
+// Copyright New Relic, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"os/exec"
+	"path/filepath"
+	"strings"
+)
+
+// FileStatus represents the modification status of a file
+type FileStatus int
+
+const (
+	// StatusUnmodified means the file exists in the fork but hasn't been modified
+	StatusUnmodified FileStatus = iota
+	// StatusModified means the file existed in the fork and has been modified
+	StatusModified
+	// StatusNew means the file was created after the fork
+	StatusNew
+	// StatusUnknown means we couldn't determine the status
+	StatusUnknown
+)
+
+func (s FileStatus) String() string {
+	switch s {
+	case StatusUnmodified:
+		return "unmodified"
+	case StatusModified:
+		return "modified"
+	case StatusNew:
+		return "new"
+	default:
+		return "unknown"
+	}
+}
+
+// GitDetector detects file modification status relative to a fork point
+type GitDetector struct {
+	forkCommit string
+	repoRoot   string
+}
+
+// validatePath ensures the file path is within the repository
+func (d *GitDetector) validatePath(filePath string) error {
+	// Get absolute path
+	absPath, err := filepath.Abs(filePath)
+	if err != nil {
+		return fmt.Errorf("resolving absolute path: %w", err)
+	}
+
+	// Ensure it's within the repository
+	if !strings.HasPrefix(absPath, d.repoRoot) {
+		return fmt.Errorf("path outside repository: %s (repo root: %s)", absPath, d.repoRoot)
+	}
+
+	return nil
+}
+
+// NewGitDetector creates a new GitDetector
+func NewGitDetector(forkCommit string) (*GitDetector, error) {
+	// Verify we're in a git repository
+	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("not in a git repository: %w", err)
+	}
+
+	repoRoot := strings.TrimSpace(string(output))
+
+	// Verify the fork commit exists
+	cmd = exec.Command("git", "rev-parse", "--verify", forkCommit)
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("fork commit %s not found: %w", forkCommit, err)
+	}
+
+	return &GitDetector{
+		forkCommit: forkCommit,
+		repoRoot:   repoRoot,
+	}, nil
+}
+
+// GetFileStatus determines if a file has been modified since the fork point
+func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
+	// Validate path is within repository
+	if err := d.validatePath(filePath); err != nil {
+		return StatusUnknown, err
+	}
+
+	// Check if file exists at fork point
+	existsAtFork, err := d.fileExistsAtCommit(filePath, d.forkCommit)
+	if err != nil {
+		return StatusUnknown, fmt.Errorf("checking if file exists at fork: %w", err)
+	}
+
+	if !existsAtFork {
+		return StatusNew, nil
+	}
+
+	// File exists at fork, check if it's been modified
+	modified, err := d.fileModifiedSince(filePath, d.forkCommit)
+	if err != nil {
+		return StatusUnknown, fmt.Errorf("checking if file modified: %w", err)
+	}
+
+	if modified {
+		return StatusModified, nil
+	}
+
+	return StatusUnmodified, nil
+}
+
+// fileExistsAtCommit checks if a file exists at a given commit
+func (d *GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
+	cmd := exec.Command("git", "cat-file", "-e", fmt.Sprintf("%s:%s", commit, filePath))
+	err := cmd.Run()
+	if err != nil {
+		// File doesn't exist at this commit
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			if exitErr.ExitCode() == 128 {
+				return false, nil
+			}
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+// fileModifiedSince checks if a file has been modified since a given commit
+func (d *GitDetector) fileModifiedSince(filePath, commit string) (bool, error) {
+	// Use git log to see if there are any commits affecting this file since the fork point
+	cmd := exec.Command("git", "log", "--oneline", fmt.Sprintf("%s..HEAD", commit), "--", filePath)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return false, fmt.Errorf("running git log: %w", err)
+	}
+
+	// If there's any output, the file has been modified
+	return out.Len() > 0, nil
+}
+
+// GetFileContentAtFork retrieves the file content at the fork point (for comparison)
+func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
+	cmd := exec.Command("git", "show", fmt.Sprintf("%s:%s", d.forkCommit, filePath))
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("getting file content at fork: %w", err)
+	}
+	return output, nil
+}
+
+// GetModificationDescription returns a description of what was modified in the file
+func (d *GitDetector) GetModificationDescription(filePath string) (string, error) {
+	// Get the list of commits that modified this file since fork
+	cmd := exec.Command("git", "log", "--oneline", "--no-merges", fmt.Sprintf("%s..HEAD", d.forkCommit), "--", filePath)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("getting modification history: %w", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	if len(lines) == 0 || lines[0] == "" {
+		return "Modified for New Relic distribution", nil
+	}
+
+	// Take the first (most recent) commit message
+	parts := strings.SplitN(lines[0], " ", 2)
+	if len(parts) > 1 {
+		return strings.TrimSpace(parts[1]), nil
+	}
+
+	return "Modified for New Relic distribution", nil
+}
