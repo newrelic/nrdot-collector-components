@@ -1,6 +1,3 @@
-// Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
-
 package nopexporter // import "github.com/newrelic/nrdot-collector-components/exporter/nopexporter"
 
 import (
