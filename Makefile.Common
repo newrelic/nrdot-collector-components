@@ -69,6 +69,7 @@ $(TOOLS_BIN_NAMES): $(TOOLS_BIN_DIR) $(TOOLS_MOD_DIR)/go.mod
 
 ACTIONLINT          := $(TOOLS_BIN_DIR)/actionlint
 ADDLICENSE          := $(TOOLS_BIN_DIR)/addlicense
+NRADDLICENSE 		:= $(TOOLS_BIN_DIR)/nraddlicense
 MDLINKCHECK         := $(TOOLS_BIN_DIR)/markdown-link-check
 MISSPELL            := $(TOOLS_BIN_DIR)/misspell -error
 MISSPELL_CORRECTION := $(TOOLS_BIN_DIR)/misspell -w
@@ -201,9 +202,16 @@ do-integration-tests-with-cover: $(GOTESTSUM)
 benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
+# Test target for addlicense wrapper
+.PHONY: nr-license
+nr-license:
+	go build -o ${SRC_ROOT}/.tools/nraddlicense ${SRC_ROOT}/cmd/nraddlicense/main.go
+	${SRC_ROOT}/.tools/nraddlicense -c "New Relic" -l "apache" exporter/nopexporter/doc.go
+
 .PHONY: addlicense
 addlicense: $(ADDLICENSE)
 	@ADDLICENSEOUT=$$(for f in $$($(ALL_SRC_AND_SHELL_CMD)); do \
+		echo "$$f"; \
 		`$(ADDLICENSE_CMD) "$$f" 2>&1`; \
 	done); \
 	if [ "$$ADDLICENSEOUT" ]; then \
