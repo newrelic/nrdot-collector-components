@@ -21,8 +21,11 @@ import (
 //go:embed templates/otel-header.txt
 var otelHeaderTemplate string
 
-//go:embed templates/newrelic-header.txt
-var newrelicHeaderTemplate string
+//go:embed templates/newrelic-header-apache.txt
+var newrelicApacheHeaderTemplate string
+
+//go:embed templates/newrelic-header-proprietary.txt
+var newrelicProprietaryHeaderTemplate string
 
 //go:embed templates/modified-header.txt
 var modifiedHeaderTemplate string
@@ -123,8 +126,11 @@ func GenerateHeader(status FileStatus, existingCopyright, modDescription, filePa
 	case StatusModified:
 		return generateModifiedHeader(existingCopyright, modDescription, ext), nil
 
-	case StatusNew:
-		return generateNewHeader(ext), nil
+	case StatusNewApache:
+		return generateNewApacheHeader(ext), nil
+
+	case StatusNewProprietary:
+		return generateNewProprietaryHeader(ext), nil
 
 	default:
 		return "", fmt.Errorf("unknown file status: %v", status)
@@ -159,11 +165,29 @@ func generateModifiedHeader(existingCopyright, modDescription, ext string) strin
 }
 
 // generateNewHeader creates a header for new files
-func generateNewHeader(ext string) string {
+func generateNewApacheHeader(ext string) string {
 	comment := getCommentStyle(ext)
 
 	// Use template
-	lines := strings.Split(strings.TrimSpace(newrelicHeaderTemplate), "\n")
+	lines := strings.Split(strings.TrimSpace(newrelicApacheHeaderTemplate), "\n")
+	var buf bytes.Buffer
+	for _, line := range lines {
+		if line == "" {
+			buf.WriteString(comment + "\n")
+		} else {
+			buf.WriteString(comment + " " + line + "\n")
+		}
+	}
+
+	return buf.String()
+}
+
+// generateNewHeader creates a header for new files
+func generateNewProprietaryHeader(ext string) string {
+	comment := getCommentStyle(ext)
+
+	// Use template
+	lines := strings.Split(strings.TrimSpace(newrelicProprietaryHeaderTemplate), "\n")
 	var buf bytes.Buffer
 	for _, line := range lines {
 		if line == "" {
@@ -385,7 +409,7 @@ func CheckHeader(filePath string, status FileStatus, existingCopyright string) (
 		}
 		return hasOriginal && hasNewRelic, nil
 
-	case StatusNew:
+	case StatusNewApache:
 		// Should have New Relic copyright only
 		return headerInfo.HasHeader && strings.Contains(headerInfo.ExistingCopyright, "New Relic"), nil
 
