@@ -36,7 +36,7 @@ git commit -m "changelog update ${CANDIDATE_BETA}" || echo "no changelog changes
 sed -i.bak "s/${CURRENT_BETA_ESCAPED}/${CANDIDATE_BETA}/g" versions.yaml
 find . -name "*.bak" -type f -delete
 git add versions.yaml
-git commit -m "update version.yaml ${CANDIDATE_BETA}" || echo "no version.yaml changes to commit"
+git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
 sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/oteltestbedcol/builder-config.yaml
 sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/nrdotcol/builder-config.yaml
