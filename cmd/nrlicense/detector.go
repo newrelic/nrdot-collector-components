@@ -100,11 +100,11 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	if !existsAtFork {
-		return d.getNewFileStatusFromLicense(filePath)
+		return d.GetNewFileStatusFromLicense(filePath)
 	}
 
-	// File exists at fork, check if it's been modified
-	modified, err := d.fileModifiedSince(filePath, d.forkCommit)
+	// File exists at fork, check if it's there's a difference
+	modified, err := d.fileDiffSince(filePath, d.forkCommit)
 	if err != nil {
 		return StatusUnknown, fmt.Errorf("checking if file modified: %w", err)
 	}
@@ -116,7 +116,8 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	return StatusUnmodified, nil
 }
 
-func (d *GitDetector) getNewFileStatusFromLicense(filePath string) (FileStatus, error) {
+// getNewFileStatusFromLicense searches for a LICENSE file in all parent directories
+func (d *GitDetector) GetNewFileStatusFromLicense(filePath string) (FileStatus, error) {
 	absPath, err := filepath.Abs(filePath)
 	if err != nil {
 		return StatusUnknown, fmt.Errorf("resolving absolute path: %w", err)
@@ -177,6 +178,16 @@ func (d *GitDetector) fileModifiedSince(filePath, commit string) (bool, error) {
 
 	// If there's any output, the file has been modified
 	return out.Len() > 0, nil
+}
+
+// fileDiffSince checks if a file has a diff with that file at a given commit
+func (d *GitDetector) fileDiffSince(filePath string, commit string) (bool, error) {
+	cmd := exec.Command("git", "diff", commit, "--", filePath)
+	out, err := cmd.Output()
+	if err != nil {
+		return false, fmt.Errorf("getting file diff since: %w", err)
+	}
+	return len(out) > 0, nil
 }
 
 // GetFileContentAtFork retrieves the file content at the fork point (for comparison)
