@@ -1,6 +1,6 @@
 // Copyright New Relic, Inc.
 // SPDX-License-Identifier: Apache-2.0
-//
+
 // Portions of this file are adapted from github.com/google/addlicense
 // Copyright 2018 Google LLC, licensed under Apache 2.0.
 // Functions adapted: hashBang, isGenerated, hasLicense, and comment style detection.
@@ -60,6 +60,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 	lineNum := 0
 	inHeader := false
 	ext := filepath.Ext(filePath)
+	spdxFound := false
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -79,14 +80,25 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 			}
 		}
 
-		// Continue collecting header lines
+		// Continue collecting header linw
 		if inHeader {
 			if isCommentLine(line, ext) || strings.TrimSpace(line) == "" {
+				// All non-blank comments or newlines after spdx are not considered header
+				if spdxFound && !isEmptyOrEmptyComment(line, ext) {
+					info.ContentStartLine = lineNum
+					break
+				}
+
 				info.HeaderLines = append(info.HeaderLines, line)
 
 				if containsCopyright(line) && info.ExistingCopyright == "" {
 					info.ExistingCopyright = extractCopyright(line)
 				}
+
+				if containsSPDX(line) {
+					spdxFound = true
+				}
+
 				continue
 			} else {
 				// End of header
@@ -213,6 +225,14 @@ func isCommentLine(line, ext string) bool {
 		// Default to checking both styles
 		return strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#")
 	}
+}
+
+// isEmptyOrEmptyComment checks if a line is blank, or a blank comment e.g. "//"
+func isEmptyOrEmptyComment(line, ext string) bool {
+	_, prefix, _ := getCommentPrefixExt(ext)
+	prefix = strings.TrimSpace(prefix)
+	comment := strings.TrimPrefix(strings.TrimSpace(line), prefix)
+	return comment == ""
 }
 
 // containsCopyright checks if a line contains copyright information
@@ -482,6 +502,25 @@ func hasLicenseHeader(content []byte) bool {
 func getCommentPrefix(filename string) (top, mid, bot string) {
 	ext := filepath.Ext(filename)
 
+	switch ext {
+	case ".go", ".proto":
+		// Go and protobuf use C++ style comments
+		return "", "// ", ""
+
+	case ".sh", ".bash", ".zsh", ".yaml", ".yml":
+		// Shell scripts and YAML use hash comments
+		return "", "# ", ""
+
+	default:
+		// Default to Go-style comments for unknown types
+		return "", "// ", ""
+	}
+}
+
+// getCommentPrefixExt returns the appropriate comment style for an extension type
+// Returns three strings: top (opening delimiter), mid (line prefix), bot (closing delimiter).
+// Adapted from google/addlicense, simplified for this repository's file types.
+func getCommentPrefixExt(ext string) (top, mid, bot string) {
 	switch ext {
 	case ".go", ".proto":
 		// Go and protobuf use C++ style comments
