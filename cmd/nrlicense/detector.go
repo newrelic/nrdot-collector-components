@@ -19,8 +19,10 @@ const (
 	StatusUnmodified FileStatus = iota
 	// StatusModified means the file existed in the fork and has been modified
 	StatusModified
-	// StatusNew means the file was created after the fork
-	StatusNew
+	// StatusNewApache means the file was created after the fork, and is licensed under Apache 2.0.
+	StatusNewApache
+	// StatusNewProprietary means the file was created after the fork, and is licensed under the NR software license.
+	StatusNewProprietary
 	// StatusUnknown means we couldn't determine the status
 	StatusUnknown
 )
@@ -31,8 +33,10 @@ func (s FileStatus) String() string {
 		return "unmodified"
 	case StatusModified:
 		return "modified"
-	case StatusNew:
-		return "new"
+	case StatusNewApache:
+		return "newApache"
+	case StatusNewProprietary:
+		return "newProprietary"
 	default:
 		return "unknown"
 	}
@@ -89,7 +93,6 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	if err := d.validatePath(filePath); err != nil {
 		return StatusUnknown, err
 	}
-
 	// Check if file exists at fork point
 	existsAtFork, err := d.fileExistsAtCommit(filePath, d.forkCommit)
 	if err != nil {
@@ -97,7 +100,7 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	if !existsAtFork {
-		return StatusNew, nil
+		return d.getNewFileStatusFromLicense(filePath)
 	}
 
 	// File exists at fork, check if it's been modified
@@ -111,6 +114,38 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	return StatusUnmodified, nil
+}
+
+func (d *GitDetector) getNewFileStatusFromLicense(filePath string) (FileStatus, error) {
+	absPath, err := filepath.Abs(filePath)
+	if err != nil {
+		return StatusUnknown, fmt.Errorf("resolving absolute path: %w", err)
+	}
+	dir := filepath.Dir(absPath)
+
+	// Search through file's parent directories for LICENSE files
+	for dir != d.repoRoot {
+		res, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_*", dir))
+		if err != nil {
+			return StatusUnknown, fmt.Errorf("searching for license: %w", err)
+		}
+		if len(res) > 1 {
+			return StatusUnknown, fmt.Errorf("more than one LICENSE file found")
+		} else if len(res) == 1 {
+			license := filepath.Base(res[0])
+			if strings.Contains(license, "_NEWRELIC_") {
+				return StatusNewProprietary, nil
+			} else if strings.Contains(license, "_APACHE_") {
+				return StatusNewApache, nil
+			} else {
+				return StatusUnknown, fmt.Errorf("improper LICENSE filename: %s (expected LICENSE_NEWRELIC_[component] or LICENSE_APACHE_[component])", license)
+			}
+		}
+		dir = filepath.Dir(dir)
+	}
+
+	// If no LICENSE is found, file is assumed Apache
+	return StatusNewApache, nil
 }
 
 // fileExistsAtCommit checks if a file exists at a given commit

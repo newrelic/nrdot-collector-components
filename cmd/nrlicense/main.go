@@ -3,6 +3,7 @@
 
 // nrlicense manages license headers for forked codebases.
 // It applies different headers based on whether files have been modified since the fork point.
+
 package main
 
 import (
@@ -47,7 +48,6 @@ func init() {
 
 func main() {
 	flag.Parse()
-
 	// Count how many modes are specified
 	modesSet := 0
 	if *check {
