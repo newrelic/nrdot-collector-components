@@ -1,0 +1,11 @@
+type: adaptivetelemetry
+
+status:
+  class: processor
+  stability:
+    development: [metrics]
+  codeowners:
+    active: [marsac]  # Update with actual GitHub username
+  distributions: []
+
+github_project: newrelic/nrdot-collector-components

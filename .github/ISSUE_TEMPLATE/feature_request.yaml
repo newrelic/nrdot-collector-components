@@ -19,6 +19,7 @@ body:
       - internal/common
       - internal/core
       - internal/tools
+      - processor/adaptivetelemetry
       - receiver/nop
       - testbed
       # End components list

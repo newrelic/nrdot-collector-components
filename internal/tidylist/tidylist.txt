@@ -4,5 +4,6 @@ exporter/nopexporter
 internal/common
 internal/coreinternal
 internal/tools
+processor/adaptivetelemetryprocessor
 receiver/nopreceiver
 testbed
