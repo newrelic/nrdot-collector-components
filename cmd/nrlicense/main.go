@@ -108,7 +108,7 @@ func main() {
 		topLicense: *topLicense,
 	}
 
-	exitCode := processor.ProcessFiles(files)
+	exitCode := max(processor.ProcessFiles(files), processor.ProcessTopLevelLicense())
 	os.Exit(exitCode)
 }
 

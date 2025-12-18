@@ -478,6 +478,16 @@ func GenerateTopLevelLicense(rootDir string, proprietaryDirDescription string) {
 	os.WriteFile(licenseFileName, []byte(template), 0644)
 }
 
+// CheckTopLevelLicense checks the top-level license file
+func CheckTopLevelLicense(rootDir string, proprietaryDirDescription string) (bool, error) {
+	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
+	matches, err := filepath.Glob(licenseFileName)
+	if err != nil || len(matches) != 1 {
+		return false, err
+	}
+	return true, err
+}
+
 // ==================== Functions adapted from google/addlicense ====================
 
 // Shebang prefix that should be preserved at the top of files.
