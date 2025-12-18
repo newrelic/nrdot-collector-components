@@ -13,10 +13,11 @@ import (
 
 // Processor handles the processing of files
 type Processor struct {
-	detector *GitDetector
-	verbose  bool
-	dryRun   bool
-	check    bool
+	detector   *GitDetector
+	verbose    bool
+	dryRun     bool
+	check      bool
+	topLicense bool
 
 	// Counters
 	processed   int32
@@ -56,6 +57,22 @@ func (p *Processor) ProcessFiles(files []string) int {
 	if p.check && p.needsUpdate > 0 {
 		return 1
 	}
+
+	// Generate top-level licensing file
+	if p.topLicense {
+		proprietaryLicenseDescription, err := p.detector.GetProprietaryLicenseDescription()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error generating top-level license: %v\n", err)
+			return 1
+		}
+		if p.dryRun {
+			fmt.Printf("Directories with proprietary LICENSE files:\n%s", proprietaryLicenseDescription)
+		} else {
+			GenerateTopLevelLicense(p.detector.repoRoot, proprietaryLicenseDescription)
+		}
+
+	}
+
 	return 0
 }
 

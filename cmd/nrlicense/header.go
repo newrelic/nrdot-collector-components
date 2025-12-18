@@ -30,6 +30,9 @@ var newrelicProprietaryHeaderTemplate string
 //go:embed templates/modified-header.txt
 var modifiedHeaderTemplate string
 
+//go:embed templates/top-level-license.txt
+var topLevelLicenseTemplate string
+
 // HeaderInfo contains information about a file's license header
 type HeaderInfo struct {
 	HasHeader         bool
@@ -436,6 +439,20 @@ func CheckHeader(filePath string, status FileStatus, existingCopyright string) (
 	default:
 		return false, nil
 	}
+}
+
+// GenerateTopLevelLicense generates the top-level license file at the root directory
+func GenerateTopLevelLicense(rootDir string, proprietaryDirDescription string) {
+	// Use template and replace placeholder
+	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
+	template := topLevelLicenseTemplate
+	if proprietaryDirDescription != "" {
+		template = strings.Replace(template, "{{DESCRIPTION}}", proprietaryDirDescription, 1)
+	} else {
+		// Remove the placeholder line if no custom description
+		template = strings.Replace(template, "{{DESCRIPTION}}\n", "", 1)
+	}
+	os.WriteFile(licenseFileName, []byte(template), 0644)
 }
 
 // ==================== Functions adapted from google/addlicense ====================
