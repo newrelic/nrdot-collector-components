@@ -185,15 +185,15 @@ func (p *Processor) printSummary() {
 func (p *Processor) ProcessTopLevelLicense() int {
 	// Generate top-level licensing file
 	if p.topLicense {
-		proprietaryLicenseDescription, err := p.detector.GetProprietaryLicenseDescription()
+		description, err := p.detector.GetTopLevelLicenseDescription()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error generating top-level license: %v\n", err)
 			return 1
 		}
 		if p.dryRun {
-			fmt.Printf("Directories with proprietary LICENSE files:\n%s", proprietaryLicenseDescription)
+			fmt.Printf("Directories with proprietary LICENSE files:\n%s", description)
 		} else if p.check {
-			passed, err := CheckTopLevelLicense(p.detector.repoRoot, proprietaryLicenseDescription)
+			passed, err := CheckTopLevelLicense(p.detector.repoRoot, description)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error validating top level license %v\n", err)
 				return 1
@@ -203,7 +203,7 @@ func (p *Processor) ProcessTopLevelLicense() int {
 				return 1
 			}
 		} else {
-			GenerateTopLevelLicense(p.detector.repoRoot, proprietaryLicenseDescription)
+			GenerateTopLevelLicense(p.detector.repoRoot, description)
 		}
 	}
 	return 0
