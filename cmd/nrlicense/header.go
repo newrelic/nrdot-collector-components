@@ -35,11 +35,12 @@ var topLevelLicenseTemplate string
 
 // HeaderInfo contains information about a file's license header
 type HeaderInfo struct {
-	HasHeader         bool
-	IsGenerated       bool
-	ExistingCopyright string
-	HeaderLines       []string
-	ContentStartLine  int
+	HasHeader              bool
+	IsGenerated            bool
+	ExistingCopyright      string
+	ExistingSPDXIdentifier string
+	HeaderLines            []string
+	ContentStartLine       int
 }
 
 // ParseFileHeader analyzes a file's existing header
@@ -63,7 +64,6 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 	lineNum := 0
 	inHeader := false
 	ext := filepath.Ext(filePath)
-	spdxFound := false
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -87,7 +87,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 		if inHeader {
 			if isCommentLine(line, ext) || strings.TrimSpace(line) == "" {
 				// All non-blank comments or newlines after spdx are not considered header
-				if spdxFound && !isEmptyOrEmptyComment(line, ext) {
+				if info.ExistingSPDXIdentifier != "" && !isEmptyOrEmptyComment(line, ext) {
 					info.ContentStartLine = lineNum
 					break
 				}
@@ -98,8 +98,8 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 					info.ExistingCopyright = extractCopyright(line)
 				}
 
-				if containsSPDX(line) {
-					spdxFound = true
+				if containsSPDX(line) && info.ExistingSPDXIdentifier == "" {
+					info.ExistingSPDXIdentifier = extractSPDXIdentifier(line)
 				}
 
 				continue
@@ -232,7 +232,7 @@ func isCommentLine(line, ext string) bool {
 
 // isEmptyOrEmptyComment checks if a line is blank, or a blank comment e.g. "//"
 func isEmptyOrEmptyComment(line, ext string) bool {
-	_, prefix, _ := getCommentPrefixExt(ext)
+	_, prefix, _ := getExtensionCommentPrefix(ext)
 	prefix = strings.TrimSpace(prefix)
 	comment := strings.TrimPrefix(strings.TrimSpace(line), prefix)
 	return comment == ""
@@ -251,20 +251,33 @@ func containsSPDX(line string) bool {
 
 // extractCopyright extracts the copyright holder from a copyright line
 func extractCopyright(line string) string {
-	// Remove comment markers
+	line = removeCommentMarkers(line)
+
+	// Remove "Copyright" prefixs
+	if idx := strings.Index(strings.ToLower(line), "copyright"); idx >= 0 {
+		line = line[idx+9:] // len("copyright") = 9
+		line = strings.TrimSpace(line)
+	}
+
+	return line
+}
+
+// extractSPDX extracts the SPDX itentifier from the appropriate line
+func extractSPDXIdentifier(line string) string {
+	line = removeCommentMarkers(line)
+	line = strings.TrimPrefix(line, "SPDX-License-Identifier:")
+	line = strings.TrimSpace(line)
+	return line
+}
+
+// removeCommentMarkers removes any comment markers from a line.
+func removeCommentMarkers(line string) string {
 	line = strings.TrimSpace(line)
 	line = strings.TrimPrefix(line, "//")
 	line = strings.TrimPrefix(line, "/*")
 	line = strings.TrimPrefix(line, "*")
 	line = strings.TrimPrefix(line, "#")
 	line = strings.TrimSpace(line)
-
-	// Remove "Copyright" prefix
-	if idx := strings.Index(strings.ToLower(line), "copyright"); idx >= 0 {
-		line = line[idx+9:] // len("copyright") = 9
-		line = strings.TrimSpace(line)
-	}
-
 	return line
 }
 
@@ -430,11 +443,21 @@ func CheckHeader(filePath string, status FileStatus, existingCopyright string) (
 				break
 			}
 		}
-		return hasOriginal && hasNewRelic, nil
+		// original license must not be modified
+		hasApacheLicense := strings.Contains(headerInfo.ExistingSPDXIdentifier, "Apache-2.0")
+		return hasOriginal && hasNewRelic && hasApacheLicense, nil
 
 	case StatusNewApache:
-		// Should have New Relic copyright only
-		return headerInfo.HasHeader && strings.Contains(headerInfo.ExistingCopyright, "New Relic"), nil
+		// Should have New Relic copyright only, with apache 2.0 license
+		correctCopyright := strings.Contains(headerInfo.ExistingCopyright, "New Relic")
+		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingSPDXIdentifier, "Apache-2.0")
+		return headerInfo.HasHeader && correctCopyright && correctSPDXIdentifier, nil
+
+	case StatusNewProprietary:
+		// Should have New Relic hopyright only, with NR proprietary license
+		correctCopyright := headerInfo.HasHeader && strings.Contains(headerInfo.ExistingCopyright, "New Relic")
+		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingSPDXIdentifier, "New-Relic-Software-License")
+		return headerInfo.HasHeader && correctCopyright && correctSPDXIdentifier, nil
 
 	default:
 		return false, nil
@@ -537,7 +560,7 @@ func getCommentPrefix(filename string) (top, mid, bot string) {
 // getCommentPrefixExt returns the appropriate comment style for an extension type
 // Returns three strings: top (opening delimiter), mid (line prefix), bot (closing delimiter).
 // Adapted from google/addlicense, simplified for this repository's file types.
-func getCommentPrefixExt(ext string) (top, mid, bot string) {
+func getExtensionCommentPrefix(ext string) (top, mid, bot string) {
 	switch ext {
 	case ".go", ".proto":
 		// Go and protobuf use C++ style comments
