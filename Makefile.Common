@@ -210,7 +210,7 @@ addlicense: $(NRLICENSE)
 .PHONY: checklicense
 checklicense: $(NRLICENSE)
 	@echo "Checking license headers with nrlicense..."
-	@$(NRLICENSE) --check --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
+	@$(NRLICENSE) --check --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: checklinks
 checklinks:

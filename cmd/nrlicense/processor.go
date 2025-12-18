@@ -58,21 +58,6 @@ func (p *Processor) ProcessFiles(files []string) int {
 		return 1
 	}
 
-	// Generate top-level licensing file
-	if p.topLicense {
-		proprietaryLicenseDescription, err := p.detector.GetProprietaryLicenseDescription()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error generating top-level license: %v\n", err)
-			return 1
-		}
-		if p.dryRun {
-			fmt.Printf("Directories with proprietary LICENSE files:\n%s", proprietaryLicenseDescription)
-		} else {
-			GenerateTopLevelLicense(p.detector.repoRoot, proprietaryLicenseDescription)
-		}
-
-	}
-
 	return 0
 }
 
@@ -195,4 +180,31 @@ func (p *Processor) printSummary() {
 		fmt.Printf("Failed: %d files\n", p.failed)
 	}
 	fmt.Println(strings.Repeat("=", 50))
+}
+
+func (p *Processor) ProcessTopLevelLicense() int {
+	// Generate top-level licensing file
+	if p.topLicense {
+		proprietaryLicenseDescription, err := p.detector.GetProprietaryLicenseDescription()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error generating top-level license: %v\n", err)
+			return 1
+		}
+		if p.dryRun {
+			fmt.Printf("Directories with proprietary LICENSE files:\n%s", proprietaryLicenseDescription)
+		} else if p.check {
+			passed, err := CheckTopLevelLicense(p.detector.repoRoot, proprietaryLicenseDescription)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error validating top level license %v\n", err)
+				return 1
+			}
+			if !passed {
+				fmt.Println("Missing or incorrect top-level LICENSING file.")
+				return 1
+			}
+		} else {
+			GenerateTopLevelLicense(p.detector.repoRoot, proprietaryLicenseDescription)
+		}
+	}
+	return 0
 }
