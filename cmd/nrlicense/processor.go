@@ -108,11 +108,7 @@ func (p *Processor) processFile(filePath string) error {
 	// Generate the appropriate header
 	modDescription := ""
 	if status == StatusModified {
-		modDescription, err = p.detector.GetModificationDescription(filePath)
-		if err != nil {
-			// Non-fatal, use default
-			modDescription = "Modified for New Relic distribution"
-		}
+		modDescription = p.detector.GetModificationDescription(filePath)
 	}
 
 	newHeader, err := GenerateHeader(status, headerInfo.ExistingCopyright, modDescription, filePath)
