@@ -31,7 +31,7 @@ git commit -m "update core modules list" --allow-empty
 
 make chlog-update VERSION="v${CANDIDATE_BETA}"
 git add --all
-git commit -m "changelog update ${CANDIDATE_BETA}"
+git commit -m "changelog update ${CANDIDATE_BETA}" || echo "no changelog changes to commit"
 
 sed -i.bak "s/${CURRENT_BETA_ESCAPED}/${CANDIDATE_BETA}/g" versions.yaml
 find . -name "*.bak" -type f -delete

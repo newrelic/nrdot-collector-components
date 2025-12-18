@@ -481,9 +481,9 @@ update-otel:$(MULTIMOD)
 	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
 	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m stable --commit-hash "$(OTEL_STABLE_VERSION)"
-	git add . && git commit -s -m "[chore] multimod update stable modules" ; \
+	git add . && git commit -s -m "[chore] multimod update stable modules" || true
 	$(MULTIMOD) sync -s=true -o ../opentelemetry-collector -m beta --commit-hash "$(OTEL_VERSION)"
-	git add . && git commit -s -m "[chore] multimod update beta modules" ; \
+	git add . && git commit -s -m "[chore] multimod update beta modules" || true
 	# Update contrib modules to latest patch for the same minor version as beta
 	@echo "Updating contrib modules..."
 	@BETA_VERSION=$$(grep "go.opentelemetry.io/collector " ./cmd/nrdotcol/go.mod | head -n 1 | awk '{print $$2}'); \
