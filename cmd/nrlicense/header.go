@@ -86,7 +86,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 		// Continue collecting header linw
 		if inHeader {
 			if isCommentLine(line, ext) || strings.TrimSpace(line) == "" {
-				// All non-blank comments or newlines after spdx are not considered header
+				// SPDX identifier is consider the last part of the header (to prevent deletion of non-header comments)
 				if info.ExistingSPDXIdentifier != "" && !isEmptyOrEmptyComment(line, ext) {
 					info.ContentStartLine = lineNum
 					break
@@ -465,12 +465,12 @@ func CheckHeader(filePath string, status FileStatus, existingCopyright string) (
 }
 
 // GenerateTopLevelLicense generates the top-level license file at the root directory
-func GenerateTopLevelLicense(rootDir string, proprietaryDirDescription string) {
+func GenerateTopLevelLicense(rootDir string, description string) {
 	// Use template and replace placeholder
 	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
 	template := topLevelLicenseTemplate
-	if proprietaryDirDescription != "" {
-		template = strings.Replace(template, "{{DESCRIPTION}}", proprietaryDirDescription, 1)
+	if description != "" {
+		template = strings.Replace(template, "{{DESCRIPTION}}", description, 1)
 	} else {
 		// Remove the placeholder line if no custom description
 		template = strings.Replace(template, "{{DESCRIPTION}}\n", "", 1)
@@ -478,14 +478,40 @@ func GenerateTopLevelLicense(rootDir string, proprietaryDirDescription string) {
 	os.WriteFile(licenseFileName, []byte(template), 0644)
 }
 
-// CheckTopLevelLicense checks the top-level license file
-func CheckTopLevelLicense(rootDir string, proprietaryDirDescription string) (bool, error) {
+// CheckTopLevelLicense validates the top level licensing file.
+func CheckTopLevelLicense(rootDir string, description string) (bool, error) {
 	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
+
+	// Check the existence of the file
 	matches, err := filepath.Glob(licenseFileName)
 	if err != nil || len(matches) != 1 {
 		return false, err
 	}
-	return true, err
+
+	// Check that all directories listed in LICENSING exist w/ correct license
+	content, err := os.ReadFile(licenseFileName)
+	if err != nil {
+		return false, err
+	}
+	lines := strings.Split(string(content), "\n")
+
+	validated := true
+	for _, line := range lines[2:] {
+		licensedDir := strings.TrimPrefix(line, "New Relic Software License -")
+		licensedDir = strings.TrimSpace(licensedDir)
+		path := fmt.Sprintf("%s/%s", rootDir, licensedDir)
+
+		matches, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_NEWRELIC_*", path))
+		if err != nil {
+			return false, err
+		}
+		if len(matches) < 1 {
+			validated = false
+			fmt.Printf("Directory listed in LICENSING doesn't exist or contains missing or incorrect license file: %s\n", licensedDir)
+		}
+	}
+
+	return validated, err
 }
 
 // ==================== Functions adapted from google/addlicense ====================

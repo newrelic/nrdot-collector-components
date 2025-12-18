@@ -225,7 +225,7 @@ func (d *GitDetector) GetModificationDescription(filePath string) (string, error
 }
 
 // GetProprietaryLicenseDirectories a description of directories covered under the NR proprietary license
-func (d *GitDetector) GetProprietaryLicenseDescription() (string, error) {
+func (d *GitDetector) GetTopLevelLicenseDescription() (string, error) {
 	licensedDirs := []string{}
 	err := filepath.WalkDir(d.repoRoot, func(path string, dirEntry fs.DirEntry, err error) error {
 		if err != nil {
