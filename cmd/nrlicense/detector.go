@@ -202,26 +202,12 @@ func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
 }
 
 // GetModificationDescription returns a description of what was modified in the file
-func (d *GitDetector) GetModificationDescription(filePath string) (string, error) {
-	// Get the list of commits that modified this file since fork
-	cmd := exec.Command("git", "log", "--oneline", "--no-merges", fmt.Sprintf("%s..HEAD", d.forkCommit), "--", filePath)
-	output, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("getting modification history: %w", err)
-	}
-
-	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
-	if len(lines) == 0 || lines[0] == "" {
-		return "Modified for New Relic distribution", nil
-	}
-
-	// Take the first (most recent) commit message
-	parts := strings.SplitN(lines[0], " ", 2)
-	if len(parts) > 1 {
-		return strings.TrimSpace(parts[1]), nil
-	}
-
-	return "Modified for New Relic distribution", nil
+func (d *GitDetector) GetModificationDescription(filePath string) string {
+	commitHistoryURLSinceFork := fmt.Sprintf(
+		"https://github.com/newrelic/nrdot-collector-components/commits/main/%s?since=2025-11-26",
+		filepath.Clean(filePath),
+	)
+	return commitHistoryURLSinceFork
 }
 
 // GetProprietaryLicenseDirectories a description of directories covered under the NR proprietary license
