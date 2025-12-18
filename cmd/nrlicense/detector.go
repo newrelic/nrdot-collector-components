@@ -6,6 +6,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io/fs"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -221,4 +222,33 @@ func (d *GitDetector) GetModificationDescription(filePath string) (string, error
 	}
 
 	return "Modified for New Relic distribution", nil
+}
+
+// GetProprietaryLicenseDirectories a description of directories covered under the NR proprietary license
+func (d *GitDetector) GetProprietaryLicenseDescription() (string, error) {
+	licensedDirs := []string{}
+	err := filepath.WalkDir(d.repoRoot, func(path string, dirEntry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if dirEntry.IsDir() {
+			matches, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_NEWRELIC_*", path))
+			if err != nil {
+				return err
+			}
+			if len(matches) > 0 {
+				dir, err := filepath.Rel(d.repoRoot, filepath.Dir(matches[0]))
+				if err != nil {
+					return err
+				}
+				dir = fmt.Sprintf("New Relic Software License - %s", dir)
+				licensedDirs = append(licensedDirs, dir)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return "", fmt.Errorf("getting proprietary license directories: %w", err)
+	}
+	return strings.Join(licensedDirs, "\n"), nil
 }

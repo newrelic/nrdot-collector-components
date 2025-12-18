@@ -37,6 +37,7 @@ var (
 	forkCommit = flag.String("fork-commit", "51061db5838300734ff23888e2396263f61146d9", "git commit/tag representing the fork point")
 	verbose    = flag.Bool("verbose", false, "verbose output: show processed files")
 	dryRun     = flag.Bool("dry-run", false, "dry run: show what would be changed without modifying files")
+	topLicense = flag.Bool("top-license", false, "top license: generate the root-level LICENSING file")
 )
 
 func init() {
@@ -100,10 +101,11 @@ func main() {
 
 	// Process files
 	processor := &Processor{
-		detector: detector,
-		verbose:  *verbose,
-		dryRun:   *dryRun,
-		check:    *check,
+		detector:   detector,
+		verbose:    *verbose,
+		dryRun:     *dryRun,
+		check:      *check,
+		topLicense: *topLicense,
 	}
 
 	exitCode := processor.ProcessFiles(files)
