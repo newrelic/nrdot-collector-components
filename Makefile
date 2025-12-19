@@ -515,6 +515,14 @@ update-otel:$(MULTIMOD)
 		RESOLVED_CONTRIB_VERSION=$$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/testbed 2>/dev/null | tr ' ' '\n' | tail -1); \
 	fi; \
 	echo "Using contrib version: $$RESOLVED_CONTRIB_VERSION"; \
+	RESOLVED_MINOR=$$(echo "$$RESOLVED_CONTRIB_VERSION" | grep -oE 'v[0-9]+\.[0-9]+'); \
+	if [ "$$RESOLVED_MINOR" != "$$COLLECTOR_MINOR" ]; then \
+		echo "❌ ERROR: Contrib minor version ($$RESOLVED_MINOR) doesn't match collector minor version ($$COLLECTOR_MINOR)"; \
+		echo "Cannot proceed - contrib hasn't released $$COLLECTOR_MINOR yet!"; \
+		echo "Wait for contrib to release $$COLLECTOR_MINOR before updating."; \
+		exit 1; \
+	fi; \
+	echo "✅ Contrib and collector minor versions match: $$COLLECTOR_MINOR"; \
 	CONTRIB_PREFIX="github.com/open-telemetry/opentelemetry-collector-contrib"; \
 	for mod_file in $$(find . -type f -name "go.mod"); do \
 		echo "Updating contrib modules in $$mod_file"; \
