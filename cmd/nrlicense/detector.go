@@ -5,6 +5,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os/exec"
@@ -132,14 +133,16 @@ func (d *GitDetector) GetNewFileStatusFromLicense(filePath string) (FileStatus, 
 			return StatusUnknown, fmt.Errorf("searching for license: %w", err)
 		}
 		if len(res) > 1 {
-			return StatusUnknown, fmt.Errorf("more than one LICENSE file found")
-		} else if len(res) == 1 {
+			return StatusUnknown, fmt.Errorf("more than one LICENSE file found in %s", dir)
+		}
+		if len(res) == 1 {
 			license := filepath.Base(res[0])
-			if strings.Contains(license, "_NEWRELIC_") {
+			switch {
+			case strings.Contains(license, "_NEWRELIC_"):
 				return StatusNewProprietary, nil
-			} else if strings.Contains(license, "_APACHE_") {
+			case strings.Contains(license, "_APACHE_"):
 				return StatusNewApache, nil
-			} else {
+			default:
 				return StatusUnknown, fmt.Errorf("improper LICENSE filename: %s (expected LICENSE_NEWRELIC_[component] or LICENSE_APACHE_[component])", license)
 			}
 		}
@@ -151,12 +154,13 @@ func (d *GitDetector) GetNewFileStatusFromLicense(filePath string) (FileStatus, 
 }
 
 // fileExistsAtCommit checks if a file exists at a given commit
-func (d *GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
-	cmd := exec.Command("git", "cat-file", "-e", fmt.Sprintf("%s:%s", commit, filePath))
+func (*GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
+	cmd := exec.Command("git", "cat-file", "-e", fmt.Sprintf("%s:%s", commit, filePath)) //nolint:gosec // Reason: Only triggering because cmd contains fmt.Sprintf()
 	err := cmd.Run()
 	if err != nil {
 		// File doesn't exist at this commit
-		if exitErr, ok := err.(*exec.ExitError); ok {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
 			if exitErr.ExitCode() == 128 {
 				return false, nil
 			}
@@ -167,9 +171,9 @@ func (d *GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) 
 }
 
 // fileModifiedSince checks if a file has been modified since a given commit
-func (d *GitDetector) fileModifiedSince(filePath, commit string) (bool, error) {
+func (*GitDetector) FileModifiedSince(filePath, commit string) (bool, error) {
 	// Use git log to see if there are any commits affecting this file since the fork point
-	cmd := exec.Command("git", "log", "--oneline", fmt.Sprintf("%s..HEAD", commit), "--", filePath)
+	cmd := exec.Command("git", "log", "--oneline", fmt.Sprintf("%s..HEAD", commit), "--", filePath) //nolint:gosec // Reason: Only triggering because cmd contains fmt.Sprintf()
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
@@ -182,7 +186,7 @@ func (d *GitDetector) fileModifiedSince(filePath, commit string) (bool, error) {
 }
 
 // fileDiffSince checks if a file has a diff with that file at a given commit
-func (d *GitDetector) fileDiffSince(filePath, commit string) (bool, error) {
+func (*GitDetector) fileDiffSince(filePath, commit string) (bool, error) {
 	cmd := exec.Command("git", "diff", commit, "--", filePath)
 	out, err := cmd.Output()
 	if err != nil {
@@ -193,7 +197,7 @@ func (d *GitDetector) fileDiffSince(filePath, commit string) (bool, error) {
 
 // GetFileContentAtFork retrieves the file content at the fork point (for comparison)
 func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
-	cmd := exec.Command("git", "show", fmt.Sprintf("%s:%s", d.forkCommit, filePath))
+	cmd := exec.Command("git", "show", fmt.Sprintf("%s:%s", d.forkCommit, filePath)) //nolint:gosec // Reason: Only triggering because cmd contains fmt.Sprintf()
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("getting file content at fork: %w", err)
@@ -202,7 +206,7 @@ func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
 }
 
 // GetModificationDescription returns a description of what was modified in the file
-func (d *GitDetector) GetModificationDescription(filePath string) string {
+func (*GitDetector) GetModificationDescription(filePath string) string {
 	commitHistoryURLSinceFork := fmt.Sprintf(
 		"https://github.com/newrelic/nrdot-collector-components/commits/main/%s?since=2025-11-26",
 		filepath.Clean(filePath),

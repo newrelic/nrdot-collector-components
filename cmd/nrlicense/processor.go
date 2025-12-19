@@ -92,7 +92,8 @@ func (p *Processor) processFile(filePath string) error {
 	if status == StatusUnmodified {
 		if p.check {
 			// In check mode, verify the header is correct
-			correct, err := CheckHeader(filePath, status, headerInfo.ExistingCopyright)
+			var correct bool
+			correct, err = CheckHeader(filePath, status)
 			if err != nil {
 				return fmt.Errorf("checking header: %w", err)
 			}
@@ -111,7 +112,7 @@ func (p *Processor) processFile(filePath string) error {
 		modDescription = p.detector.GetModificationDescription(filePath)
 	}
 
-	newHeader, err := GenerateHeader(status, headerInfo.ExistingCopyright, modDescription, filePath)
+	newHeader, err := GenerateHeader(status, modDescription, filePath)
 	if err != nil {
 		return fmt.Errorf("generating header: %w", err)
 	}
@@ -123,7 +124,7 @@ func (p *Processor) processFile(filePath string) error {
 
 	// Check mode: verify header is correct
 	if p.check {
-		correct, err := CheckHeader(filePath, status, headerInfo.ExistingCopyright)
+		correct, err := CheckHeader(filePath, status)
 		if err != nil {
 			return fmt.Errorf("checking header: %w", err)
 		}
@@ -160,15 +161,16 @@ func (p *Processor) printSummary() {
 	fmt.Println("\n" + strings.Repeat("=", 50))
 	fmt.Printf("Processed: %d files\n", p.processed)
 
-	if p.check {
+	switch {
+	case p.check:
 		if p.needsUpdate > 0 {
 			fmt.Printf("Files needing updates: %d\n", p.needsUpdate)
 		} else {
 			fmt.Println("All files have correct headers")
 		}
-	} else if p.dryRun {
+	case p.dryRun:
 		fmt.Printf("Files that would be modified: %d\n", p.modified)
-	} else {
+	default:
 		fmt.Printf("Modified: %d files\n", p.modified)
 	}
 
@@ -186,10 +188,10 @@ func (p *Processor) ProcessTopLevelLicense() int {
 			fmt.Fprintf(os.Stderr, "Error generating top-level license: %v\n", err)
 			return 1
 		}
-		if p.dryRun {
-			fmt.Printf("Directories with proprietary LICENSE files:\n%s", description)
-		} else if p.check {
-			passed, err := CheckTopLevelLicense(p.detector.repoRoot, description)
+
+		switch {
+		case p.check:
+			passed, err := CheckTopLevelLicense(p.detector.repoRoot)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error validating top level license %v\n", err)
 				return 1
@@ -198,8 +200,14 @@ func (p *Processor) ProcessTopLevelLicense() int {
 				fmt.Println("Missing or incorrect top-level LICENSING file.")
 				return 1
 			}
-		} else {
-			GenerateTopLevelLicense(p.detector.repoRoot, description)
+		case p.dryRun:
+			fmt.Printf("Directories with proprietary LICENSE files:\n%s", description)
+		default:
+			err := GenerateTopLevelLicense(p.detector.repoRoot, description)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error generating top level license %v\n", err)
+				return 1
+			}
 		}
 	}
 	return 0

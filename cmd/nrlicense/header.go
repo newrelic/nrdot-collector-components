@@ -18,9 +18,6 @@ import (
 	"strings"
 )
 
-//go:embed templates/otel-header.txt
-var otelHeaderTemplate string
-
 //go:embed templates/newrelic-header-apache.txt
 var newrelicApacheHeaderTemplate string
 
@@ -83,7 +80,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 			}
 		}
 
-		// Continue collecting header linw
+		// Continue collecting header line
 		if inHeader {
 			if isCommentLine(line, ext) || strings.TrimSpace(line) == "" {
 				// SPDX identifier is consider the last part of the header (to prevent deletion of non-header comments)
@@ -103,11 +100,9 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 				}
 
 				continue
-			} else {
-				// End of header
-				info.ContentStartLine = lineNum
-				break
 			}
+			info.ContentStartLine = lineNum
+			break
 		}
 
 		// If we hit non-comment content without finding a header, stop
@@ -130,7 +125,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 }
 
 // GenerateHeader creates the appropriate header based on file status
-func GenerateHeader(status FileStatus, existingCopyright, modDescription, filePath string) (string, error) {
+func GenerateHeader(status FileStatus, modDescription, filePath string) (string, error) {
 	ext := filepath.Ext(filePath)
 
 	switch status {
@@ -139,7 +134,7 @@ func GenerateHeader(status FileStatus, existingCopyright, modDescription, filePa
 		return "", nil
 
 	case StatusModified:
-		return generateModifiedHeader(existingCopyright, modDescription, ext), nil
+		return generateModifiedHeader(modDescription, ext), nil
 
 	case StatusNewApache:
 		return generateNewApacheHeader(ext), nil
@@ -153,7 +148,7 @@ func GenerateHeader(status FileStatus, existingCopyright, modDescription, filePa
 }
 
 // generateModifiedHeader creates a dual copyright header for modified files
-func generateModifiedHeader(existingCopyright, modDescription, ext string) string {
+func generateModifiedHeader(modDescription, ext string) string {
 	comment := getCommentStyle(ext)
 
 	// Use template and replace placeholder
@@ -232,7 +227,7 @@ func isCommentLine(line, ext string) bool {
 
 // isEmptyOrEmptyComment checks if a line is blank, or a blank comment e.g. "//"
 func isEmptyOrEmptyComment(line, ext string) bool {
-	_, prefix, _ := getExtensionCommentPrefix(ext)
+	_, prefix, _ := getCommentPrefix(ext)
 	prefix = strings.TrimSpace(prefix)
 	comment := strings.TrimPrefix(strings.TrimSpace(line), prefix)
 	return comment == ""
@@ -417,7 +412,7 @@ func ReadFileContent(filePath string) ([]byte, error) {
 }
 
 // CheckHeader verifies if a file has the correct header for its status
-func CheckHeader(filePath string, status FileStatus, existingCopyright string) (bool, error) {
+func CheckHeader(filePath string, status FileStatus) (bool, error) {
 	headerInfo, err := ParseFileHeader(filePath)
 	if err != nil {
 		return false, err
@@ -465,7 +460,7 @@ func CheckHeader(filePath string, status FileStatus, existingCopyright string) (
 }
 
 // GenerateTopLevelLicense generates the top-level license file at the root directory
-func GenerateTopLevelLicense(rootDir, description string) {
+func GenerateTopLevelLicense(rootDir, description string) error {
 	// Use template and replace placeholder
 	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
 	template := topLevelLicenseTemplate
@@ -475,11 +470,15 @@ func GenerateTopLevelLicense(rootDir, description string) {
 		// Remove the placeholder line if no custom description
 		template = strings.Replace(template, "{{DESCRIPTION}}\n", "", 1)
 	}
-	os.WriteFile(licenseFileName, []byte(template), 0o644)
+	err := os.WriteFile(licenseFileName, []byte(template), 0o600)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // CheckTopLevelLicense validates the top level licensing file.
-func CheckTopLevelLicense(rootDir, description string) (bool, error) {
+func CheckTopLevelLicense(rootDir string) (bool, error) {
 	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
 
 	// Check the existence of the file
@@ -501,7 +500,8 @@ func CheckTopLevelLicense(rootDir, description string) (bool, error) {
 		licensedDir = strings.TrimSpace(licensedDir)
 		path := fmt.Sprintf("%s/%s", rootDir, licensedDir)
 
-		matches, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_NEWRELIC_*", path))
+		var matches []string
+		matches, err = filepath.Glob(fmt.Sprintf("%s/LICENSE_NEWRELIC_*", path))
 		if err != nil {
 			return false, err
 		}
@@ -575,28 +575,11 @@ func hasLicenseHeader(content []byte) bool {
 // getCommentPrefix returns the appropriate comment style for a file based on its name.
 // Returns three strings: top (opening delimiter), mid (line prefix), bot (closing delimiter).
 // Adapted from google/addlicense, simplified for this repository's file types.
+//
+//nolint:unparam // Reason: Keep flexible for block comments
 func getCommentPrefix(filename string) (top, mid, bot string) {
 	ext := filepath.Ext(filename)
 
-	switch ext {
-	case ".go", ".proto":
-		// Go and protobuf use C++ style comments
-		return "", "// ", ""
-
-	case ".sh", ".bash", ".zsh", ".yaml", ".yml":
-		// Shell scripts and YAML use hash comments
-		return "", "# ", ""
-
-	default:
-		// Default to Go-style comments for unknown types
-		return "", "// ", ""
-	}
-}
-
-// getCommentPrefixExt returns the appropriate comment style for an extension type
-// Returns three strings: top (opening delimiter), mid (line prefix), bot (closing delimiter).
-// Adapted from google/addlicense, simplified for this repository's file types.
-func getExtensionCommentPrefix(ext string) (top, mid, bot string) {
 	switch ext {
 	case ".go", ".proto":
 		// Go and protobuf use C++ style comments

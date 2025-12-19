@@ -130,7 +130,7 @@ func collectFiles(patterns []string) ([]string, error) {
 
 		// Check if it's a directory
 		if err == nil && info.IsDir() {
-			err := filepath.Walk(pattern, func(path string, info os.FileInfo, err error) error {
+			err = filepath.Walk(pattern, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
 					return err
 				}
