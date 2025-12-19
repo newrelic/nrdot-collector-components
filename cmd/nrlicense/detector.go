@@ -182,7 +182,7 @@ func (d *GitDetector) fileModifiedSince(filePath, commit string) (bool, error) {
 }
 
 // fileDiffSince checks if a file has a diff with that file at a given commit
-func (d *GitDetector) fileDiffSince(filePath string, commit string) (bool, error) {
+func (d *GitDetector) fileDiffSince(filePath, commit string) (bool, error) {
 	cmd := exec.Command("git", "diff", commit, "--", filePath)
 	out, err := cmd.Output()
 	if err != nil {

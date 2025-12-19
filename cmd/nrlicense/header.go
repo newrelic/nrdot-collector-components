@@ -465,7 +465,7 @@ func CheckHeader(filePath string, status FileStatus, existingCopyright string) (
 }
 
 // GenerateTopLevelLicense generates the top-level license file at the root directory
-func GenerateTopLevelLicense(rootDir string, description string) {
+func GenerateTopLevelLicense(rootDir, description string) {
 	// Use template and replace placeholder
 	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
 	template := topLevelLicenseTemplate
@@ -475,11 +475,11 @@ func GenerateTopLevelLicense(rootDir string, description string) {
 		// Remove the placeholder line if no custom description
 		template = strings.Replace(template, "{{DESCRIPTION}}\n", "", 1)
 	}
-	os.WriteFile(licenseFileName, []byte(template), 0644)
+	os.WriteFile(licenseFileName, []byte(template), 0o644)
 }
 
 // CheckTopLevelLicense validates the top level licensing file.
-func CheckTopLevelLicense(rootDir string, description string) (bool, error) {
+func CheckTopLevelLicense(rootDir, description string) (bool, error) {
 	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
 
 	// Check the existence of the file
