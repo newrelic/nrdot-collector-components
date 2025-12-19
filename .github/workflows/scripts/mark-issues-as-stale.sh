@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-#
 # Copyright The OpenTelemetry Authors
-# SPDX-License-Identifier: Apache-2.0
+# Modifications copyright New Relic, Inc.
 #
+# Modifications can be found at the following URL:
+# https://github.com/newrelic/nrdot-collector-components/commits/main/.github/workflows/scripts/mark-issues-as-stale.sh?since=2025-11-26
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # This script checks for issues that have been inactive for a certain number
 # of days. Any inactive issues have codeowners pinged for labels corresponding
 # to a component and are marked as stale. The stale bot will then handle

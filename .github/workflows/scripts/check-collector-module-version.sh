@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-
 # Copyright The OpenTelemetry Authors
+# Modifications copyright New Relic, Inc.
+#
+# Modifications can be found at the following URL:
+# https://github.com/newrelic/nrdot-collector-components/commits/main/.github/workflows/scripts/check-collector-module-version.sh?since=2025-11-26
+#
 # SPDX-License-Identifier: Apache-2.0
 
-#
 # verifies if the collector components are using the main core collector version
 # as a dependency.
 #
