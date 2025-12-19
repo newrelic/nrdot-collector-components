@@ -98,7 +98,7 @@ func (p *Processor) processFile(filePath string) error {
 			}
 			if !correct {
 				atomic.AddInt32(&p.needsUpdate, 1)
-				fmt.Printf("Missing or incorrect header: %s\n", filePath)
+				fmt.Printf("Missing or incorrect header (expected %s header): %s\n", status, filePath)
 			}
 		}
 		// In fix mode, don't modify unmodified files
@@ -129,7 +129,7 @@ func (p *Processor) processFile(filePath string) error {
 		}
 		if !correct {
 			atomic.AddInt32(&p.needsUpdate, 1)
-			fmt.Printf("Missing or incorrect header: %s\n", filePath)
+			fmt.Printf("Missing or incorrect header (expected %s header): %s\n", status, filePath)
 		}
 		return nil
 	}
