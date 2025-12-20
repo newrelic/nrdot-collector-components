@@ -93,8 +93,8 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 
 	// If shallow repository, fetch tree up to fork commit
 	if shallow {
-		fmt.Println("Shallow repository deteched. Fetching history until fork.")
-		cmd := exec.Command("git", "fetch", "origin", "main", "--shallow-since=2025-11-26")
+		fmt.Println("Shallow repository detected. Fetching history until fork.")
+		cmd := exec.Command("git", "fetch", "origin", "main", "--shallow-since=2025-11-19")
 		output, err = cmd.Output()
 		if err != nil {
 			return nil, fmt.Errorf("fetching repository : %w", err)
