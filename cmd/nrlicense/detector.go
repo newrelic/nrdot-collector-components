@@ -83,6 +83,14 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 		return nil, fmt.Errorf("fork commit %s not found: %w", forkCommit, err)
 	}
 
+	cmd = exec.Command("git", "rev-parse", "--is-shallow-repository")
+	output, err = cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("checking if shallow repository: %w", err)
+	}
+	shallow := strings.TrimSpace(string(output)) == "true"
+	fmt.Printf("Shallow Repo: %t", shallow)
+
 	return &GitDetector{
 		forkCommit: forkCommit,
 		repoRoot:   repoRoot,
