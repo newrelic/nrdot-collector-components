@@ -155,7 +155,7 @@ func (d *GitDetector) GetNewFileStatusFromLicense(filePath string) (FileStatus, 
 
 // fileExistsAtCommit checks if a file exists at a given commit
 func (*GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
-	cmd := exec.Command("git", "cat-file", "-e", fmt.Sprintf("%s:%s", commit, filePath)) //nolint:gosec // Reason: Only triggering because cmd contains fmt.Sprintf()
+	cmd := exec.Command("git", "cat-file", "-e", fmt.Sprintf("%s:%s", commit, filePath)) //nolint:gosec // Reason: Only triggering G204 because cmd contains fmt.Sprintf()
 	err := cmd.Run()
 	if err != nil {
 		// File doesn't exist at this commit
@@ -173,7 +173,7 @@ func (*GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
 // fileModifiedSince checks if a file has been modified since a given commit
 func (*GitDetector) FileModifiedSince(filePath, commit string) (bool, error) {
 	// Use git log to see if there are any commits affecting this file since the fork point
-	cmd := exec.Command("git", "log", "--oneline", fmt.Sprintf("%s..HEAD", commit), "--", filePath) //nolint:gosec // Reason: Only triggering because cmd contains fmt.Sprintf()
+	cmd := exec.Command("git", "log", "--oneline", fmt.Sprintf("%s..HEAD", commit), "--", filePath) //nolint:gosec // Reason: Only triggering G204 because cmd contains fmt.Sprintf()
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
@@ -197,7 +197,7 @@ func (*GitDetector) fileDiffSince(filePath, commit string) (bool, error) {
 
 // GetFileContentAtFork retrieves the file content at the fork point (for comparison)
 func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
-	cmd := exec.Command("git", "show", fmt.Sprintf("%s:%s", d.forkCommit, filePath)) //nolint:gosec // Reason: Only triggering because cmd contains fmt.Sprintf()
+	cmd := exec.Command("git", "show", fmt.Sprintf("%s:%s", d.forkCommit, filePath)) //nolint:gosec // Reason: Only triggering G204 because cmd contains fmt.Sprintf()
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("getting file content at fork: %w", err)
