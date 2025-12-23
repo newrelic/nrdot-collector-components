@@ -79,7 +79,7 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 
 	// Verify the fork commit exists
 	cmd = exec.Command("git", "rev-parse", "--verify", forkCommit)
-	if err := cmd.Run(); err != nil {
+	if err = cmd.Run(); err != nil {
 		return nil, fmt.Errorf("fork commit %s not found: %w", forkCommit, err)
 	}
 
