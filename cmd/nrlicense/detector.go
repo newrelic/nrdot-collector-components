@@ -83,34 +83,18 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 		return nil, fmt.Errorf("fork commit %s not found: %w", forkCommit, err)
 	}
 
-	cmd = exec.Command("git", "status")
-	output, err = cmd.Output()
-	fmt.Println(string(output))
-	if err != nil {
-		return nil, fmt.Errorf("fetching status: %w", err)
-	}
-
-	// Check if shallow repository
+	// Validate that commit hash is reachable if the repository is shallow
 	cmd = exec.Command("git", "rev-parse", "--is-shallow-repository")
 	output, err = cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("checking if shallow repository: %w", err)
 	}
-	shallow := strings.TrimSpace(string(output)) == "true"
-
-	// If shallow, verify the fork commit is reachable in history.
-	// We cannot fetch here because concurrent make jobs (-jn) lock shallow repositories to prevent race conditions.
-	if shallow {
-		cmd = exec.Command("git", "rev-list", "origin/main")
-		output, err = cmd.Output()
-		fmt.Printf("%s\n\n\n", output)
-		if err != nil {
-			return nil, fmt.Errorf("fetching revision list: %w", err)
+	if strings.TrimSpace(string(output)) == "true" {
+		// We cannot fetch here because shallow repositories are locked during concurrently-running (-j2) makefile jobs. Throw error instead.
+		cmd = exec.Command("git", "cat-file", "-e", forkCommit)
+		if err := cmd.Run(); err != nil {
+			return nil, fmt.Errorf("fork commit %s is not reachable in shallow repository (shallow clone may need deeper history)", forkCommit)
 		}
-		if !strings.Contains(string(output), forkCommit) {
-			return nil, fmt.Errorf("fork commit %s is not reachable in shallow repostory (need to fetch more history)", forkCommit)
-		}
-
 	}
 
 	return &GitDetector{
