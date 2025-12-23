@@ -101,7 +101,7 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 	// If shallow, verify the fork commit is reachable in history.
 	// We cannot fetch here because concurrent make jobs (-jn) lock shallow repositories to prevent race conditions.
 	if shallow {
-		cmd = exec.Command("git", "rev-list", "HEAD")
+		cmd = exec.Command("git", "rev-list", "origin/main")
 		output, err = cmd.Output()
 		fmt.Printf("%s\n\n\n", output)
 		if err != nil {
