@@ -83,6 +83,13 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 		return nil, fmt.Errorf("fork commit %s not found: %w", forkCommit, err)
 	}
 
+	cmd = exec.Command("git", "status")
+	output, err = cmd.Output()
+	fmt.Println(string(output))
+	if err != nil {
+		return nil, fmt.Errorf("fetching status: %w", err)
+	}
+
 	// Check if shallow repository
 	cmd = exec.Command("git", "rev-parse", "--is-shallow-repository")
 	output, err = cmd.Output()
@@ -96,12 +103,14 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 	if shallow {
 		cmd = exec.Command("git", "rev-list", "HEAD")
 		output, err = cmd.Output()
+		fmt.Printf("%s\n\n\n", output)
 		if err != nil {
 			return nil, fmt.Errorf("fetching revision list: %w", err)
 		}
 		if !strings.Contains(string(output), forkCommit) {
 			return nil, fmt.Errorf("fork commit %s is not reachable in shallow repostory (need to fetch more history)", forkCommit)
 		}
+
 	}
 
 	return &GitDetector{
