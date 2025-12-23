@@ -85,7 +85,7 @@ jobs:
       - name: Install Tools
         run: make install-tools
       - name: Fetch commit history up to date of fork
-        run: git fetch origin ${{ github.head_ref || github.ref_name }} --shallow-since=2025-11-19
+        run: git fetch origin ${{ github.head_ref || github.ref_name }} --shallow-since=2025-11-18
       - name: Lint
         run: GOOS=${{ matrix.goos }} GOARCH=amd64 make -j2 golint GROUP=${{ matrix.group }}
   lint:
