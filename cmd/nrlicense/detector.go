@@ -91,15 +91,17 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 	}
 	shallow := strings.TrimSpace(string(output)) == "true"
 
-	// If shallow repository, fetch tree up to fork commit
+	// If shallow, verify the fork commit is reachable in history.
+	// We cannot fetch here because concurrent make jobs (-jn) lock shallow repositories to prevent race conditions.
 	if shallow {
-		fmt.Println("Shallow repository detected. Fetching history until fork.")
-		cmd := exec.Command("git", "fetch", "origin", "main", "--shallow-since=2025-11-19")
-		output, err = cmd.CombinedOutput()
+		cmd = exec.Command("git", "rev-list", "HEAD")
+		output, err = cmd.Output()
 		if err != nil {
-			return nil, fmt.Errorf("fetching repository: %w: %s", err, string(output))
+			return nil, fmt.Errorf("fetching revision list: %w", err)
 		}
-		fmt.Println(string(output))
+		if !strings.Contains(string(output), forkCommit) {
+			return nil, fmt.Errorf("fork commit %s is not reachable in shallow repostory (need to fetch more history)", forkCommit)
+		}
 	}
 
 	return &GitDetector{
