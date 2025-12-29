@@ -1,5 +1,5 @@
 // Copyright New Relic, Inc.
-// SPDX-License-Identifier: New-Relic-Software-License
+// SPDX-License-Identifier: New-Relic-Software-License-1.1
 
 //go:generate mdatagen metadata.yaml
 
