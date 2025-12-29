@@ -79,7 +79,7 @@ jobs:
         with:
           go-version: oldstable
           cache-dependency-path: "**/*.sum"
-      - name: Install dependenciess
+      - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
       - name: Install Tools
