@@ -1,4 +1,4 @@
-// Copyright New Relic, Inc.
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 // nrlicense manages license headers for forked codebases.
@@ -117,49 +117,45 @@ func collectFiles(patterns []string) ([]string, error) {
 	var files []string
 	seen := make(map[string]bool)
 
+	collectFile := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && !seen[path] && shouldProcessFile(path) {
+			files = append(files, path)
+			seen[path] = true
+		}
+		return nil
+	}
+
 	for _, pattern := range patterns {
-		// Check if it's a direct file
 		info, err := os.Stat(pattern)
-		if err == nil && !info.IsDir() {
-			if !seen[pattern] && shouldProcessFile(pattern) {
-				files = append(files, pattern)
-				seen[pattern] = true
-			}
-			continue
-		}
-
-		// Check if it's a directory
-		if err == nil && info.IsDir() {
-			err = filepath.Walk(pattern, func(path string, info os.FileInfo, err error) error {
+		if err == nil {
+			// Add individual files or recurse directories.
+			if info.IsDir() {
+				err = filepath.Walk(pattern, collectFile)
 				if err != nil {
-					return err
+					return nil, fmt.Errorf("walking directory %s: %w", pattern, err)
 				}
-				if !info.IsDir() && !seen[path] && shouldProcessFile(path) {
-					files = append(files, path)
-					seen[path] = true
+			} else {
+				err = collectFile(pattern, info, err)
+				if err != nil {
+					return nil, fmt.Errorf("collecting file %s: %w", pattern, err)
 				}
-				return nil
-			})
-			if err != nil {
-				return nil, fmt.Errorf("walking directory %s: %w", pattern, err)
 			}
 			continue
 		}
 
-		// Try glob expansion
+		// Try glob expansion if path is not found.
 		matches, err := filepath.Glob(pattern)
 		if err != nil {
 			return nil, fmt.Errorf("expanding pattern %s: %w", pattern, err)
 		}
-
 		for _, match := range matches {
 			info, err := os.Stat(match)
+			err = collectFile(match, info, err)
 			if err != nil {
 				continue
-			}
-			if !info.IsDir() && !seen[match] && shouldProcessFile(match) {
-				files = append(files, match)
-				seen[match] = true
 			}
 		}
 	}

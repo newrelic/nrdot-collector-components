@@ -1,4 +1,4 @@
-// Copyright New Relic, Inc.
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 // Portions of this file are adapted from github.com/google/addlicense
@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -32,12 +33,12 @@ var topLevelLicenseTemplate string
 
 // HeaderInfo contains information about a file's license header
 type HeaderInfo struct {
-	HasHeader              bool
-	IsGenerated            bool
-	ExistingCopyright      string
-	ExistingSPDXIdentifier string
-	HeaderLines            []string
-	ContentStartLine       int
+	HasHeader                 bool
+	IsGenerated               bool
+	ExistingCopyright         string
+	ExistingLicenseIdentifier string
+	HeaderLines               []string
+	ContentStartLine          int
 }
 
 // ParseFileHeader analyzes a file's existing header
@@ -51,7 +52,6 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 		HeaderLines: []string{},
 	}
 
-	// Check for generated files using improved detection
 	if isGeneratedFile(content) {
 		info.IsGenerated = true
 		return info, nil
@@ -68,7 +68,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 
 		// Detect start of license header
 		if !inHeader && isCommentLine(line, ext) {
-			if containsCopyright(line) || containsSPDX(line) {
+			if containsCopyright(line) || containsLicenseIdentifier(line) {
 				inHeader = true
 				info.HasHeader = true
 				info.HeaderLines = append(info.HeaderLines, line)
@@ -84,7 +84,7 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 		if inHeader {
 			if isCommentLine(line, ext) || strings.TrimSpace(line) == "" {
 				// SPDX identifier is consider the last part of the header (to prevent deletion of non-header comments)
-				if info.ExistingSPDXIdentifier != "" && !isEmptyOrEmptyComment(line, ext) {
+				if info.ExistingLicenseIdentifier != "" && !isEmptyOrEmptyComment(line, ext) {
 					info.ContentStartLine = lineNum
 					break
 				}
@@ -95,8 +95,8 @@ func ParseFileHeader(filePath string) (*HeaderInfo, error) {
 					info.ExistingCopyright = extractCopyright(line)
 				}
 
-				if containsSPDX(line) && info.ExistingSPDXIdentifier == "" {
-					info.ExistingSPDXIdentifier = extractSPDXIdentifier(line)
+				if containsLicenseIdentifier(line) && info.ExistingLicenseIdentifier == "" {
+					info.ExistingLicenseIdentifier = extractSPDXIdentifier(line)
 				}
 
 				continue
@@ -239,9 +239,9 @@ func containsCopyright(line string) bool {
 	return strings.Contains(lower, "copyright")
 }
 
-// containsSPDX checks if a line contains SPDX identifier
-func containsSPDX(line string) bool {
-	return strings.Contains(line, "SPDX-License-Identifier")
+// containsLicenseIdentifier checks if a line contains either an SPDX identifier or NR software license
+func containsLicenseIdentifier(line string) bool {
+	return strings.Contains(line, "SPDX-License-Identifier") || strings.Contains(line, "New Relic Software License")
 }
 
 // extractCopyright extracts the copyright holder from a copyright line
@@ -439,19 +439,19 @@ func CheckHeader(filePath string, status FileStatus) (bool, error) {
 			}
 		}
 		// original license must not be modified
-		hasApacheLicense := strings.Contains(headerInfo.ExistingSPDXIdentifier, "Apache-2.0")
+		hasApacheLicense := strings.Contains(headerInfo.ExistingLicenseIdentifier, "Apache-2.0")
 		return hasOriginal && hasNewRelic && hasApacheLicense, nil
 
 	case StatusNewApache:
 		// Should have New Relic copyright only, with apache 2.0 license
 		correctCopyright := strings.Contains(headerInfo.ExistingCopyright, "New Relic")
-		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingSPDXIdentifier, "Apache-2.0")
+		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingLicenseIdentifier, "Apache-2.0")
 		return headerInfo.HasHeader && correctCopyright && correctSPDXIdentifier, nil
 
 	case StatusNewProprietary:
-		// Should have New Relic hopyright only, with NR proprietary license
+		// Should have New Relic copyright only, with NR proprietary license
 		correctCopyright := headerInfo.HasHeader && strings.Contains(headerInfo.ExistingCopyright, "New Relic")
-		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingSPDXIdentifier, "New-Relic-Software-License")
+		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingLicenseIdentifier, "New Relic Software License")
 		return headerInfo.HasHeader && correctCopyright && correctSPDXIdentifier, nil
 
 	default:
@@ -487,15 +487,16 @@ func CheckTopLevelLicense(rootDir string) (bool, error) {
 		return false, err
 	}
 
-	// Check that all directories listed in LICENSING exist w/ correct license
 	content, err := os.ReadFile(licenseFileName)
 	if err != nil {
 		return false, err
 	}
+
 	lines := strings.Split(string(content), "\n")
 
 	validated := true
-	for _, line := range lines[2:] {
+	descriptionIndex := slices.Index(strings.Split(topLevelLicenseTemplate, "\n"), "{{DESCRIPTION}}")
+	for _, line := range lines[descriptionIndex:] {
 		licensedDir := strings.TrimPrefix(line, "New Relic Software License -")
 		licensedDir = strings.TrimSpace(licensedDir)
 		path := fmt.Sprintf("%s/%s", rootDir, licensedDir)
@@ -547,15 +548,13 @@ func hashBang(content []byte) []byte {
 var (
 	// go generate: ^// Code generated .* DO NOT EDIT\.$
 	goGenerated = regexp.MustCompile(`(?m)^.{1,3} Code generated .* DO NOT EDIT\.$`)
-	// cargo raze: ^DO NOT EDIT! Replaced on runs of cargo-raze$
-	cargoRazeGenerated = regexp.MustCompile(`(?m)^DO NOT EDIT! Replaced on runs of cargo-raze$`)
 )
 
 // isGeneratedFile returns true if the content contains markers indicating
 // the file was auto-generated and should not be modified.
 // Adapted from google/addlicense.
 func isGeneratedFile(content []byte) bool {
-	return goGenerated.Match(content) || cargoRazeGenerated.Match(content)
+	return goGenerated.Match(content)
 }
 
 // hasLicenseHeader checks if content contains a license header in the first 1000 bytes.
@@ -569,7 +568,8 @@ func hasLicenseHeader(content []byte) bool {
 	header := bytes.ToLower(content[:n])
 	return bytes.Contains(header, []byte("copyright")) ||
 		bytes.Contains(header, []byte("mozilla public")) ||
-		bytes.Contains(header, []byte("spdx-license-identifier"))
+		bytes.Contains(header, []byte("spdx-license-identifier")) ||
+		bytes.Contains(header, []byte("new relic software license"))
 }
 
 // getCommentPrefix returns the appropriate comment style for a file based on its name.

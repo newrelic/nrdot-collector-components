@@ -1,4 +1,4 @@
-// Copyright New Relic, Inc.
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package nopreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/nopreceiver"
