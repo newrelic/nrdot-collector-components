@@ -1,4 +1,9 @@
 // Copyright The OpenTelemetry Authors
+// Modifications copyright New Relic, Inc.
+//
+// Modifications can be found at the following URL:
+// https://github.com/newrelic/nrdot-collector-components/commits/main/testbed/tests/batcher_test.go?since=2025-11-26
+//
 // SPDX-License-Identifier: Apache-2.0
 
 // Package tests contains test cases. To run the tests go to tests directory and run:

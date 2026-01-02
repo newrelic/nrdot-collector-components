@@ -1,0 +1,7 @@
+Copyright The OpenTelemetry Authors
+Modifications copyright New Relic, Inc.
+
+Modifications can be found at the following URL:
+{{DESCRIPTION}}
+
+SPDX-License-Identifier: Apache-2.0

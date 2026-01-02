@@ -1,4 +1,9 @@
 // Copyright The OpenTelemetry Authors
+// Modifications copyright New Relic, Inc.
+//
+// Modifications can be found at the following URL:
+// https://github.com/newrelic/nrdot-collector-components/commits/main/internal/tools/tools.go?since=2025-11-26
+//
 // SPDX-License-Identifier: Apache-2.0
 
 //go:build tools
@@ -35,4 +40,5 @@ import (
 	_ "mvdan.cc/gofumpt"
 
 	_ "github.com/newrelic/nrdot-collector-components/cmd/codecovgen"
+	_ "github.com/newrelic/nrdot-collector-components/cmd/nrlicense"
 )
