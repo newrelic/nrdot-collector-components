@@ -108,6 +108,7 @@ ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -nam
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
+# The absolute paths to all directories containing a go.mod file.
 ALL_GO_MOD_DIR := find . -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs realpath | grep -v "$(SRC_ROOT)/go.mod" | xargs dirname | sort
 
 pwd:
