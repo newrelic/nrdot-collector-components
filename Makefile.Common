@@ -210,7 +210,7 @@ addlicense: $(NRLICENSE) addthirdpartys
 	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: addthirdparty
-addthirdparty: $(LICENSE_DETECTOR) ## Runs go generate for the current module.
+addthirdparty: $(LICENSE_DETECTOR)
 	@echo "Generating third-party notices..."
 	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
 	for dir in $$($(ALL_GO_MOD_DIR)); do \
