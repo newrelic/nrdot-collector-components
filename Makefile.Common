@@ -223,6 +223,7 @@ addthirdparty: $(LICENSE_DETECTOR)
 			-overrides $(SRC_ROOT)/licenses/third_party/overrides.jsonl \
 			-noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
 			-noticeOut $$dir/THIRD_PARTY_NOTICES.md; \
+		$(GOCMD) -C $$dir mod tidy -compat=1.24.0; \
 	done
 
 .PHONY: checklicense
