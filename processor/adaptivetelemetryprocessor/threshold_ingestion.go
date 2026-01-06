@@ -4,6 +4,7 @@
 package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 import (
+	"encoding/json"
 	"math"
 	"time"
 
@@ -43,10 +44,16 @@ func (p *processorImp) determineEffectiveThreshold(metricName string, staticThre
 
 // addThresholdAttributes adds threshold-related attributes to the resource
 func addThresholdAttributes(attrs pcommon.Map, metricName string, threshold, value float64, thresholdType string) {
-	attrs.PutDouble("adaptive.threshold."+metricName, threshold)
-	attrs.PutDouble("adaptive.value."+metricName, value)
-	attrs.PutStr("adaptive.threshold.type."+metricName, thresholdType)
-	attrs.PutInt("adaptive.eval.timestamp", time.Now().Unix())
+	thresholdData := map[string]interface{}{
+		"threshold":            threshold,
+		"observed_value":       value,
+		"threshold_type":       thresholdType,
+		"evaluation_timestamp": time.Now().Unix(),
+	}
+
+	if jsonData, err := json.Marshal(thresholdData); err == nil {
+		attrs.PutStr(atpThresholdPrefix+metricName, string(jsonData))
+	}
 }
 
 // captureUsedMetricThresholds captures only metric thresholds that are actually evaluated

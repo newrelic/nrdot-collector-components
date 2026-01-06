@@ -26,6 +26,7 @@ const (
 	stageStandardRetention         = "standard_retention"          // Retention after threshold exceeded
 	stageRetention                 = "retention"                   // Legacy/fallback retention stage
 	stageResourceProcessingTimeout = "resource_processing_timeout" // Used for all resource types during timeout
+	atpThresholdPrefix             = "process.atp.threshold_details."
 
 	// Summary metric names with process. prefix to match HOST entity synthesis rules
 	filteringEfficiencyRatioMetric   = "process.atp.filter.efficiency_ratio"
