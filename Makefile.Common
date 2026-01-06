@@ -110,6 +110,8 @@ ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c "The OpenTelemetry Authors"
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
+ALL_GO_MOD_DIR := find . -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs realpath | grep -v "$(SRC_ROOT)/go.mod" | xargs dirname | sort
+
 pwd:
 	@pwd
 
@@ -215,11 +217,18 @@ checklicense: $(NRLICENSE)
 
 .PHONY: thirdparty
 thirdparty: $(LICENSE_DETECTOR) ## Runs go generate for the current module.
-	@test -f $(LICENSE_DETECTOR) || (echo "go-licence-detector not found, run 'make install-tools' from the base directory" && exit 1)
-	$(GOCMD) list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
-        -rules $(SRC_ROOT)/licenses/third_party/rules.json \
-        -noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
-        -noticeOut THIRD_PARTY_NOTICES.md
+	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
+	for dir in $$($(ALL_GO_MOD_DIR)); do \
+		alternative_rules=$$(find "$$dir" -name "rules.json" | head -n 1); \
+		if [ -n alternative_rules ]; then \
+			rules_file=$$alternative_rules; \
+		fi; \
+		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
+			-rules "$$rules_file" \
+			-overrides $(SRC_ROOT)/licenses/third_party/overrides.jsonl \
+			-noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
+			-noticeOut $$dir/THIRD_PARTY_NOTICES.md; \
+	done
 
 .PHONY: checkthirdparty
 checkthirdparty: thirdparty
@@ -271,7 +280,7 @@ else
 endif
 
 .PHONY: lint
-lint: $(LINT) checklicense misspell
+lint: $(LINT) checklicense checkthirdparty misspell
 	$(LINT) run
 
 .PHONY: govulncheck
