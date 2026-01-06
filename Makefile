@@ -46,8 +46,7 @@ PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/*col*" -exec $(TO_MOD_DIR) )
 CMD_MODS := $(CMD_MODS_0)
 OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-COMPONENT_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(PKG_MODS)
-export ALL_MODS := $(COMPONENT_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
+export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
 
 CGO_MODS := ./receiver/hostmetricsreceiver
 
@@ -259,9 +258,6 @@ $(ALL_MODS):
 # Trigger each module's delegation target
 .PHONY: for-all-target
 for-all-target: $(ALL_MODS)
-
-.PHONY: for-component-target
-for-component-target: $(COMPONENT_MODS)
 
 .PHONY: for-receiver-target
 for-receiver-target: $(RECEIVER_MODS)
@@ -700,7 +696,7 @@ checks:
 	$(MAKE) checkmetadata
 	$(MAKE) checkapi
 	$(MAKE) -j4 goporto
-	$(MAKE) crosslinks
+	$(MAKE) crosslink
 	$(MAKE) -j4 gotidy
 	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
