@@ -205,7 +205,7 @@ benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: addlicense
-addlicense: $(NRLICENSE) addthirdpartys
+addlicense: $(NRLICENSE) addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
 	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
