@@ -105,8 +105,6 @@ BUILD_TYPE?=release
 # All source code and documents. Used in spell check.
 ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -name "*.yaml" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
-ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c "The OpenTelemetry Authors"
-
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
@@ -205,6 +203,11 @@ do-integration-tests-with-cover: $(GOTESTSUM)
 benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
+.PHONY: addlicense
+addlicense: $(NRLICENSE) addthirdpartys
+	@echo "Adding/updating license headers with nrlicense..."
+	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
+
 .PHONY: addthirdparty
 addthirdparty: $(LICENSE_DETECTOR) ## Runs go generate for the current module.
 	@echo "Generating third-party notices..."
@@ -220,11 +223,6 @@ addthirdparty: $(LICENSE_DETECTOR) ## Runs go generate for the current module.
 			-noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
 			-noticeOut $$dir/THIRD_PARTY_NOTICES.md; \
 	done
-
-.PHONY: addlicense
-addlicense: $(NRLICENSE) addthirdparty
-	@echo "Adding/updating license headers with nrlicense..."
-	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: checklicense
 checklicense: $(NRLICENSE) addthirdparty
