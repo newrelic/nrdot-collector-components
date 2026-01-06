@@ -217,6 +217,7 @@ checklicense: $(NRLICENSE)
 
 .PHONY: thirdparty
 thirdparty: $(LICENSE_DETECTOR) ## Runs go generate for the current module.
+	@echo "Generating third-party notices..."
 	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
 	for dir in $$($(ALL_GO_MOD_DIR)); do \
 		alternative_rules=$$(find "$$dir" -name "rules.json" | head -n 1); \
@@ -232,6 +233,7 @@ thirdparty: $(LICENSE_DETECTOR) ## Runs go generate for the current module.
 
 .PHONY: checkthirdparty
 checkthirdparty: thirdparty
+	@echo "Checking third party notices..."
 	@git diff --name-only | grep -q "THIRD_PARTY_NOTICES.md" && { echo "Third party notices out of date, please run \"make thirdparty\" and commit the changes in this PR."; exit 1; } || exit 0
 
 .PHONY: checklinks
