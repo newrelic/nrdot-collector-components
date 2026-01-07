@@ -42,17 +42,13 @@ func (p *processorImp) determineEffectiveThreshold(metricName string, staticThre
 	return 0, "", false
 }
 
-// addThresholdAttributes adds threshold-related attributes to the resource
-func addThresholdAttributes(attrs pcommon.Map, metricName string, threshold, value float64, thresholdType string) {
-	thresholdData := map[string]interface{}{
+// addThresholdAttributes adds threshold-related attributes to the thresholds details map
+func addThresholdAttributes(thresholdsDetails map[string]interface{}, metricName string, threshold, value float64, thresholdType string) {
+	thresholdsDetails[metricName] = map[string]interface{}{
 		"threshold":            threshold,
 		"observed_value":       value,
 		"threshold_type":       thresholdType,
 		"evaluation_timestamp": time.Now().Unix(),
-	}
-
-	if jsonData, err := json.Marshal(thresholdData); err == nil {
-		attrs.PutStr(atpThresholdPrefix+metricName, string(jsonData))
 	}
 }
 
@@ -71,6 +67,7 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 
 	attrs := resource.Attributes()
 	capturedCount := 0
+	thresholdsDetails := make(map[string]interface{})
 
 	for metricName, metricValue := range values {
 		if metricName == "" {
@@ -87,8 +84,17 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 			continue
 		}
 
-		addThresholdAttributes(attrs, metricName, effectiveThreshold, metricValue, thresholdType)
+		addThresholdAttributes(thresholdsDetails, metricName, effectiveThreshold, metricValue, thresholdType)
 		capturedCount++
+	}
+
+	if len(thresholdsDetails) > 0 {
+		atpData := map[string]interface{}{
+			"threshold_details": thresholdsDetails,
+		}
+		if jsonData, err := json.Marshal(atpData); err == nil {
+			attrs.PutStr("process.atp", string(jsonData))
+		}
 	}
 
 	if p.logger != nil && capturedCount > 0 {
