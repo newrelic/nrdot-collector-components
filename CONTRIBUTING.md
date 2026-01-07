@@ -224,9 +224,8 @@ For detailed step-by-step instructions on adding new components (receivers, expo
 Before adding a component:
 
 1. **Open an issue** proposing the new component
-2. **Identify a New Relic team** that will own and maintain the component. The [NRDOT Platform Team](https://github.com/orgs/newrelic/teams/otelcomm) 
-3. **Find an internal sponsor** (New Relic approver or maintainer) who will review your code and serve as a code owner
-4. **Follow the detailed guide** in [docs/ADDING_COMPONENTS.md](docs/ADDING_COMPONENTS.md) which includes:
+2. **Identify a New Relic team** that will fully own and maintain the component, i.e. act as code owners. The [NRDOT Platform Team](https://github.com/orgs/newrelic/teams/otelcomm) helps new code owners to get onboarded and understand their new responsibilities going forward.
+3. **Follow the detailed guide** in [docs/ADDING_COMPONENTS.md](docs/ADDING_COMPONENTS.md) which includes:
    - Quick reference checklist
    - Step-by-step implementation guide
    - Required files and structure
