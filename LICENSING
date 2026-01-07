@@ -4,6 +4,6 @@ The following folders are subject to the license listed. The full license text c
 
 New Relic Software License - exporter/nopexporter
 
-The following folder contains tools intended for internal usage and not for repackaging. Each tool is licensed separatey. Licensing information for each tool can be found in THIRD_PARTY_NOTICES.md.
+The following folder contains tools intended for internal usage and not for repackaging. Each tool is licensed separatey. Licensing information for each tool can be found in internal/tools/THIRD_PARTY_NOTICES.md.
 
 - internal/tools
