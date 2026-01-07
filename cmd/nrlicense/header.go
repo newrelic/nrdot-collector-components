@@ -497,6 +497,9 @@ func CheckTopLevelLicense(rootDir string) (bool, error) {
 	validated := true
 	descriptionIndex := slices.Index(strings.Split(topLevelLicenseTemplate, "\n"), "{{DESCRIPTION}}")
 	for _, line := range lines[descriptionIndex:] {
+		if line == "" {
+			break
+		}
 		licensedDir := strings.TrimPrefix(line, "New Relic Software License -")
 		licensedDir = strings.TrimSpace(licensedDir)
 		path := fmt.Sprintf("%s/%s", rootDir, licensedDir)
