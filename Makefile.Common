@@ -109,7 +109,7 @@ ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -nam
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
 # The absolute paths to all directories containing a go.mod file.
-ALL_GO_MOD_DIR := find . -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs realpath | grep -v "$(SRC_ROOT)/go.mod" | xargs dirname | sort
+ALL_GO_MOD_DIR_CMD := find . -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs realpath | grep -v "$(SRC_ROOT)/go.mod" | xargs dirname | sort
 
 pwd:
 	@pwd
@@ -206,14 +206,14 @@ benchmark: $(GOTESTSUM)
 
 .PHONY: addlicense
 addlicense: $(NRLICENSE) addthirdparty
-	@echo "Adding/updating license headers with nrlicense..."
+	@echo "Adding/updating license headers with nrlicense..."s
 	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: addthirdparty
 addthirdparty: $(LICENSE_DETECTOR)
 	@echo "Generating third-party notices..."
 	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
-	for dir in $$($(ALL_GO_MOD_DIR)); do \
+	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
 		alternative_rules=$$(find "$$dir" -name "rules.json" | head -n 1); \
 		if [ -n alternative_rules ]; then \
 			rules_file=$$alternative_rules; \
