@@ -224,7 +224,7 @@ For detailed step-by-step instructions on adding new components (receivers, expo
 Before adding a component:
 
 1. **Open an issue** proposing the new component
-2. **Identify a New Relic team** that will own and maintain the component
+2. **Identify a New Relic team** that will own and maintain the component. The [NRDOT Platform Team](https://github.com/orgs/newrelic/teams/otelcomm) 
 3. **Find an internal sponsor** (New Relic approver or maintainer) who will review your code and serve as a code owner
 4. **Follow the detailed guide** in [docs/ADDING_COMPONENTS.md](docs/ADDING_COMPONENTS.md) which includes:
    - Quick reference checklist
@@ -270,7 +270,7 @@ in general try to follow them.
 
 ### Code Ownership
 
-All components in this repository are owned by New Relic internal teams. Code Owners are New Relic employees responsible for a component within this repository, as indicated by the [CODEOWNERS file](https://github.com/newrelic/nrdot-collector-components/blob/main/.github/CODEOWNERS). That responsibility includes maintaining the component, triaging and responding to issues, and reviewing pull requests.
+All components in this repository are owned by New Relic internal teams. Code Owners are New Relic employees responsible for a component within this repository, as indicated by the [CODEOWNERS file](https://github.com/newrelic/nrdot-collector-components/blob/main/.github/CODEOWNERS). That responsibility includes development and testing of the core functionality, maintaining the component, triaging and responding to issues, and reviewing pull requests.
 
 ### Becoming a Code Owner (New Relic Employees)
 
