@@ -28,16 +28,16 @@ repository:
 1. Build the Collector:
 
   ```shell
-  make otelcontribcol
+  make nrdotcol
   ```
 
-2. Run the contrib Collector with a local configuration file:
+2. Run the nrdotcol Collector with a local configuration file:
 
   ```shell
-  ./bin/otelcontribcol_<os>_<arch> --config otel-config.yaml
+  ./bin/nrdotcol_<os>_<arch> --config otel-config.yaml
   ```
 
-  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/otelcontribcol_linux_amd64`.
+  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/nrdotcol_linux_amd64`.
 
 Replace `otel-config.yaml` with the appropriate configuration file as needed.
 
@@ -51,9 +51,9 @@ Replace `otel-config.yaml` with the appropriate configuration file as needed.
   make golint
   ```
 
- - For specific components (e.g., Elasticsearch exporter):
+ - For specific components (e.g., nopreceiver ):
   ```shell
-  cd exporter/elasticsearchexporter/
+  cd receiver/nopreceiver/
   make lint
   ```
 
@@ -63,9 +63,9 @@ Replace `otel-config.yaml` with the appropriate configuration file as needed.
   ```shell
   make gotest
   ```
- - Alternatively, run tests for the affected components. For example, to run the Elasticsearch exporter tests:
+ - Alternatively, run tests for the affected components. For example, to run the nopreceiver tests:
   ```shell
-  cd exporter/elasticsearchexporter/
+  cd receiver/nopreceiver/
   make test
   ```
 
@@ -224,9 +224,8 @@ For detailed step-by-step instructions on adding new components (receivers, expo
 Before adding a component:
 
 1. **Open an issue** proposing the new component
-2. **Identify a New Relic team** that will own and maintain the component
-3. **Find an internal sponsor** (New Relic approver or maintainer) who will review your code and serve as a code owner
-4. **Follow the detailed guide** in [docs/ADDING_COMPONENTS.md](docs/ADDING_COMPONENTS.md) which includes:
+2. **Identify a New Relic team** that will fully own and maintain the component, i.e. act as code owners. The [NRDOT Platform Team](https://github.com/orgs/newrelic/teams/otelcomm) helps new code owners to get onboarded and understand their new responsibilities going forward.
+3. **Follow the detailed guide** in [docs/ADDING_COMPONENTS.md](docs/ADDING_COMPONENTS.md) which includes:
    - Quick reference checklist
    - Step-by-step implementation guide
    - Required files and structure
@@ -270,7 +269,7 @@ in general try to follow them.
 
 ### Code Ownership
 
-All components in this repository are owned by New Relic internal teams. Code Owners are New Relic employees responsible for a component within this repository, as indicated by the [CODEOWNERS file](https://github.com/newrelic/nrdot-collector-components/blob/main/.github/CODEOWNERS). That responsibility includes maintaining the component, triaging and responding to issues, and reviewing pull requests.
+All components in this repository are owned by New Relic internal teams. Code Owners are New Relic employees responsible for a component within this repository, as indicated by the [CODEOWNERS file](https://github.com/newrelic/nrdot-collector-components/blob/main/.github/CODEOWNERS). That responsibility includes development and testing of the core functionality, maintaining the component, triaging and responding to issues, and reviewing pull requests.
 
 ### Becoming a Code Owner (New Relic Employees)
 
