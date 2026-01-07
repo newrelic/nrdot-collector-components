@@ -28,16 +28,16 @@ repository:
 1. Build the Collector:
 
   ```shell
-  make otelcontribcol
+  make nrdotcol
   ```
 
-2. Run the contrib Collector with a local configuration file:
+2. Run the nrdotcol Collector with a local configuration file:
 
   ```shell
-  ./bin/otelcontribcol_<os>_<arch> --config otel-config.yaml
+  ./bin/nrdotcol_<os>_<arch> --config otel-config.yaml
   ```
 
-  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/otelcontribcol_linux_amd64`.
+  The actual name of the binary will depend on your platform. For example, on Linux x64, use `./bin/nrdotcol_linux_amd64`.
 
 Replace `otel-config.yaml` with the appropriate configuration file as needed.
 
@@ -51,9 +51,9 @@ Replace `otel-config.yaml` with the appropriate configuration file as needed.
   make golint
   ```
 
- - For specific components (e.g., Elasticsearch exporter):
+ - For specific components (e.g., nopreceiver ):
   ```shell
-  cd exporter/elasticsearchexporter/
+  cd receiver/nopreceiver/
   make lint
   ```
 
@@ -63,9 +63,9 @@ Replace `otel-config.yaml` with the appropriate configuration file as needed.
   ```shell
   make gotest
   ```
- - Alternatively, run tests for the affected components. For example, to run the Elasticsearch exporter tests:
+ - Alternatively, run tests for the affected components. For example, to run the nopreceiver tests:
   ```shell
-  cd exporter/elasticsearchexporter/
+  cd receiver/nopreceiver/
   make test
   ```
 
