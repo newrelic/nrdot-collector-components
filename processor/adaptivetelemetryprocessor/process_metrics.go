@@ -2,6 +2,7 @@ package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collecto
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
@@ -22,7 +23,7 @@ func (p *processorImp) processMetrics(ctx context.Context, md pmetric.Metrics) (
 	}
 
 	// Initialize processing context
-	processCtx := p.initializeProcessingContext(ctx, md, start)
+	processCtx := p.initializeProcessingContext(ctx, md)
 
 	// Check if context is already cancelled
 	if processCtx.ctx.Err() != nil {
@@ -51,7 +52,7 @@ type ProcessingContext struct {
 }
 
 // initializeProcessingContext sets up the processing context and logs batch information
-func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetric.Metrics, start time.Time) *ProcessingContext {
+func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetric.Metrics) *ProcessingContext {
 	processCtx := &ProcessingContext{
 		ctx:             ctx,
 		resourceCount:   md.ResourceMetrics().Len(),
@@ -117,7 +118,7 @@ func (p *processorImp) handleContextCancellation(md pmetric.Metrics, processCtx 
 }
 
 // updateDynamicThresholdsIfNeeded updates dynamic thresholds if interval has passed
-func (p *processorImp) updateDynamicThresholdsIfNeeded(processCtx *ProcessingContext, md pmetric.Metrics) {
+func (p *processorImp) updateDynamicThresholdsIfNeeded(_ *ProcessingContext, md pmetric.Metrics) {
 	if !p.dynamicThresholdsEnabled || time.Since(p.lastThresholdUpdate).Seconds() < dynamicUpdateIntervalSecs {
 		return
 	}
@@ -158,7 +159,7 @@ func (p *processorImp) processAllResources(processCtx *ProcessingContext, md pme
 }
 
 // processingSingleResource processes a single resource and returns whether it was included
-func (p *processorImp) processingSingleResource(ctx context.Context, rm pmetric.ResourceMetrics, filtered *pmetric.Metrics, stageHits map[string]int) bool {
+func (p *processorImp) processingSingleResource(_ context.Context, rm pmetric.ResourceMetrics, filtered *pmetric.Metrics, stageHits map[string]int) bool {
 	resourceID := buildResourceIdentity(rm.Resource())
 
 	// Evaluate resource through all filter stages - no artificial timeout
@@ -231,7 +232,7 @@ func (p *processorImp) addStageAttributeToMetrics(rm pmetric.ResourceMetrics, in
 }
 
 // performPostProcessingTasks handles cleanup and final logging
-func (p *processorImp) performPostProcessingTasks(processCtx *ProcessingContext, md, filtered pmetric.Metrics, includedCount int, start time.Time) {
+func (p *processorImp) performPostProcessingTasks(processCtx *ProcessingContext, _, filtered pmetric.Metrics, _ int, start time.Time) {
 	// Perform cleanup of expired entities with controlled frequency
 	if processCtx.resourceCount > 0 && p.config.RetentionMinutes > 0 && rand.Float64() < 0.01 {
 		go p.cleanupExpiredEntities()
@@ -700,6 +701,11 @@ func (p *processorImp) setResourceFilterStage(resource pcommon.Resource, stage s
 	resource.Attributes().PutStr(adaptiveFilterStageAttributeKey, stage)
 }
 
+/*
+	TODO: Make sure that all the summary metrices are stored in a single attribute to reduce cardinality
+	Use the same attribute that is being used for the threshold metrics and append to the same json object
+	The keys and values in the json should be self descriptive to avoid confusion while parsing
+*/
 // generateFilteringSummaryMetrics creates summary metrics about filtering performance
 // These provide customer visibility into filter effectiveness with minimal ingestion overhead
 func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics, inputResourceCount, outputResourceCount, inputMetricCount, outputMetricCount int, stageHits map[string]int) {
@@ -764,58 +770,38 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 	summaryScope.Scope().Attributes().PutStr(attrOtelLibraryName, atpScopeName)
 	summaryScope.Scope().Attributes().PutStr(attrOtelLibraryVersion, atpScopeVersion)
 
+	// Create a single process.atp metric
+	atpMetric := summaryScope.Metrics().AppendEmpty()
+	atpMetric.SetName("process.atp")
+	atpMetric.SetDescription("Adaptive Telemetry Processor summary metrics")
+	atpMetric.SetUnit("1")
+	atpGauge := atpMetric.SetEmptyGauge()
+	atpDP := atpGauge.DataPoints().AppendEmpty()
+	atpDP.SetDoubleValue(1.0)
+	atpDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+
 	// Metric 1: Efficiency ratio (percentage of resources filtered)
 	filteredResourceCount := inputResourceCount - outputResourceCount
 	efficiencyRatio := float64(filteredResourceCount) / float64(inputResourceCount)
 
-	efficiencyMetric := summaryScope.Metrics().AppendEmpty()
-	efficiencyMetric.SetName(filteringEfficiencyRatioMetric)
-	efficiencyMetric.SetDescription("Percentage of resources filtered out by adaptive telemetry processor")
-	efficiencyMetric.SetUnit("1") // dimensionless ratio
-	efficiencyGauge := efficiencyMetric.SetEmptyGauge()
-	efficiencyDP := efficiencyGauge.DataPoints().AppendEmpty()
-	efficiencyDP.SetDoubleValue(efficiencyRatio)
-	efficiencyDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+	// Consolidate summary stats into a JSON object
+	summaryDetails := map[string]interface{}{
+		"source":                   "adaptive_telemetry_processor",
+		"metric_type":              "filter_summary",
+		"efficiency_ratio":         efficiencyRatio,
+		"total_resource_count":     inputResourceCount,
+		"resources_filtered_count": filteredResourceCount,
+		"resources_included_count": outputResourceCount,
+		"stage_hits":               stageHits,
+		"evaluation_timestamp":     time.Now().Unix(),
+	}
 
-	p.logger.Info("ATP Summary: Created efficiency metric",
-		zap.String("metric_name", filteringEfficiencyRatioMetric),
-		zap.Float64("efficiency_ratio", efficiencyRatio))
+	atpData := map[string]interface{}{
+		"filtering_summary": summaryDetails,
+	}
 
-	// Metric 2: Resource counts with status dimension
-	resourceCountMetric := summaryScope.Metrics().AppendEmpty()
-	resourceCountMetric.SetName(filteringResourceCountMetric)
-	resourceCountMetric.SetDescription("Count of resources by filter status")
-	resourceCountMetric.SetUnit("1")
-	resourceCountGauge := resourceCountMetric.SetEmptyGauge()
-
-	// Included resources count
-	includedDP := resourceCountGauge.DataPoints().AppendEmpty()
-	includedDP.SetIntValue(int64(outputResourceCount))
-	includedDP.Attributes().PutStr(atpStatusAttribute, statusIncluded)
-	includedDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-
-	// Filtered resources count
-	filteredDP := resourceCountGauge.DataPoints().AppendEmpty()
-	filteredDP.SetIntValue(int64(filteredResourceCount))
-	filteredDP.Attributes().PutStr(atpStatusAttribute, statusFiltered)
-	filteredDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-
-	// Metric 3: Stage trigger counts (only for stages that were actually triggered)
-	if len(stageHits) > 0 {
-		stageTriggersMetric := summaryScope.Metrics().AppendEmpty()
-		stageTriggersMetric.SetName(filteringThresholdTriggersMetric)
-		stageTriggersMetric.SetDescription("Count of resources included by each filter stage")
-		stageTriggersMetric.SetUnit("1")
-		stageTriggersGauge := stageTriggersMetric.SetEmptyGauge()
-
-		for stage, count := range stageHits {
-			if count > 0 {
-				stageDP := stageTriggersGauge.DataPoints().AppendEmpty()
-				stageDP.SetIntValue(int64(count))
-				stageDP.Attributes().PutStr(atpStageAttribute, stage)
-				stageDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-			}
-		}
+	if jsonData, err := json.Marshal(atpData); err == nil {
+		atpDP.Attributes().PutStr("process.atp", string(jsonData))
 	}
 
 	p.logger.Info("Generated filtering summary metrics",
