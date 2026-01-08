@@ -2,6 +2,7 @@
 
 beta_modules=(
   "go.opentelemetry.io/collector"
+  "go.opentelemetry.io/collector/internal/componentalias"
   "go.opentelemetry.io/collector/internal/memorylimiter"
   "go.opentelemetry.io/collector/internal/fanoutconsumer"
   "go.opentelemetry.io/collector/internal/sharedcomponent"
