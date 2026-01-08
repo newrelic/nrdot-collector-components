@@ -90,6 +90,7 @@ GCI                 := $(TOOLS_BIN_DIR)/gci
 GOTESTSUM           := $(TOOLS_BIN_DIR)/gotestsum
 CHECKAPI            := $(TOOLS_BIN_DIR)/checkapi
 MODERNIZE           := $(TOOLS_BIN_DIR)/modernize
+LICENSE_DETECTOR 	:= $(TOOLS_BIN_DIR)/go-licence-detector
 
 # Tools used by go generate commands
 MDATAGEN := $(TOOLS_BIN_DIR)/mdatagen
@@ -104,10 +105,11 @@ BUILD_TYPE?=release
 # All source code and documents. Used in spell check.
 ALL_SRC_AND_DOC_CMD := find . -type f \( \( -name "*.md" -o -name "*.go" -o -name "*.yaml" \) -and \( -not -path '*/third_party/*' \) \) | sort
 
-ADDLICENSE_CMD := $(ADDLICENSE) -s=only -y "" -c "The OpenTelemetry Authors"
-
 # All source code and .sh files (evaluated when used)
 ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -and \( -not -path '*/third_party/*' \) \) | sort
+
+# The absolute paths to all directories containing a go.mod file.
+ALL_GO_MOD_DIR_CMD := find . -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs realpath | grep -v "$(SRC_ROOT)/go.mod" | xargs dirname | sort
 
 pwd:
 	@pwd
@@ -203,15 +205,36 @@ benchmark: $(GOTESTSUM)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: addlicense
-addlicense: $(NRLICENSE)
+addlicense: $(NRLICENSE) addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
 	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
+.PHONY: addthirdparty
+addthirdparty: $(LICENSE_DETECTOR)
+	@echo "Generating third-party notices..."
+	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
+	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
+		alternative_rules=$$(find "$$dir" -name "rules.json" | head -n 1); \
+		if [ -n alternative_rules ]; then \
+			rules_file=$$alternative_rules; \
+		fi; \
+		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
+			-rules "$$rules_file" \
+			-overrides $(SRC_ROOT)/licenses/third_party/overrides.jsonl \
+			-noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
+			-noticeOut $$dir/THIRD_PARTY_NOTICES.md; \
+		$(GOCMD) -C $$dir mod tidy -compat=1.24.0; \
+	done
+
 .PHONY: checklicense
-checklicense: $(NRLICENSE)
+checklicense: $(NRLICENSE) addthirdparty
+	@echo "Checking third party notices..."
+	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q "THIRD_PARTY_NOTICES.md" && { \
+		 echo "Third party notices out of date, please run \"make addthirdparty\" and commit the changes in this PR."; exit 1; \
+	} || exit 0
 	@echo "Checking license headers with nrlicense..."
 	@$(NRLICENSE) --check --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
-
+	
 .PHONY: checklinks
 checklinks:
 	command -v $(DOCKERCMD) >/dev/null 2>&1 || { echo >&2 "$(DOCKERCMD) not installed. Install before continuing"; exit 1; }
