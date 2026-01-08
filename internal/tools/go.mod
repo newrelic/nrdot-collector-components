@@ -10,8 +10,8 @@ require (
 	github.com/google/addlicense v1.2.0
 	github.com/jcchavezs/porto v0.6.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.142.0
-	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.142.0
+	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.142.1
+	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.142.1
 	github.com/rhysd/actionlint v1.7.8
 	go.elastic.co/go-licence-detector v0.10.0
 	go.opentelemetry.io/build-tools/checkapi v0.29.0

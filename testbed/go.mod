@@ -4,8 +4,8 @@ go 1.24.0
 
 require (
 	github.com/fluent/fluent-logger-golang v1.10.1
-	github.com/newrelic/nrdot-collector-components/internal/common v0.142.0
-	github.com/newrelic/nrdot-collector-components/internal/coreinternal v0.142.0
+	github.com/newrelic/nrdot-collector-components/internal/common v0.142.1
+	github.com/newrelic/nrdot-collector-components/internal/coreinternal v0.142.1
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.143.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.143.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/testbed v0.143.0
