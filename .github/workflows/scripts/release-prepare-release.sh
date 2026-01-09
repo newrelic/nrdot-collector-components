@@ -26,7 +26,7 @@ CURRENT_BETA_ESCAPED=${CURRENT_BETA//./[.]}
 BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
-if [[ !${SKIP_UPSTREAM_UPDATE} ]]; then
+if [[ ${UPDATE_UPSTREAM} ]]; then
     # If the version is blank, multimod will use the version from versions.yaml
     make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
 
