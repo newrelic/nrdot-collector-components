@@ -1,7 +1,7 @@
 // Copyright 2023 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package adaptivetelemetryprocessor
+package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 import (
 	"math"
