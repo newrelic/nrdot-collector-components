@@ -12,6 +12,13 @@ on:
       current-beta:
         required: true
         description: Current version (beta, like 0.140.0)
+
+      skip-upstream-update:
+        type: boolean
+        required: false
+        default: false
+        description: Skips incrementing the most recent otel release.
+
 permissions:
   contents: read
 jobs:
@@ -53,6 +60,7 @@ jobs:
           REPO: ${{ github.repository }}
           CANDIDATE_BETA: ${{ inputs.candidate-beta }}
           CURRENT_BETA: ${{ inputs.current-beta }}
+          SKIP_UPSTREAM_UPDATE: ${{ inputs.skip-upstream-update }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
