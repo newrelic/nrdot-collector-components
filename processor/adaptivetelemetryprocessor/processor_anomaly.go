@@ -1,7 +1,7 @@
 // Copyright 2023 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package adaptivetelemetryprocessor
+package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 // detectAnomaly is a method on the processorImp struct that delegates to the utility function.
 // This method is used by the process_metrics.go code.

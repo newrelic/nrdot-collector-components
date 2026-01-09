@@ -1,4 +1,4 @@
-package adaptivetelemetryprocessor
+package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 import (
 	"time"
