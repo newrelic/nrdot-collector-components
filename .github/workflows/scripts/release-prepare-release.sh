@@ -46,12 +46,12 @@ git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
 mods_to_update_regex="\(\)" # update all
 if [[ !${UPDATE_UPSTREAM} ]]; then
-    mods_to_update_regex="\(github.com/newrelic/nrdot-collector-components/* \)"
+    mods_to_update_regex="\(github\.com/newrelic/nrdot-collector-components/.* \)"
 fi
-sed -i.bak "s/${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}/\1v${CANDIDATE_BETA}/g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s/${mods_to_update_regex}${CURRENT_BETA_ESCAPED}-dev/\1${CANDIDATE_BETA}-dev/g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s/${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}/\1v${CANDIDATE_BETA}/g" ./cmd/oteltestbedcol/builder-config.yaml
-sed -i.bak "s/${mods_to_update_regex}${CURRENT_BETA_ESCAPED}-dev/\1${CANDIDATE_BETA}-dev/g" ./cmd/oteltestbedcol/builder-config.yaml
+sed -i.bak "s|${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+sed -i.bak "s|${mods_to_update_regex}${CURRENT_BETA_ESCAPED}-dev|\1${CANDIDATE_BETA}-dev|g" ./cmd/nrdotcol/builder-config.yaml
+sed -i.bak "s|${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
+sed -i.bak "s|${mods_to_update_regex}${CURRENT_BETA_ESCAPED}-dev|\1${CANDIDATE_BETA}-dev|g" ./cmd/oteltestbedcol/builder-config.yaml
 
 find . -name "*.bak" -type f -delete
 make gennrdotcol
