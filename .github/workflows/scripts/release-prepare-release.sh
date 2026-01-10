@@ -44,10 +44,15 @@ find . -name "*.bak" -type f -delete
 git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
-sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/oteltestbedcol/builder-config.yaml
-sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/oteltestbedcol/builder-config.yaml
+if [[ ${UPDATE_UPSTREAM} ]]; then
+    sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/oteltestbedcol/builder-config.yaml
+    sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/oteltestbedcol/builder-config.yaml
+else
+    sed -i.bak "s/\(github.com/newrelic/nrdot-collector-components/* \)v${CURRENT_BETA_ESCAPED}/\1v${CANDIDATE_BETA}/g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s/\(github.com/newrelic/nrdot-collector-components/* \)v${CURRENT_BETA_ESCAPED}-dev/\1${CANDIDATE_BETA}-dev/g" ./cmd/nrdotcol/builder-config.yaml
+fi
 
 find . -name "*.bak" -type f -delete
 make gennrdotcol
