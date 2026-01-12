@@ -715,33 +715,10 @@ cat /proc/<pid>/cmdline
 3. **Audit Access**: Monitor who/what accesses the state directory
 4. **Keep Updated**: Apply security patches promptly
 
-## Compatibility
-
-- **OpenTelemetry Collector**: v0.90.0+
-- **Go Version**: 1.21+
-- **Operating Systems**:
-   - Linux: Full support (Ubuntu 20.04+, RHEL 8+, Amazon Linux 2)
-   - macOS: Development/testing only
-   - Windows: Not currently supported
-- **Container Platforms**:
-   - Docker
-   - Kubernetes (DaemonSet deployment recommended)
-   - ECS/EKS
-   - OpenShift
 
 ## Contributing
 
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) for general contribution guidelines.
-
-### Component-Specific Guidelines
-
-When contributing to the Adaptive Telemetry Processor:
-
-1. **Security First**: All changes must maintain or improve security posture
-2. **Test Coverage**: Maintain >80% code coverage with unit tests
-3. **Performance**: Benchmark changes with `make benchmark`
-4. **Documentation**: Update this README and inline code documentation
-5. **Backwards Compatibility**: Follow semantic versioning for configuration changes
 
 
 ## Support
