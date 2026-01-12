@@ -60,7 +60,7 @@ jobs:
           REPO: ${{ github.repository }}
           CANDIDATE_BETA: ${{ inputs.candidate-beta }}
           CURRENT_BETA: ${{ inputs.current-beta }}
-          UPDATE_UPSTREAM: ${{ inputs.skip-upstream-update }}
+          UPDATE_UPSTREAM: ${{ inputs.update-upstream }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
