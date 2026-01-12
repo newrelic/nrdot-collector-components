@@ -27,10 +27,11 @@ BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
 if [[ ${UPDATE_UPSTREAM} ]]; then
-    # If the version is blank, multimod will use the version from versions.yaml
+    # If the version is blank, multimod will use the version from upstream versions.yaml
     make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
 
-    make update-core-module-list
+    # update-core-module-list updates based on upstream version.yaml
+    make update-core-module-list 
     git add internal/buildscripts/modules
     git commit -m "update core modules list" --allow-empty
 fi
@@ -44,7 +45,7 @@ find . -name "*.bak" -type f -delete
 git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
-mods_to_update_regex="\(\)" # update all
+mods_to_update_regex="\(\)"
 if [[ !${UPDATE_UPSTREAM} ]]; then
     mods_to_update_regex="\(github\.com/newrelic/nrdot-collector-components/.* \)"
 fi
