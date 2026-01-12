@@ -34,6 +34,8 @@ if [[ ${UPDATE_UPSTREAM} == "true" ]]; then
     make update-core-module-list
     git add internal/buildscripts/modules
     git commit -m "update core modules list" --allow-empty
+else
+    echo "Skipping upstream component updates"
 fi
 
 make chlog-update VERSION="v${CANDIDATE_BETA}"
