@@ -26,7 +26,7 @@ CURRENT_BETA_ESCAPED=${CURRENT_BETA//./[.]}
 BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
-if [[ ${UPDATE_UPSTREAM} == "true" ]]; then
+if [[ ${SYNC_UPSTREAM} == "true" ]]; then
     # If the version is blank, multimod will use the version from upstream versions.yaml
     make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
 
@@ -47,7 +47,7 @@ find . -name "*.bak" -type f -delete
 git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
-if [[ ${UPDATE_UPSTREAM} == "true" ]]; then
+if [[ ${SYNC_UPSTREAM} == "true" ]]; then
     # Update all module versions
     sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
     sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
