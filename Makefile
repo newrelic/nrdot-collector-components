@@ -402,7 +402,6 @@ chlog-update: $(CHLOGGEN)
 .PHONY: gennrdotcol
 gennrdotcol: $(BUILDER)
 	./internal/buildscripts/ocb-add-replaces.sh nrdotcol
-	cat ./cmd/nrdotcol/builder-config-replaced.yaml
 	$(BUILDER) --skip-compilation --config cmd/nrdotcol/builder-config-replaced.yaml
 
 # Build the Collector executable.
