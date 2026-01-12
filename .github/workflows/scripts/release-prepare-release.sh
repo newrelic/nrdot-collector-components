@@ -26,12 +26,12 @@ CURRENT_BETA_ESCAPED=${CURRENT_BETA//./[.]}
 BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
-if [[ ${UPDATE_UPSTREAM} ]]; then
+if [[ ${UPDATE_UPSTREAM} == "true" ]]; then
     # If the version is blank, multimod will use the version from upstream versions.yaml
     make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
 
     # update-core-module-list updates based on upstream version.yaml
-    make update-core-module-list 
+    make update-core-module-list
     git add internal/buildscripts/modules
     git commit -m "update core modules list" --allow-empty
 fi
@@ -46,7 +46,7 @@ git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
 mods_to_update_regex="\(\)"
-if [[ !${UPDATE_UPSTREAM} ]]; then
+if [[ ${UPDATE_UPSTREAM} != "true" ]]; then
     mods_to_update_regex="\(github\.com/newrelic/nrdot-collector-components/.* \)"
 fi
 sed -i.bak "s|${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
