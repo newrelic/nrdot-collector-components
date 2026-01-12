@@ -6,7 +6,7 @@ dist:
   module: github.com/newrelic/nrdot-collector-components/cmd/oteltestbedcol
   name: oteltestbedcol
   description: OpenTelemetry Collector binary for testbed only tests.
-  version: 0.142.0-dev
+  version: 0.142.1-dev
   output_path: ./cmd/oteltestbedcol
 
 extensions:
