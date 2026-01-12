@@ -89,12 +89,7 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 	}
 
 	if len(thresholdsDetails) > 0 {
-		atpData := map[string]interface{}{
-			"threshold_details": thresholdsDetails,
-		}
-		if jsonData, err := json.Marshal(atpData); err == nil {
-			attrs.PutStr("process.atp", string(jsonData))
-		}
+		updateProcessATPAttribute(resource, "threshold_details", thresholdsDetails)
 	}
 
 	if p.logger != nil && capturedCount > 0 {

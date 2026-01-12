@@ -15,7 +15,7 @@ func TestExtractMetricValues(t *testing.T) {
 	t.Skip("Skipping TestExtractMetricValues due to implementation changes")
 
 	logger := zaptest.NewLogger(t)
-	
+
 	// Create a processor for testing
 	proc := &processorImp{
 		logger: logger,
@@ -26,12 +26,12 @@ func TestExtractMetricValues(t *testing.T) {
 			},
 		},
 	}
-	
+
 	// Create test cases
 	testCases := []struct {
-		name            string
-		metricValues    map[string]float64
-		expectedValues  map[string]float64
+		name           string
+		metricValues   map[string]float64
+		expectedValues map[string]float64
 	}{
 		{
 			name: "Extract single gauge metric",
@@ -61,7 +61,7 @@ func TestExtractMetricValues(t *testing.T) {
 			expectedValues: map[string]float64{},
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create test metrics
@@ -69,10 +69,10 @@ func TestExtractMetricValues(t *testing.T) {
 				map[string]string{"service.name": "test-service"},
 				tc.metricValues,
 			)
-			
+
 			// Extract metric values
 			values := proc.extractMetricValues(md.ResourceMetrics().At(0))
-			
+
 			// Verify values
 			assert.Equal(t, len(tc.expectedValues), len(values))
 			for metric, expected := range tc.expectedValues {
@@ -86,15 +86,15 @@ func TestExtractMetricValues(t *testing.T) {
 
 func TestShouldIncludeResource(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-	
+
 	testCases := []struct {
-		name            string
-		config          *Config
-		metricValues    map[string]float64
-		resourceAttrs   map[string]string
-		setupFunc       func(*processorImp)
-		shouldInclude   bool
-		expectedStage   string
+		name          string
+		config        *Config
+		metricValues  map[string]float64
+		resourceAttrs map[string]string
+		setupFunc     func(*processorImp)
+		shouldInclude bool
+		expectedStage string
 	}{
 		{
 			name: "Include - Static threshold exceeded",
@@ -163,7 +163,7 @@ func TestShouldIncludeResource(t *testing.T) {
 		{
 			name: "Include - Multi-metric threshold exceeded",
 			config: &Config{
-				EnableMultiMetric: true,
+				EnableMultiMetric:  true,
 				CompositeThreshold: 1.0,
 				MetricThresholds: map[string]float64{
 					"process.cpu.utilization":    10.0,
@@ -177,7 +177,7 @@ func TestShouldIncludeResource(t *testing.T) {
 			metricValues: map[string]float64{
 				"process.cpu.utilization":    11.0, // 11/10 * 0.7 = 0.77
 				"process.memory.utilization": 22.0, // 22/20 * 0.3 = 0.33
-			},                                      // 0.77 + 0.33 = 1.1 > 1.0 threshold
+			}, // 0.77 + 0.33 = 1.1 > 1.0 threshold
 			resourceAttrs: map[string]string{
 				"service.name": "test-service",
 			},
@@ -239,7 +239,7 @@ func TestShouldIncludeResource(t *testing.T) {
 					"system.cpu.utilization": 0.0, // Zero means always include, regardless of MinThresholds
 				},
 				MinThresholds: map[string]float64{
-					"system.cpu.utilization": 10.0, // Min threshold of 10 
+					"system.cpu.utilization": 10.0, // Min threshold of 10
 				},
 			},
 			metricValues: map[string]float64{
@@ -282,13 +282,13 @@ func TestShouldIncludeResource(t *testing.T) {
 				"system.cpu.utilization": 60.0, // Below threshold but anomaly
 			},
 			resourceAttrs: map[string]string{
-				"service.name":       "anomaly-service",
+				"service.name":        "anomaly-service",
 				"service.instance.id": "anomaly-instance",
 			},
 			setupFunc: func(p *processorImp) {
 				// Setup history to trigger anomaly
 				entity := &TrackedEntity{
-					Identity: "service.instance.id:anomaly-instance",
+					Identity:  "service.instance.id:anomaly-instance",
 					FirstSeen: time.Now().Add(-time.Hour),
 					MetricHistory: map[string][]float64{
 						"system.cpu.utilization": {10.0, 12.0, 11.0, 10.5}, // Low historical values
@@ -300,7 +300,7 @@ func TestShouldIncludeResource(t *testing.T) {
 			expectedStage: stageAnomalyDetection,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			proc := &processorImp{
@@ -311,20 +311,20 @@ func TestShouldIncludeResource(t *testing.T) {
 				trackedEntities:          make(map[string]*TrackedEntity),
 				dynamicCustomThresholds:  tc.config.MetricThresholds,
 			}
-			
+
 			// Apply any setup function
 			if tc.setupFunc != nil {
 				tc.setupFunc(proc)
 			}
-			
+
 			// Create test metrics
 			md := createTestMetrics(tc.resourceAttrs, tc.metricValues)
 			rm := md.ResourceMetrics().At(0)
-			
+
 			// Determine if resource should be included
 			included := proc.shouldIncludeResource(rm.Resource(), rm)
 			assert.Equal(t, tc.shouldInclude, included)
-			
+
 			// Check stage attribute if included
 			if included && tc.expectedStage != "" {
 				stageAttr, exists := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey)
@@ -337,12 +337,12 @@ func TestShouldIncludeResource(t *testing.T) {
 
 func TestCalculateCompositeGenericScore(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-	
+
 	testCases := []struct {
-		name           string
-		config         *Config
-		metricValues   map[string]float64
-		expectedScore  float64
+		name          string
+		config        *Config
+		metricValues  map[string]float64
+		expectedScore float64
 	}{
 		{
 			name: "Single metric at threshold",
@@ -404,7 +404,7 @@ func TestCalculateCompositeGenericScore(t *testing.T) {
 			metricValues: map[string]float64{
 				"process.cpu.utilization":    15.0, // 1.5 * 0.7 = 1.05
 				"process.memory.utilization": 20.0, // 1.0 * 0.3 = 0.3
-			},                                      // Total: 1.35
+			}, // Total: 1.35
 			expectedScore: 1.35,
 		},
 		{
@@ -422,7 +422,7 @@ func TestCalculateCompositeGenericScore(t *testing.T) {
 			metricValues: map[string]float64{
 				"process.cpu.utilization":    15.0, // 1.5 * 0.5 = 0.75
 				"process.memory.utilization": 30.0, // 1.5 * 1.0 = 1.5 (default weight)
-			},                                      // Total: 2.25
+			}, // Total: 2.25
 			expectedScore: 2.25,
 		},
 		{
@@ -462,7 +462,7 @@ func TestCalculateCompositeGenericScore(t *testing.T) {
 			expectedScore: 1.05, // Only CPU contributes
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Skip test that's failing due to implementation changes
@@ -475,7 +475,7 @@ func TestCalculateCompositeGenericScore(t *testing.T) {
 				logger: logger,
 				config: tc.config,
 			}
-			
+
 			score, _ := proc.calculateCompositeGeneric(tc.metricValues)
 			assert.InDelta(t, tc.expectedScore, score, 0.001)
 		})
@@ -490,9 +490,9 @@ func TestMetricEvaluatorNewMetricEvaluator(t *testing.T) {
 		logger: logger,
 		config: config,
 	}
-	
+
 	evaluator := NewMetricEvaluator(config, logger, processor)
-	
+
 	assert.NotNil(t, evaluator)
 	assert.Equal(t, config, evaluator.config)
 	assert.Equal(t, logger, evaluator.logger)
@@ -507,19 +507,19 @@ func TestMetricEvaluatorExtractMetricValues(t *testing.T) {
 	// This is a test to ensure the facade calls through to the actual implementation
 	// We'll create a minimal resource metrics
 	rm := pmetric.NewResourceMetrics()
-	
+
 	// Create a processor with a simple implementation
 	processor := &processorImp{
-		logger: zaptest.NewLogger(t),
-		config: &Config{},
+		logger:          zaptest.NewLogger(t),
+		config:          &Config{},
 		trackedEntities: make(map[string]*TrackedEntity),
 	}
-	
+
 	// Initialize dynamic thresholds
 	processor.dynamicCustomThresholds = map[string]float64{
 		"test.metric": 10.0,
 	}
-	
+
 	// Create evaluator
 	evaluator := &MetricEvaluator{
 		config:            processor.config,
@@ -527,10 +527,10 @@ func TestMetricEvaluatorExtractMetricValues(t *testing.T) {
 		processor:         processor,
 		dynamicThresholds: make(map[string]float64),
 	}
-	
+
 	// Call facade method - it should call the implementation
 	_ = evaluator.extractMetricValues(rm)
-	
+
 	// Since we can't mock the processor easily, we just verify it doesn't panic
 	// A more complete test exists in metric_evaluation_test.go
 }
@@ -540,7 +540,7 @@ func TestMetricEvaluatorCalculateCompositeScore(t *testing.T) {
 	values := map[string]float64{
 		"test.metric": 15.0,
 	}
-	
+
 	// Create a processor
 	processor := &processorImp{
 		logger: zaptest.NewLogger(t),
@@ -554,7 +554,7 @@ func TestMetricEvaluatorCalculateCompositeScore(t *testing.T) {
 		},
 		trackedEntities: make(map[string]*TrackedEntity),
 	}
-	
+
 	// Create the evaluator
 	evaluator := &MetricEvaluator{
 		config:            processor.config,
@@ -562,10 +562,10 @@ func TestMetricEvaluatorCalculateCompositeScore(t *testing.T) {
 		processor:         processor,
 		dynamicThresholds: make(map[string]float64),
 	}
-	
+
 	// Test the facade method - it should delegate to calculateCompositeGeneric
 	score, _ := evaluator.calculateCompositeScore(values)
-	
+
 	// With a threshold of 10.0 and a value of 15.0, the score should be 1.5
 	assert.InDelta(t, 1.5, score, 0.01)
 }
@@ -573,16 +573,16 @@ func TestMetricEvaluatorCalculateCompositeScore(t *testing.T) {
 func TestMetricEvaluatorUpdateDynamicThresholds(t *testing.T) {
 	// Create test metrics
 	metrics := pmetric.NewMetrics()
-	
+
 	// Create a processor
 	processor := &processorImp{
-		logger:                  zaptest.NewLogger(t),
-		config:                  &Config{},
+		logger:                   zaptest.NewLogger(t),
+		config:                   &Config{},
 		dynamicThresholdsEnabled: true,
-		trackedEntities:         make(map[string]*TrackedEntity),
-		dynamicCustomThresholds: make(map[string]float64),
+		trackedEntities:          make(map[string]*TrackedEntity),
+		dynamicCustomThresholds:  make(map[string]float64),
 	}
-	
+
 	// Create the evaluator
 	evaluator := &MetricEvaluator{
 		config:            processor.config,
@@ -590,7 +590,7 @@ func TestMetricEvaluatorUpdateDynamicThresholds(t *testing.T) {
 		processor:         processor,
 		dynamicThresholds: make(map[string]float64),
 	}
-	
+
 	// Test the facade method - should not panic
 	evaluator.UpdateDynamicThresholds(metrics)
 }
@@ -600,18 +600,18 @@ func TestMetricEvaluatorDetectAnomaly(t *testing.T) {
 	trackedEntity := &TrackedEntity{
 		Identity: "test-resource",
 	}
-	
+
 	currentValues := map[string]float64{
 		"metric1": 100.0,
 	}
-	
+
 	// Create processor with config
 	processor := &processorImp{
-		logger: zaptest.NewLogger(t),
-		config: &Config{},
+		logger:          zaptest.NewLogger(t),
+		config:          &Config{},
 		trackedEntities: make(map[string]*TrackedEntity),
 	}
-	
+
 	// Create the evaluator
 	evaluator := &MetricEvaluator{
 		config:            processor.config,
@@ -619,10 +619,10 @@ func TestMetricEvaluatorDetectAnomaly(t *testing.T) {
 		processor:         processor,
 		dynamicThresholds: make(map[string]float64),
 	}
-	
+
 	// Test detectAnomaly - we expect false since there's no history
 	isAnomaly, _ := evaluator.detectAnomaly(trackedEntity, currentValues)
-	
+
 	// Without history, there should be no anomaly
 	assert.False(t, isAnomaly)
 }
@@ -630,7 +630,7 @@ func TestMetricEvaluatorDetectAnomaly(t *testing.T) {
 func TestMetricEvaluatorEvaluateResource(t *testing.T) {
 	// Create test resources
 	rm := pmetric.NewResourceMetrics()
-	
+
 	// Create a processor
 	processor := &processorImp{
 		logger: zaptest.NewLogger(t),
@@ -641,7 +641,7 @@ func TestMetricEvaluatorEvaluateResource(t *testing.T) {
 		},
 		trackedEntities: make(map[string]*TrackedEntity),
 	}
-	
+
 	// Create the evaluator
 	evaluator := &MetricEvaluator{
 		config:            processor.config,
@@ -649,10 +649,10 @@ func TestMetricEvaluatorEvaluateResource(t *testing.T) {
 		processor:         processor,
 		dynamicThresholds: make(map[string]float64),
 	}
-	
+
 	// Test EvaluateResource
 	_ = evaluator.EvaluateResource(rm)
-	
+
 	// Since we can't easily assert on the behavior (that's tested in shouldIncludeResource tests),
 	// we just verify it doesn't panic
 }

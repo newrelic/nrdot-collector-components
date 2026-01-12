@@ -8,13 +8,12 @@ const (
 	dynamicUpdateIntervalSecs = 60
 	genericScalingFactor      = 0.2
 
-	// Attribute key denoting which filtering stage allowed the resource through
-	// Allowed values: static_threshold | dynamic_threshold | multi_metric | anomaly_detection | anomaly_retention | standard_retention
-	adaptiveFilterStageAttributeKey = "process.atp.filter.stage"
+	// Internal attribute key denoting which filtering stage allowed the resource through
+	// Used only for internal tracking, removed before export
+	internalFilterStageAttributeKey = "ProcessATPFilterStage"
 
-	// Multi-metric composite score attributes
-	multiMetricCompositeScoreKey = "multi_metric.composite_score"
-	multiMetricThresholdKey      = "multi_metric.threshold"
+	atpScopeName    = "process.atp.processor"
+	atpScopeVersion = "1.0.0"
 
 	// Filtering stage values
 	stageIncludeList               = "include_list" // Explicitly included process
@@ -26,25 +25,6 @@ const (
 	stageStandardRetention         = "standard_retention"          // Retention after threshold exceeded
 	stageRetention                 = "retention"                   // Legacy/fallback retention stage
 	stageResourceProcessingTimeout = "resource_processing_timeout" // Used for all resource types during timeout
-	atpThresholdPrefix             = "process.atp.threshold_details."
-
-	// Summary metric names with process. prefix to match HOST entity synthesis rules
-	filteringEfficiencyRatioMetric   = "process.atp.filter.efficiency_ratio"
-	filteringResourceCountMetric     = "process.atp.filter.resource_count"
-	filteringThresholdTriggersMetric = "process.atp.filter.threshold_triggers"
-
-	// Summary resource attributes following nr.atp pattern
-	atpSourceAttribute     = "process.atp.source"
-	atpMetricTypeAttribute = "process.atp.metric_type"
-	atpScopeName           = "process.atp.processor"
-	atpScopeVersion        = "1.0.0"
-
-	// Attribute values for summary metrics
-	atpStatusAttribute = "process.atp.status"
-	// for storing just the count of each stage
-	atpStageAttribute = "process.atp.stage"
-	statusIncluded    = "included"
-	statusFiltered    = "filtered"
 
 	// Hostmetrics resource types
 	resourceTypeCPU        = "cpu"
