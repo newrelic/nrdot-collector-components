@@ -729,50 +729,6 @@ cat /proc/<pid>/cmdline
    - ECS/EKS
    - OpenShift
 
-## Migration Guide
-
-### From Environment-Based Filtering
-
-If currently using environment variables to control telemetry:
-
-**Before:**
-```bash
-ENABLE_NGINX_MONITORING=true
-ENABLE_APP_MONITORING=true
-```
-
-**After:**
-```yaml
-processors:
-  adaptivetelemetry:
-    include_process_list:
-      - "nginx"
-      - "app"
-```
-
-### From Attribute-Based Filtering
-
-If using the attributes processor for filtering:
-
-**Before:**
-```yaml
-processors:
-  attributes:
-    actions:
-      - key: service.name
-        action: delete
-        value: unwanted-service
-```
-
-**After:**
-```yaml
-processors:
-  adaptivetelemetry:
-    # Note: ATP currently supports include-list only. 
-    # To exclude specific processes, ensure they are not in the include_process_list
-    # or rely on threshold-based filtering.
-```
-
 ## Contributing
 
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) for general contribution guidelines.
@@ -787,22 +743,6 @@ When contributing to the Adaptive Telemetry Processor:
 4. **Documentation**: Update this README and inline code documentation
 5. **Backwards Compatibility**: Follow semantic versioning for configuration changes
 
-### Running Tests
-
-```bash
-# Unit tests
-cd processor/adaptivetelemetryprocessor
-make test
-
-# Integration tests
-make integration-test
-
-# Security tests
-make security-test
-
-# Benchmarks
-make benchmark
-```
 
 ## Support
 
@@ -811,9 +751,6 @@ make benchmark
 - **Security Issues**: Report to security@newrelic.com
 - **Documentation**: [New Relic Docs](https://docs.newrelic.com/docs/more-integrations/open-source-telemetry-integrations/opentelemetry/opentelemetry-introduction/)
 
-## License
-
-This project is licensed under the Apache License 2.0 - see [LICENSE](../../LICENSE) for details.
 
 ## Acknowledgments
 
