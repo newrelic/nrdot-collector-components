@@ -47,12 +47,15 @@ find . -name "*.bak" -type f -delete
 git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
-mods_to_update_regex="\(\)"
-if [[ ${UPDATE_UPSTREAM} != "true" ]]; then
-    mods_to_update_regex="\(github\.com/newrelic/nrdot-collector-components/.* \)"
+if [[ ${UPDATE_UPSTREAM} == "true" ]]; then
+    # Update all module versions
+    sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
+else
+    # Only update nrdot module versions
+    sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
 fi
-sed -i.bak "s|${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s|${mods_to_update_regex}v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
 sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/nrdotcol/builder-config.yaml
 sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/oteltestbedcol/builder-config.yaml
 
