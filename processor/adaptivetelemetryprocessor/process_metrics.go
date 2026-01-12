@@ -203,17 +203,10 @@ func (p *processorImp) handleIncludedResource(rm pmetric.ResourceMetrics, resour
 		zap.Int("scope_count", rm.ScopeMetrics().Len()),
 		zap.Int("metric_count_in_resource", countMetricsInResource(rm)))
 
-	if includeReason != "" {
-		// Ensure filter stage attribute is set
-		if _, hasStage := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey); !hasStage {
-			rm.Resource().Attributes().PutStr(adaptiveFilterStageAttributeKey, includeReason)
-		}
-
-		// Add the filter stage attribute to all datapoints in the resource metrics
-		addStageAttributeToMetrics(rm, includeReason)
-	}
-
-	rm.CopyTo(filtered.ResourceMetrics().AppendEmpty())
+	dest := filtered.ResourceMetrics().AppendEmpty()
+	rm.CopyTo(dest)
+	// Remove the internal filter stage attribute from the output
+	dest.Resource().Attributes().Remove(internalFilterStageAttributeKey)
 }
 
 // handleExcludedResource processes a resource that should be excluded from output
@@ -223,17 +216,6 @@ func (p *processorImp) handleExcludedResource(rm pmetric.ResourceMetrics, resour
 		zap.String("resource_id", resourceID),
 		zap.String("resource_type", resourceType),
 		zap.Int("metric_count", countMetricsInResource(rm)))
-}
-
-// addStageAttributeToMetrics adds filter stage attribute to all metric data points
-func addStageAttributeToMetrics(rm pmetric.ResourceMetrics, includeReason string) {
-	for i := 0; i < rm.ScopeMetrics().Len(); i++ {
-		sm := rm.ScopeMetrics().At(i)
-		for j := 0; j < sm.Metrics().Len(); j++ {
-			m := sm.Metrics().At(j)
-			addAttributeToMetricDataPoints(m, adaptiveFilterStageAttributeKey, includeReason)
-		}
-	}
 }
 
 // performPostProcessingTasks handles cleanup and final logging
@@ -506,10 +488,15 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
-		setResourceFilterStage(resource, stageMultiMetric)
-		// Add composite score and threshold as resource attributes
-		resource.Attributes().PutDouble(multiMetricCompositeScoreKey, compScore)
-		resource.Attributes().PutDouble(multiMetricThresholdKey, threshold)
+		p.setResourceFilterStage(resource, stageMultiMetric)
+
+		// Add composite score and threshold to process.atp JSON
+		multiMetricDetails := map[string]interface{}{
+			"composite_score": compScore,
+			"threshold":       threshold,
+		}
+		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+
 		p.logger.Info("Resource included: multi-metric",
 			zap.String("resource_id", id),
 			zap.Float64("score", compScore),
@@ -637,9 +624,13 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 	}
 
 	if compScore >= threshold {
-		// Add composite score and threshold as resource attributes
-		resource.Attributes().PutDouble(multiMetricCompositeScoreKey, compScore)
-		resource.Attributes().PutDouble(multiMetricThresholdKey, threshold)
+		// Add composite score and threshold to process.atp JSON
+		multiMetricDetails := map[string]interface{}{
+			"composite_score": compScore,
+			"threshold":       threshold,
+		}
+		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+
 		p.logger.Info("New resource exceeds multi-metric threshold",
 			zap.String("resource_id", id),
 			zap.Float64("score", compScore),
@@ -720,8 +711,8 @@ func (p *processorImp) handleDebugMode(resource pcommon.Resource, id string, val
 }
 
 // setResourceFilterStage sets the filter stage attribute on a resource
-func setResourceFilterStage(resource pcommon.Resource, stage string) {
-	resource.Attributes().PutStr(adaptiveFilterStageAttributeKey, stage)
+func (p *processorImp) setResourceFilterStage(resource pcommon.Resource, stage string) {
+	resource.Attributes().PutStr(internalFilterStageAttributeKey, stage)
 }
 
 /*
@@ -778,10 +769,9 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 	}
 
 	// Add ATP-specific attributes (these will become entity tags)
-	summaryAttrs.PutStr(atpSourceAttribute, "adaptive_telemetry_processor")
-	summaryAttrs.PutStr(atpMetricTypeAttribute, "filter_summary")
+	// These are now included in the JSON payload of the process.atp metric
 
-	p.logger.Info("ATP Summary: Created summary resource with attributes",
+	p.logger.Info("ATP Summary: Created summary resource",
 		zap.String("atp_source", "adaptive_telemetry_processor"),
 		zap.String("atp_metric_type", "filter_summary"))
 
