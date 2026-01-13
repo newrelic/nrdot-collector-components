@@ -4,8 +4,8 @@ import (
 	"go.opentelemetry.io/collector/processor"
 )
 
-// Components returns the processor factory for registration with the collector
-func Components() []processor.Factory {
+// components returns the processor factory for registration with the collector
+func components() []processor.Factory {
 	return []processor.Factory{
 		NewFactory(),
 	}

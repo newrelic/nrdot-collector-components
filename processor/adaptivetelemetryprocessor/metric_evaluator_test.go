@@ -12,10 +12,10 @@ func TestNewMetricEvaluator(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	config := &Config{}
 	processor := &processorImp{}
-	
+
 	// Call the function
-	evaluator := NewMetricEvaluator(config, logger, processor)
-	
+	evaluator := newMetricEvaluator(config, logger, processor)
+
 	// Verify the result
 	assert.NotNil(t, evaluator)
 	assert.Equal(t, config, evaluator.config)
@@ -25,9 +25,9 @@ func TestNewMetricEvaluator(t *testing.T) {
 
 // Test that confirms MetricEvaluator methods are delegating to the processor
 func TestMetricEvaluatorDelegation(t *testing.T) {
-	// This is a simplified test that just verifies the NewMetricEvaluator function creates
-	// a valid MetricEvaluator object with the expected fields set.
-	// 
+	// This is a simplified test that just verifies the newMetricEvaluator function creates
+	// a valid metricEvaluator object with the expected fields set.
+	//
 	// The delegation methods (EvaluateResource, extractMetricValues, detectAnomaly,
 	// calculateCompositeScore, UpdateDynamicThresholds) would typically be tested with mocks,
 	// but for simplicity we're not testing the delegation itself since it would require
@@ -35,17 +35,17 @@ func TestMetricEvaluatorDelegation(t *testing.T) {
 	//
 	// In a real-world scenario, we'd use a mocking framework to verify the delegated methods
 	// are called with the expected arguments and that their results are correctly passed back.
-	
+
 	// Full tests for these methods exist in the processor tests, which verify the actual implementation.
-	
-	// Just verify the MetricEvaluator can be created
+
+	// Just verify the metricEvaluator can be created
 	logger := zaptest.NewLogger(t)
 	config := &Config{}
 	processor := &processorImp{
 		logger: logger,
 		config: config,
 	}
-	
-	evaluator := NewMetricEvaluator(config, logger, processor)
+
+	evaluator := newMetricEvaluator(config, logger, processor)
 	assert.NotNil(t, evaluator)
 }

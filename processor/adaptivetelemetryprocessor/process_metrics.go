@@ -41,8 +41,8 @@ func (p *processorImp) processMetrics(ctx context.Context, md pmetric.Metrics) (
 	return filtered, nil
 }
 
-// ProcessingContext holds context information for metrics processing
-type ProcessingContext struct {
+// processingContext holds context information for metrics processing
+type processingContext struct {
 	ctx              context.Context
 	resourceCount    int
 	totalMetricCount int
@@ -51,8 +51,8 @@ type ProcessingContext struct {
 }
 
 // initializeProcessingContext sets up the processing context and logs batch information
-func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetric.Metrics, start time.Time) *ProcessingContext {
-	processCtx := &ProcessingContext{
+func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetric.Metrics, start time.Time) *processingContext {
+	processCtx := &processingContext{
 		ctx:             ctx,
 		resourceCount:   md.ResourceMetrics().Len(),
 		metricTypeCount: make(map[string]int),
@@ -108,7 +108,7 @@ func (p *processorImp) countMetricsByType(md pmetric.Metrics, metricTypeCount ma
 }
 
 // handleContextCancellation handles when context is cancelled before processing
-func (p *processorImp) handleContextCancellation(md pmetric.Metrics, processCtx *ProcessingContext) (pmetric.Metrics, error) {
+func (p *processorImp) handleContextCancellation(md pmetric.Metrics, processCtx *processingContext) (pmetric.Metrics, error) {
 	p.logger.Warn("Context cancelled before processing started",
 		zap.Error(processCtx.ctx.Err()),
 		zap.Int("resource_count", processCtx.resourceCount),
@@ -117,7 +117,7 @@ func (p *processorImp) handleContextCancellation(md pmetric.Metrics, processCtx 
 }
 
 // updateDynamicThresholdsIfNeeded updates dynamic thresholds if interval has passed
-func (p *processorImp) updateDynamicThresholdsIfNeeded(processCtx *ProcessingContext, md pmetric.Metrics) {
+func (p *processorImp) updateDynamicThresholdsIfNeeded(processCtx *processingContext, md pmetric.Metrics) {
 	if !p.dynamicThresholdsEnabled || time.Since(p.lastThresholdUpdate).Seconds() < dynamicUpdateIntervalSecs {
 		return
 	}
@@ -129,7 +129,7 @@ func (p *processorImp) updateDynamicThresholdsIfNeeded(processCtx *ProcessingCon
 }
 
 // processAllResources processes all resource metrics and returns filtered results
-func (p *processorImp) processAllResources(processCtx *ProcessingContext, md pmetric.Metrics) (pmetric.Metrics, int) {
+func (p *processorImp) processAllResources(processCtx *processingContext, md pmetric.Metrics) (pmetric.Metrics, int) {
 	filtered := pmetric.NewMetrics()
 	rms := md.ResourceMetrics()
 	includedCount := 0
@@ -231,7 +231,7 @@ func (p *processorImp) addStageAttributeToMetrics(rm pmetric.ResourceMetrics, in
 }
 
 // performPostProcessingTasks handles cleanup and final logging
-func (p *processorImp) performPostProcessingTasks(processCtx *ProcessingContext, md, filtered pmetric.Metrics, includedCount int, start time.Time) {
+func (p *processorImp) performPostProcessingTasks(processCtx *processingContext, md, filtered pmetric.Metrics, includedCount int, start time.Time) {
 	// Perform cleanup of expired entities with controlled frequency
 	if processCtx.resourceCount > 0 && p.config.RetentionMinutes > 0 && rand.Float64() < 0.01 {
 		go p.cleanupExpiredEntities()
@@ -319,7 +319,7 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 }
 
 // evaluateExistingEntity evaluates filter stages for an existing tracked entity
-func (p *processorImp) evaluateExistingEntity(resource pcommon.Resource, id string, trackedEntity *TrackedEntity, values map[string]float64) bool {
+func (p *processorImp) evaluateExistingEntity(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	// Update current and max values
 	p.updateEntityValues(trackedEntity, values)
 
@@ -359,7 +359,7 @@ func (p *processorImp) evaluateNewEntity(resource pcommon.Resource, id string, v
 
 // checkNewEntityFilterStages checks all filter stages for a new entity
 // Order matches requirement.md: Anomaly → Threshold → Multi-Metric
-func (p *processorImp) checkNewEntityFilterStages(resource pcommon.Resource, id string, newEntity *TrackedEntity, values map[string]float64) (bool, string) {
+func (p *processorImp) checkNewEntityFilterStages(resource pcommon.Resource, id string, newEntity *trackedEntity, values map[string]float64) (bool, string) {
 	// Stage 1: Check anomaly detection first (highest priority - detects sudden changes)
 	if include, stage := p.checkNewEntityAnomaly(id, newEntity, values); include {
 		return true, stage
@@ -381,7 +381,7 @@ func (p *processorImp) checkNewEntityFilterStages(resource pcommon.Resource, id 
 }
 
 // updateEntityValues updates current and max values for a tracked entity
-func (p *processorImp) updateEntityValues(trackedEntity *TrackedEntity, values map[string]float64) {
+func (p *processorImp) updateEntityValues(trackedEntity *trackedEntity, values map[string]float64) {
 	if trackedEntity.CurrentValues == nil {
 		trackedEntity.CurrentValues = make(map[string]float64)
 	}
@@ -402,7 +402,7 @@ func (p *processorImp) updateEntityValues(trackedEntity *TrackedEntity, values m
 func (p *processorImp) upsertTrackedEntityForIncludeList(id string, values map[string]float64, resource pcommon.Resource) {
 	now := time.Now()
 	if te, exists := p.trackedEntities[id]; !exists {
-		p.trackedEntities[id] = &TrackedEntity{
+		p.trackedEntities[id] = &trackedEntity{
 			Identity:      id,
 			FirstSeen:     now,
 			LastExceeded:  now,
@@ -417,7 +417,7 @@ func (p *processorImp) upsertTrackedEntityForIncludeList(id string, values map[s
 }
 
 // checkAnomalyDetectionStage checks for anomaly detection in existing entities
-func (p *processorImp) checkAnomalyDetectionStage(resource pcommon.Resource, id string, trackedEntity *TrackedEntity, values map[string]float64) bool {
+func (p *processorImp) checkAnomalyDetectionStage(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	if !p.config.EnableAnomalyDetection {
 		return false
 	}
@@ -433,7 +433,7 @@ func (p *processorImp) checkAnomalyDetectionStage(resource pcommon.Resource, id 
 }
 
 // checkThresholdStages checks dynamic and static threshold stages
-func (p *processorImp) checkThresholdStages(resource pcommon.Resource, id string, trackedEntity *TrackedEntity, values map[string]float64) bool {
+func (p *processorImp) checkThresholdStages(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	if p.dynamicThresholdsEnabled {
 		return p.checkDynamicThresholds(resource, id, trackedEntity, values)
 	} else {
@@ -442,7 +442,7 @@ func (p *processorImp) checkThresholdStages(resource pcommon.Resource, id string
 }
 
 // checkDynamicThresholds checks dynamic threshold stage for existing entities
-func (p *processorImp) checkDynamicThresholds(resource pcommon.Resource, id string, trackedEntity *TrackedEntity, values map[string]float64) bool {
+func (p *processorImp) checkDynamicThresholds(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	for m, v := range values {
 		if threshold, ok := p.dynamicCustomThresholds[m]; ok && v >= threshold {
 			trackedEntity.LastExceeded = time.Now()
@@ -459,7 +459,7 @@ func (p *processorImp) checkDynamicThresholds(resource pcommon.Resource, id stri
 }
 
 // checkStaticThresholds checks static threshold stage for existing entities
-func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id string, trackedEntity *TrackedEntity, values map[string]float64) bool {
+func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	for m, v := range values {
 		if threshold := p.config.MetricThresholds[m]; threshold == 0.0 || (threshold > 0 && v >= threshold) {
 			trackedEntity.LastExceeded = time.Now()
@@ -476,7 +476,7 @@ func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id strin
 }
 
 // checkMultiMetricStage checks multi-metric stage for existing entities
-func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id string, trackedEntity *TrackedEntity, values map[string]float64) bool {
+func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	if !p.multiMetricEnabled {
 		return false
 	}
@@ -504,13 +504,13 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 }
 
 // checkRetentionStages checks anomaly and standard retention stages
-func (p *processorImp) checkRetentionStages(resource pcommon.Resource, id string, trackedEntity *TrackedEntity) bool {
+func (p *processorImp) checkRetentionStages(resource pcommon.Resource, id string, trackedEntity *trackedEntity) bool {
 	return p.checkAnomalyRetention(resource, id, trackedEntity) ||
 		p.checkStandardRetention(resource, id, trackedEntity)
 }
 
 // checkAnomalyRetention checks anomaly retention stage
-func (p *processorImp) checkAnomalyRetention(resource pcommon.Resource, id string, trackedEntity *TrackedEntity) bool {
+func (p *processorImp) checkAnomalyRetention(resource pcommon.Resource, id string, trackedEntity *trackedEntity) bool {
 	if !p.config.EnableAnomalyDetection || trackedEntity.LastAnomalyDetected.IsZero() {
 		return false
 	}
@@ -532,7 +532,7 @@ func (p *processorImp) checkAnomalyRetention(resource pcommon.Resource, id strin
 }
 
 // checkStandardRetention checks standard retention stage
-func (p *processorImp) checkStandardRetention(resource pcommon.Resource, id string, trackedEntity *TrackedEntity) bool {
+func (p *processorImp) checkStandardRetention(resource pcommon.Resource, id string, trackedEntity *trackedEntity) bool {
 	if p.config.RetentionMinutes <= 0 || trackedEntity.LastExceeded.IsZero() {
 		return false
 	}
@@ -550,9 +550,9 @@ func (p *processorImp) checkStandardRetention(resource pcommon.Resource, id stri
 }
 
 // createNewTrackedEntity creates a new tracked entity
-func (p *processorImp) createNewTrackedEntity(id string, values map[string]float64, resource pcommon.Resource) *TrackedEntity {
+func (p *processorImp) createNewTrackedEntity(id string, values map[string]float64, resource pcommon.Resource) *trackedEntity {
 	now := time.Now()
-	newEntity := &TrackedEntity{
+	newEntity := &trackedEntity{
 		Identity:      id,
 		FirstSeen:     now,
 		LastExceeded:  time.Time{}, // Zero value - only set when threshold is actually exceeded
@@ -627,7 +627,7 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 }
 
 // checkNewEntityAnomaly checks anomaly detection stage for new entities
-func (p *processorImp) checkNewEntityAnomaly(id string, newEntity *TrackedEntity, values map[string]float64) (bool, string) {
+func (p *processorImp) checkNewEntityAnomaly(id string, newEntity *trackedEntity, values map[string]float64) (bool, string) {
 	if !p.config.EnableAnomalyDetection {
 		return false, ""
 	}

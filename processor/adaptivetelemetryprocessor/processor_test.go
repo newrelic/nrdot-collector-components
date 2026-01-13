@@ -143,7 +143,7 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 	
 	// Add some test entities
 	proc.mu.Lock()
-	proc.trackedEntities["test-entity-1"] = &TrackedEntity{
+	proc.trackedEntities["test-entity-1"] = &trackedEntity{
 		Identity:      "test-entity-1",
 		FirstSeen:     time.Now(),
 		LastExceeded:  time.Now(),
@@ -189,19 +189,19 @@ func TestProcessorCleanupExpiredEntities(t *testing.T) {
 	
 	// Add some test entities
 	proc.mu.Lock()
-	proc.trackedEntities["active"] = &TrackedEntity{
+	proc.trackedEntities["active"] = &trackedEntity{
 		Identity:      "active",
 		FirstSeen:     now.Add(-20 * time.Minute),
 		LastExceeded:  now.Add(-5 * time.Minute), // Within retention window
 		CurrentValues: map[string]float64{"metric1": 10.5},
 	}
-	proc.trackedEntities["expired"] = &TrackedEntity{
+	proc.trackedEntities["expired"] = &trackedEntity{
 		Identity:      "expired",
 		FirstSeen:     now.Add(-30 * time.Minute),
 		LastExceeded:  now.Add(-15 * time.Minute), // Outside retention window
 		CurrentValues: map[string]float64{"metric1": 5.0},
 	}
-	proc.trackedEntities["old-expired"] = &TrackedEntity{
+	proc.trackedEntities["old-expired"] = &trackedEntity{
 		Identity:      "old-expired",
 		FirstSeen:     now.Add(-60 * time.Minute),
 		LastExceeded:  now.Add(-40 * time.Minute), // Way outside retention window

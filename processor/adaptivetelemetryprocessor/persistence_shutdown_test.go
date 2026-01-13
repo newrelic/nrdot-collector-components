@@ -18,10 +18,10 @@ type mockStorage struct {
 	loadError   error
 	saveError   error
 	closeError  error
-	entities    map[string]*TrackedEntity
+	entities    map[string]*trackedEntity
 }
 
-func (m *mockStorage) Load() (map[string]*TrackedEntity, error) {
+func (m *mockStorage) Load() (map[string]*trackedEntity, error) {
 	m.loadCalled = true
 	if m.loadError != nil {
 		return nil, m.loadError
@@ -29,7 +29,7 @@ func (m *mockStorage) Load() (map[string]*TrackedEntity, error) {
 	return m.entities, nil
 }
 
-func (m *mockStorage) Save(entities map[string]*TrackedEntity) error {
+func (m *mockStorage) Save(entities map[string]*trackedEntity) error {
 	m.saveCalled = true
 	if m.saveError != nil {
 		return m.saveError
@@ -49,18 +49,18 @@ func TestPersistTrackedEntities(t *testing.T) {
 	testCases := []struct {
 		name          string
 		setupStorage  func() *mockStorage
-		setupEntities func() map[string]*TrackedEntity
+		setupEntities func() map[string]*trackedEntity
 		expectedError bool
 	}{
 		{
 			name: "Successful persistence",
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
-					entities: make(map[string]*TrackedEntity),
+					entities: make(map[string]*trackedEntity),
 				}
 			},
-			setupEntities: func() map[string]*TrackedEntity {
-				return map[string]*TrackedEntity{
+			setupEntities: func() map[string]*trackedEntity {
+				return map[string]*trackedEntity{
 					"entity1": {
 						Identity:      "entity1",
 						FirstSeen:     time.Now().Add(-time.Hour),
@@ -82,8 +82,8 @@ func TestPersistTrackedEntities(t *testing.T) {
 			setupStorage: func() *mockStorage {
 				return nil
 			},
-			setupEntities: func() map[string]*TrackedEntity {
-				return map[string]*TrackedEntity{
+			setupEntities: func() map[string]*trackedEntity {
+				return map[string]*trackedEntity{
 					"entity1": {
 						Identity: "entity1",
 					},
@@ -96,11 +96,11 @@ func TestPersistTrackedEntities(t *testing.T) {
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
 					saveError: errors.New("mock save error"),
-					entities:  make(map[string]*TrackedEntity),
+					entities:  make(map[string]*trackedEntity),
 				}
 			},
-			setupEntities: func() map[string]*TrackedEntity {
-				return map[string]*TrackedEntity{
+			setupEntities: func() map[string]*trackedEntity {
+				return map[string]*trackedEntity{
 					"entity1": {
 						Identity: "entity1",
 					},
@@ -156,7 +156,7 @@ func TestLoadTrackedEntities(t *testing.T) {
 			name: "Successful load",
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
-					entities: map[string]*TrackedEntity{
+					entities: map[string]*trackedEntity{
 						"entity1": {
 							Identity:      "entity1",
 							FirstSeen:     time.Now().Add(-time.Hour),
@@ -204,7 +204,7 @@ storage := tc.setupStorage()
 			proc := &processorImp{
 				logger:            logger,
 				config:            &Config{StoragePath: "/tmp/test_data/test.db"},
-				trackedEntities:   make(map[string]*TrackedEntity),
+				trackedEntities:   make(map[string]*trackedEntity),
 				persistenceEnabled: storage != nil,
 				storage:           storage,
 			}
@@ -235,7 +235,7 @@ func TestCleanupExpiredEntities(t *testing.T) {
 	
 	// Create test entities with different expiration times
 	now := time.Now()
-	entities := map[string]*TrackedEntity{
+	entities := map[string]*trackedEntity{
 		"recent": {
 			Identity:     "recent",
 			FirstSeen:    now.Add(-time.Hour),
@@ -288,7 +288,7 @@ func TestShutdown(t *testing.T) {
 			persistenceEnabled: true,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
-					entities: make(map[string]*TrackedEntity),
+					entities: make(map[string]*trackedEntity),
 				}
 			},
 			expectSave:  true,
@@ -299,7 +299,7 @@ func TestShutdown(t *testing.T) {
 			persistenceEnabled: false,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
-					entities: make(map[string]*TrackedEntity),
+					entities: make(map[string]*trackedEntity),
 				}
 			},
 			expectSave:  false,
@@ -310,7 +310,7 @@ func TestShutdown(t *testing.T) {
 			persistenceEnabled: true,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
-					entities:  make(map[string]*TrackedEntity),
+					entities:  make(map[string]*trackedEntity),
 					saveError: errors.New("mock save error"),
 				}
 			},
@@ -323,7 +323,7 @@ func TestShutdown(t *testing.T) {
 			persistenceEnabled: true,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
-					entities:   make(map[string]*TrackedEntity),
+					entities:   make(map[string]*trackedEntity),
 					closeError: errors.New("mock close error"),
 				}
 			},
@@ -340,7 +340,7 @@ storage := tc.setupStorage()
 			proc := &processorImp{
 				logger:            logger,
 				config:            &Config{StoragePath: "/tmp/test_data/test.db"},
-				trackedEntities:   map[string]*TrackedEntity{"entity1": {Identity: "entity1"}},
+				trackedEntities:   map[string]*trackedEntity{"entity1": {Identity: "entity1"}},
 				persistenceEnabled: tc.persistenceEnabled,
 				storage:           storage,
 			}

@@ -51,16 +51,16 @@ func (p *processorImp) logBatchProcessingTime(batchStart time.Time) {
 	}
 }
 
-// InputStats holds statistics about input metrics
-type InputStats struct {
+// inputStats holds statistics about input metrics
+type inputStats struct {
 	ResourceCount int
 	ScopeCount    int
 	MetricCount   int
 }
 
 // calculateInputStats computes statistics for input metrics
-func (p *processorImp) calculateInputStats(md pmetric.Metrics) InputStats {
-	stats := InputStats{
+func (p *processorImp) calculateInputStats(md pmetric.Metrics) inputStats {
+	stats := inputStats{
 		ResourceCount: md.ResourceMetrics().Len(),
 	}
 
@@ -79,7 +79,7 @@ func (p *processorImp) calculateInputStats(md pmetric.Metrics) InputStats {
 }
 
 // logInputStats logs input statistics at debug level only
-func (p *processorImp) logInputStats(stats InputStats) {
+func (p *processorImp) logInputStats(stats inputStats) {
 	p.logger.Debug("ConsumeMetrics called",
 		zap.Int("input_resources", stats.ResourceCount),
 		zap.Int("input_metrics", stats.MetricCount))
@@ -128,16 +128,16 @@ func (p *processorImp) validateProcessingResults(ctx context.Context, md, filter
 	return nil
 }
 
-// OutputStats holds statistics about output metrics
-type OutputStats struct {
+// outputStats holds statistics about output metrics
+type outputStats struct {
 	TotalMetricCount int
 	MetricTypeCount  map[string]int
 	ResourceCount    int
 }
 
 // calculateOutputStats computes statistics for output metrics
-func (p *processorImp) calculateOutputStats(filteredMetrics pmetric.Metrics) OutputStats {
-	stats := OutputStats{
+func (p *processorImp) calculateOutputStats(filteredMetrics pmetric.Metrics) outputStats {
+	stats := outputStats{
 		MetricTypeCount: make(map[string]int),
 		ResourceCount:   filteredMetrics.ResourceMetrics().Len(),
 	}
@@ -203,7 +203,7 @@ func (p *processorImp) performMaintenanceTasks() {
 }
 
 // forwardMetricsToNextConsumer sends processed metrics to the next consumer
-func (p *processorImp) forwardMetricsToNextConsumer(ctx context.Context, filteredMetrics pmetric.Metrics, stats OutputStats) error {
+func (p *processorImp) forwardMetricsToNextConsumer(ctx context.Context, filteredMetrics pmetric.Metrics, stats outputStats) error {
 	// Call the next consumer with appropriate timeout handling
 	nextStart := time.Now()
 	consumeCtx, cancelConsume := context.WithTimeout(ctx, 10*time.Second)
