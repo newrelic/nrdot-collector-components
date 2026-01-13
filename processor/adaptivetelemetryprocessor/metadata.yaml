@@ -1,0 +1,10 @@
+type: adaptivetelemetryprocessor
+github_project: newrelic/nrdot-collector-components
+
+status:
+  disable_codecov_badge: true
+  class: processor
+  stability:
+    beta: [metrics]
+  distributions: [nrdot]
+
