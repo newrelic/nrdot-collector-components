@@ -6,8 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap"
 )
@@ -186,16 +184,6 @@ func addProcessToMetrics(md pmetric.Metrics, processName string, pid int, cpuUti
 	dp.SetDoubleValue(cpuUtilization)
 }
 
-// Mock consumer for testing
-type mockMetricsConsumer struct{}
-
-func (m *mockMetricsConsumer) Capabilities() consumer.Capabilities {
-	return consumer.Capabilities{MutatesData: false}
-}
-
-func (m *mockMetricsConsumer) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) error {
-	return nil
-}
 
 // Helper to create bool pointer
 func ptrBool(b bool) *bool {

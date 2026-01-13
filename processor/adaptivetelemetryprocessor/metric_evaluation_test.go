@@ -597,7 +597,7 @@ func TestMetricEvaluatorUpdateDynamicThresholds(t *testing.T) {
 
 func TestMetricEvaluatorDetectAnomaly(t *testing.T) {
 	// Create a TrackedEntity and values
-	trackedEntity := &trackedEntity{
+	entity := &trackedEntity{
 		Identity: "test-resource",
 	}
 
@@ -621,7 +621,7 @@ func TestMetricEvaluatorDetectAnomaly(t *testing.T) {
 	}
 
 	// Test detectAnomaly - we expect false since there's no history
-	isAnomaly, _ := evaluator.detectAnomaly(trackedEntity, currentValues)
+	isAnomaly, _ := evaluator.detectAnomaly(entity, currentValues)
 
 	// Without history, there should be no anomaly
 	assert.False(t, isAnomaly)
