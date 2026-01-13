@@ -26,7 +26,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	proc := &processorImp{
 		logger:              zap.NewNop(),
 		config:              cfg,
-		trackedEntities:     make(map[string]*TrackedEntity),
+		trackedEntities:     make(map[string]*trackedEntity),
 		nextConsumer:        &mockMetricsConsumer{},
 		persistenceEnabled:  false,
 		dynamicThresholdsEnabled: false,
@@ -71,7 +71,7 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 	proc := &processorImp{
 		logger:              zap.NewNop(),
 		config:              cfg,
-		trackedEntities:     make(map[string]*TrackedEntity),
+		trackedEntities:     make(map[string]*trackedEntity),
 		nextConsumer:        &mockMetricsConsumer{},
 		persistenceEnabled:  false,
 		dynamicThresholdsEnabled: false,
@@ -132,7 +132,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 	proc := &processorImp{
 		logger:              zap.NewNop(),
 		config:              cfg,
-		trackedEntities:     make(map[string]*TrackedEntity),
+		trackedEntities:     make(map[string]*trackedEntity),
 		nextConsumer:        &mockMetricsConsumer{},
 		persistenceEnabled:  false,
 		dynamicThresholdsEnabled: false,

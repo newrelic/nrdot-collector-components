@@ -45,7 +45,7 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 		logger:                   logger,
 		config:                   config,
 		nextConsumer:             nextConsumer,
-		trackedEntities:          make(map[string]*TrackedEntity),
+		trackedEntities:          make(map[string]*trackedEntity),
 		persistenceEnabled:       storageEnabled && config.StoragePath != "",
 		dynamicThresholdsEnabled: config.EnableDynamicThresholds,
 		multiMetricEnabled:       config.EnableMultiMetric,
@@ -77,7 +77,7 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 		if err := createDirectoryIfNotExists(storageDir); err != nil {
 			logger.Warn("Failed to create storage directory", zap.String("path", storageDir), zap.Error(err))
 			p.persistenceEnabled = false
-		} else if storage, err := NewFileStorage(config.StoragePath); err != nil {
+		} else if storage, err := newFileStorage(config.StoragePath); err != nil {
 			logger.Warn("Failed to initialize storage", zap.Error(err))
 			p.persistenceEnabled = false
 		} else {

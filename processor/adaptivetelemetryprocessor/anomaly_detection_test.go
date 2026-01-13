@@ -149,7 +149,7 @@ func TestDetectAnomaly(t *testing.T) {
 				copiedHistory[metric] = copiedValues
 			}
 
-			entity := &TrackedEntity{
+			entity := &trackedEntity{
 				Identity:      "test-entity",
 				FirstSeen:     time.Now(),
 				LastExceeded:  time.Now(),

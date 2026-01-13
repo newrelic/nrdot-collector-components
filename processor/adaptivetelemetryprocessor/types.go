@@ -2,8 +2,8 @@ package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collecto
 
 import "time"
 
-// TrackedEntity represents a resource entity tracked by the adaptive filter.
-type TrackedEntity struct {
+// trackedEntity represents a resource entity tracked by the adaptive filter.
+type trackedEntity struct {
 	Identity      string             `json:"identity"`
 	FirstSeen     time.Time          `json:"first_seen"`
 	LastExceeded  time.Time          `json:"last_exceeded"` // Used for threshold-based retention (static/dynamic/multi-metric)

@@ -516,7 +516,7 @@ func TestFilterSummaryIntegrationWithProcessor(t *testing.T) {
 			EnableDynamicThresholds: false,
 			EnableMultiMetric:       false,
 		},
-		trackedEntities: make(map[string]*TrackedEntity),
+		trackedEntities: make(map[string]*trackedEntity),
 	}
 	
 	// Create test metrics - mix of above and below threshold

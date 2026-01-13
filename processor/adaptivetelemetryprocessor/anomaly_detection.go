@@ -9,7 +9,7 @@ import (
 
 // detectAnomalyUtil checks for anomalous changes in any metric for a tracked entity.
 // This is the first check in the filter flow, matching adaptiveprocessfilter.
-func detectAnomalyUtil(p *processorImp, trackedEntity *TrackedEntity, currentValues map[string]float64) (bool, string) {
+func detectAnomalyUtil(p *processorImp, trackedEntity *trackedEntity, currentValues map[string]float64) (bool, string) {
 	if !p.config.EnableAnomalyDetection {
 		return false, ""
 	}
@@ -46,14 +46,14 @@ func (p *processorImp) getAnomalyConfig() (int, float64) {
 }
 
 // initializeMetricHistory ensures the metric history map is initialized
-func (p *processorImp) initializeMetricHistory(trackedEntity *TrackedEntity) {
+func (p *processorImp) initializeMetricHistory(trackedEntity *trackedEntity) {
 	if trackedEntity.MetricHistory == nil {
 		trackedEntity.MetricHistory = make(map[string][]float64)
 	}
 }
 
 // checkMetricAnomaly checks a single metric for anomalous behavior
-func (p *processorImp) checkMetricAnomaly(trackedEntity *TrackedEntity, metricName string, currentValue float64, historySize int, changeThreshold float64) (bool, string) {
+func (p *processorImp) checkMetricAnomaly(trackedEntity *trackedEntity, metricName string, currentValue float64, historySize int, changeThreshold float64) (bool, string) {
 	// Only check metrics that have a defined threshold
 	if _, has := p.config.MetricThresholds[metricName]; !has {
 		return false, ""
@@ -87,7 +87,7 @@ func (p *processorImp) checkMetricAnomaly(trackedEntity *TrackedEntity, metricNa
 }
 
 // updateMetricHistory adds the current value to history and maintains size limit
-func (p *processorImp) updateMetricHistory(trackedEntity *TrackedEntity, metricName string, currentValue float64, historySize int) {
+func (p *processorImp) updateMetricHistory(trackedEntity *trackedEntity, metricName string, currentValue float64, historySize int) {
 	history := trackedEntity.MetricHistory[metricName]
 	trackedEntity.MetricHistory[metricName] = append(history, currentValue)
 
@@ -114,7 +114,7 @@ func (p *processorImp) calculatePercentageChange(currentValue, avg float64) floa
 }
 
 // handleAnomalyDetection processes when an anomaly is detected
-func (p *processorImp) handleAnomalyDetection(trackedEntity *TrackedEntity, metricName string, currentValue, pctChange, avg float64) (bool, string) {
+func (p *processorImp) handleAnomalyDetection(trackedEntity *trackedEntity, metricName string, currentValue, pctChange, avg float64) (bool, string) {
 	// Update last anomaly time
 	trackedEntity.LastAnomalyDetected = time.Now()
 

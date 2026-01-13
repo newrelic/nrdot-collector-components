@@ -19,7 +19,7 @@ type processorImp struct {
 	config       *Config
 	nextConsumer consumer.Metrics
 
-	trackedEntities    map[string]*TrackedEntity
+	trackedEntities    map[string]*trackedEntity
 	mu                 sync.RWMutex // protects trackedEntities & dynamicCustomThresholds
 	storage            EntityStateStorage
 	lastPersistenceOp  time.Time
@@ -32,5 +32,5 @@ type processorImp struct {
 
 	// Dynamic thresholds for metrics (including cpu/memory if configured)
 	dynamicCustomThresholds map[string]float64
-	// Note: Anomaly detection uses LastAnomalyDetected in TrackedEntity (separate timestamp)
+	// Note: Anomaly detection uses LastAnomalyDetected in trackedEntity (separate timestamp)
 }

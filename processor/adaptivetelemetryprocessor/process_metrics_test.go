@@ -32,7 +32,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		config:                   config,
 		dynamicThresholdsEnabled: config.EnableDynamicThresholds,
 		multiMetricEnabled:       config.EnableMultiMetric,
-		trackedEntities:          make(map[string]*TrackedEntity),
+		trackedEntities:          make(map[string]*trackedEntity),
 		dynamicCustomThresholds:  config.MetricThresholds,
 	}
 
@@ -196,7 +196,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 				EnableDynamicThresholds: false,
 				EnableMultiMetric:       false,
 			},
-			trackedEntities: make(map[string]*TrackedEntity),
+			trackedEntities: make(map[string]*trackedEntity),
 		}
 
 		// Create test metrics with values below threshold
