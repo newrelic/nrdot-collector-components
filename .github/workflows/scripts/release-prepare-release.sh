@@ -26,12 +26,17 @@ CURRENT_BETA_ESCAPED=${CURRENT_BETA//./[.]}
 BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
 git checkout -b "${BRANCH}"
 
-# If the version is blank, multimod will use the version from versions.yaml
-make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
+if [[ ${SYNC_UPSTREAM} == "true" ]]; then
+    # If the version is blank, multimod will use the version from upstream versions.yaml
+    make update-otel OTEL_VERSION="" OTEL_STABLE_VERSION="" CONTRIB_VERSION=""
 
-make update-core-module-list
-git add internal/buildscripts/modules
-git commit -m "update core modules list" --allow-empty
+    # update-core-module-list updates based on upstream version.yaml
+    make update-core-module-list
+    git add internal/buildscripts/modules
+    git commit -m "update core modules list" --allow-empty
+else
+    echo "Skipping upstream component updates"
+fi
 
 make chlog-update VERSION="v${CANDIDATE_BETA}"
 git add --all
@@ -42,10 +47,17 @@ find . -name "*.bak" -type f -delete
 git add versions.yaml
 git commit -m "update version.yaml ${CANDIDATE_BETA}"
 
-sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/oteltestbedcol/builder-config.yaml
-sed -i.bak "s/v${CURRENT_BETA_ESCAPED}/v${CANDIDATE_BETA}/g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/nrdotcol/builder-config.yaml
-sed -i.bak "s/${CURRENT_BETA_ESCAPED}-dev/${CANDIDATE_BETA}-dev/g" ./cmd/oteltestbedcol/builder-config.yaml
+if [[ ${SYNC_UPSTREAM} == "true" ]]; then
+    # Update all module versions
+    sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
+else
+    # Only update nrdot module versions
+    sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
+fi
+sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/nrdotcol/builder-config.yaml
+sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/oteltestbedcol/builder-config.yaml
 
 find . -name "*.bak" -type f -delete
 make gennrdotcol

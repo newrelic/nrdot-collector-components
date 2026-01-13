@@ -12,6 +12,13 @@ on:
       current-beta:
         required: true
         description: Current version (beta, like 0.140.0)
+
+      sync-upstream:
+        type: boolean
+        required: false
+        default: true
+        description: Sync and update upstream components (disable for local patching)
+
 permissions:
   contents: read
 jobs:
@@ -53,6 +60,7 @@ jobs:
           REPO: ${{ github.repository }}
           CANDIDATE_BETA: ${{ inputs.candidate-beta }}
           CURRENT_BETA: ${{ inputs.current-beta }}
+          SYNC_UPSTREAM: ${{ inputs.sync-upstream }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
