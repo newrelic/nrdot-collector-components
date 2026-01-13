@@ -46,7 +46,7 @@ func TestBuildResourceIdentity(t *testing.T) {
 		{
 			name: "K8s resource",
 			attributes: map[string]string{
-				"k8s.pod.name":      "test-pod",
+				"k8s.pod.name":       "test-pod",
 				"k8s.namespace.name": "default",
 				"k8s.node.name":      "node-1",
 			},
@@ -75,19 +75,19 @@ func TestBuildResourceIdentity(t *testing.T) {
 				t.Skip("Skipping service resource test due to implementation changes")
 				return
 			}
-			
+
 			resource := pcommon.NewResource()
 			for k, v := range tc.attributes {
 				resource.Attributes().PutStr(k, v)
 			}
 
 			id := buildResourceIdentity(resource)
-			
+
 			// Check that the ID contains expected elements
 			for _, expected := range tc.expectContains {
 				assert.Contains(t, id, expected)
 			}
-			
+
 			// Ensure ID is not empty
 			assert.NotEmpty(t, id)
 		})
@@ -96,9 +96,9 @@ func TestBuildResourceIdentity(t *testing.T) {
 
 func TestGetResourceType(t *testing.T) {
 	testCases := []struct {
-		name           string
-		attributes     map[string]string
-		expectedType   string
+		name         string
+		attributes   map[string]string
+		expectedType string
 	}{
 		{
 			name: "Host resource",
@@ -150,18 +150,18 @@ func TestSnapshotResourceAttributes(t *testing.T) {
 			name: "Multiple attributes",
 			attributes: map[string]string{
 				"service.name": "test-service",
-				"host.name": "test-host",
-				"environment": "production",
+				"host.name":    "test-host",
+				"environment":  "production",
 			},
 		},
 		{
-			name: "Empty attributes",
+			name:       "Empty attributes",
 			attributes: map[string]string{},
 		},
 		{
 			name: "With reserved attributes",
 			attributes: map[string]string{
-				"service.name": "test-service",
+				"service.name":                  "test-service",
 				adaptiveFilterStageAttributeKey: "some-stage", // Should be included in snapshot
 			},
 		},
@@ -175,7 +175,7 @@ func TestSnapshotResourceAttributes(t *testing.T) {
 			}
 
 			snapshot := snapshotResourceAttributes(resource)
-			
+
 			// Verify all attributes were captured
 			assert.Equal(t, len(tc.attributes), len(snapshot))
 			for k, v := range tc.attributes {
@@ -188,30 +188,30 @@ func TestSnapshotResourceAttributes(t *testing.T) {
 func TestPersistenceAndLoading(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	tmpDir := t.TempDir()
-	
+
 	// Create storage
 	storagePath := tmpDir + "/test_data/test.db"
-	storage, err := NewFileStorage(storagePath)
+	storage, err := newFileStorage(storagePath)
 	require.NoError(t, err)
-	
+
 	// Create processor with storage
 	config := &Config{
 		StoragePath:      storagePath,
 		RetentionMinutes: 30,
 	}
-	
+
 	proc := &processorImp{
 		logger:             logger,
 		config:             config,
 		storage:            storage,
-		trackedEntities:    make(map[string]*TrackedEntity),
+		trackedEntities:    make(map[string]*trackedEntity),
 		persistenceEnabled: true,
 	}
-	
+
 	// Add tracked entities
 	now := time.Now()
 	proc.mu.Lock()
-	proc.trackedEntities["entity1"] = &TrackedEntity{
+	proc.trackedEntities["entity1"] = &trackedEntity{
 		Identity:      "entity1",
 		FirstSeen:     now.Add(-60 * time.Minute),
 		LastExceeded:  now.Add(-15 * time.Minute),
@@ -222,7 +222,7 @@ func TestPersistenceAndLoading(t *testing.T) {
 			"cpu": {5.0, 7.0, 10.0},
 		},
 	}
-	proc.trackedEntities["entity2"] = &TrackedEntity{
+	proc.trackedEntities["entity2"] = &trackedEntity{
 		Identity:      "entity2",
 		FirstSeen:     now.Add(-30 * time.Minute),
 		LastExceeded:  now.Add(-5 * time.Minute),
@@ -231,30 +231,30 @@ func TestPersistenceAndLoading(t *testing.T) {
 		Attributes:    map[string]string{"type": "process", "name": "app2"},
 	}
 	proc.mu.Unlock()
-	
+
 	// Test persistence
 	err = proc.persistTrackedEntities()
 	require.NoError(t, err)
-	
+
 	// Create a new processor to test loading
 	proc2 := &processorImp{
 		logger:             logger,
 		config:             config,
 		storage:            storage,
-		trackedEntities:    make(map[string]*TrackedEntity),
+		trackedEntities:    make(map[string]*trackedEntity),
 		persistenceEnabled: true,
 	}
-	
+
 	// Load tracked entities
 	err = proc2.loadTrackedEntities()
 	require.NoError(t, err)
-	
+
 	// Verify entities were loaded correctly
 	proc2.mu.RLock()
 	defer proc2.mu.RUnlock()
-	
+
 	assert.Len(t, proc2.trackedEntities, 2)
-	
+
 	// Check entity1
 	entity1, exists := proc2.trackedEntities["entity1"]
 	require.True(t, exists)
@@ -264,7 +264,7 @@ func TestPersistenceAndLoading(t *testing.T) {
 	assert.Equal(t, map[string]string{"type": "process", "name": "app1"}, entity1.Attributes)
 	require.Contains(t, entity1.MetricHistory, "cpu")
 	assert.Equal(t, []float64{5.0, 7.0, 10.0}, entity1.MetricHistory["cpu"])
-	
+
 	// Check entity2
 	entity2, exists := proc2.trackedEntities["entity2"]
 	require.True(t, exists)
@@ -282,16 +282,16 @@ func TestAddAttributeToMetricDataPoints(t *testing.T) {
 			"system.memory.usage":     50.0,
 		},
 	)
-	
+
 	rm := md.ResourceMetrics().At(0)
 	sm := rm.ScopeMetrics().At(0)
-	
+
 	// Add attribute to all metrics
 	for i := 0; i < sm.Metrics().Len(); i++ {
 		m := sm.Metrics().At(i)
 		addAttributeToMetricDataPoints(m, "test.attribute", "test-value")
 	}
-	
+
 	// Verify attributes were added
 	for i := 0; i < sm.Metrics().Len(); i++ {
 		m := sm.Metrics().At(i)

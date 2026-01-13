@@ -51,15 +51,15 @@ func (p *processorImp) shouldUpdateDynamicThresholds() bool {
 	return true
 }
 
-// DynamicUpdateContext holds context information for a dynamic threshold update
-type DynamicUpdateContext struct {
+// dynamicUpdateContext holds context information for a dynamic threshold update
+type dynamicUpdateContext struct {
 	startTime  time.Time
 	smoothing  float64
 	metricKeys []string
 }
 
 // initializeDynamicUpdate sets up the context for dynamic threshold update
-func (p *processorImp) initializeDynamicUpdate() *DynamicUpdateContext {
+func (p *processorImp) initializeDynamicUpdate() *dynamicUpdateContext {
 	timeSinceLastUpdate := time.Since(p.lastThresholdUpdate)
 
 	p.logger.Info("Starting dynamic thresholds update",
@@ -82,22 +82,22 @@ func (p *processorImp) initializeDynamicUpdate() *DynamicUpdateContext {
 		metricKeys = append(metricKeys, metric)
 	}
 
-	return &DynamicUpdateContext{
+	return &dynamicUpdateContext{
 		startTime:  start,
 		smoothing:  smoothing,
 		metricKeys: metricKeys,
 	}
 }
 
-// MetricAverageData holds average calculation data for a metric
-type MetricAverageData struct {
+// metricAverageData holds average calculation data for a metric
+type metricAverageData struct {
 	avg   float64
 	count int
 }
 
 // computeMetricAverages calculates averages for all configured metrics in a single pass
-func (p *processorImp) computeMetricAverages(md pmetric.Metrics, metricKeys []string) map[string]MetricAverageData {
-	metricAvgs := make(map[string]MetricAverageData, len(metricKeys))
+func (p *processorImp) computeMetricAverages(md pmetric.Metrics, metricKeys []string) map[string]metricAverageData {
+	metricAvgs := make(map[string]metricAverageData, len(metricKeys))
 
 	// Process all metrics in the batch
 	rms := md.ResourceMetrics()
@@ -119,7 +119,7 @@ func (p *processorImp) computeMetricAverages(md pmetric.Metrics, metricKeys []st
 }
 
 // processMetricForAverages processes a single metric for average calculation
-func (p *processorImp) processMetricForAverages(m pmetric.Metric, metricAvgs map[string]MetricAverageData) {
+func (p *processorImp) processMetricForAverages(m pmetric.Metric, metricAvgs map[string]metricAverageData) {
 	name := m.Name()
 
 	// Skip metrics we don't have thresholds for
@@ -148,10 +148,10 @@ func (p *processorImp) processMetricForAverages(m pmetric.Metric, metricAvgs map
 }
 
 // finalizeAverages calculates the final average values
-func (p *processorImp) finalizeAverages(metricAvgs map[string]MetricAverageData) {
+func (p *processorImp) finalizeAverages(metricAvgs map[string]metricAverageData) {
 	for metric, data := range metricAvgs {
 		if data.count > 0 {
-			metricAvgs[metric] = MetricAverageData{
+			metricAvgs[metric] = metricAverageData{
 				avg:   data.avg / float64(data.count),
 				count: data.count,
 			}
@@ -160,7 +160,7 @@ func (p *processorImp) finalizeAverages(metricAvgs map[string]MetricAverageData)
 }
 
 // calculateNewThresholds computes new threshold values based on averages
-func (p *processorImp) calculateNewThresholds(metricAvgs map[string]MetricAverageData, updateContext *DynamicUpdateContext) map[string]float64 {
+func (p *processorImp) calculateNewThresholds(metricAvgs map[string]metricAverageData, updateContext *dynamicUpdateContext) map[string]float64 {
 	// Read all current thresholds at once to minimize lock time
 	currentThresholds := p.getCurrentThresholds()
 
@@ -189,7 +189,7 @@ func (p *processorImp) getCurrentThresholds() map[string]float64 {
 }
 
 // calculateSingleThreshold calculates a new threshold value for a single metric
-func (p *processorImp) calculateSingleThreshold(metric string, metricAvgs map[string]MetricAverageData, currentThresholds map[string]float64, smoothing float64) (float64, bool) {
+func (p *processorImp) calculateSingleThreshold(metric string, metricAvgs map[string]metricAverageData, currentThresholds map[string]float64, smoothing float64) (float64, bool) {
 	base := p.config.MetricThresholds[metric]
 	data, hasData := metricAvgs[metric]
 
@@ -235,7 +235,7 @@ func (p *processorImp) applyThresholdConstraints(metric string, value float64) f
 }
 
 // applyThresholdUpdates safely updates the dynamic thresholds
-func (p *processorImp) applyThresholdUpdates(newThresholds map[string]float64, updateContext *DynamicUpdateContext) {
+func (p *processorImp) applyThresholdUpdates(newThresholds map[string]float64, updateContext *dynamicUpdateContext) {
 	if len(newThresholds) > 0 {
 		p.mu.Lock()
 		for k, v := range newThresholds {
@@ -246,7 +246,7 @@ func (p *processorImp) applyThresholdUpdates(newThresholds map[string]float64, u
 }
 
 // logThresholdUpdate logs the results of the threshold update
-func (p *processorImp) logThresholdUpdate(updateContext *DynamicUpdateContext, totalAnalyzed, updatedCount int, md pmetric.Metrics) {
+func (p *processorImp) logThresholdUpdate(updateContext *dynamicUpdateContext, totalAnalyzed, updatedCount int, md pmetric.Metrics) {
 	duration := time.Since(updateContext.startTime)
 
 	// Log the summary at DEBUG level to reduce noise

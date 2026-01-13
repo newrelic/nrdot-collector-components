@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-// TrackedEntityUtil represents an entity being tracked for telemetry filtering
-type TrackedEntityUtil struct {
+// trackedEntityUtil represents an entity being tracked for telemetry filtering
+type trackedEntityUtil struct {
 	Identity      string             `json:"identity"`
 	FirstSeen     time.Time          `json:"first_seen"`
 	LastExceeded  time.Time          `json:"last_exceeded"`

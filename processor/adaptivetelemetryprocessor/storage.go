@@ -8,31 +8,31 @@ import (
 )
 
 type EntityStateStorage interface {
-	Load() (map[string]*TrackedEntity, error)
+	Load() (map[string]*trackedEntity, error)
 
-	Save(map[string]*TrackedEntity) error
+	Save(map[string]*trackedEntity) error
 
 	Close() error
 }
 
-type FileStorage struct {
+type fileStorage struct {
 	filePath string
 	mu       sync.Mutex
 }
 
-func NewFileStorage(filePath string) (*FileStorage, error) {
-	return &FileStorage{
+func newFileStorage(filePath string) (*fileStorage, error) {
+	return &fileStorage{
 		filePath: filePath,
 	}, nil
 }
 
-func (s *FileStorage) Load() (map[string]*TrackedEntity, error) {
+func (s *fileStorage) Load() (map[string]*trackedEntity, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if _, err := os.Stat(s.filePath); os.IsNotExist(err) {
 		// Return empty map if file doesn't exist yet
-		return make(map[string]*TrackedEntity), nil
+		return make(map[string]*trackedEntity), nil
 	}
 
 	data, err := os.ReadFile(s.filePath)
@@ -40,7 +40,7 @@ func (s *FileStorage) Load() (map[string]*TrackedEntity, error) {
 		return nil, err
 	}
 
-	var entities map[string]*TrackedEntity
+	var entities map[string]*trackedEntity
 	if err := json.Unmarshal(data, &entities); err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (s *FileStorage) Load() (map[string]*TrackedEntity, error) {
 	return entities, nil
 }
 
-func (s *FileStorage) Save(entities map[string]*TrackedEntity) error {
+func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -66,7 +66,7 @@ func (s *FileStorage) Save(entities map[string]*TrackedEntity) error {
 	return os.WriteFile(s.filePath, data, 0644)
 }
 
-func (s *FileStorage) Close() error {
+func (s *fileStorage) Close() error {
 	// No cleanup needed for file storage
 	return nil
 }
