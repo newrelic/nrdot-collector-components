@@ -1,3 +1,6 @@
+// Copyright New Relic, Inc. All rights reserved.
+// New Relic Software License
+
 package adaptivetelemetryprocessor
 
 import (
