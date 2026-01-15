@@ -93,6 +93,10 @@ Components are tracked in [`versions.yaml`](versions.yaml). To add a new compone
 3. Update [`cmd/otelcontribcol/builder-config.yaml`](cmd/otelcontribcol/builder-config.yaml)
 4. Run `make crosslink` to update intra-repository dependencies
 5. Run `make gotidy` to update Go module dependencies
+6. Create a symlink to the appropriate license file. For an example receiver:
+  a. Apache: `ln -s ../../licenses/LICENSE_APACHE receiver/{component}/LICENSE_APACHE_{component}`
+  b. Proprietary: `ln -s ../../licenses/LICENSE_NEWRELIC receiver/{component}/LICENSE_NEWRELIC_{component}`
+7. Run `make addlicense` to generate license headers and third-party notices
 
 ### Component Stability
 
