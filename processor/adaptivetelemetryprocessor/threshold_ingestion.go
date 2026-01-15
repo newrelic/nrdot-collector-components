@@ -1,5 +1,5 @@
-// Copyright 2023 New Relic Corporation. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+// Copyright New Relic, Inc. All rights reserved.
+// New Relic Software License
 
 package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 

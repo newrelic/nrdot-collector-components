@@ -1,3 +1,6 @@
+// Copyright New Relic, Inc. All rights reserved.
+// New Relic Software License
+
 package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 // This file contains all constant definitions for the adaptivetelemetryprocessor.
