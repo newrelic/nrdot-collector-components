@@ -9,8 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap"
 )
@@ -27,14 +25,14 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	cfg.Normalize()
 
 	proc := &processorImp{
-		logger:              zap.NewNop(),
-		config:              cfg,
-		trackedEntities:     make(map[string]*trackedEntity),
-		nextConsumer:        &mockMetricsConsumer{},
-		persistenceEnabled:  false,
+		logger:                   zap.NewNop(),
+		config:                   cfg,
+		trackedEntities:          make(map[string]*trackedEntity),
+		nextConsumer:             &mockMetricsConsumer{},
+		persistenceEnabled:       false,
 		dynamicThresholdsEnabled: false,
-		multiMetricEnabled:  false,
-		dynamicCustomThresholds: make(map[string]float64),
+		multiMetricEnabled:       false,
+		dynamicCustomThresholds:  make(map[string]float64),
 	}
 
 	// Create metrics for nginx (in include list) with low CPU usage
@@ -47,7 +45,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 
 	// Verify nginx is included despite being below threshold
 	assert.Equal(t, 1, result.ResourceMetrics().Len())
-	
+
 	// Check filter stage attribute
 	rm := result.ResourceMetrics().At(0)
 	stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
@@ -72,25 +70,25 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 	cfg.Normalize()
 
 	proc := &processorImp{
-		logger:              zap.NewNop(),
-		config:              cfg,
-		trackedEntities:     make(map[string]*trackedEntity),
-		nextConsumer:        &mockMetricsConsumer{},
-		persistenceEnabled:  false,
+		logger:                   zap.NewNop(),
+		config:                   cfg,
+		trackedEntities:          make(map[string]*trackedEntity),
+		nextConsumer:             &mockMetricsConsumer{},
+		persistenceEnabled:       false,
 		dynamicThresholdsEnabled: false,
-		multiMetricEnabled:  false,
-		dynamicCustomThresholds: make(map[string]float64),
+		multiMetricEnabled:       false,
+		dynamicCustomThresholds:  make(map[string]float64),
 	}
 
 	// Create batch with multiple processes
 	md := pmetric.NewMetrics()
-	
+
 	// Add nginx (in include list, low CPU)
 	addProcessToMetrics(md, "nginx", 1234, 5.0)
-	
+
 	// Add postgres (in include list, low CPU)
 	addProcessToMetrics(md, "postgres", 5678, 10.0)
-	
+
 	// Add apache (not in include list, low CPU)
 	addProcessToMetrics(md, "apache2", 9999, 8.0)
 
@@ -109,13 +107,13 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
 		assert.True(t, ok)
 		assert.Equal(t, "include_list", stageVal.Str())
-		
+
 		// Track which process was included
 		if execName, ok := rm.Resource().Attributes().Get("process.executable.name"); ok {
 			includedProcesses[execName.Str()] = true
 		}
 	}
-	
+
 	assert.True(t, includedProcesses["nginx"])
 	assert.True(t, includedProcesses["postgres"])
 	assert.False(t, includedProcesses["apache2"])
@@ -133,14 +131,14 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 	cfg.Normalize()
 
 	proc := &processorImp{
-		logger:              zap.NewNop(),
-		config:              cfg,
-		trackedEntities:     make(map[string]*trackedEntity),
-		nextConsumer:        &mockMetricsConsumer{},
-		persistenceEnabled:  false,
+		logger:                   zap.NewNop(),
+		config:                   cfg,
+		trackedEntities:          make(map[string]*trackedEntity),
+		nextConsumer:             &mockMetricsConsumer{},
+		persistenceEnabled:       false,
 		dynamicThresholdsEnabled: false,
-		multiMetricEnabled:  false,
-		dynamicCustomThresholds: make(map[string]float64),
+		multiMetricEnabled:       false,
+		dynamicCustomThresholds:  make(map[string]float64),
 	}
 
 	// Create metrics for apache (not in include list) with high CPU
@@ -153,7 +151,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 
 	// Apache should be included because it exceeds threshold
 	assert.Equal(t, 1, result.ResourceMetrics().Len())
-	
+
 	// Check filter stage - should be static_threshold, not include_list
 	rm := result.ResourceMetrics().At(0)
 	stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
@@ -171,16 +169,16 @@ func createTestProcessMetrics(processName string, pid int, cpuUtilization float6
 // Helper function to add a process to metrics
 func addProcessToMetrics(md pmetric.Metrics, processName string, pid int, cpuUtilization float64) {
 	rm := md.ResourceMetrics().AppendEmpty()
-	
+
 	// Set resource attributes
 	attrs := rm.Resource().Attributes()
 	attrs.PutStr("process.executable.name", processName)
 	attrs.PutInt("process.pid", int64(pid))
 	attrs.PutStr("host.name", "testhost")
-	
+
 	// Add scope metrics
 	sm := rm.ScopeMetrics().AppendEmpty()
-	
+
 	// Add CPU utilization metric
 	metric := sm.Metrics().AppendEmpty()
 	metric.SetName("process.cpu.utilization")
@@ -189,19 +187,7 @@ func addProcessToMetrics(md pmetric.Metrics, processName string, pid int, cpuUti
 	dp.SetDoubleValue(cpuUtilization)
 }
 
-// Mock consumer for testing
-type mockMetricsConsumer struct{}
-
-func (m *mockMetricsConsumer) Capabilities() consumer.Capabilities {
-	return consumer.Capabilities{MutatesData: false}
-}
-
-func (m *mockMetricsConsumer) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) error {
-	return nil
-}
-
 // Helper to create bool pointer
 func ptrBool(b bool) *bool {
 	return &b
 }
-
