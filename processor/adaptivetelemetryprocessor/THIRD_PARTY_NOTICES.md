@@ -28,14 +28,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/confmap](https://go.opentelemetry.io/collector/confmap)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/consumer](https://go.opentelemetry.io/collector/consumer)
 
 Distributed under the following license(s):
