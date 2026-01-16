@@ -6,11 +6,12 @@ package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collecto
 import (
 	"context"
 	"fmt"
+	"math/rand/v2"
+	"time"
+
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap"
-	"math/rand"
-	"time"
 )
 
 // processMetrics iterates resource metrics, applies threshold logic, and returns a filtered copy.
@@ -25,7 +26,7 @@ func (p *processorImp) processMetrics(ctx context.Context, md pmetric.Metrics) (
 	}
 
 	// Initialize processing context
-	processCtx := p.initializeProcessingContext(ctx, md, start)
+	processCtx := p.initializeProcessingContext(ctx, md)
 
 	// Check if context is already cancelled
 	if processCtx.ctx.Err() != nil {
@@ -33,13 +34,13 @@ func (p *processorImp) processMetrics(ctx context.Context, md pmetric.Metrics) (
 	}
 
 	// Update dynamic thresholds if needed
-	p.updateDynamicThresholdsIfNeeded(processCtx, md)
+	p.updateDynamicThresholdsIfNeeded(md)
 
 	// Process all resources
-	filtered, includedCount := p.processAllResources(processCtx, md)
+	filtered, _ := p.processAllResources(processCtx, md)
 
 	// Perform post-processing tasks
-	p.performPostProcessingTasks(processCtx, md, filtered, includedCount, start)
+	p.performPostProcessingTasks(processCtx, filtered, start)
 
 	return filtered, nil
 }
@@ -54,7 +55,7 @@ type processingContext struct {
 }
 
 // initializeProcessingContext sets up the processing context and logs batch information
-func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetric.Metrics, start time.Time) *processingContext {
+func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetric.Metrics) *processingContext {
 	processCtx := &processingContext{
 		ctx:             ctx,
 		resourceCount:   md.ResourceMetrics().Len(),
@@ -63,7 +64,7 @@ func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetr
 	}
 
 	// Count metrics by type for better visibility
-	processCtx.totalMetricCount = p.countMetricsByType(md, processCtx.metricTypeCount)
+	processCtx.totalMetricCount = countMetricsByType(md, processCtx.metricTypeCount)
 
 	// Log batch information
 	p.logger.Info("Processing metrics batch",
@@ -78,7 +79,7 @@ func (p *processorImp) initializeProcessingContext(ctx context.Context, md pmetr
 }
 
 // countMetricsByType counts metrics by their OpenTelemetry type
-func (p *processorImp) countMetricsByType(md pmetric.Metrics, metricTypeCount map[string]int) int {
+func countMetricsByType(md pmetric.Metrics, metricTypeCount map[string]int) int {
 	totalMetricCount := 0
 
 	for i := 0; i < md.ResourceMetrics().Len(); i++ {
@@ -120,7 +121,7 @@ func (p *processorImp) handleContextCancellation(md pmetric.Metrics, processCtx 
 }
 
 // updateDynamicThresholdsIfNeeded updates dynamic thresholds if interval has passed
-func (p *processorImp) updateDynamicThresholdsIfNeeded(processCtx *processingContext, md pmetric.Metrics) {
+func (p *processorImp) updateDynamicThresholdsIfNeeded(md pmetric.Metrics) {
 	if !p.dynamicThresholdsEnabled || time.Since(p.lastThresholdUpdate).Seconds() < dynamicUpdateIntervalSecs {
 		return
 	}
@@ -148,7 +149,7 @@ func (p *processorImp) processAllResources(processCtx *processingContext, md pme
 		}
 
 		rm := rms.At(i)
-		if p.processingSingleResource(processCtx.ctx, rm, &filtered, processCtx.stageHits) {
+		if p.processingSingleResource(rm, &filtered, processCtx.stageHits) {
 			includedCount++
 		}
 	}
@@ -161,7 +162,7 @@ func (p *processorImp) processAllResources(processCtx *processingContext, md pme
 }
 
 // processingSingleResource processes a single resource and returns whether it was included
-func (p *processorImp) processingSingleResource(ctx context.Context, rm pmetric.ResourceMetrics, filtered *pmetric.Metrics, stageHits map[string]int) bool {
+func (p *processorImp) processingSingleResource(rm pmetric.ResourceMetrics, filtered *pmetric.Metrics, stageHits map[string]int) bool {
 	resourceID := buildResourceIdentity(rm.Resource())
 
 	// Evaluate resource through all filter stages - no artificial timeout
@@ -180,10 +181,9 @@ func (p *processorImp) processingSingleResource(ctx context.Context, rm pmetric.
 			stageHits[includeReason]++
 		}
 		return true
-	} else {
-		p.handleExcludedResource(rm, resourceID)
-		return false
 	}
+	p.handleExcludedResource(rm, resourceID)
+	return false
 }
 
 // handleIncludedResource processes a resource that should be included in output
@@ -208,7 +208,7 @@ func (p *processorImp) handleIncludedResource(rm pmetric.ResourceMetrics, resour
 	}
 
 	// Add the filter stage attribute to all datapoints in the resource metrics
-	p.addStageAttributeToMetrics(rm, includeReason)
+	addStageAttributeToMetrics(rm, includeReason)
 
 	rm.CopyTo(filtered.ResourceMetrics().AppendEmpty())
 }
@@ -223,7 +223,7 @@ func (p *processorImp) handleExcludedResource(rm pmetric.ResourceMetrics, resour
 }
 
 // addStageAttributeToMetrics adds filter stage attribute to all metric data points
-func (p *processorImp) addStageAttributeToMetrics(rm pmetric.ResourceMetrics, includeReason string) {
+func addStageAttributeToMetrics(rm pmetric.ResourceMetrics, includeReason string) {
 	for i := 0; i < rm.ScopeMetrics().Len(); i++ {
 		sm := rm.ScopeMetrics().At(i)
 		for j := 0; j < sm.Metrics().Len(); j++ {
@@ -234,7 +234,7 @@ func (p *processorImp) addStageAttributeToMetrics(rm pmetric.ResourceMetrics, in
 }
 
 // performPostProcessingTasks handles cleanup and final logging
-func (p *processorImp) performPostProcessingTasks(processCtx *processingContext, md, filtered pmetric.Metrics, includedCount int, start time.Time) {
+func (p *processorImp) performPostProcessingTasks(processCtx *processingContext, filtered pmetric.Metrics, start time.Time) {
 	// Perform cleanup of expired entities with controlled frequency
 	if processCtx.resourceCount > 0 && p.config.RetentionMinutes > 0 && rand.Float64() < 0.01 {
 		go p.cleanupExpiredEntities()
@@ -242,7 +242,7 @@ func (p *processorImp) performPostProcessingTasks(processCtx *processingContext,
 
 	processingTime := time.Since(start)
 	outputResourceCount := filtered.ResourceMetrics().Len()
-	outputMetricCount := p.countOutputMetrics(filtered)
+	outputMetricCount := countOutputMetrics(filtered)
 
 	// Generate summary metrics for customer visibility into filtering effectiveness
 	p.generateFilteringSummaryMetrics(&filtered, processCtx.resourceCount, outputResourceCount,
@@ -265,7 +265,7 @@ func (p *processorImp) performPostProcessingTasks(processCtx *processingContext,
 }
 
 // countOutputMetrics counts metrics in the filtered output
-func (p *processorImp) countOutputMetrics(filtered pmetric.Metrics) int {
+func countOutputMetrics(filtered pmetric.Metrics) int {
 	outputMetricCount := 0
 	for i := 0; i < filtered.ResourceMetrics().Len(); i++ {
 		rm := filtered.ResourceMetrics().At(i)
@@ -295,7 +295,7 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	// Check include list FIRST - bypass all filters if in include list
 	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
 		processName := extractProcessName(resource.Attributes())
-		p.setResourceFilterStage(resource, stageIncludeList)
+		setResourceFilterStage(resource, stageIncludeList)
 		p.logger.Info("Resource included: in include list (bypass all filters)",
 			zap.String("resource_id", id),
 			zap.String("process_name", processName))
@@ -316,15 +316,14 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 
 	if exists {
 		return p.evaluateExistingEntity(resource, id, trackedEntity, values)
-	} else {
-		return p.evaluateNewEntity(resource, id, values)
 	}
+	return p.evaluateNewEntity(resource, id, values)
 }
 
 // evaluateExistingEntity evaluates filter stages for an existing tracked entity
 func (p *processorImp) evaluateExistingEntity(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	// Update current and max values
-	p.updateEntityValues(trackedEntity, values)
+	updateEntityValues(trackedEntity, values)
 
 	// Check filter stages in order
 	return p.checkAnomalyDetectionStage(resource, id, trackedEntity, values) ||
@@ -346,7 +345,7 @@ func (p *processorImp) evaluateNewEntity(resource pcommon.Resource, id string, v
 		p.trackedEntities[id] = newEntity
 
 		if include {
-			p.setResourceFilterStage(resource, stage)
+			setResourceFilterStage(resource, stage)
 			p.logger.Info("Resource included: new resource",
 				zap.String("resource_id", id),
 				zap.String("filter_stage", stage))
@@ -384,7 +383,7 @@ func (p *processorImp) checkNewEntityFilterStages(resource pcommon.Resource, id 
 }
 
 // updateEntityValues updates current and max values for a tracked entity
-func (p *processorImp) updateEntityValues(trackedEntity *trackedEntity, values map[string]float64) {
+func updateEntityValues(trackedEntity *trackedEntity, values map[string]float64) {
 	if trackedEntity.CurrentValues == nil {
 		trackedEntity.CurrentValues = make(map[string]float64)
 	}
@@ -414,7 +413,7 @@ func (p *processorImp) upsertTrackedEntityForIncludeList(id string, values map[s
 			Attributes:    snapshotResourceAttributes(resource),
 		}
 	} else {
-		p.updateEntityValues(te, values)
+		updateEntityValues(te, values)
 		te.LastExceeded = now
 	}
 }
@@ -426,7 +425,7 @@ func (p *processorImp) checkAnomalyDetectionStage(resource pcommon.Resource, id 
 	}
 
 	if isAnomaly, anomalyReason := p.detectAnomaly(trackedEntity, values); isAnomaly {
-		p.setResourceFilterStage(resource, stageAnomalyDetection)
+		setResourceFilterStage(resource, stageAnomalyDetection)
 		p.logger.Info("Resource included: anomaly detected",
 			zap.String("resource_id", id),
 			zap.String("details", anomalyReason))
@@ -439,9 +438,8 @@ func (p *processorImp) checkAnomalyDetectionStage(resource pcommon.Resource, id 
 func (p *processorImp) checkThresholdStages(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	if p.dynamicThresholdsEnabled {
 		return p.checkDynamicThresholds(resource, id, trackedEntity, values)
-	} else {
-		return p.checkStaticThresholds(resource, id, trackedEntity, values)
 	}
+	return p.checkStaticThresholds(resource, id, trackedEntity, values)
 }
 
 // checkDynamicThresholds checks dynamic threshold stage for existing entities
@@ -449,7 +447,7 @@ func (p *processorImp) checkDynamicThresholds(resource pcommon.Resource, id stri
 	for m, v := range values {
 		if threshold, ok := p.dynamicCustomThresholds[m]; ok && v >= threshold {
 			trackedEntity.LastExceeded = time.Now()
-			p.setResourceFilterStage(resource, stageDynamicThreshold)
+			setResourceFilterStage(resource, stageDynamicThreshold)
 			p.logger.Info("Resource included: dynamic threshold",
 				zap.String("resource_id", id),
 				zap.String("metric", m),
@@ -466,7 +464,7 @@ func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id strin
 	for m, v := range values {
 		if threshold := p.config.MetricThresholds[m]; threshold == 0.0 || (threshold > 0 && v >= threshold) {
 			trackedEntity.LastExceeded = time.Now()
-			p.setResourceFilterStage(resource, stageStaticThreshold)
+			setResourceFilterStage(resource, stageStaticThreshold)
 			p.logger.Debug("Resource included: static threshold",
 				zap.String("resource_id", id),
 				zap.String("metric", m),
@@ -492,7 +490,7 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
-		p.setResourceFilterStage(resource, stageMultiMetric)
+		setResourceFilterStage(resource, stageMultiMetric)
 		// Add composite score and threshold as resource attributes
 		resource.Attributes().PutDouble(multiMetricCompositeScoreKey, compScore)
 		resource.Attributes().PutDouble(multiMetricThresholdKey, threshold)
@@ -524,7 +522,7 @@ func (p *processorImp) checkAnomalyRetention(resource pcommon.Resource, id strin
 	}
 
 	if time.Since(trackedEntity.LastAnomalyDetected).Minutes() < float64(anomalyRetentionMins) {
-		p.setResourceFilterStage(resource, stageAnomalyRetention)
+		setResourceFilterStage(resource, stageAnomalyRetention)
 		p.logger.Info("Resource included: anomaly retention",
 			zap.String("resource_id", id),
 			zap.Float64("minutes_since_anomaly", time.Since(trackedEntity.LastAnomalyDetected).Minutes()),
@@ -542,7 +540,7 @@ func (p *processorImp) checkStandardRetention(resource pcommon.Resource, id stri
 
 	retentionWindow := time.Duration(p.config.RetentionMinutes) * time.Minute
 	if time.Since(trackedEntity.LastExceeded) < retentionWindow {
-		p.setResourceFilterStage(resource, stageStandardRetention)
+		setResourceFilterStage(resource, stageStandardRetention)
 		p.logger.Info("Resource included: standard retention period",
 			zap.String("resource_id", id),
 			zap.Duration("time_since_exceeded", time.Since(trackedEntity.LastExceeded)),
@@ -691,7 +689,7 @@ func (p *processorImp) handleDebugMode(resource pcommon.Resource, id string, val
 
 	debugReason := "debug_no_match:" + fmt.Sprintf("%v", debugDetails)
 
-	p.setResourceFilterStage(resource, debugReason)
+	setResourceFilterStage(resource, debugReason)
 	p.logger.Debug("Including resource for debugging",
 		zap.String("resource_id", id),
 		zap.String("debug_reason", debugReason))
@@ -699,7 +697,7 @@ func (p *processorImp) handleDebugMode(resource pcommon.Resource, id string, val
 }
 
 // setResourceFilterStage sets the filter stage attribute on a resource
-func (p *processorImp) setResourceFilterStage(resource pcommon.Resource, stage string) {
+func setResourceFilterStage(resource pcommon.Resource, stage string) {
 	resource.Attributes().PutStr(adaptiveFilterStageAttributeKey, stage)
 }
 

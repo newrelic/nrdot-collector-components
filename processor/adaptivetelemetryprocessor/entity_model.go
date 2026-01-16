@@ -3,20 +3,4 @@
 
 package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
-import (
-	"time"
-)
-
-// trackedEntityUtil represents an entity being tracked for telemetry filtering
-type trackedEntityUtil struct {
-	Identity      string             `json:"identity"`
-	FirstSeen     time.Time          `json:"first_seen"`
-	LastExceeded  time.Time          `json:"last_exceeded"`
-	CurrentValues map[string]float64 `json:"current_values"`
-	MaxValues     map[string]float64 `json:"max_values"`
-	Attributes    map[string]string  `json:"attributes,omitempty"`
-
-	// Anomaly detection fields - historical metric values
-	MetricHistory       map[string][]float64 `json:"metric_history,omitempty"`
-	LastAnomalyDetected time.Time            `json:"last_anomaly_detected,omitempty"`
-}
+// trackedEntity is defined in types.go

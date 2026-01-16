@@ -21,7 +21,7 @@ func detectAnomalyUtil(p *processorImp, trackedEntity *trackedEntity, currentVal
 	historySize, changeThreshold := p.getAnomalyConfig()
 
 	// Initialize metric history if needed
-	p.initializeMetricHistory(trackedEntity)
+	initializeMetricHistory(trackedEntity)
 
 	// Check each metric for anomalies
 	for metricName, currentValue := range currentValues {
@@ -49,7 +49,7 @@ func (p *processorImp) getAnomalyConfig() (int, float64) {
 }
 
 // initializeMetricHistory ensures the metric history map is initialized
-func (p *processorImp) initializeMetricHistory(trackedEntity *trackedEntity) {
+func initializeMetricHistory(trackedEntity *trackedEntity) {
 	if trackedEntity.MetricHistory == nil {
 		trackedEntity.MetricHistory = make(map[string][]float64)
 	}
@@ -65,7 +65,7 @@ func (p *processorImp) checkMetricAnomaly(trackedEntity *trackedEntity, metricNa
 	history := trackedEntity.MetricHistory[metricName]
 
 	// Update metric history
-	p.updateMetricHistory(trackedEntity, metricName, currentValue, historySize)
+	updateMetricHistory(trackedEntity, metricName, currentValue, historySize)
 
 	// Need enough history for anomaly detection
 	// Use configured minimum data points to establish a stable baseline and reduce false positives
@@ -78,8 +78,8 @@ func (p *processorImp) checkMetricAnomaly(trackedEntity *trackedEntity, metricNa
 	}
 
 	// Calculate anomaly metrics
-	avg := p.calculateAverage(history)
-	pctChange := p.calculatePercentageChange(currentValue, avg)
+	avg := calculateAverage(history)
+	pctChange := calculatePercentageChange(currentValue, avg)
 
 	// Check for anomaly and handle if detected
 	if pctChange >= changeThreshold {
@@ -90,7 +90,7 @@ func (p *processorImp) checkMetricAnomaly(trackedEntity *trackedEntity, metricNa
 }
 
 // updateMetricHistory adds the current value to history and maintains size limit
-func (p *processorImp) updateMetricHistory(trackedEntity *trackedEntity, metricName string, currentValue float64, historySize int) {
+func updateMetricHistory(trackedEntity *trackedEntity, metricName string, currentValue float64, historySize int) {
 	history := trackedEntity.MetricHistory[metricName]
 	trackedEntity.MetricHistory[metricName] = append(history, currentValue)
 
@@ -100,7 +100,7 @@ func (p *processorImp) updateMetricHistory(trackedEntity *trackedEntity, metricN
 }
 
 // calculateAverage computes the average of historical values
-func (p *processorImp) calculateAverage(history []float64) float64 {
+func calculateAverage(history []float64) float64 {
 	var sum float64
 	for _, v := range history {
 		sum += v
@@ -109,7 +109,7 @@ func (p *processorImp) calculateAverage(history []float64) float64 {
 }
 
 // calculatePercentageChange computes the percentage change from average
-func (p *processorImp) calculatePercentageChange(currentValue, avg float64) float64 {
+func calculatePercentageChange(currentValue, avg float64) float64 {
 	if avg > 0 {
 		return ((currentValue - avg) / avg) * 100
 	}

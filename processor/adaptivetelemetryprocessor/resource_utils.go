@@ -190,7 +190,7 @@ func countMetricsInResource(rm pmetric.ResourceMetrics) int {
 }
 
 // addAttributeToMetricDataPoints adds the given attribute to all datapoints in a metric
-func addAttributeToMetricDataPoints(metric pmetric.Metric, key string, value string) {
+func addAttributeToMetricDataPoints(metric pmetric.Metric, key, value string) {
 	switch metric.Type() {
 	case pmetric.MetricTypeGauge:
 		dps := metric.Gauge().DataPoints()
@@ -217,5 +217,7 @@ func addAttributeToMetricDataPoints(metric pmetric.Metric, key string, value str
 		for i := 0; i < dps.Len(); i++ {
 			dps.At(i).Attributes().PutStr(key, value)
 		}
+	default:
+		// Unknown or empty metric type, nothing to do
 	}
 }

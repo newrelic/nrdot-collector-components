@@ -19,10 +19,8 @@ func TestCountMetricsInResource(t *testing.T) {
 		expectedCount int
 	}{
 		{
-			name: "Empty resource metrics",
-			setup: func() pmetric.ResourceMetrics {
-				return pmetric.NewResourceMetrics()
-			},
+			name:          "Empty resource metrics",
+			setup:         pmetric.NewResourceMetrics,
 			expectedCount: 0,
 		},
 		{
@@ -44,31 +42,31 @@ func TestCountMetricsInResource(t *testing.T) {
 			name: "Multiple scopes with multiple metrics",
 			setup: func() pmetric.ResourceMetrics {
 				rm := pmetric.NewResourceMetrics()
-				
+
 				// First scope
 				sm1 := rm.ScopeMetrics().AppendEmpty()
 				m1 := sm1.Metrics().AppendEmpty()
 				m1.SetName("metric1")
 				m1.SetEmptyGauge()
-				
+
 				m2 := sm1.Metrics().AppendEmpty()
 				m2.SetName("metric2")
 				m2.SetEmptyGauge()
-				
+
 				// Second scope
 				sm2 := rm.ScopeMetrics().AppendEmpty()
 				m3 := sm2.Metrics().AppendEmpty()
 				m3.SetName("metric3")
 				m3.SetEmptyGauge()
-				
+
 				m4 := sm2.Metrics().AppendEmpty()
 				m4.SetName("metric4")
 				m4.SetEmptyGauge()
-				
+
 				m5 := sm2.Metrics().AppendEmpty()
 				m5.SetName("metric5")
 				m5.SetEmptyGauge()
-				
+
 				return rm
 			},
 			expectedCount: 5,

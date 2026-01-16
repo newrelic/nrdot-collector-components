@@ -23,10 +23,10 @@ type fileStorage struct {
 	mu       sync.Mutex
 }
 
-func newFileStorage(filePath string) (*fileStorage, error) {
+func newFileStorage(filePath string) *fileStorage {
 	return &fileStorage{
 		filePath: filePath,
-	}, nil
+	}
 }
 
 func (s *fileStorage) Load() (map[string]*trackedEntity, error) {
@@ -57,7 +57,7 @@ func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 
 	// Ensure directory exists
 	dir := filepath.Dir(s.filePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 
@@ -66,10 +66,10 @@ func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 		return err
 	}
 
-	return os.WriteFile(s.filePath, data, 0644)
+	return os.WriteFile(s.filePath, data, 0o600)
 }
 
-func (s *fileStorage) Close() error {
+func (_ *fileStorage) Close() error {
 	// No cleanup needed for file storage
 	return nil
 }
@@ -77,7 +77,7 @@ func (s *fileStorage) Close() error {
 // createDirectoryIfNotExists creates a directory if it doesn't exist
 func createDirectoryIfNotExists(dirPath string) error {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		return os.MkdirAll(dirPath, 0755)
+		return os.MkdirAll(dirPath, 0o755)
 	}
 	return nil
 }

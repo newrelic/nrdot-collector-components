@@ -19,7 +19,7 @@ func (p *processorImp) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) e
 	defer p.logBatchProcessingTime(batchStart)
 
 	// Calculate and log input metrics statistics
-	inputStats := p.calculateInputStats(md)
+	inputStats := calculateInputStats(md)
 	p.logInputStats(inputStats)
 
 	// Create a context with timeout to prevent processing from hanging indefinitely
@@ -62,7 +62,7 @@ type inputStats struct {
 }
 
 // calculateInputStats computes statistics for input metrics
-func (p *processorImp) calculateInputStats(md pmetric.Metrics) inputStats {
+func calculateInputStats(md pmetric.Metrics) inputStats {
 	stats := inputStats{
 		ResourceCount: md.ResourceMetrics().Len(),
 	}
@@ -156,7 +156,7 @@ func (p *processorImp) calculateOutputStats(filteredMetrics pmetric.Metrics) out
 			// Count metrics by type
 			for k := 0; k < sm.Metrics().Len(); k++ {
 				m := sm.Metrics().At(k)
-				p.countMetricByType(m, stats.MetricTypeCount)
+				countMetricByType(m, stats.MetricTypeCount)
 			}
 		}
 
@@ -177,7 +177,7 @@ func (p *processorImp) calculateOutputStats(filteredMetrics pmetric.Metrics) out
 }
 
 // countMetricByType categorizes metrics by their type
-func (p *processorImp) countMetricByType(m pmetric.Metric, typeCount map[string]int) {
+func countMetricByType(m pmetric.Metric, typeCount map[string]int) {
 	switch m.Type() {
 	case pmetric.MetricTypeGauge:
 		typeCount["gauge"]++

@@ -77,7 +77,7 @@ func TestExtractMetricValues(t *testing.T) {
 			values := proc.extractMetricValues(md.ResourceMetrics().At(0))
 
 			// Verify values
-			assert.Equal(t, len(tc.expectedValues), len(values))
+			assert.Len(t, values, len(tc.expectedValues))
 			for metric, expected := range tc.expectedValues {
 				actual, exists := values[metric]
 				assert.True(t, exists, "Metric %s should be extracted", metric)

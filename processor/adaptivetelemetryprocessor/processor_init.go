@@ -80,11 +80,8 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 		if err := createDirectoryIfNotExists(storageDir); err != nil {
 			logger.Warn("Failed to create storage directory", zap.String("path", storageDir), zap.Error(err))
 			p.persistenceEnabled = false
-		} else if storage, err := newFileStorage(config.StoragePath); err != nil {
-			logger.Warn("Failed to initialize storage", zap.Error(err))
-			p.persistenceEnabled = false
 		} else {
-			p.storage = storage
+			p.storage = newFileStorage(config.StoragePath)
 			if err := p.loadTrackedEntities(); err != nil {
 				logger.Warn("Failed to load tracked entities", zap.Error(err))
 			}
@@ -92,7 +89,7 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 	}
 
 	// Log processor configuration
-	configSummary := map[string]interface{}{
+	configSummary := map[string]any{
 		"dynamic_thresholds_enabled": p.dynamicThresholdsEnabled,
 		"multi_metric_enabled":       p.multiMetricEnabled,
 		"anomaly_detection_enabled":  config.EnableAnomalyDetection,
@@ -114,7 +111,7 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 }
 
 // Shutdown cleans up processor resources
-func (p *processorImp) Shutdown(ctx context.Context) error {
+func (p *processorImp) Shutdown(_ context.Context) error {
 	if p.persistenceEnabled && p.storage != nil {
 		if err := p.persistTrackedEntities(); err != nil {
 			p.logger.Warn("Failed to persist tracked entities during shutdown", zap.Error(err))
@@ -127,11 +124,11 @@ func (p *processorImp) Shutdown(ctx context.Context) error {
 }
 
 // Start is a no-op for this processor
-func (p *processorImp) Start(_ context.Context, _ component.Host) error {
+func (_ *processorImp) Start(_ context.Context, _ component.Host) error {
 	return nil
 }
 
 // Capabilities indicates that this processor mutates data
-func (p *processorImp) Capabilities() consumer.Capabilities {
+func (_ *processorImp) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: true}
 }

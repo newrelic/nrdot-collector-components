@@ -194,8 +194,7 @@ func TestPersistenceAndLoading(t *testing.T) {
 
 	// Create storage
 	storagePath := tmpDir + "/test_data/test.db"
-	storage, err := newFileStorage(storagePath)
-	require.NoError(t, err)
+	storage := newFileStorage(storagePath)
 
 	// Create processor with storage
 	config := &Config{
@@ -236,8 +235,9 @@ func TestPersistenceAndLoading(t *testing.T) {
 	proc.mu.Unlock()
 
 	// Test persistence
-	err = proc.persistTrackedEntities()
-	require.NoError(t, err)
+	if err := proc.persistTrackedEntities(); err != nil {
+		require.NoError(t, err)
+	}
 
 	// Create a new processor to test loading
 	proc2 := &processorImp{
@@ -249,8 +249,9 @@ func TestPersistenceAndLoading(t *testing.T) {
 	}
 
 	// Load tracked entities
-	err = proc2.loadTrackedEntities()
-	require.NoError(t, err)
+	if err := proc2.loadTrackedEntities(); err != nil {
+		require.NoError(t, err)
+	}
 
 	// Verify entities were loaded correctly
 	proc2.mu.RLock()

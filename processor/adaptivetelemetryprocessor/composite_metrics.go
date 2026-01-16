@@ -72,38 +72,28 @@ func (p *processorImp) shouldProcessMetric(name string) bool {
 func (p *processorImp) extractSingleMetricValue(m pmetric.Metric) (float64, bool) {
 	switch m.Type() {
 	case pmetric.MetricTypeGauge:
-		return p.extractGaugeValue(m.Gauge()), true
+		return extractGaugeValue(m.Gauge()), true
 	case pmetric.MetricTypeSum:
-		return p.extractSumValue(m.Sum()), true
+		return extractSumValue(m.Sum()), true
 	default:
 		return 0, false
 	}
 }
 
-// extractGaugeValue sums all gauge data points
-func (p *processorImp) extractGaugeValue(g pmetric.Gauge) float64 {
+// extractGaugeValue extracts value from gauge metric
+func extractGaugeValue(g pmetric.Gauge) float64 {
 	dataPoints := g.DataPoints()
-	dpLen := dataPoints.Len()
-
-	if dpLen == 0 {
+	if dataPoints.Len() == 0 {
 		return 0
 	}
 
-	// Fast path for common case of single data point
-	if dpLen == 1 {
-		return dataPoints.At(0).DoubleValue()
-	}
-
-	// Sum multiple datapoints
-	var sum float64
-	for k := 0; k < dpLen; k++ {
-		sum += dataPoints.At(k).DoubleValue()
-	}
-	return sum
+	// For simple Gauges, we take the last data point
+	// (Should typically be one data point per metric in a resource metric scope)
+	return dataPoints.At(dataPoints.Len() - 1).DoubleValue()
 }
 
 // extractSumValue extracts value from sum metric (aggregates all data points if multiple exist)
-func (p *processorImp) extractSumValue(s pmetric.Sum) float64 {
+func extractSumValue(s pmetric.Sum) float64 {
 	dataPoints := s.DataPoints()
 	dataPointCount := dataPoints.Len()
 

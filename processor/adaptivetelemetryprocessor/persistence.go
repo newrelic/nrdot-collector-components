@@ -33,10 +33,7 @@ func (p *processorImp) loadTrackedEntities() error {
 
 	// Count entities by type for better observability
 	resourceTypes := make(map[string]int)
-	var oldestEntity time.Time
-	if !time.Time.IsZero(time.Now()) { // Initialize to maximum time
-		oldestEntity = time.Now()
-	}
+	oldestEntity := time.Now()
 
 	for _, entity := range entities {
 		if resourceType, ok := entity.Attributes["type"]; ok {
@@ -45,7 +42,7 @@ func (p *processorImp) loadTrackedEntities() error {
 			resourceTypes["host_component"]++
 		}
 
-		if entity.FirstSeen.Before(oldestEntity) && !time.Time.IsZero(entity.FirstSeen) {
+		if entity.FirstSeen.Before(oldestEntity) && !entity.FirstSeen.IsZero() {
 			oldestEntity = entity.FirstSeen
 		}
 	}
