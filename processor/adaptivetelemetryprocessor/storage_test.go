@@ -70,8 +70,11 @@ func TestFileStorage(t *testing.T) {
 			assert.Equal(t, entity.Attributes, loaded.Attributes)
 
 			// Time fields should be close - check formatting and truncate to seconds
-			assert.Equal(t, entity.FirstSeen.Truncate(time.Second), loaded.FirstSeen.Truncate(time.Second))
-			assert.Equal(t, entity.LastExceeded.Truncate(time.Second), loaded.LastExceeded.Truncate(time.Second))
+			// Convert to UTC before comparing because JSON unmarshalling normalizes
+			// times, often resulting in UTC location which differs from time.Local
+			// even if the offset is the same.
+			assert.Equal(t, entity.FirstSeen.Truncate(time.Second).UTC(), loaded.FirstSeen.Truncate(time.Second).UTC())
+			assert.Equal(t, entity.LastExceeded.Truncate(time.Second).UTC(), loaded.LastExceeded.Truncate(time.Second).UTC())
 		}
 	}
 
