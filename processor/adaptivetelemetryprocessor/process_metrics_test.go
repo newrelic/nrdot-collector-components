@@ -52,7 +52,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		assert.Greater(t, initialMetricCount, 0, "Should have metrics to process")
 
 		// Process metrics
-		result, err := processor.processMetrics(context.Background(), metrics)
+		result, err := processor.processMetrics(t.Context(), metrics)
 
 		// Verify results
 		assert.NoError(t, err)
@@ -72,10 +72,10 @@ func TestProcessMetricsExtended(t *testing.T) {
 
 		// Initialize metric count
 		initialMetricCount := countMetrics(metrics)
-		assert.Greater(t, initialMetricCount, 0, "Should have metrics to process")
+		assert.Positive(t, initialMetricCount, "Should have metrics to process")
 
 		// Process metrics
-		result, err := processor.processMetrics(context.Background(), metrics)
+		result, err := processor.processMetrics(t.Context(), metrics)
 
 		// Verify results
 		assert.NoError(t, err)
@@ -108,7 +108,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		)
 
 		// First process to create history
-		_, err := processor.processMetrics(context.Background(), metrics)
+		_, err := processor.processMetrics(t.Context(), metrics)
 		assert.NoError(t, err)
 
 		// Wait a tiny bit to ensure timestamp changes
@@ -124,7 +124,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		)
 
 		// Process again
-		result, err := processor.processMetrics(context.Background(), metrics)
+		result, err := processor.processMetrics(t.Context(), metrics)
 		assert.NoError(t, err)
 
 		// Check that metrics were kept due to exceeding thresholds
@@ -134,7 +134,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 
 	t.Run("Process with cancelled context", func(t *testing.T) {
 		// Create cancelled context
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel() // Cancel immediately
 
 		// Create some test metrics
@@ -157,7 +157,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		md := pmetric.NewMetrics()
 
 		// Process empty metrics
-		result, err := processor.processMetrics(context.Background(), md)
+		result, err := processor.processMetrics(t.Context(), md)
 
 		// Should return empty metrics and no error
 		assert.NoError(t, err, "No error should be returned for empty metrics")
@@ -180,7 +180,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		}
 
 		// Process metrics with active context
-		result, err := processor.processMetrics(context.Background(), md)
+		result, err := processor.processMetrics(t.Context(), md)
 
 		// Should succeed and return all resources
 		assert.NoError(t, err)
@@ -209,7 +209,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 		)
 
 		// Process metrics
-		result, err := lowThresholdProcessor.processMetrics(context.Background(), metrics)
+		result, err := lowThresholdProcessor.processMetrics(t.Context(), metrics)
 
 		// Should succeed but return no resources
 		assert.NoError(t, err)

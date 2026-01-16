@@ -28,7 +28,7 @@ func newMockMetricsConsumer() *mockMetricsConsumer {
 	}
 }
 
-func (_ *mockMetricsConsumer) Capabilities() consumer.Capabilities {
+func (*mockMetricsConsumer) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: false}
 }
 

@@ -228,10 +228,8 @@ func createTestMetrics(resourceAttrs map[string]string, metrics map[string]float
 	rm := md.ResourceMetrics().AppendEmpty()
 
 	// Set resource attributes
-	if resourceAttrs != nil {
-		for k, v := range resourceAttrs {
-			rm.Resource().Attributes().PutStr(k, v)
-		}
+	for k, v := range resourceAttrs {
+		rm.Resource().Attributes().PutStr(k, v)
 	}
 
 	// Add metrics
@@ -279,7 +277,7 @@ func TestConsumeMetricsBasic(t *testing.T) {
 	)
 
 	// Process metrics again (should filter out)
-	err = proc.ConsumeMetrics(context.Background(), md)
+	err = proc.ConsumeMetrics(t.Context(), md)
 	require.NoError(t, err)
 }
 

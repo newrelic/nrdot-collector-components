@@ -69,7 +69,7 @@ func (p *processorImp) shouldProcessMetric(name string) bool {
 }
 
 // extractSingleMetricValue extracts value from a single metric
-func (p *processorImp) extractSingleMetricValue(m pmetric.Metric) (float64, bool) {
+func (*processorImp) extractSingleMetricValue(m pmetric.Metric) (float64, bool) {
 	switch m.Type() {
 	case pmetric.MetricTypeGauge:
 		return extractGaugeValue(m.Gauge()), true

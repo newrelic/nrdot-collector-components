@@ -4,7 +4,6 @@
 package adaptivetelemetryprocessor
 
 import (
-	"context"
 	"errors"
 	"testing"
 	"time"
@@ -267,7 +266,7 @@ func TestCleanupExpiredEntities(t *testing.T) {
 	proc.cleanupExpiredEntities()
 
 	// Check results
-	assert.Equal(t, 1, len(proc.trackedEntities), "Should have 1 entity remaining")
+	assert.Len(t, proc.trackedEntities, 1, "Should have 1 entity remaining")
 	assert.Contains(t, proc.trackedEntities, "recent", "Recent entity should still be present")
 	assert.NotContains(t, proc.trackedEntities, "old", "Old entity should be removed")
 	assert.NotContains(t, proc.trackedEntities, "very_old", "Very old entity should be removed")
@@ -275,7 +274,7 @@ func TestCleanupExpiredEntities(t *testing.T) {
 
 func TestShutdown(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	testCases := []struct {
 		name               string

@@ -180,7 +180,7 @@ func TestSnapshotResourceAttributes(t *testing.T) {
 			snapshot := snapshotResourceAttributes(resource)
 
 			// Verify all attributes were captured
-			assert.Equal(t, len(tc.attributes), len(snapshot))
+			assert.Len(t, snapshot, len(tc.attributes))
 			for k, v := range tc.attributes {
 				assert.Equal(t, v, snapshot[k])
 			}
