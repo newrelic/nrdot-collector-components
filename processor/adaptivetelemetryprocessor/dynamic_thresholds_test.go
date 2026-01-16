@@ -199,7 +199,7 @@ func TestUpdateDynamicThresholdsExtended_Disabled(t *testing.T) {
 	}
 
 	// Create test metrics
-	metrics := createExtendedTestMetricsWithCpuUtilization(20.0)
+	metrics := createExtendedTestMetricsWithCPUUtilization(20.0)
 
 	// Call the function
 	processor.updateDynamicThresholds(metrics)
@@ -226,7 +226,7 @@ func TestUpdateDynamicThresholdsExtended_Throttled(t *testing.T) {
 	}
 
 	// Create test metrics
-	metrics := createExtendedTestMetricsWithCpuUtilization(20.0)
+	metrics := createExtendedTestMetricsWithCPUUtilization(20.0)
 
 	// Call the function
 	processor.updateDynamicThresholds(metrics)
@@ -284,7 +284,7 @@ func TestUpdateDynamicThresholdsExtended_Successful(t *testing.T) {
 	}
 
 	// Create test metrics
-	metrics := createExtendedTestMetricsWithCpuUtilization(20.0)
+	metrics := createExtendedTestMetricsWithCPUUtilization(20.0)
 
 	// Call the function
 	processor.updateDynamicThresholds(metrics)
@@ -320,7 +320,7 @@ func TestUpdateDynamicThresholdsExtended_WithMinMax(t *testing.T) {
 	}
 
 	// Create test metrics
-	metrics := createExtendedTestMetricsWithCpuUtilization(5.0) // Low value, should be capped by min
+	metrics := createExtendedTestMetricsWithCPUUtilization(5.0) // Low value, should be capped by min
 
 	// Call the function
 	processor.updateDynamicThresholds(metrics)
