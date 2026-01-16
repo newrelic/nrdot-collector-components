@@ -42,13 +42,20 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify nginx is included despite being below threshold
-	assert.Equal(t, 1, result.ResourceMetrics().Len())
+	assert.Equal(t, 1, countNonSummaryResources(result), "Should have 1 resource (excluding summary metrics)")
 
 	// Check filter stage attribute
-	rm := result.ResourceMetrics().At(0)
-	stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
-	assert.True(t, ok)
-	assert.Equal(t, "include_list", stageVal.Str())
+	for i := 0; i < result.ResourceMetrics().Len(); i++ {
+		rm := result.ResourceMetrics().At(i)
+		// Skip summary metrics
+		if val, ok := rm.Resource().Attributes().Get("process.atp.metric_type"); ok && val.Str() == "filter_summary" {
+			continue
+		}
+
+		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		assert.True(t, ok)
+		assert.Equal(t, "include_list", stageVal.Str())
+	}
 
 	// Verify entity is tracked
 	proc.mu.Lock()
@@ -95,12 +102,17 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 	require.NoError(t, err)
 
 	// Only nginx and postgres should be included (apache filtered out)
-	assert.Equal(t, 2, result.ResourceMetrics().Len())
+	assert.Equal(t, 2, countNonSummaryResources(result))
 
 	// Verify both included processes have correct filter stage
 	includedProcesses := make(map[string]bool)
 	for i := 0; i < result.ResourceMetrics().Len(); i++ {
 		rm := result.ResourceMetrics().At(i)
+		// Skip summary metrics
+		if val, ok := rm.Resource().Attributes().Get("process.atp.metric_type"); ok && val.Str() == "filter_summary" {
+			continue
+		}
+
 		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
 		assert.True(t, ok)
 		assert.Equal(t, "include_list", stageVal.Str())
@@ -146,13 +158,20 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 	require.NoError(t, err)
 
 	// Apache should be included because it exceeds threshold
-	assert.Equal(t, 1, result.ResourceMetrics().Len())
+	assert.Equal(t, 1, countNonSummaryResources(result))
 
 	// Check filter stage - should be static_threshold, not include_list
-	rm := result.ResourceMetrics().At(0)
-	stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
-	assert.True(t, ok)
-	assert.Equal(t, "static_threshold", stageVal.Str())
+	for i := 0; i < result.ResourceMetrics().Len(); i++ {
+		rm := result.ResourceMetrics().At(i)
+		// Skip summary metrics
+		if val, ok := rm.Resource().Attributes().Get("process.atp.metric_type"); ok && val.Str() == "filter_summary" {
+			continue
+		}
+
+		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		assert.True(t, ok)
+		assert.Equal(t, "static_threshold", stageVal.Str())
+	}
 }
 
 // Helper function to create test process metrics

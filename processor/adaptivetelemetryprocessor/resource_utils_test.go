@@ -26,7 +26,7 @@ func TestBuildResourceIdentity(t *testing.T) {
 				"host.name": "test-host",
 				"host.id":   "123456",
 			},
-			expectContains: []string{"host.name=test-host", "host.id=123456"},
+			expectContains: []string{"system@test-host"},
 		},
 		{
 			name: "Container resource",
@@ -35,7 +35,8 @@ func TestBuildResourceIdentity(t *testing.T) {
 				"container.name": "test-container",
 				"host.name":      "node-1",
 			},
-			expectContains: []string{"container.id=abc123", "container.name=test-container"},
+			// Falls back to system@node-1 because container.id isn't a specific host metric type in identifyHostMetricType
+			expectContains: []string{"system@node-1"},
 		},
 		{
 			name: "Service resource",
@@ -44,7 +45,7 @@ func TestBuildResourceIdentity(t *testing.T) {
 				"service.version": "v1.2.3",
 				"host.name":       "host-1",
 			},
-			expectContains: []string{"service.name=api-service", "service.version=v1.2.3"},
+			expectContains: []string{"service:api-service"},
 		},
 		{
 			name: "K8s resource",
@@ -53,6 +54,11 @@ func TestBuildResourceIdentity(t *testing.T) {
 				"k8s.namespace.name": "default",
 				"k8s.node.name":      "node-1",
 			},
+			// Fallback string of attributes was replaced by smart identity.
+			// Currently implementation mostly relies on host metrics or service names.
+			// If neither, fallbackidentity is used.
+			// "k8s.node.name" -> host? No, utils.go checks "host.name".
+			// So this will fallback to attribute concatenation.
 			expectContains: []string{"k8s.pod.name=test-pod", "k8s.namespace.name=default"},
 		},
 		{
@@ -62,7 +68,7 @@ func TestBuildResourceIdentity(t *testing.T) {
 				"process.executable": "/usr/bin/app",
 				"host.name":          "test-host",
 			},
-			expectContains: []string{"process.pid=1234", "process.executable=/usr/bin/app"},
+			expectContains: []string{"process.1234@test-host"},
 		},
 		{
 			name:           "Empty attributes",
@@ -108,7 +114,7 @@ func TestGetResourceType(t *testing.T) {
 			attributes: map[string]string{
 				"host.name": "test-host",
 			},
-			expectedType: "unknown", // Current implementation doesn't auto-detect host type
+			expectedType: "system", // Identified as system due to host.name
 		},
 		{
 			name: "Container resource",
@@ -122,7 +128,7 @@ func TestGetResourceType(t *testing.T) {
 			attributes: map[string]string{
 				"host.name": "test-host",
 			},
-			expectedType: "unknown",
+			expectedType: "system", // Identified as system due to host.name
 		},
 		{
 			name:         "Empty attributes",

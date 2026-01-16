@@ -12,9 +12,9 @@ import (
 
 func TestIdentifyHostMetricType(t *testing.T) {
 	testCases := []struct {
-		name           string
-		attributes     map[string]string
-		expectedType   string
+		name             string
+		attributes       map[string]string
+		expectedType     string
 		expectIdentified bool
 	}{
 		{
