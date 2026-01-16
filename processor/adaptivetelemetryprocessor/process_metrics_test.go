@@ -49,7 +49,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 
 		// Initialize metric count
 		initialMetricCount := countMetrics(metrics)
-		assert.Greater(t, initialMetricCount, 0, "Should have metrics to process")
+		assert.Positive(t, initialMetricCount, "Should have metrics to process")
 
 		// Process metrics
 		result, err := processor.processMetrics(t.Context(), metrics)
@@ -129,7 +129,7 @@ func TestProcessMetricsExtended(t *testing.T) {
 
 		// Check that metrics were kept due to exceeding thresholds
 		resultCount := countMetrics(result)
-		assert.Greater(t, resultCount, 0, "Should keep metrics above dynamic threshold")
+		assert.Positive(t, resultCount, "Should keep metrics above dynamic threshold")
 	})
 
 	t.Run("Process with cancelled context", func(t *testing.T) {

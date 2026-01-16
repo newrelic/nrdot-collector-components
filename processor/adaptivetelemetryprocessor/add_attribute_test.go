@@ -29,7 +29,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 				dp1 := gauge.DataPoints().AppendEmpty()
 				dp1.SetDoubleValue(42.0)
 				dp1.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-				
+
 				dp2 := gauge.DataPoints().AppendEmpty()
 				dp2.SetDoubleValue(84.0)
 				dp2.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
@@ -39,7 +39,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			validate: func(t *testing.T, metric pmetric.Metric, key, value string) {
 				gauge := metric.Gauge()
 				assert.Equal(t, 2, gauge.DataPoints().Len())
-				
+
 				for i := 0; i < gauge.DataPoints().Len(); i++ {
 					dp := gauge.DataPoints().At(i)
 					val, ok := dp.Attributes().Get(key)
@@ -62,7 +62,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			validate: func(t *testing.T, metric pmetric.Metric, key, value string) {
 				sum := metric.Sum()
 				assert.Equal(t, 1, sum.DataPoints().Len())
-				
+
 				dp := sum.DataPoints().At(0)
 				val, ok := dp.Attributes().Get(key)
 				assert.True(t, ok, "Attribute should be present")
@@ -84,7 +84,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			validate: func(t *testing.T, metric pmetric.Metric, key, value string) {
 				hist := metric.Histogram()
 				assert.Equal(t, 1, hist.DataPoints().Len())
-				
+
 				dp := hist.DataPoints().At(0)
 				val, ok := dp.Attributes().Get(key)
 				assert.True(t, ok, "Attribute should be present")
@@ -100,11 +100,11 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 				dp.SetCount(100)
 				dp.SetSum(5000.0)
 				dp.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-				
+
 				quantile1 := dp.QuantileValues().AppendEmpty()
 				quantile1.SetQuantile(0.5)
 				quantile1.SetValue(50)
-				
+
 				quantile2 := dp.QuantileValues().AppendEmpty()
 				quantile2.SetQuantile(0.9)
 				quantile2.SetValue(90)
@@ -114,7 +114,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			validate: func(t *testing.T, metric pmetric.Metric, key, value string) {
 				summary := metric.Summary()
 				assert.Equal(t, 1, summary.DataPoints().Len())
-				
+
 				dp := summary.DataPoints().At(0)
 				val, ok := dp.Attributes().Get(key)
 				assert.True(t, ok, "Attribute should be present")
@@ -136,7 +136,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			validate: func(t *testing.T, metric pmetric.Metric, key, value string) {
 				hist := metric.ExponentialHistogram()
 				assert.Equal(t, 1, hist.DataPoints().Len())
-				
+
 				dp := hist.DataPoints().At(0)
 				val, ok := dp.Attributes().Get(key)
 				assert.True(t, ok, "Attribute should be present")
@@ -150,7 +150,7 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			// Create a metric with the specified type
 			metric := pmetric.NewMetric()
 			metric.SetName("test.metric")
-			
+
 			// Setup the metric based on its type
 			switch tc.metricType {
 			case pmetric.MetricTypeGauge:
@@ -166,13 +166,13 @@ func TestAddAttributeToMetricDataPointsAllTypes(t *testing.T) {
 			default:
 				t.Fatalf("Unsupported metric type: %v", tc.metricType)
 			}
-			
+
 			// Setup the metric data points
 			tc.setup(metric)
-			
+
 			// Call the function under test
 			addAttributeToMetricDataPoints(metric, tc.key, tc.value)
-			
+
 			// Validate the results
 			tc.validate(t, metric, tc.key, tc.value)
 		})

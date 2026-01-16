@@ -34,11 +34,12 @@ func TestConfigValidate(t *testing.T) {
 				MaxThresholds: map[string]float64{
 					"process.cpu.utilization": 20.0,
 				},
-				EnableAnomalyDetection:  true,
-				AnomalyHistorySize:      10,
-				AnomalyChangeThreshold:  200.0,
-				EnableMultiMetric:       true,
-				CompositeThreshold:      1.5,
+				EnableAnomalyDetection: true,
+				AnomalyHistorySize:     10,
+				AnomalyChangeThreshold: 200.0,
+				AnomalyMinDataPoints:   3,
+				EnableMultiMetric:      true,
+				CompositeThreshold:     1.5,
 			},
 			expectError: false,
 		},
@@ -84,9 +85,9 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "Anomaly detection enabled with invalid change threshold",
 			config: Config{
-				EnableAnomalyDetection:  true,
-				AnomalyChangeThreshold:  -50.0,
-				AnomalyHistorySize:      0, // Also make history size invalid
+				EnableAnomalyDetection: true,
+				AnomalyChangeThreshold: -50.0,
+				AnomalyHistorySize:     0, // Also make history size invalid
 			},
 			expectError: true,
 			errorString: "anomaly_history_size must be > 0, got 0",

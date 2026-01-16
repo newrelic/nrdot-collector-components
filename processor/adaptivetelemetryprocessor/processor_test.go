@@ -4,7 +4,6 @@
 package adaptivetelemetryprocessor
 
 import (
-	"context"
 	"path/filepath"
 	"testing"
 	"time"
@@ -267,7 +266,7 @@ func TestConsumeMetricsBasic(t *testing.T) {
 	)
 
 	// Process metrics
-	err = proc.ConsumeMetrics(context.Background(), md)
+	err = proc.ConsumeMetrics(t.Context(), md)
 	require.NoError(t, err)
 
 	// Create test metrics that don't exceed threshold

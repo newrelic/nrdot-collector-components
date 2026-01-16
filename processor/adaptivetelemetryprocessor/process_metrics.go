@@ -462,7 +462,13 @@ func (p *processorImp) checkDynamicThresholds(resource pcommon.Resource, id stri
 // checkStaticThresholds checks static threshold stage for existing entities
 func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	for m, v := range values {
-		if threshold := p.config.MetricThresholds[m]; threshold == 0.0 || (threshold > 0 && v >= threshold) {
+		threshold, ok := p.config.MetricThresholds[m]
+		// Strict check: metric must exist in config (guaranteed by extractMetricValues logic, but explicit check ensures safety)
+		if !ok {
+			continue
+		}
+
+		if threshold == 0.0 || v >= threshold {
 			trackedEntity.LastExceeded = time.Now()
 			setResourceFilterStage(resource, stageStaticThreshold)
 			p.logger.Debug("Resource included: static threshold",
@@ -588,7 +594,14 @@ func (p *processorImp) checkNewEntityThresholds(id string, values map[string]flo
 		}
 	} else {
 		for m, v := range values {
-			if threshold := p.config.MetricThresholds[m]; threshold == 0.0 || (threshold > 0 && v >= threshold) {
+			threshold, ok := p.config.MetricThresholds[m]
+			// Strict check: metric must exist in config (guaranteed by extractMetricValues logic, but explicit check hurts nothing)
+			if !ok {
+				continue
+			}
+
+			// If threshold is 0.0, it means "always include if metric present"
+			if threshold == 0.0 || v >= threshold {
 				p.logger.Info("New resource exceeds static threshold",
 					zap.String("resource_id", id),
 					zap.String("metric", m),

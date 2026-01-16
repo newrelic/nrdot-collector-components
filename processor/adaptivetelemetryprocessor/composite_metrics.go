@@ -87,9 +87,17 @@ func extractGaugeValue(g pmetric.Gauge) float64 {
 		return 0
 	}
 
-	// For simple Gauges, we take the last data point
-	// (Should typically be one data point per metric in a resource metric scope)
-	return dataPoints.At(dataPoints.Len() - 1).DoubleValue()
+	if dataPoints.Len() == 1 {
+		return dataPoints.At(0).DoubleValue()
+	}
+
+	// Aggregate all data points (sum them up)
+	// This covers cases where multiple data points are present for the same gauge
+	var total float64
+	for i := 0; i < dataPoints.Len(); i++ {
+		total += dataPoints.At(i).DoubleValue()
+	}
+	return total
 }
 
 // extractSumValue extracts value from sum metric (aggregates all data points if multiple exist)
