@@ -11,6 +11,7 @@ module-sets:
       - github.com/newrelic/nrdot-collector-components/exporter/nopexporter
       - github.com/newrelic/nrdot-collector-components/internal/common
       - github.com/newrelic/nrdot-collector-components/internal/coreinternal
+      - github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor
       - github.com/newrelic/nrdot-collector-components/receiver/nopreceiver
       - github.com/newrelic/nrdot-collector-components/testbed
 
