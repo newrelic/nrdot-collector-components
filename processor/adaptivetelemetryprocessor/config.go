@@ -91,7 +91,6 @@ type Config struct {
 
 	// Debug options
 	DebugShowAllFilterStages bool `mapstructure:"debug_show_all_filter_stages"`
-	
 }
 
 // Default / cap constants

@@ -4,13 +4,13 @@
 package adaptivetelemetryprocessor
 
 import (
-"context"
-"errors"
-"testing"
-"time"
+	"context"
+	"errors"
+	"testing"
+	"time"
 
-"github.com/stretchr/testify/assert"
-"go.uber.org/zap/zaptest"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 // Mock storage for testing persistence operations
@@ -48,7 +48,7 @@ func (m *mockStorage) Close() error {
 
 func TestPersistTrackedEntities(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-	
+
 	testCases := []struct {
 		name          string
 		setupStorage  func() *mockStorage
@@ -112,29 +112,29 @@ func TestPersistTrackedEntities(t *testing.T) {
 			expectedError: true,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-// Create processor with mock storage
-storage := tc.setupStorage()
+			// Create processor with mock storage
+			storage := tc.setupStorage()
 			proc := &processorImp{
-				logger:            logger,
-				config:            &Config{StoragePath: "/tmp/test_data/test.db"},
-				trackedEntities:   tc.setupEntities(),
+				logger:             logger,
+				config:             &Config{StoragePath: "/tmp/test_data/test.db"},
+				trackedEntities:    tc.setupEntities(),
 				persistenceEnabled: storage != nil,
-				storage:           storage,
+				storage:            storage,
 			}
-			
+
 			// Call persistTrackedEntities
 			err := proc.persistTrackedEntities()
-			
+
 			// Check error
 			if tc.expectedError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}
-			
+
 			// Check if storage methods were called appropriately - only if storage is not nil
 			if storage != nil {
 				assert.True(t, storage.saveCalled, "Save should be called")
@@ -148,7 +148,7 @@ storage := tc.setupStorage()
 
 func TestLoadTrackedEntities(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-	
+
 	testCases := []struct {
 		name          string
 		setupStorage  func() *mockStorage
@@ -199,34 +199,34 @@ func TestLoadTrackedEntities(t *testing.T) {
 			expectedLen:   0,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-// Create processor with mock storage
-storage := tc.setupStorage()
+			// Create processor with mock storage
+			storage := tc.setupStorage()
 			proc := &processorImp{
-				logger:            logger,
-				config:            &Config{StoragePath: "/tmp/test_data/test.db"},
-				trackedEntities:   make(map[string]*trackedEntity),
+				logger:             logger,
+				config:             &Config{StoragePath: "/tmp/test_data/test.db"},
+				trackedEntities:    make(map[string]*trackedEntity),
 				persistenceEnabled: storage != nil,
-				storage:           storage,
+				storage:            storage,
 			}
-			
+
 			// Call loadTrackedEntities
 			err := proc.loadTrackedEntities()
-			
+
 			// Check error
 			if tc.expectedError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}
-			
+
 			// Check if storage methods were called appropriately
 			if storage != nil {
 				assert.True(t, storage.loadCalled, "Load should be called")
 				if !tc.expectedError {
-					assert.Equal(t, tc.expectedLen, len(proc.trackedEntities), "Correct number of entities should be loaded")
+					assert.Len(t, proc.trackedEntities, tc.expectedLen, "Correct number of entities should be loaded")
 				}
 			}
 		})
@@ -235,7 +235,7 @@ storage := tc.setupStorage()
 
 func TestCleanupExpiredEntities(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-	
+
 	// Create test entities with different expiration times
 	now := time.Now()
 	entities := map[string]*trackedEntity{
@@ -255,17 +255,17 @@ func TestCleanupExpiredEntities(t *testing.T) {
 			LastExceeded: now.Add(-120 * time.Minute), // Very old, should be removed
 		},
 	}
-	
+
 	// Create processor
 	proc := &processorImp{
 		logger:          logger,
 		config:          &Config{RetentionMinutes: 60}, // 60 minute retention
 		trackedEntities: entities,
 	}
-	
+
 	// Call cleanup
 	proc.cleanupExpiredEntities()
-	
+
 	// Check results
 	assert.Equal(t, 1, len(proc.trackedEntities), "Should have 1 entity remaining")
 	assert.Contains(t, proc.trackedEntities, "recent", "Recent entity should still be present")
@@ -276,18 +276,18 @@ func TestCleanupExpiredEntities(t *testing.T) {
 func TestShutdown(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	ctx := context.Background()
-	
+
 	testCases := []struct {
-		name              string
+		name               string
 		persistenceEnabled bool
-		setupStorage      func() *mockStorage
-		expectSave        bool
-		expectClose       bool
-		saveError         error
-		closeError        error
+		setupStorage       func() *mockStorage
+		expectSave         bool
+		expectClose        bool
+		saveError          error
+		closeError         error
 	}{
 		{
-			name:              "Normal shutdown with persistence",
+			name:               "Normal shutdown with persistence",
 			persistenceEnabled: true,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
@@ -298,7 +298,7 @@ func TestShutdown(t *testing.T) {
 			expectClose: true,
 		},
 		{
-			name:              "Shutdown with persistence disabled",
+			name:               "Shutdown with persistence disabled",
 			persistenceEnabled: false,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
@@ -309,7 +309,7 @@ func TestShutdown(t *testing.T) {
 			expectClose: false,
 		},
 		{
-			name:              "Shutdown with save error",
+			name:               "Shutdown with save error",
 			persistenceEnabled: true,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
@@ -322,7 +322,7 @@ func TestShutdown(t *testing.T) {
 			saveError:   errors.New("mock save error"),
 		},
 		{
-			name:              "Shutdown with close error",
+			name:               "Shutdown with close error",
 			persistenceEnabled: true,
 			setupStorage: func() *mockStorage {
 				return &mockStorage{
@@ -335,25 +335,25 @@ func TestShutdown(t *testing.T) {
 			closeError:  errors.New("mock close error"),
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-// Create processor with mock storage
-storage := tc.setupStorage()
+			// Create processor with mock storage
+			storage := tc.setupStorage()
 			proc := &processorImp{
-				logger:            logger,
-				config:            &Config{StoragePath: "/tmp/test_data/test.db"},
-				trackedEntities:   map[string]*trackedEntity{"entity1": {Identity: "entity1"}},
+				logger:             logger,
+				config:             &Config{StoragePath: "/tmp/test_data/test.db"},
+				trackedEntities:    map[string]*trackedEntity{"entity1": {Identity: "entity1"}},
 				persistenceEnabled: tc.persistenceEnabled,
-				storage:           storage,
+				storage:            storage,
 			}
-			
+
 			// Call Shutdown
 			err := proc.Shutdown(ctx)
-			
+
 			// Shutdown should never return an error
 			assert.NoError(t, err)
-			
+
 			// Check if storage methods were called appropriately
 			if tc.persistenceEnabled && storage != nil {
 				assert.Equal(t, tc.expectSave, storage.saveCalled, "Save should be called")

@@ -18,8 +18,7 @@ func TestFileStorage(t *testing.T) {
 	filePath := filepath.Join(tmpDir, "test_data", "test.db")
 
 	// Test creating storage
-	storage, err := newFileStorage(filePath)
-	require.NoError(t, err)
+	storage := newFileStorage(filePath)
 	assert.NotNil(t, storage)
 
 	// Test loading from non-existent file (should return empty map)
@@ -82,8 +81,7 @@ func TestFileStorage(t *testing.T) {
 
 	// Test creating directory when it doesn't exist
 	nestedPath := filepath.Join(tmpDir, "nested", "deep", "test_data", "test.db")
-	storage, err = newFileStorage(nestedPath)
-	require.NoError(t, err)
+	storage = newFileStorage(nestedPath)
 
 	// Save should create all directories
 	err = storage.Save(testEntities)

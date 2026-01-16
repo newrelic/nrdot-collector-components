@@ -137,9 +137,8 @@ func TestIncludeListInProcessorConfig(t *testing.T) {
 	cfg.Normalize()
 	err := cfg.Validate()
 	assert.NoError(t, err)
-	assert.Equal(t, 3, len(cfg.IncludeProcessList))
+	assert.Len(t, cfg.IncludeProcessList, 3)
 	assert.Contains(t, cfg.IncludeProcessList, "nginx")
 	assert.Contains(t, cfg.IncludeProcessList, "postgres")
 	assert.Contains(t, cfg.IncludeProcessList, "redis-server")
 }
-

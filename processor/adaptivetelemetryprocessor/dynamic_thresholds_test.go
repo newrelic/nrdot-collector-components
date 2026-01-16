@@ -331,7 +331,7 @@ func TestUpdateDynamicThresholdsExtended_WithMinMax(t *testing.T) {
 }
 
 // Helper function to create test metrics with process.cpu.utilization
-func createExtendedTestMetricsWithCpuUtilization(value float64) pmetric.Metrics {
+func createExtendedTestMetricsWithCPUUtilization(value float64) pmetric.Metrics {
 	return createExtendedTestMetricsWithName("process.cpu.utilization", value)
 }
 

@@ -116,7 +116,7 @@ func (p *processorImp) computeMetricAverages(md pmetric.Metrics, metricKeys []st
 	}
 
 	// Calculate final averages
-	p.finalizeAverages(metricAvgs)
+	finalizeAverages(metricAvgs)
 
 	return metricAvgs
 }
@@ -151,7 +151,7 @@ func (p *processorImp) processMetricForAverages(m pmetric.Metric, metricAvgs map
 }
 
 // finalizeAverages calculates the final average values
-func (p *processorImp) finalizeAverages(metricAvgs map[string]metricAverageData) {
+func finalizeAverages(metricAvgs map[string]metricAverageData) {
 	for metric, data := range metricAvgs {
 		if data.count > 0 {
 			metricAvgs[metric] = metricAverageData{
@@ -238,7 +238,7 @@ func (p *processorImp) applyThresholdConstraints(metric string, value float64) f
 }
 
 // applyThresholdUpdates safely updates the dynamic thresholds
-func (p *processorImp) applyThresholdUpdates(newThresholds map[string]float64, updateContext *dynamicUpdateContext) {
+func (p *processorImp) applyThresholdUpdates(newThresholds map[string]float64, _ *dynamicUpdateContext) {
 	if len(newThresholds) > 0 {
 		p.mu.Lock()
 		for k, v := range newThresholds {
@@ -306,7 +306,7 @@ func (p *processorImp) groupThresholdsByPrefix() map[string][]string {
 
 	for k, v := range p.dynamicCustomThresholds {
 		prefix := strings.Split(k, ".")[0] // Group by first component of metric name
-		formattedEntry := p.formatThresholdEntry(k, v)
+		formattedEntry := formatThresholdEntry(k, v)
 		thresholdsByPrefix[prefix] = append(thresholdsByPrefix[prefix], formattedEntry)
 	}
 
@@ -314,7 +314,7 @@ func (p *processorImp) groupThresholdsByPrefix() map[string][]string {
 }
 
 // formatThresholdEntry formats a single threshold entry for logging
-func (p *processorImp) formatThresholdEntry(metricName string, value float64) string {
+func formatThresholdEntry(metricName string, value float64) string {
 	entry := strings.Builder{}
 	entry.WriteString(metricName)
 	entry.WriteString(":")

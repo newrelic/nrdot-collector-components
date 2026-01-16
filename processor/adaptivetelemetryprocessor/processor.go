@@ -26,7 +26,6 @@ type processorImp struct {
 	persistenceEnabled bool
 
 	lastThresholdUpdate      time.Time // Separate: tracks when dynamic thresholds were last updated
-	lastInfoLogTime          time.Time // Tracks when we last logged at INFO level
 	dynamicThresholdsEnabled bool
 	multiMetricEnabled       bool
 

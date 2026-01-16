@@ -28,7 +28,7 @@ func newMockMetricsConsumer() *mockMetricsConsumer {
 	}
 }
 
-func (m *mockMetricsConsumer) Capabilities() consumer.Capabilities {
+func (_ *mockMetricsConsumer) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: false}
 }
 
@@ -56,12 +56,12 @@ func TestCreateDefaultConfig(t *testing.T) {
 	assert.Equal(t, map[string]float64{}, config.MetricThresholds)
 	assert.Equal(t, map[string]float64{}, config.Weights)
 	assert.Equal(t, int64(30), config.RetentionMinutes)
-	assert.Equal(t, false, config.EnableDynamicThresholds)
-	assert.Equal(t, false, config.EnableMultiMetric)
+	assert.False(t, config.EnableDynamicThresholds)
+	assert.False(t, config.EnableMultiMetric)
 	assert.Equal(t, float64(0.2), config.DynamicSmoothingFactor)
 	assert.Equal(t, map[string]float64{}, config.MinThresholds)
 	assert.Equal(t, map[string]float64{}, config.MaxThresholds)
-	assert.Equal(t, false, config.EnableAnomalyDetection)
+	assert.False(t, config.EnableAnomalyDetection)
 	assert.Equal(t, 10, config.AnomalyHistorySize)
 	assert.Equal(t, float64(200.0), config.AnomalyChangeThreshold)
 }
@@ -125,16 +125,16 @@ func TestCreateProcessor(t *testing.T) {
 func TestCapabilities(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	mockConsumer := newMockMetricsConsumer()
-	
+
 	config := &Config{
 		MetricThresholds: map[string]float64{},
 		StoragePath:      "./test_data/test.db",
 		RetentionMinutes: 30,
 	}
-	
+
 	proc, err := newProcessor(logger, config, mockConsumer)
 	require.NoError(t, err)
-	
+
 	caps := proc.Capabilities()
 	assert.True(t, caps.MutatesData)
 }
@@ -142,22 +142,22 @@ func TestCapabilities(t *testing.T) {
 func TestStartShutdown(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	mockConsumer := newMockMetricsConsumer()
-	
+
 	config := &Config{
 		MetricThresholds: map[string]float64{},
 		StoragePath:      "./test_data/test.db",
 		RetentionMinutes: 30,
 	}
-	
+
 	proc, err := newProcessor(logger, config, mockConsumer)
 	require.NoError(t, err)
-	
+
 	// Start should succeed
-	err = proc.Start(context.Background(), nil)
+	err = proc.Start(t.Context(), nil)
 	require.NoError(t, err)
-	
+
 	// Shutdown should succeed
-	err = proc.Shutdown(context.Background())
+	err = proc.Shutdown(t.Context())
 	require.NoError(t, err)
 }
 
@@ -167,7 +167,7 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 	// Create a factory and test consumer
 	factory := NewFactory()
 	nextConsumer := consumertest.NewNop()
-	
+
 	// Test scenarios
 	testCases := []struct {
 		name          string
@@ -176,7 +176,7 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 	}{
 		{
 			name: "Default config",
-			configModify: func(c *Config) {
+			configModify: func(_ *Config) {
 				// Use default config
 			},
 			expectSuccess: true,
@@ -185,7 +185,7 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 			name: "Custom metric thresholds",
 			configModify: func(c *Config) {
 				c.MetricThresholds = map[string]float64{
-					"system.cpu.utilization": 80.0,
+					"system.cpu.utilization":  80.0,
 					"process.cpu.utilization": 10.0,
 				}
 			},
@@ -217,11 +217,11 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 				c.EnableMultiMetric = true
 				c.CompositeThreshold = 1.2
 				c.MetricThresholds = map[string]float64{
-					"system.cpu.utilization": 80.0,
+					"system.cpu.utilization":    80.0,
 					"system.memory.utilization": 70.0,
 				}
 				c.Weights = map[string]float64{
-					"system.cpu.utilization": 0.7,
+					"system.cpu.utilization":    0.7,
 					"system.memory.utilization": 0.3,
 				}
 			},
@@ -237,32 +237,31 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 			expectSuccess: true,
 		},
 	}
-	
+
 	// Context for creating processors
-	ctx := context.Background()
+	ctx := t.Context()
 	settings := processor.Settings{
 		TelemetrySettings: component.TelemetrySettings{
 			Logger: zaptest.NewLogger(t),
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a config and modify it for the test case
 			config := factory.CreateDefaultConfig().(*Config)
 			tc.configModify(config)
-			
+
 			// Create processor
 			proc, err := createMetricsProcessor(ctx, settings, config, nextConsumer)
-			
+
 			// Check expectations
 			if tc.expectSuccess {
 				require.NoError(t, err)
 				assert.NotNil(t, proc)
-				
+
 				// Verify processor implements required interfaces
-				_, ok := proc.(processor.Metrics)
-				assert.True(t, ok, "Processor should implement processor.Metrics")
+				assert.Implements(t, (*processor.Metrics)(nil), proc)
 			} else {
 				require.Error(t, err)
 				assert.Nil(t, proc)

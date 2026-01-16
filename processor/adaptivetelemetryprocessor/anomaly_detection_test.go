@@ -236,28 +236,28 @@ func TestMetricHistoryUpdate(t *testing.T) {
 			copy(history, tc.history)
 
 			// Append the new value
-			result := append(history, tc.newValue)
+			history = append(history, tc.newValue)
 
 			// Trim if necessary
-			if len(result) > tc.maxSize {
-				result = result[len(result)-tc.maxSize:]
+			if len(history) > tc.maxSize {
+				history = history[len(history)-tc.maxSize:]
 			}
 
 			// Verify size
-			assert.Equal(t, tc.expectedSize, len(result))
+			assert.Equal(t, tc.expectedSize, len(history))
 
 			// Verify newest value is appended
-			assert.Equal(t, tc.newValue, result[len(result)-1])
+			assert.Equal(t, tc.newValue, history[len(history)-1])
 
 			// Verify order preservation for existing values
-			if len(tc.history) > 0 && len(result) > 1 {
+			if len(tc.history) > 0 && len(history) > 1 {
 				historyStartIdx := len(tc.history) - tc.expectedSize + 1
 				if historyStartIdx < 0 {
 					historyStartIdx = 0
 				}
 
-				for i := 0; i < len(result)-1; i++ {
-					assert.Equal(t, tc.history[historyStartIdx+i], result[i])
+				for i := 0; i < len(history)-1; i++ {
+					assert.Equal(t, tc.history[historyStartIdx+i], history[i])
 				}
 			}
 		})

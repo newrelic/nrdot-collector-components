@@ -247,14 +247,6 @@ func snapshotResourceAttributes(res pcommon.Resource) map[string]string {
 	return out
 }
 
-// min returns the minimum of two integers
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 // extractProcessName extracts the process name from resource attributes.
 // It tries the following in order:
 // 1. process.executable.name - the process binary name (e.g., "nginx", "postgres")

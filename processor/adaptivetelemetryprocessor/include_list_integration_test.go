@@ -39,8 +39,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	md := createTestProcessMetrics("nginx", 1234, 5.0) // Well below threshold
 
 	// Process metrics
-	ctx := context.Background()
-	result, err := proc.processMetrics(ctx, md)
+	result, err := proc.processMetrics(t.Context(), md)
 	require.NoError(t, err)
 
 	// Verify nginx is included despite being below threshold
@@ -55,7 +54,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	// Verify entity is tracked
 	proc.mu.Lock()
 	defer proc.mu.Unlock()
-	assert.Equal(t, 1, len(proc.trackedEntities))
+	assert.Len(t, proc.trackedEntities, 1)
 }
 
 func TestIncludeListWithMultipleProcesses(t *testing.T) {
@@ -93,8 +92,7 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 	addProcessToMetrics(md, "apache2", 9999, 8.0)
 
 	// Process metrics
-	ctx := context.Background()
-	result, err := proc.processMetrics(ctx, md)
+	result, err := proc.processMetrics(t.Context(), md)
 	require.NoError(t, err)
 
 	// Only nginx and postgres should be included (apache filtered out)
@@ -145,8 +143,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 	md := createTestProcessMetrics("apache2", 9999, 80.0) // Above threshold
 
 	// Process metrics
-	ctx := context.Background()
-	result, err := proc.processMetrics(ctx, md)
+	result, err := proc.processMetrics(t.Context(), md)
 	require.NoError(t, err)
 
 	// Apache should be included because it exceeds threshold
