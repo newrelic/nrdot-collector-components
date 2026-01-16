@@ -124,11 +124,11 @@ func (p *processorImp) Shutdown(_ context.Context) error {
 }
 
 // Start is a no-op for this processor
-func (_ *processorImp) Start(_ context.Context, _ component.Host) error {
+func (*processorImp) Start(_ context.Context, _ component.Host) error {
 	return nil
 }
 
 // Capabilities indicates that this processor mutates data
-func (_ *processorImp) Capabilities() consumer.Capabilities {
+func (*processorImp) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: true}
 }

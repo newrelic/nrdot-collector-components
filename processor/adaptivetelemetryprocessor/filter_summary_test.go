@@ -4,7 +4,6 @@
 package adaptivetelemetryprocessor
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -269,7 +268,7 @@ func TestFilterSummaryMetricProperties(t *testing.T) {
 		assert.Equal(t, 1, gauge.DataPoints().Len())
 		dp := gauge.DataPoints().At(0)
 		assert.InDelta(t, 0.6, dp.DoubleValue(), 0.01) // 60% filtered (6 out of 10)
-		assert.True(t, dp.Timestamp() > 0)             // Should have timestamp
+		assert.Positive(t, dp.Timestamp())             // Should have timestamp
 	})
 
 	t.Run("Resource count metric properties", func(t *testing.T) {
@@ -548,7 +547,7 @@ func TestFilterSummaryIntegrationWithProcessor(t *testing.T) {
 	dp2.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
 
 	// Process metrics
-	ctx := context.Background()
+	ctx := t.Context()
 	filteredMetrics, err := processor.processMetrics(ctx, inputMetrics)
 	assert.NoError(t, err)
 

@@ -173,7 +173,7 @@ func TestExtractMetricValuesComprehensive(t *testing.T) {
 			values := proc.extractMetricValues(resourceMetrics)
 
 			// Verify values match expected results
-			assert.Equal(t, len(tc.expectedExtracted), len(values), "Number of extracted metrics should match")
+			assert.Len(t, values, len(tc.expectedExtracted), "Number of extracted metrics should match")
 			for metric, expected := range tc.expectedExtracted {
 				actual, exists := values[metric]
 				assert.True(t, exists, "Metric %s should be extracted", metric)

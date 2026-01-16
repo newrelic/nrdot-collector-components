@@ -182,7 +182,7 @@ func TestDetectAnomaly(t *testing.T) {
 					if _, hasThreshold := tc.config.MetricThresholds[metric]; hasThreshold {
 						assert.Contains(t, entity.MetricHistory, metric,
 							"Metric should be in history after detection")
-						assert.Greater(t, len(entity.MetricHistory[metric]), 0,
+						assert.NotEmpty(t, entity.MetricHistory[metric],
 							"Metric history should have at least one entry")
 					}
 				}
@@ -244,7 +244,7 @@ func TestMetricHistoryUpdate(t *testing.T) {
 			}
 
 			// Verify size
-			assert.Equal(t, tc.expectedSize, len(history))
+			assert.Len(t, history, tc.expectedSize)
 
 			// Verify newest value is appended
 			assert.Equal(t, tc.newValue, history[len(history)-1])

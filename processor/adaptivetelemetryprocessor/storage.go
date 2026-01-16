@@ -69,7 +69,7 @@ func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 	return os.WriteFile(s.filePath, data, 0o600)
 }
 
-func (_ *fileStorage) Close() error {
+func (*fileStorage) Close() error {
 	// No cleanup needed for file storage
 	return nil
 }
