@@ -57,7 +57,7 @@ func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 
 	// Ensure directory exists
 	dir := filepath.Dir(s.filePath)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
 	}
 
@@ -77,7 +77,7 @@ func (*fileStorage) Close() error {
 // createDirectoryIfNotExists creates a directory if it doesn't exist
 func createDirectoryIfNotExists(dirPath string) error {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		return os.MkdirAll(dirPath, 0o755)
+		return os.MkdirAll(dirPath, 0o700)
 	}
 	return nil
 }
