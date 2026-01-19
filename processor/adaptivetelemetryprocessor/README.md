@@ -19,7 +19,7 @@ The Adaptive Telemetry Processor (ATP) is an intelligent metric filtering and ad
 ### Key Features
 
 - **Metric Threshold Filtering**: Filters metrics based on configurable thresholds for CPU, memory, disk, and network
-- **Process-Based Sampling**: Monitors specific processes by name (e.g., `nginx`, `java`, `stress-ng`)
+- **Process-Based Sampling**: Monitors specific processes by full path (e.g., `/usr/sbin/nginx`, `/usr/bin/java`)
 - **Dynamic Threshold Adjustment**: Automatically adapts thresholds based on historical baselines and workload patterns
 - **Multi-Metric Composite Scoring**: Combines multiple metrics with configurable weights for holistic health assessment
 - **Anomaly Detection**: Detects sudden metric changes and ensures anomalous data is always captured
@@ -47,12 +47,13 @@ processors:
     
     # Data retention period in minutes
     retention_minutes: 30
-    
-    # Process list to monitor (process names only)
+
+    # Process list to monitor
+    # SECURITY: Use full paths in production to prevent spoofing
     include_process_list:
-      - "nginx"
-      - "java"
-      - "postgres"
+      - "/usr/sbin/nginx"        # Full path (recommended)
+      - "/usr/bin/java"          # Full path (recommended)
+      - "/usr/bin/postgres"      # Full path (recommended)
     
     # Metric thresholds - metrics below these values are filtered out
     metric_thresholds:
@@ -85,12 +86,13 @@ processors:
     storage_path: "./adaptiveprocess.db"
     retention_minutes: 30
     
-    # Process filtering - monitor specific processes by name
+    # Process filtering - monitor specific processes
+    # Use full paths for security (prevents process name spoofing)
     include_process_list:
-      - "stress-ng"
-      - "nginx"
-      - "java"
-      - "postgres"
+      - "/usr/bin/stress-ng"
+      - "/usr/sbin/nginx"
+      - "/usr/bin/java"
+      - "/usr/bin/postgres"
     
     # Static metric thresholds - metrics below these values are filtered
     metric_thresholds:
@@ -213,7 +215,7 @@ processors:
     storage_path: "./adaptiveprocess.db"
     retention_minutes: 30
     include_process_list:
-      - "stress-ng"
+      - "/usr/bin/stress-ng"
     
     metric_thresholds:
       system.cpu.utilization: 0.05
@@ -308,8 +310,8 @@ data:
         storage_path: /var/lib/atp/adaptiveprocess.db
         retention_minutes: 30
         include_process_list:
-          - "java"
-          - "nginx"
+          - "/usr/bin/java"
+          - "/usr/sbin/nginx"
         metric_thresholds:
           system.cpu.utilization: 0.05
           system.memory.utilization: 0.05
@@ -533,9 +535,10 @@ Every collection cycle:
 - **Path sanitization**: Validates storage path before writing
 - **Directory creation**: Ensures directory exists with correct permissions
 
-#### 3. Process Name Filtering
-- **Simple string matching**: Filters by process basename (e.g., "nginx", "java")
-- **Exact match**: Required for process names in include list
+#### 3. Process Path Filtering
+- **Full path matching**: Filters by complete executable path (e.g., "/usr/sbin/nginx")
+- **Prevents spoofing**: Requires path separator (/ or \) in include list entries
+- **Exact match**: Only processes with matching full paths are included
 
 #### 4. Resource Limits
 - **Retention limits**: Automatic cleanup of old data prevents disk exhaustion
@@ -584,8 +587,8 @@ processors:
   adaptivetelemetry:
     storage_path: /var/lib/nrdot-collector/atp-state
     include_process_list:
-      - "nginx"
-      - "java"
+      - "/usr/sbin/nginx"
+      - "/usr/bin/java"
     
   batch:
     timeout: 10s
@@ -618,12 +621,12 @@ processors:
   adaptivetelemetry/tenant1:
     storage_path: /var/lib/nrdot-collector/atp-tenant1
     include_process_list:
-      - "app-tenant1"
-  
+      - "/opt/tenant1/bin/app-tenant1"
+
   adaptivetelemetry/tenant2:
     storage_path: /var/lib/nrdot-collector/atp-tenant2
     include_process_list:
-      - "app-tenant2"
+      - "/opt/tenant2/bin/app-tenant2"
 
 service:
   pipelines:
@@ -646,9 +649,9 @@ service:
 **Symptoms**: All telemetry is being dropped
 
 **Solutions**:
-1. Check process list configuration matches actual running processes
-2. Verify full executable paths are correct (use `which <command>` or `readlink -f /proc/<pid>/exe`)
-3. Check UIDs match (use `ps aux | grep <process>` to see UID)
+1. Verify include_process_list uses full paths with separators (e.g., `/usr/sbin/nginx` not `nginx`)
+2. Check executable paths match running processes (use `which <command>` or `readlink -f /proc/<pid>/exe`)
+3. Ensure path separators are present - entries without / or \ will not match any process
 4. Review collector logs for filtering decisions: `grep "adaptivetelemetry" collector.log`
 
 #### Issue: State file errors
@@ -714,6 +717,49 @@ cat /proc/<pid>/cmdline
 2. **Restrict Storage Path**: Configure `storage_path` to a secure location
 3. **Audit Access**: Monitor who/what accesses the state directory
 4. **Keep Updated**: Apply security patches promptly
+5. **Use Full Paths in include_process_list**: Always specify full executable paths (e.g., `/usr/sbin/nginx`) instead of just process names to prevent process name spoofing attacks. See "Process Include List Security" below.
+
+### Process Include List Security
+
+The `include_process_list` feature uses **full path matching only** for security.
+
+**Full Path Matching (Required)**
+```yaml
+include_process_list:
+  - "/usr/sbin/nginx"           # Matches only this exact path
+  - "/usr/bin/postgres"         # Matches only this exact path
+  - "/opt/redis/bin/redis-server"
+```
+
+**Security Features:**
+- **Prevents process spoofing**: Malicious processes cannot bypass filters by using the same basename
+- **Exact path matching**: A process at `/tmp/nginx` will NOT match `/usr/sbin/nginx`
+- **Path separator required**: Entries without path separators (/ or \) will not match any process
+- **Secure by default**: No basename-only matching to eliminate attack vectors
+
+**Invalid Configuration (Will Not Match):**
+```yaml
+include_process_list:
+  - "nginx"                     # ❌ No path separator - will not match any process
+  - "postgres"                  # ❌ No path separator - will not match any process
+```
+
+**Attack Scenario Prevented:**
+```bash
+# An attacker attempts to spoof a trusted process:
+cp /malicious/backdoor /tmp/nginx
+/tmp/nginx  # ❌ Will NOT match - only "/usr/sbin/nginx" matches
+
+# Valid configuration requires full paths:
+include_process_list:
+  - "/usr/sbin/nginx"          # ✅ Only matches this exact path
+```
+
+**Best Practices:**
+- Always use absolute paths with full directory structure
+- Verify executable paths using `which <command>` or `readlink -f /proc/<pid>/exe`
+- Use Unix paths on Linux/macOS: `/usr/sbin/nginx`
+- Use Windows paths on Windows: `C:\Program Files\nginx\nginx.exe`
 
 
 ## Contributing

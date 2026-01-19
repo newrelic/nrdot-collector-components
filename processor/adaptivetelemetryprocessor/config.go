@@ -40,10 +40,14 @@ import (
 //                                         # must be <= anomaly_history_size
 //
 //     # Include list - processes that always bypass filters (optional)
-//     include_process_list:               # List of process names to always include
-//       - "nginx"                         # Match by process.executable.name or process.command
-//       - "postgres"
-//       - "redis-server"
+//     # SECURITY: Use full paths for production to prevent process name spoofing
+//     include_process_list:               # List of process names/paths to always include
+//       - "/usr/sbin/nginx"               # Full path (RECOMMENDED) - prevents /tmp/nginx spoofing
+//       - "/usr/bin/postgres"             # Full path matching is more secure
+//       - "redis-server"                  # Basename only - less secure, matches any path
+//     # Matching behavior:
+//     #   - Entries with "/" or "\" are treated as full paths (exact match required)
+//     #   - Entries without path separators match basename only (can be spoofed)
 //
 //     # Retention & persistence
 //     retention_minutes: 30               # how long since last exceed to keep entity (capped)
