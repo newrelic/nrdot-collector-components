@@ -52,6 +52,10 @@ import (
 //     # Retention & persistence
 //     retention_minutes: 30               # how long since last exceed to keep entity (capped)
 //     storage_path: /var/lib/nrdot-collector/adaptiveprocess.db
+//     # SECURITY: storage_path must be under /var/lib/nrdot-collector/
+//     # - Only absolute paths under this directory are allowed
+//     # - Symlinks in the path are rejected to prevent redirection attacks
+//     # - Follows Linux Filesystem Hierarchy Standard for application state data
 //
 // Example pipeline wiring:
 // service:
@@ -213,5 +217,15 @@ func (cfg *Config) Validate() error {
 	if cfg.EnableMultiMetric && cfg.CompositeThreshold <= 0 {
 		return fmt.Errorf("composite_threshold must be > 0, got %f", cfg.CompositeThreshold)
 	}
+
+	// Validate storage path if persistence is enabled
+	if cfg.EnableStorage == nil || *cfg.EnableStorage {
+		if cfg.StoragePath != "" {
+			if err := validateStoragePath(cfg.StoragePath, nil); err != nil {
+				return fmt.Errorf("invalid storage_path: %w", err)
+			}
+		}
+	}
+
 	return nil
 }
