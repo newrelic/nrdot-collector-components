@@ -20,7 +20,8 @@ const (
 	multiMetricThresholdKey      = "multi_metric.threshold"
 
 	// Filtering stage values
-	stageIncludeList               = "include_list" // Explicitly included process
+	stageIncludeList               = "include_list"   // Explicitly included process
+	stageZombieProcess             = "zombie_process" // Zombie/Defunct process (always included)
 	stageStaticThreshold           = "static_threshold"
 	stageDynamicThreshold          = "dynamic_threshold"
 	stageMultiMetric               = "multi_metric"
