@@ -301,7 +301,20 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 		return true
 	}
 
-	// Check include list - override filters if in include list
+	// Check if this is a zombie process - always include if so
+	if isZombieProcess(resource.Attributes()) {
+		setResourceFilterStage(resource, stageZombieProcess)
+		p.logger.Info("Resource included: zombie process",
+			zap.String("resource_id", id))
+
+		// Track the entity even if it's a zombie process for statistics
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		p.upsertTrackedEntityForIncludeList(id, values, resource)
+		return true
+	}
+
+	// Check include list FIRST - bypass all filters if in include list
 	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
 		processName := extractProcessName(resource.Attributes())
 		setResourceFilterStage(resource, stageIncludeList)
