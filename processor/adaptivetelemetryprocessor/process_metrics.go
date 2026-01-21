@@ -715,13 +715,7 @@ func setResourceFilterStage(resource pcommon.Resource, stage string) {
 	resource.Attributes().PutStr(internalFilterStageAttributeKey, stage)
 }
 
-/*
-	TODO: Make sure that all the summary metrices are stored in a single attribute to reduce cardinality
-	Use the same attribute that is being used for the threshold metrics and append to the same json object
-	The keys and values in the json should be self descriptive to avoid confusion while parsing
-*/
 // generateFilteringSummaryMetrics creates summary metrics about filtering performance
-// These provide customer visibility into filter effectiveness with minimal ingestion overhead
 func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics, inputResourceCount, outputResourceCount, inputMetricCount, outputMetricCount int, stageHits map[string]int) {
 	p.logger.Info("ATP Summary: generateFilteringSummaryMetrics called",
 		zap.Int("input_resources", inputResourceCount),

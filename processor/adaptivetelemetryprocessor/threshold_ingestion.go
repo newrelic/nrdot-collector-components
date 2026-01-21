@@ -4,7 +4,6 @@
 package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 import (
-	"encoding/json"
 	"math"
 	"time"
 
@@ -65,7 +64,6 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 		return
 	}
 
-	attrs := resource.Attributes()
 	capturedCount := 0
 	thresholdsDetails := make(map[string]interface{})
 
