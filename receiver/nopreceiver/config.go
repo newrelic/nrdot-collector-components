@@ -3,13 +3,6 @@
 
 package nopreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/nopreceiver"
 
-import (
-	"go.opentelemetry.io/collector/component"
-)
-
-var nopInstance = &nopReceiver{}
-
-type nopReceiver struct {
-	component.StartFunc
-	component.ShutdownFunc
-}
+// Config defines the configuration for the nop receiver.
+// The nop receiver has no configuration options.
+type Config struct{}

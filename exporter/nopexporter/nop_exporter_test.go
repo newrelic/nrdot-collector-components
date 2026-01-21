@@ -21,7 +21,7 @@ func TestNewNopFactory(t *testing.T) {
 	require.NotNil(t, factory)
 	assert.Equal(t, component.MustNewType("nop"), factory.Type())
 	cfg := factory.CreateDefaultConfig()
-	assert.Equal(t, &struct{}{}, cfg)
+	assert.Equal(t, &Config{}, cfg)
 
 	traces, err := factory.CreateTraces(t.Context(), exportertest.NewNopSettings(factory.Type()), cfg)
 	require.NoError(t, err)

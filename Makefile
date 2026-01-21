@@ -594,6 +594,16 @@ checkdoc: $(CHECKFILE)
 checkmetadata: $(CHECKFILE)
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "metadata.yaml"
 
+# Run all component file checks to enforce required files per docs/ADDING_COMPONENTS.md
+.PHONY: check-component-files
+check-component-files: checkdoc checkmetadata $(CHECKFILE)
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "doc.go"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "go.mod"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "Makefile"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "config.go"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "factory.go"
+	@echo "✅ All required component files are present"
+
 .PHONY: checkapi
 checkapi: $(CHECKAPI)
 	$(CHECKAPI) -folder . -config .checkapi.yaml

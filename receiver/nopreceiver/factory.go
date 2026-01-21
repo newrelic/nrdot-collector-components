@@ -1,0 +1,36 @@
+// Copyright New Relic, Inc. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+package nopreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/nopreceiver"
+
+import (
+	"context"
+
+	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/consumer"
+	"go.opentelemetry.io/collector/receiver"
+
+	"github.com/newrelic/nrdot-collector-components/receiver/nopreceiver/internal/metadata"
+)
+
+// NewFactory returns a receiver.Factory that constructs nop receivers.
+func NewFactory() receiver.Factory {
+	return receiver.NewFactory(
+		metadata.Type,
+		func() component.Config { return &Config{} },
+		receiver.WithTraces(createTraces, metadata.TracesStability),
+		receiver.WithMetrics(createMetrics, metadata.MetricsStability),
+		receiver.WithLogs(createLogs, metadata.LogsStability))
+}
+
+func createTraces(context.Context, receiver.Settings, component.Config, consumer.Traces) (receiver.Traces, error) {
+	return nopInstance, nil
+}
+
+func createMetrics(context.Context, receiver.Settings, component.Config, consumer.Metrics) (receiver.Metrics, error) {
+	return nopInstance, nil
+}
+
+func createLogs(context.Context, receiver.Settings, component.Config, consumer.Logs) (receiver.Logs, error) {
+	return nopInstance, nil
+}
