@@ -488,7 +488,7 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
-		p.setResourceFilterStage(resource, stageMultiMetric)
+		setResourceFilterStage(resource, stageMultiMetric)
 
 		// Add composite score and threshold to process.atp JSON
 		multiMetricDetails := map[string]interface{}{
@@ -711,7 +711,7 @@ func (p *processorImp) handleDebugMode(resource pcommon.Resource, id string, val
 }
 
 // setResourceFilterStage sets the filter stage attribute on a resource
-func (p *processorImp) setResourceFilterStage(resource pcommon.Resource, stage string) {
+func setResourceFilterStage(resource pcommon.Resource, stage string) {
 	resource.Attributes().PutStr(internalFilterStageAttributeKey, stage)
 }
 
