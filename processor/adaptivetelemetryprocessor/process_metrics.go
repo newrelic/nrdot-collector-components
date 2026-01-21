@@ -169,7 +169,7 @@ func (p *processorImp) processingSingleResource(rm pmetric.ResourceMetrics, filt
 	includeResource := p.shouldIncludeResource(rm.Resource(), rm)
 
 	// Get the filter stage from the resource attributes that was set by shouldIncludeResource
-	includeReason := stageStaticThreshold
+	includeReason := ""
 	if stageAttr, hasStage := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey); hasStage {
 		includeReason = stageAttr.AsString()
 	}
@@ -202,13 +202,15 @@ func (p *processorImp) handleIncludedResource(rm pmetric.ResourceMetrics, resour
 		zap.Int("scope_count", rm.ScopeMetrics().Len()),
 		zap.Int("metric_count_in_resource", countMetricsInResource(rm)))
 
-	// Ensure filter stage attribute is set
-	if _, hasStage := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey); !hasStage {
-		rm.Resource().Attributes().PutStr(adaptiveFilterStageAttributeKey, includeReason)
-	}
+	if includeReason != "" {
+		// Ensure filter stage attribute is set
+		if _, hasStage := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey); !hasStage {
+			rm.Resource().Attributes().PutStr(adaptiveFilterStageAttributeKey, includeReason)
+		}
 
-	// Add the filter stage attribute to all datapoints in the resource metrics
-	addStageAttributeToMetrics(rm, includeReason)
+		// Add the filter stage attribute to all datapoints in the resource metrics
+		addStageAttributeToMetrics(rm, includeReason)
+	}
 
 	rm.CopyTo(filtered.ResourceMetrics().AppendEmpty())
 }
@@ -292,11 +294,18 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	// This tracks only the MetricThresholds values, not other config data
 	p.captureUsedMetricThresholds(resource, values)
 
-	// Check include list FIRST - bypass all filters if in include list
+	// Bypass filtering if no metrics in the resource match configured thresholds
+	// This ensures we default to INCLUSION for non-targeted resources (e.g., system metrics, unconfigured processes)
+	if !p.isResourceTargeted(values) {
+		p.logger.Debug("Resource included: no specified metrics found (default inclusion)", zap.String("resource_id", id))
+		return true
+	}
+
+	// Check include list - override filters if in include list
 	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
 		processName := extractProcessName(resource.Attributes())
 		setResourceFilterStage(resource, stageIncludeList)
-		p.logger.Info("Resource included: in include list (bypass all filters)",
+		p.logger.Info("Resource included: in include list (bypass filters)",
 			zap.String("resource_id", id),
 			zap.String("process_name", processName))
 
@@ -837,4 +846,27 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 		zap.Int("filtered_resources", filteredResourceCount),
 		zap.Int("included_resources", outputResourceCount),
 		zap.Any("stage_hits", stageHits))
+}
+
+// isResourceTargeted checks if any metric in the values map is present in the configuration
+func (p *processorImp) isResourceTargeted(values map[string]float64) bool {
+	// Check static thresholds
+	if p.config.MetricThresholds != nil {
+		for m := range values {
+			if _, ok := p.config.MetricThresholds[m]; ok {
+				return true
+			}
+		}
+	}
+
+	// Check dynamic thresholds
+	if p.dynamicThresholdsEnabled && p.dynamicCustomThresholds != nil {
+		for m := range values {
+			if _, ok := p.dynamicCustomThresholds[m]; ok {
+				return true
+			}
+		}
+	}
+
+	return false
 }
