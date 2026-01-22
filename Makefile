@@ -604,6 +604,23 @@ check-component-files: checkdoc checkmetadata $(CHECKFILE)
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "factory.go"
 	@echo "✅ All required component files are present"
 
+# Check that all components are registered in builder configs
+.PHONY: check-builder-integration
+check-builder-integration:
+	@COMPONENT_MODS="$(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS)"; \
+	for component_dir in $$COMPONENT_MODS; do \
+		component_path=$$(echo $$component_dir | sed 's|^\./||'); \
+		component_module="github.com/newrelic/nrdot-collector-components/$$component_path"; \
+		echo "Checking $$component_path..."; \
+		for config in cmd/nrdotcol/builder-config.yaml cmd/oteltestbedcol/builder-config.yaml; do \
+			if ! grep -q "$$component_module" "$$config"; then \
+				echo "✗ Missing from $$config. Add entry: - gomod: $$component_module v0.142.1"; \
+				exit 1; \
+			fi; \
+			echo "  $$config: ✓"; \
+		done; \
+	done
+
 .PHONY: checkapi
 checkapi: $(CHECKAPI)
 	$(CHECKAPI) -folder . -config .checkapi.yaml

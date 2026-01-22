@@ -163,6 +163,8 @@ jobs:
       - run: make gennrdotcol
       - name: Check Component Files
         run: make check-component-files
+      - name: Check Builder Integration
+        run: make check-builder-integration
       - name: CheckApi
         run: make checkapi
       - name: Porto
