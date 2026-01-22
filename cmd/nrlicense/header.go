@@ -211,9 +211,9 @@ func containsCopyright(line string) bool {
 	return strings.Contains(lower, "copyright")
 }
 
-// containsLicenseIdentifier checks if a line contains either an SPDX identifier or NR software license
+// containsLicenseIdentifier checks if a line contains either an SPDX identifier
 func containsLicenseIdentifier(line string) bool {
-	return strings.Contains(line, "SPDX-License-Identifier") || strings.Contains(line, "New Relic Software License")
+	return strings.Contains(line, "SPDX-License-Identifier")
 }
 
 // extractCopyright extracts the copyright holder from a copyright line
@@ -478,8 +478,7 @@ func hasLicenseHeader(content []byte) bool {
 	header := bytes.ToLower(content[:n])
 	return bytes.Contains(header, []byte("copyright")) ||
 		bytes.Contains(header, []byte("mozilla public")) ||
-		bytes.Contains(header, []byte("spdx-license-identifier")) ||
-		bytes.Contains(header, []byte("new relic software license"))
+		bytes.Contains(header, []byte("spdx-license-identifier"))
 }
 
 // getCommentPrefix returns the appropriate comment style for a file based on its name.
