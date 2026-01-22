@@ -108,8 +108,7 @@ func main() {
 		topLicense: *topLicense,
 	}
 
-	exitCode := max(processor.ProcessFiles(files), processor.ProcessTopLevelLicense())
-	os.Exit(exitCode)
+	os.Exit(processor.ProcessFiles(files))
 }
 
 // collectFiles expands file patterns and returns a list of files to process

@@ -15,7 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"slices"
 	"strings"
 )
 
@@ -27,9 +26,6 @@ var newrelicProprietaryHeaderTemplate string
 
 //go:embed templates/modified-header.txt
 var modifiedHeaderTemplate string
-
-//go:embed templates/top-level-license.txt
-var topLevelLicenseTemplate string
 
 // HeaderInfo contains information about a file's license header
 type HeaderInfo struct {
@@ -457,65 +453,6 @@ func CheckHeader(filePath string, status FileStatus) (bool, error) {
 	default:
 		return false, nil
 	}
-}
-
-// GenerateTopLevelLicense generates the top-level license file at the root directory
-func GenerateTopLevelLicense(rootDir, description string) error {
-	// Use template and replace placeholder
-	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
-	template := topLevelLicenseTemplate
-	if description != "" {
-		template = strings.Replace(template, "{{DESCRIPTION}}", description, 1)
-	} else {
-		// Remove the placeholder line if no custom description
-		template = strings.Replace(template, "{{DESCRIPTION}}\n", "", 1)
-	}
-	err := os.WriteFile(licenseFileName, []byte(template), 0o600)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// CheckTopLevelLicense validates the top level licensing file.
-func CheckTopLevelLicense(rootDir string) (bool, error) {
-	licenseFileName := fmt.Sprintf("%s/LICENSING", rootDir)
-
-	// Check the existence of the file
-	matches, err := filepath.Glob(licenseFileName)
-	if err != nil || len(matches) != 1 {
-		return false, err
-	}
-
-	content, err := os.ReadFile(licenseFileName)
-	if err != nil {
-		return false, err
-	}
-
-	lines := strings.Split(string(content), "\n")
-
-	validated := true
-	descriptionIndex := slices.Index(strings.Split(topLevelLicenseTemplate, "\n"), "{{DESCRIPTION}}")
-	for _, line := range lines[descriptionIndex:] {
-		if line == "" {
-			break
-		}
-		licensedDir := strings.TrimPrefix(line, "New Relic Software License -")
-		licensedDir = strings.TrimSpace(licensedDir)
-		path := fmt.Sprintf("%s/%s", rootDir, licensedDir)
-
-		var matches []string
-		matches, err = filepath.Glob(fmt.Sprintf("%s/LICENSE_NEWRELIC_*", path))
-		if err != nil {
-			return false, err
-		}
-		if len(matches) < 1 {
-			validated = false
-			fmt.Printf("Directory listed in LICENSING doesn't exist or contains missing or incorrect license file: %s\n", licensedDir)
-		}
-	}
-
-	return validated, err
 }
 
 // ==================== Functions adapted from google/addlicense ====================
