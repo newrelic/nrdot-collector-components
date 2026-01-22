@@ -222,7 +222,7 @@ addthirdparty: $(LICENSE_DETECTOR)
 			-rules "$$rules_file" \
 			-overrides $(SRC_ROOT)/licenses/third_party/overrides.jsonl \
 			-noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
-			-noticeOut $$dir/THIRD_PARTY_NOTICES.md; \
+			-noticeOut $$dir/THIRD_PARTY_NOTICES.md || echo "Failing directory: $$dir";\
 		$(GOCMD) -C $$dir mod tidy -compat=1.24.0; \
 	done
 
