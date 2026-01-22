@@ -129,7 +129,7 @@ func GenerateHeader(status FileStatus, modDescription, filePath string) (string,
 	case StatusModified:
 		return generateModifiedHeader(modDescription, ext), nil
 
-	case StatusNewApache:
+	case StatusNew:
 		return generateNewApacheHeader(ext), nil
 
 	default:
@@ -414,7 +414,7 @@ func CheckHeader(filePath string, status FileStatus) (bool, error) {
 		hasApacheLicense := strings.Contains(headerInfo.ExistingLicenseIdentifier, "Apache-2.0")
 		return hasOriginal && hasNewRelic && hasApacheLicense, nil
 
-	case StatusNewApache:
+	case StatusNew:
 		// Should have New Relic copyright only, with apache 2.0 license
 		correctCopyright := strings.Contains(headerInfo.ExistingCopyright, "New Relic")
 		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingLicenseIdentifier, "Apache-2.0")

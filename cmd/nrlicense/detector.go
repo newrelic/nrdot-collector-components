@@ -20,8 +20,8 @@ const (
 	StatusUnmodified FileStatus = iota
 	// StatusModified means the file existed in the fork and has been modified
 	StatusModified
-	// StatusNewApache means the file was created after the fork, and is licensed under Apache 2.0.
-	StatusNewApache
+	// StatusNew means the file was created after the fork, and is licensed under Apache 2.0.
+	StatusNew
 	// StatusUnknown means we couldn't determine the status
 	StatusUnknown
 )
@@ -32,7 +32,7 @@ func (s FileStatus) String() string {
 		return "unmodified"
 	case StatusModified:
 		return "modified"
-	case StatusNewApache:
+	case StatusNew:
 		return "newApache"
 	default:
 		return "unknown"
@@ -111,7 +111,7 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	if !existsAtFork {
-		return StatusNewApache, nil
+		return StatusNew, nil
 	}
 
 	// File exists at fork, check if it's there's a difference
