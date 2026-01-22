@@ -13,11 +13,10 @@ import (
 
 // Processor handles the processing of files
 type Processor struct {
-	detector   *GitDetector
-	verbose    bool
-	dryRun     bool
-	check      bool
-	topLicense bool
+	detector *GitDetector
+	verbose  bool
+	dryRun   bool
+	check    bool
 
 	// Counters
 	processed   int32

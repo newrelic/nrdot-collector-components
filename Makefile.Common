@@ -207,7 +207,7 @@ benchmark: $(GOTESTSUM)
 .PHONY: addlicense
 addlicense: $(NRLICENSE) addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
-	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
+	@$(NRLICENSE) --fix --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: addthirdparty
 addthirdparty: $(LICENSE_DETECTOR)
@@ -232,7 +232,7 @@ checklicense: $(NRLICENSE) addthirdparty
 		 echo "Third party notices out of date, please run \"make addlicense\" and commit the changes in this PR."; exit 1; \
 	} || exit 0
 	@echo "Checking license headers with nrlicense..."
-	@$(NRLICENSE) --check --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
+	@$(NRLICENSE) --check --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 	
 .PHONY: checklinks
 checklinks:
