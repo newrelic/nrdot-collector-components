@@ -22,8 +22,6 @@ const (
 	StatusModified
 	// StatusNewApache means the file was created after the fork, and is licensed under Apache 2.0.
 	StatusNewApache
-	// StatusNewProprietary means the file was created after the fork, and is licensed under the NR software license.
-	StatusNewProprietary
 	// StatusUnknown means we couldn't determine the status
 	StatusUnknown
 )
@@ -36,8 +34,6 @@ func (s FileStatus) String() string {
 		return "modified"
 	case StatusNewApache:
 		return "newApache"
-	case StatusNewProprietary:
-		return "newProprietary"
 	default:
 		return "unknown"
 	}
@@ -115,7 +111,7 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	if !existsAtFork {
-		return d.GetNewFileStatusFromLicense(filePath)
+		return StatusNewApache, nil
 	}
 
 	// File exists at fork, check if it's there's a difference
@@ -129,41 +125,6 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	return StatusUnmodified, nil
-}
-
-// getNewFileStatusFromLicense searches for a LICENSE file in all parent directories
-func (d *GitDetector) GetNewFileStatusFromLicense(filePath string) (FileStatus, error) {
-	absPath, err := filepath.Abs(filePath)
-	if err != nil {
-		return StatusUnknown, fmt.Errorf("resolving absolute path: %w", err)
-	}
-	dir := filepath.Dir(absPath)
-
-	// Search through file's parent directories for LICENSE files
-	for dir != d.repoRoot {
-		res, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_*", dir))
-		if err != nil {
-			return StatusUnknown, fmt.Errorf("searching for license: %w", err)
-		}
-		if len(res) > 1 {
-			return StatusUnknown, fmt.Errorf("more than one LICENSE file found in %s", dir)
-		}
-		if len(res) == 1 {
-			license := filepath.Base(res[0])
-			switch {
-			case strings.Contains(license, "_NEWRELIC_"):
-				return StatusNewProprietary, nil
-			case strings.Contains(license, "_APACHE_"):
-				return StatusNewApache, nil
-			default:
-				return StatusUnknown, fmt.Errorf("improper LICENSE filename: %s (expected LICENSE_NEWRELIC_[component] or LICENSE_APACHE_[component])", license)
-			}
-		}
-		dir = filepath.Dir(dir)
-	}
-
-	// If no LICENSE is found, file is assumed Apache
-	return StatusNewApache, nil
 }
 
 // fileExistsAtCommit checks if a file exists at a given commit

@@ -21,9 +21,6 @@ import (
 //go:embed templates/newrelic-header-apache.txt
 var newrelicApacheHeaderTemplate string
 
-//go:embed templates/newrelic-header-proprietary.txt
-var newrelicProprietaryHeaderTemplate string
-
 //go:embed templates/modified-header.txt
 var modifiedHeaderTemplate string
 
@@ -135,9 +132,6 @@ func GenerateHeader(status FileStatus, modDescription, filePath string) (string,
 	case StatusNewApache:
 		return generateNewApacheHeader(ext), nil
 
-	case StatusNewProprietary:
-		return generateNewProprietaryHeader(ext), nil
-
 	default:
 		return "", fmt.Errorf("unknown file status: %v", status)
 	}
@@ -176,24 +170,6 @@ func generateNewApacheHeader(ext string) string {
 
 	// Use template
 	lines := strings.Split(strings.TrimSpace(newrelicApacheHeaderTemplate), "\n")
-	var buf bytes.Buffer
-	for _, line := range lines {
-		if line == "" {
-			buf.WriteString(comment + "\n")
-		} else {
-			buf.WriteString(comment + " " + line + "\n")
-		}
-	}
-
-	return buf.String()
-}
-
-// generateNewHeader creates a header for new files
-func generateNewProprietaryHeader(ext string) string {
-	comment := getCommentStyle(ext)
-
-	// Use template
-	lines := strings.Split(strings.TrimSpace(newrelicProprietaryHeaderTemplate), "\n")
 	var buf bytes.Buffer
 	for _, line := range lines {
 		if line == "" {
@@ -442,12 +418,6 @@ func CheckHeader(filePath string, status FileStatus) (bool, error) {
 		// Should have New Relic copyright only, with apache 2.0 license
 		correctCopyright := strings.Contains(headerInfo.ExistingCopyright, "New Relic")
 		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingLicenseIdentifier, "Apache-2.0")
-		return headerInfo.HasHeader && correctCopyright && correctSPDXIdentifier, nil
-
-	case StatusNewProprietary:
-		// Should have New Relic copyright only, with NR proprietary license
-		correctCopyright := headerInfo.HasHeader && strings.Contains(headerInfo.ExistingCopyright, "New Relic")
-		correctSPDXIdentifier := strings.Contains(headerInfo.ExistingLicenseIdentifier, "New Relic Software License")
 		return headerInfo.HasHeader && correctCopyright && correctSPDXIdentifier, nil
 
 	default:
