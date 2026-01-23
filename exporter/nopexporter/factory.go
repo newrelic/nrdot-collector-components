@@ -1,5 +1,5 @@
 // Copyright New Relic, Inc. All rights reserved.
-// New Relic Software License
+// SPDX-License-Identifier: Apache-2.0
 
 package nopexporter // import "github.com/newrelic/nrdot-collector-components/exporter/nopexporter"
 
