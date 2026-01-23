@@ -220,6 +220,7 @@ addthirdparty: $(LICENSE_DETECTOR)
 		fi; \
 		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
 			-rules "$$rules_file" \
+			-overrides "$(SRC_ROOT)/internal/assets/license/overrides.jsonl" \
 			-noticeTemplate $(SRC_ROOT)/internal/assets/license/THIRD_PARTY_NOTICES.tmpl \
 			-noticeOut $$dir/THIRD_PARTY_NOTICES.md || { echo "Failing directory: $$dir"; exit 1; }; \
 		$(GOCMD) -C $$dir mod tidy -compat=1.24.0; \
