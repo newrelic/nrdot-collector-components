@@ -161,10 +161,10 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
       - run: make gennrdotcol
-      - name: CheckDoc
-        run: make checkdoc
-      - name: CheckMetadata
-        run: make checkmetadata
+      - name: Check Component Files
+        run: make check-component-files
+      - name: Check Builder Integration
+        run: make check-builder-integration
       - name: CheckApi
         run: make checkapi
       - name: Porto

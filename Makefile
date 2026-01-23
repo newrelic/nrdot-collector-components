@@ -26,29 +26,18 @@ EX_CMD=-not -path "./cmd/*"
 # This includes a final slash
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
-RECEIVER_MODS_0 := $(shell find ./receiver/[a-f]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-RECEIVER_MODS_1 := $(shell find ./receiver/[g-o]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-RECEIVER_MODS_2 := $(shell find ./receiver/[p]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) ) # Prometheus is special and gets its own section.
-RECEIVER_MODS_3 := $(shell find ./receiver/[q-z]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-RECEIVER_MODS := $(RECEIVER_MODS_0) $(RECEIVER_MODS_1) $(RECEIVER_MODS_2) $(RECEIVER_MODS_3)
-PROCESSOR_MODS_0 := $(shell find ./processor/[a-o]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-PROCESSOR_MODS_1 := $(shell find ./processor/[p-z]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-PROCESSOR_MODS := $(PROCESSOR_MODS_0) $(PROCESSOR_MODS_1)
-EXPORTER_MODS_0 := $(shell find ./exporter/[a-c]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-EXPORTER_MODS_1 := $(shell find ./exporter/[d-i]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-EXPORTER_MODS_2 := $(shell find ./exporter/[k-o]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-EXPORTER_MODS_3 := $(shell find ./exporter/[p-z]* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-EXPORTER_MODS := $(EXPORTER_MODS_0) $(EXPORTER_MODS_1) $(EXPORTER_MODS_2) $(EXPORTER_MODS_3)
+RECEIVER_MODS := $(shell find ./receiver/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
+PROCESSOR_MODS := $(shell find ./processor/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
+EXPORTER_MODS := $(shell find ./exporter/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 EXTENSION_MODS := $(shell find ./extension/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 CONNECTOR_MODS := $(shell find ./connector/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 INTERNAL_MODS := $(shell find ./internal/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 PKG_MODS := $(shell find ./pkg/* $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
-CMD_MODS_0 := $(shell find ./cmd/[a-z]* $(FIND_MOD_ARGS) -not -path "./cmd/*col*" -exec $(TO_MOD_DIR) )
-CMD_MODS := $(CMD_MODS_0)
+CMD_MODS := $(shell find ./cmd/* $(FIND_MOD_ARGS) -not -path "./cmd/*col*" -exec $(TO_MOD_DIR) )
 OTHER_MODS := $(shell find . $(EX_COMPONENTS) $(EX_INTERNAL) $(EX_PKG) $(EX_CMD) $(FIND_MOD_ARGS) -exec $(TO_MOD_DIR) )
 export ALL_MODS := $(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS) $(INTERNAL_MODS) $(PKG_MODS) $(CMD_MODS) $(OTHER_MODS)
 
-CGO_MODS := ./receiver/hostmetricsreceiver
+CGO_MODS :=
 
 FIND_INTEGRATION_TEST_MODS={ find . -type f -name "*integration_test.go" & find . -type f -name "*e2e_test.go" -not -path "./testbed/*"; }
 INTEGRATION_MODS := $(shell $(FIND_INTEGRATION_TEST_MODS) | xargs $(TO_MOD_DIR) | uniq)
@@ -66,24 +55,13 @@ all-modules:
 	@echo $(ALL_MODS) | tr ' ' '\n' | sort
 
 all-groups:
-	@echo -e "receiver-0: $(RECEIVER_MODS_0)"
-	@echo -e "\nreceiver-1: $(RECEIVER_MODS_1)"
-	@echo -e "\nreceiver-2: $(RECEIVER_MODS_2)"
-	@echo -e "\nreceiver-3: $(RECEIVER_MODS_3)"
-	@echo -e "\nreceiver: $(RECEIVER_MODS)"
-	@echo -e "\nprocessor-0: $(PROCESSOR_MODS_0)"
-	@echo -e "\nprocessor-1: $(PROCESSOR_MODS_1)"
+	@echo -e "receiver: $(RECEIVER_MODS)"
 	@echo -e "\nprocessor: $(PROCESSOR_MODS)"
-	@echo -e "\nexporter-0: $(EXPORTER_MODS_0)"
-	@echo -e "\nexporter-1: $(EXPORTER_MODS_1)"
-	@echo -e "\nexporter-2: $(EXPORTER_MODS_2)"
-	@echo -e "\nexporter-3: $(EXPORTER_MODS_3)"
 	@echo -e "\nexporter: $(EXPORTER_MODS)"
 	@echo -e "\nextension: $(EXTENSION_MODS)"
 	@echo -e "\nconnector: $(CONNECTOR_MODS)"
 	@echo -e "\ninternal: $(INTERNAL_MODS)"
 	@echo -e "\npkg: $(PKG_MODS)"
-	@echo -e "\ncmd-0: $(CMD_MODS_0)"
 	@echo -e "\ncmd: $(CMD_MODS)"
 	@echo -e "\nother: $(OTHER_MODS)"
 	@echo -e "\nintegration: $(INTEGRATION_MODS)"
@@ -593,6 +571,33 @@ checkdoc: $(CHECKFILE)
 .PHONY: checkmetadata
 checkmetadata: $(CHECKFILE)
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "metadata.yaml"
+
+# Run all component file checks to enforce required files per docs/ADDING_COMPONENTS.md
+.PHONY: check-component-files
+check-component-files: checkdoc checkmetadata $(CHECKFILE)
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "doc.go"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "go.mod"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "Makefile"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "config.go"
+	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "factory.go"
+	@echo "✅ All required component files are present"
+
+# Check that all components are registered in builder configs
+.PHONY: check-builder-integration
+check-builder-integration:
+	@COMPONENT_MODS="$(RECEIVER_MODS) $(PROCESSOR_MODS) $(EXPORTER_MODS) $(EXTENSION_MODS) $(CONNECTOR_MODS)"; \
+	for component_dir in $$COMPONENT_MODS; do \
+		component_path=$$(echo $$component_dir | sed 's|^\./||'); \
+		component_module="github.com/newrelic/nrdot-collector-components/$$component_path"; \
+		echo "Checking $$component_path..."; \
+		for config in cmd/nrdotcol/builder-config.yaml cmd/oteltestbedcol/builder-config.yaml; do \
+			if ! grep -q "$$component_module" "$$config"; then \
+				echo "✗ Missing from $$config. Add entry: - gomod: $$component_module v0.142.1"; \
+				exit 1; \
+			fi; \
+			echo "  $$config: ✓"; \
+		done; \
+	done
 
 .PHONY: checkapi
 checkapi: $(CHECKAPI)
