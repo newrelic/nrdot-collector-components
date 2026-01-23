@@ -212,10 +212,10 @@ addlicense: $(NRLICENSE) addthirdparty
 .PHONY: addthirdparty
 addthirdparty: $(LICENSE_DETECTOR)
 	@echo "Generating third-party notices..."
-	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
+	@rules_file="$(SRC_ROOT)/internal/assets/license/rules.json"; \
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
 		alternative_rules=$$(find "$$dir" -name "rules.json" | head -n 1); \
-		if [ -n alternative_rules ]; then \
+		if [ -n "$$alternative_rules" ]; then \
 			rules_file=$$alternative_rules; \
 		fi; \
 		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
