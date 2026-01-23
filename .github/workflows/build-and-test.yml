@@ -54,21 +54,14 @@ jobs:
           - windows
           - linux
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
           - pkg
-          - cmd-0
+          - cmd
           - other
     runs-on: ubuntu-24.04
     needs: [setup-environment]
@@ -110,21 +103,14 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
           - pkg
-          - cmd-0
+          - cmd
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [setup-environment]
@@ -216,21 +202,14 @@ jobs:
         go-version: [stable, oldstable]
         runner: [ubuntu-24.04]
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
           - pkg
-          - cmd-0
+          - cmd
           - other
     runs-on: ${{ matrix.runner }}
     needs: [setup-environment]
@@ -327,21 +306,14 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          - receiver-0
-          - receiver-1
-          - receiver-2
-          - receiver-3
-          - processor-0
-          - processor-1
-          - exporter-0
-          - exporter-1
-          - exporter-2
-          - exporter-3
+          - receiver
+          - processor
+          - exporter
           - extension
           - connector
           - internal
           - pkg
-          - cmd-0
+          - cmd
     runs-on: ubuntu-24.04
     needs: [setup-environment]
     steps:

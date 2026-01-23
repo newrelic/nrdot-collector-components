@@ -240,41 +240,11 @@ for-all-target: $(ALL_MODS)
 .PHONY: for-receiver-target
 for-receiver-target: $(RECEIVER_MODS)
 
-.PHONY: for-receiver-0-target
-for-receiver-0-target: $(RECEIVER_MODS_0)
-
-.PHONY: for-receiver-1-target
-for-receiver-1-target: $(RECEIVER_MODS_1)
-
-.PHONY: for-receiver-2-target
-for-receiver-2-target: $(RECEIVER_MODS_2)
-
-.PHONY: for-receiver-3-target
-for-receiver-3-target: $(RECEIVER_MODS_3)
-
 .PHONY: for-processor-target
 for-processor-target: $(PROCESSOR_MODS)
 
-.PHONY: for-processor-0-target
-for-processor-0-target: $(PROCESSOR_MODS_0)
-
-.PHONY: for-processor-1-target
-for-processor-1-target: $(PROCESSOR_MODS_1)
-
 .PHONY: for-exporter-target
 for-exporter-target: $(EXPORTER_MODS)
-
-.PHONY: for-exporter-0-target
-for-exporter-0-target: $(EXPORTER_MODS_0)
-
-.PHONY: for-exporter-1-target
-for-exporter-1-target: $(EXPORTER_MODS_1)
-
-.PHONY: for-exporter-2-target
-for-exporter-2-target: $(EXPORTER_MODS_2)
-
-.PHONY: for-exporter-3-target
-for-exporter-3-target: $(EXPORTER_MODS_3)
 
 .PHONY: for-extension-target
 for-extension-target: $(EXTENSION_MODS)
@@ -290,9 +260,6 @@ for-pkg-target: $(PKG_MODS)
 
 .PHONY: for-cmd-target
 for-cmd-target: $(CMD_MODS)
-
-.PHONY: for-cmd-0-target
-for-cmd-0-target: $(CMD_MODS_0)
 
 .PHONY: for-other-target
 for-other-target: $(OTHER_MODS)
