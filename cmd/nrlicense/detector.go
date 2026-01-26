@@ -64,7 +64,8 @@ func (d *GitDetector) validatePath(filePath string) error {
 // getDateAfterForkCommit returns the date of the commit immediately after the fork commit in YYYY-MM-DD format.
 // Input commit is the last commit before the fork, so we need the date of the next commit to accurately represent our changes.
 func getDateAfterForkCommit(commit string) (string, error) {
-	cmd := exec.Command("git", "log", "--reverse", fmt.Sprintf("%s..", commit), "--format=%cs")
+	commitRange := fmt.Sprintf("%s..", commit)
+	cmd := exec.Command("git", "log", "--reverse", commitRange, "--format=%cs")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("getting next commit date: %w (output: %s)", err, string(output))
@@ -73,7 +74,7 @@ func getDateAfterForkCommit(commit string) (string, error) {
 	dates := strings.Split(string(output), "\n")
 	date := strings.TrimSpace(dates[0])
 	if date == "" {
-		return "", fmt.Errorf("no commits found after fork point")
+		return "", fmt.Errorf("no commits found after fork point %s", commit)
 	}
 	return date, nil
 }
@@ -104,7 +105,7 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 	if strings.TrimSpace(string(output)) == "true" {
 		// We cannot fetch here because shallow repositories are locked during concurrently-running (-j2) makefile jobs. Throw error instead.
 		cmd = exec.Command("git", "cat-file", "-e", forkCommit)
-		if err := cmd.Run(); err != nil {
+		if err = cmd.Run(); err != nil {
 			return nil, fmt.Errorf("fork commit %s is not reachable in shallow repository (shallow clone may need deeper history)", forkCommit)
 		}
 	}
