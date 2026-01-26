@@ -62,12 +62,12 @@ func (d *GitDetector) validatePath(filePath string) error {
 }
 
 // getDateAfterForkCommit returns the date of the commit immediately after the fork commit in YYYY-MM-DD format.
-// Input commit is the last commit befor the fork, so we need the date of the next commit to accurately represent our changes.
+// Input commit is the last commit before the fork, so we need the date of the next commit to accurately represent our changes.
 func getDateAfterForkCommit(commit string) (string, error) {
-	cmd := exec.Command("git", "log", "--reverse", fmt.Sprintf("%s..main", commit), "--format=%cs")
-	output, err := cmd.Output()
+	cmd := exec.Command("git", "log", "--reverse", fmt.Sprintf("%s..", commit), "--format=%cs")
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("getting next commit date: %w", err)
+		return "", fmt.Errorf("getting next commit date: %w (output: %s)", err, string(output))
 	}
 
 	dates := strings.Split(string(output), "\n")
