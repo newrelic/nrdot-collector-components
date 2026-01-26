@@ -41,6 +41,7 @@ func (s FileStatus) String() string {
 // GitDetector detects file modification status relative to a fork point
 type GitDetector struct {
 	forkCommit string
+	forkDate   string
 	repoRoot   string
 }
 
@@ -58,6 +59,23 @@ func (d *GitDetector) validatePath(filePath string) error {
 	}
 
 	return nil
+}
+
+// getDateAfterForkCommit returns the date of the commit immediately after the fork commit in YYYY-MM-DD format.
+// Input commit is the last commit befor the fork, so we need the date of the next commit to accurately represent our changes.
+func getDateAfterForkCommit(commit string) (string, error) {
+	cmd := exec.Command("git", "log", "--reverse", "--ancestry-path", fmt.Sprintf("%s..main", commit), "--format=%cs")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("getting next commit date: %w", err)
+	}
+
+	dates := strings.Split(string(output), "\n")
+	date := strings.TrimSpace(dates[0])
+	if date == "" {
+		return "", fmt.Errorf("no commits found after fork point")
+	}
+	return date, nil
 }
 
 // NewGitDetector creates a new GitDetector
@@ -91,8 +109,14 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 		}
 	}
 
+	forkDate, err := getDateAfterForkCommit(forkCommit)
+	if err != nil {
+		return nil, err
+	}
+
 	return &GitDetector{
 		forkCommit: forkCommit,
+		forkDate:   forkDate,
 		repoRoot:   repoRoot,
 	}, nil
 }
@@ -166,10 +190,11 @@ func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
 }
 
 // GetModificationDescription returns a description of what was modified in the file
-func (*GitDetector) GetModificationDescription(filePath string) string {
+func (d *GitDetector) GetModificationDescription(filePath string) string {
 	commitHistoryURLSinceFork := fmt.Sprintf(
-		"https://github.com/newrelic/nrdot-collector-components/commits/main/%s?since=2025-11-26",
+		"https://github.com/newrelic/nrdot-collector-components/commits/main/%s?since=%s",
 		filepath.Clean(filePath),
+		d.forkDate,
 	)
 	return commitHistoryURLSinceFork
 }
