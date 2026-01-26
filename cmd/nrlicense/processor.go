@@ -13,11 +13,10 @@ import (
 
 // Processor handles the processing of files
 type Processor struct {
-	detector   *GitDetector
-	verbose    bool
-	dryRun     bool
-	check      bool
-	topLicense bool
+	detector *GitDetector
+	verbose  bool
+	dryRun   bool
+	check    bool
 
 	// Counters
 	processed   int32
@@ -178,37 +177,4 @@ func (p *Processor) printSummary() {
 		fmt.Printf("Failed: %d files\n", p.failed)
 	}
 	fmt.Println(strings.Repeat("=", 50))
-}
-
-func (p *Processor) ProcessTopLevelLicense() int {
-	// Generate top-level licensing file
-	if p.topLicense {
-		description, err := p.detector.GetTopLevelLicenseDescription()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error generating top-level license: %v\n", err)
-			return 1
-		}
-
-		switch {
-		case p.check:
-			passed, err := CheckTopLevelLicense(p.detector.repoRoot)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error validating top level license %v\n", err)
-				return 1
-			}
-			if !passed {
-				fmt.Println("Missing or incorrect top-level LICENSING file.")
-				return 1
-			}
-		case p.dryRun:
-			fmt.Printf("Directories with proprietary LICENSE files:\n%s", description)
-		default:
-			err := GenerateTopLevelLicense(p.detector.repoRoot, description)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error generating top level license %v\n", err)
-				return 1
-			}
-		}
-	}
-	return 0
 }

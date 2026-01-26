@@ -207,22 +207,22 @@ benchmark: $(GOTESTSUM)
 .PHONY: addlicense
 addlicense: $(NRLICENSE) addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
-	@$(NRLICENSE) --fix --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
+	@$(NRLICENSE) --fix --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
 .PHONY: addthirdparty
 addthirdparty: $(LICENSE_DETECTOR)
 	@echo "Generating third-party notices..."
-	@rules_file="$(SRC_ROOT)/licenses/third_party/rules.json"; \
+	@rules_file="$(SRC_ROOT)/internal/assets/license/rules.json"; \
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
 		alternative_rules=$$(find "$$dir" -name "rules.json" | head -n 1); \
-		if [ -n alternative_rules ]; then \
+		if [ -n "$$alternative_rules" ]; then \
 			rules_file=$$alternative_rules; \
 		fi; \
 		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
 			-rules "$$rules_file" \
-			-overrides $(SRC_ROOT)/licenses/third_party/overrides.jsonl \
-			-noticeTemplate $(SRC_ROOT)/licenses/third_party/THIRD_PARTY_NOTICES.tmpl \
-			-noticeOut $$dir/THIRD_PARTY_NOTICES.md; \
+			-overrides "$(SRC_ROOT)/internal/assets/license/overrides.jsonl" \
+			-noticeTemplate $(SRC_ROOT)/internal/assets/license/THIRD_PARTY_NOTICES.tmpl \
+			-noticeOut $$dir/THIRD_PARTY_NOTICES.md || { echo "Failing directory: $$dir"; exit 1; }; \
 		$(GOCMD) -C $$dir mod tidy -compat=1.24.0; \
 	done
 
@@ -233,7 +233,7 @@ checklicense: $(NRLICENSE) addthirdparty
 		 echo "Third party notices out of date, please run \"make addlicense\" and commit the changes in this PR."; exit 1; \
 	} || exit 0
 	@echo "Checking license headers with nrlicense..."
-	@$(NRLICENSE) --check --top-license --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
+	@$(NRLICENSE) --check --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 	
 .PHONY: checklinks
 checklinks:

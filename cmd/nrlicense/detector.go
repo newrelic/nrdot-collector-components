@@ -4,10 +4,8 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io/fs"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -21,10 +19,8 @@ const (
 	StatusUnmodified FileStatus = iota
 	// StatusModified means the file existed in the fork and has been modified
 	StatusModified
-	// StatusNewApache means the file was created after the fork, and is licensed under Apache 2.0.
-	StatusNewApache
-	// StatusNewProprietary means the file was created after the fork, and is licensed under the NR software license.
-	StatusNewProprietary
+	// StatusNew means the file was created after the fork, and is licensed under Apache 2.0.
+	StatusNew
 	// StatusUnknown means we couldn't determine the status
 	StatusUnknown
 )
@@ -35,10 +31,8 @@ func (s FileStatus) String() string {
 		return "unmodified"
 	case StatusModified:
 		return "modified"
-	case StatusNewApache:
+	case StatusNew:
 		return "newApache"
-	case StatusNewProprietary:
-		return "newProprietary"
 	default:
 		return "unknown"
 	}
@@ -47,6 +41,7 @@ func (s FileStatus) String() string {
 // GitDetector detects file modification status relative to a fork point
 type GitDetector struct {
 	forkCommit string
+	forkDate   string
 	repoRoot   string
 }
 
@@ -64,6 +59,24 @@ func (d *GitDetector) validatePath(filePath string) error {
 	}
 
 	return nil
+}
+
+// getDateAfterForkCommit returns the date of the commit immediately after the fork commit in YYYY-MM-DD format.
+// Input commit is the last commit before the fork, so we need the date of the next commit to accurately represent our changes.
+func getDateAfterForkCommit(commit string) (string, error) {
+	commitRange := fmt.Sprintf("%s..", commit)
+	cmd := exec.Command("git", "log", "--reverse", commitRange, "--format=%cs")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("getting next commit date: %w (output: %s)", err, string(output))
+	}
+
+	dates := strings.Split(string(output), "\n")
+	date := strings.TrimSpace(dates[0])
+	if date == "" {
+		return "", fmt.Errorf("no commits found after fork point %s", commit)
+	}
+	return date, nil
 }
 
 // NewGitDetector creates a new GitDetector
@@ -92,13 +105,19 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 	if strings.TrimSpace(string(output)) == "true" {
 		// We cannot fetch here because shallow repositories are locked during concurrently-running (-j2) makefile jobs. Throw error instead.
 		cmd = exec.Command("git", "cat-file", "-e", forkCommit)
-		if err := cmd.Run(); err != nil {
+		if err = cmd.Run(); err != nil {
 			return nil, fmt.Errorf("fork commit %s is not reachable in shallow repository (shallow clone may need deeper history)", forkCommit)
 		}
 	}
 
+	forkDate, err := getDateAfterForkCommit(forkCommit)
+	if err != nil {
+		return nil, err
+	}
+
 	return &GitDetector{
 		forkCommit: forkCommit,
+		forkDate:   forkDate,
 		repoRoot:   repoRoot,
 	}, nil
 }
@@ -116,7 +135,7 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	if !existsAtFork {
-		return d.GetNewFileStatusFromLicense(filePath)
+		return StatusNew, nil
 	}
 
 	// File exists at fork, check if it's there's a difference
@@ -130,41 +149,6 @@ func (d *GitDetector) GetFileStatus(filePath string) (FileStatus, error) {
 	}
 
 	return StatusUnmodified, nil
-}
-
-// getNewFileStatusFromLicense searches for a LICENSE file in all parent directories
-func (d *GitDetector) GetNewFileStatusFromLicense(filePath string) (FileStatus, error) {
-	absPath, err := filepath.Abs(filePath)
-	if err != nil {
-		return StatusUnknown, fmt.Errorf("resolving absolute path: %w", err)
-	}
-	dir := filepath.Dir(absPath)
-
-	// Search through file's parent directories for LICENSE files
-	for dir != d.repoRoot {
-		res, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_*", dir))
-		if err != nil {
-			return StatusUnknown, fmt.Errorf("searching for license: %w", err)
-		}
-		if len(res) > 1 {
-			return StatusUnknown, fmt.Errorf("more than one LICENSE file found in %s", dir)
-		}
-		if len(res) == 1 {
-			license := filepath.Base(res[0])
-			switch {
-			case strings.Contains(license, "_NEWRELIC_"):
-				return StatusNewProprietary, nil
-			case strings.Contains(license, "_APACHE_"):
-				return StatusNewApache, nil
-			default:
-				return StatusUnknown, fmt.Errorf("improper LICENSE filename: %s (expected LICENSE_NEWRELIC_[component] or LICENSE_APACHE_[component])", license)
-			}
-		}
-		dir = filepath.Dir(dir)
-	}
-
-	// If no LICENSE is found, file is assumed Apache
-	return StatusNewApache, nil
 }
 
 // fileExistsAtCommit checks if a file exists at a given commit
@@ -183,22 +167,6 @@ func (*GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-// fileModifiedSince checks if a file has been modified since a given commit
-func (*GitDetector) FileModifiedSince(filePath, commit string) (bool, error) {
-	// Use git log to see if there are any commits affecting this file since the fork point
-	commitHead := fmt.Sprintf("%s..HEAD", commit)
-	cmd := exec.Command("git", "log", "--oneline", commitHead, "--", filePath)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		return false, fmt.Errorf("running git log: %w", err)
-	}
-
-	// If there's any output, the file has been modified
-	return out.Len() > 0, nil
 }
 
 // fileDiffSince checks if a file has a diff with that file at a given commit
@@ -223,39 +191,11 @@ func (d *GitDetector) GetFileContentAtFork(filePath string) ([]byte, error) {
 }
 
 // GetModificationDescription returns a description of what was modified in the file
-func (*GitDetector) GetModificationDescription(filePath string) string {
+func (d *GitDetector) GetModificationDescription(filePath string) string {
 	commitHistoryURLSinceFork := fmt.Sprintf(
-		"https://github.com/newrelic/nrdot-collector-components/commits/main/%s?since=2025-11-26",
+		"https://github.com/newrelic/nrdot-collector-components/commits/main/%s?since=%s",
 		filepath.Clean(filePath),
+		d.forkDate,
 	)
 	return commitHistoryURLSinceFork
-}
-
-// GetProprietaryLicenseDirectories a description of directories covered under the NR proprietary license
-func (d *GitDetector) GetTopLevelLicenseDescription() (string, error) {
-	licensedDirs := []string{}
-	err := filepath.WalkDir(d.repoRoot, func(path string, dirEntry fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if dirEntry.IsDir() {
-			matches, err := filepath.Glob(fmt.Sprintf("%s/LICENSE_NEWRELIC_*", path))
-			if err != nil {
-				return err
-			}
-			if len(matches) > 0 {
-				dir, err := filepath.Rel(d.repoRoot, filepath.Dir(matches[0]))
-				if err != nil {
-					return err
-				}
-				dir = fmt.Sprintf("New Relic Software License - %s", dir)
-				licensedDirs = append(licensedDirs, dir)
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return "", fmt.Errorf("getting proprietary license directories: %w", err)
-	}
-	return strings.Join(licensedDirs, "\n"), nil
 }
