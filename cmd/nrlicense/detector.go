@@ -4,7 +4,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os/exec"
@@ -143,22 +142,6 @@ func (*GitDetector) fileExistsAtCommit(filePath, commit string) (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-// fileModifiedSince checks if a file has been modified since a given commit
-func (*GitDetector) FileModifiedSince(filePath, commit string) (bool, error) {
-	// Use git log to see if there are any commits affecting this file since the fork point
-	commitHead := fmt.Sprintf("%s..HEAD", commit)
-	cmd := exec.Command("git", "log", "--oneline", commitHead, "--", filePath)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		return false, fmt.Errorf("running git log: %w", err)
-	}
-
-	// If there's any output, the file has been modified
-	return out.Len() > 0, nil
 }
 
 // fileDiffSince checks if a file has a diff with that file at a given commit
