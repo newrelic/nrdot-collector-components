@@ -18,7 +18,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 		MetricThresholds: map[string]float64{
 			"process.cpu.utilization": 50.0, // High threshold
 		},
-		IncludeProcessList: []string{"nginx", "postgres"},
+		IncludeProcessList: []string{"/usr/sbin/nginx", "/usr/bin/postgres"},
 		EnableStorage:      ptrBool(false),
 	}
 	cfg.Normalize()
@@ -69,7 +69,7 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 		MetricThresholds: map[string]float64{
 			"process.cpu.utilization": 50.0,
 		},
-		IncludeProcessList: []string{"nginx", "postgres"},
+		IncludeProcessList: []string{"/usr/sbin/nginx", "/usr/bin/postgres"},
 		EnableStorage:      ptrBool(false),
 	}
 	cfg.Normalize()
@@ -134,7 +134,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 		MetricThresholds: map[string]float64{
 			"process.cpu.utilization": 50.0,
 		},
-		IncludeProcessList: []string{"nginx"},
+		IncludeProcessList: []string{"/usr/sbin/nginx"},
 		EnableStorage:      ptrBool(false),
 	}
 	cfg.Normalize()
@@ -190,6 +190,21 @@ func addProcessToMetrics(md pmetric.Metrics, processName string, pid int, cpuUti
 	attrs.PutStr("process.executable.name", processName)
 	attrs.PutInt("process.pid", int64(pid))
 	attrs.PutStr("host.name", "testhost")
+
+	// Set full executable path based on process name
+	// This matches the include list paths used in tests
+	var execPath string
+	switch processName {
+	case "nginx":
+		execPath = "/usr/sbin/nginx"
+	case "postgres":
+		execPath = "/usr/bin/postgres"
+	case "apache2":
+		execPath = "/usr/sbin/apache2"
+	default:
+		execPath = "/usr/bin/" + processName
+	}
+	attrs.PutStr("process.executable.path", execPath)
 
 	// Add scope metrics
 	sm := rm.ScopeMetrics().AppendEmpty()

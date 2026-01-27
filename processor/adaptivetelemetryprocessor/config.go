@@ -40,14 +40,22 @@ import (
 //                                         # must be <= anomaly_history_size
 //
 //     # Include list - processes that always bypass filters (optional)
-//     include_process_list:               # List of process names to always include
-//       - "nginx"                         # Match by process.executable.name or process.command
-//       - "postgres"
-//       - "redis-server"
+//     # SECURITY: Use full paths for production to prevent process name spoofing
+//     include_process_list:               # List of process names/paths to always include
+//       - "/usr/sbin/nginx"               # Full path (RECOMMENDED) - prevents /tmp/nginx spoofing
+//       - "/usr/bin/postgres"             # Full path matching is more secure
+//       - "redis-server"                  # Basename only - less secure, matches any path
+//     # Matching behavior:
+//     #   - Entries with "/" or "\" are treated as full paths (exact match required)
+//     #   - Entries without path separators match basename only (can be spoofed)
 //
 //     # Retention & persistence
 //     retention_minutes: 30               # how long since last exceed to keep entity (capped)
 //     storage_path: /var/lib/nrdot-collector/adaptiveprocess.db
+//     # SECURITY: storage_path must be under /var/lib/nrdot-collector/
+//     # - Only absolute paths under this directory are allowed
+//     # - Symlinks in the path are rejected to prevent redirection attacks
+//     # - Follows Linux Filesystem Hierarchy Standard for application state data
 //
 // Example pipeline wiring:
 // service:
@@ -209,5 +217,15 @@ func (cfg *Config) Validate() error {
 	if cfg.EnableMultiMetric && cfg.CompositeThreshold <= 0 {
 		return fmt.Errorf("composite_threshold must be > 0, got %f", cfg.CompositeThreshold)
 	}
+
+	// Validate storage path if persistence is enabled
+	if cfg.EnableStorage == nil || *cfg.EnableStorage {
+		if cfg.StoragePath != "" {
+			if err := validateStoragePath(cfg.StoragePath, nil); err != nil {
+				return fmt.Errorf("invalid storage_path: %w", err)
+			}
+		}
+	}
+
 	return nil
 }

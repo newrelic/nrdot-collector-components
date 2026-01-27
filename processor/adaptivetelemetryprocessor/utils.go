@@ -271,24 +271,100 @@ func extractProcessName(attrs pcommon.Map) string {
 	return ""
 }
 
+// extractProcessExecutablePath extracts the full executable path from resource attributes.
+// This is used for enhanced security validation to prevent process name spoofing.
+// Returns the full path to the executable, or empty string if not available.
+func extractProcessExecutablePath(attrs pcommon.Map) string {
+	// Try process.executable.path first (most reliable for full path)
+	if execPath, ok := attrs.Get("process.executable.path"); ok && execPath.Str() != "" {
+		return execPath.Str()
+	}
+
+	// Fallback to process.command (may contain full path)
+	if cmd, ok := attrs.Get("process.command"); ok && cmd.Str() != "" {
+		cmdStr := cmd.Str()
+		// Only return if it looks like an absolute path
+		isUnixPath := strings.HasPrefix(cmdStr, "/")
+		isWindowsPath := len(cmdStr) > 2 && cmdStr[1] == ':'
+
+		if isUnixPath || isWindowsPath {
+			// For Windows paths with spaces (e.g., "C:\Program Files\app.exe --args"),
+			// we need to handle the .exe extension specially
+			if isWindowsPath {
+				// Look for .exe, .bat, .cmd extensions to determine where executable ends
+				exeIdx := strings.Index(strings.ToLower(cmdStr), ".exe")
+				batIdx := strings.Index(strings.ToLower(cmdStr), ".bat")
+				cmdIdx := strings.Index(strings.ToLower(cmdStr), ".cmd")
+
+				// Find the first valid extension
+				endIdx := -1
+				if exeIdx > 0 {
+					endIdx = exeIdx + 4 // +4 for ".exe"
+				} else if batIdx > 0 {
+					endIdx = batIdx + 4 // +4 for ".bat"
+				} else if cmdIdx > 0 {
+					endIdx = cmdIdx + 4 // +4 for ".cmd"
+				}
+
+				if endIdx > 0 {
+					return cmdStr[:endIdx]
+				}
+			}
+
+			// For Unix paths or Windows paths without recognized extensions,
+			// extract up to the first space (arguments start)
+			if idx := strings.Index(cmdStr, " "); idx > 0 {
+				return cmdStr[:idx]
+			}
+			return cmdStr
+		}
+	}
+
+	return ""
+}
+
 // isProcessInIncludeList checks if a process should be included based on the include list.
-// It matches the process name against entries in the includeList.
+// SECURITY: This function validates processes using full path matching only
+// to prevent malicious processes from spoofing their names (e.g., /tmp/nginx bypassing filters).
+//
+// Matching logic:
+// - Include list entries must contain a path separator (/ or \) to be valid
+// - Matches against process.executable.path or process.command (full path only)
+// - Example: "/usr/sbin/nginx" will NOT match "/tmp/nginx"
+// - Entries without path separators will not match any process
+//
+// Additional security considerations:
+// - Always use full paths in include_process_list (e.g., "/usr/sbin/nginx")
+// - Consider adding process owner validation in future enhancements
+//
 // Returns true if the process is in the include list, false otherwise.
 func isProcessInIncludeList(attrs pcommon.Map, includeList []string) bool {
 	if len(includeList) == 0 {
 		return false
 	}
 
-	// Extract process name
-	processName := extractProcessName(attrs)
-	if processName == "" {
+	// Extract the full executable path
+	processPath := extractProcessExecutablePath(attrs)
+
+	if processPath == "" {
 		return false
 	}
 
-	// Check if process name matches any entry in the include list
+	// Check if process matches any entry in the include list
 	for _, includedProcess := range includeList {
-		if includedProcess == processName {
-			return true
+		// Empty entry - skip
+		if includedProcess == "" {
+			continue
+		}
+
+		// Check if the include entry is a full path (contains path separator)
+		isFullPath := strings.ContainsAny(includedProcess, "/\\")
+
+		if isFullPath {
+			// Full path matching - requires exact path match for security
+			if processPath != "" && processPath == includedProcess {
+				return true
+			}
 		}
 	}
 

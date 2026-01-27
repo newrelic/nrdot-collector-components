@@ -15,7 +15,8 @@ import (
 const (
 	typeStr = "adaptivetelemetryprocessor"
 	// Constants needed for default config
-	factoryDefaultStoragePath        = "./adaptiveprocess.db"
+	// SECURITY: Storage path restricted to /var/lib/nrdot-collector/ for security
+	factoryDefaultStoragePath        = "/var/lib/nrdot-collector/adaptiveprocess.db"
 	factoryDefaultCompositeThreshold = 1.5
 )
 
