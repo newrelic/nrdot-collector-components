@@ -171,7 +171,7 @@ func (p *processorImp) processingSingleResource(rm pmetric.ResourceMetrics, filt
 
 	// Get the filter stage from the resource attributes that was set by shouldIncludeResource
 	includeReason := ""
-	if stageAttr, hasStage := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey); hasStage {
+	if stageAttr, hasStage := rm.Resource().Attributes().Get(internalFilterStageAttributeKey); hasStage {
 		includeReason = stageAttr.AsString()
 	}
 
