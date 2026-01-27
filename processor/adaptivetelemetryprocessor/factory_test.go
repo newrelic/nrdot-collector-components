@@ -81,6 +81,7 @@ func TestCreateProcessor(t *testing.T) {
 				MetricThresholds: map[string]float64{},
 				StoragePath:      "./test_data/test.db",
 				RetentionMinutes: 30,
+				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
 			},
 			errorExpected: false,
 		},
@@ -92,6 +93,7 @@ func TestCreateProcessor(t *testing.T) {
 				},
 				StoragePath:      "./test_data/test.db",
 				RetentionMinutes: 20,
+				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
 			},
 			errorExpected: false,
 		},
@@ -130,6 +132,7 @@ func TestCapabilities(t *testing.T) {
 		MetricThresholds: map[string]float64{},
 		StoragePath:      "./test_data/test.db",
 		RetentionMinutes: 30,
+		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
 	}
 
 	proc, err := newProcessor(logger, config, mockConsumer)
@@ -147,6 +150,7 @@ func TestStartShutdown(t *testing.T) {
 		MetricThresholds: map[string]float64{},
 		StoragePath:      "./test_data/test.db",
 		RetentionMinutes: 30,
+		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
 	}
 
 	proc, err := newProcessor(logger, config, mockConsumer)
@@ -176,8 +180,9 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 	}{
 		{
 			name: "Default config",
-			configModify: func(_ *Config) {
-				// Use default config
+			configModify: func(c *Config) {
+				// Disable storage for this test
+				c.EnableStorage = func() *bool { b := false; return &b }()
 			},
 			expectSuccess: true,
 		},
@@ -188,6 +193,8 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 					"system.cpu.utilization":  80.0,
 					"process.cpu.utilization": 10.0,
 				}
+				// Disable storage for this test
+				c.EnableStorage = func() *bool { b := false; return &b }()
 			},
 			expectSuccess: true,
 		},
@@ -208,6 +215,8 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 				c.MetricThresholds = map[string]float64{
 					"system.cpu.utilization": 80.0,
 				}
+				// Disable storage for this test
+				c.EnableStorage = func() *bool { b := false; return &b }()
 			},
 			expectSuccess: true,
 		},
@@ -224,6 +233,8 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 					"system.cpu.utilization":    0.7,
 					"system.memory.utilization": 0.3,
 				}
+				// Disable storage for this test
+				c.EnableStorage = func() *bool { b := false; return &b }()
 			},
 			expectSuccess: true,
 		},
@@ -233,6 +244,8 @@ func TestCreateMetricsProcessorWithFactoryExtended(t *testing.T) {
 				c.EnableAnomalyDetection = true
 				c.AnomalyHistorySize = 15
 				c.AnomalyChangeThreshold = 150.0
+				// Disable storage for this test
+				c.EnableStorage = func() *bool { b := false; return &b }()
 			},
 			expectSuccess: true,
 		},
