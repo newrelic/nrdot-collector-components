@@ -5,6 +5,7 @@ package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collecto
 
 import (
 	"encoding/json"
+
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 )
@@ -191,9 +192,9 @@ func countMetricsInResource(rm pmetric.ResourceMetrics) int {
 }
 
 // updateProcessATPAttribute updates the process.atp JSON attribute with new data under the given key
-func updateProcessATPAttribute(resource pcommon.Resource, key string, data interface{}) {
+func updateProcessATPAttribute(resource pcommon.Resource, key string, data any) {
 	attrs := resource.Attributes()
-	var atpData map[string]interface{}
+	var atpData map[string]any
 
 	// Check if attribute exists and parse it
 	if val, ok := attrs.Get("process.atp"); ok {
@@ -204,7 +205,7 @@ func updateProcessATPAttribute(resource pcommon.Resource, key string, data inter
 	}
 
 	if atpData == nil {
-		atpData = make(map[string]interface{})
+		atpData = make(map[string]any)
 	}
 
 	atpData[key] = data

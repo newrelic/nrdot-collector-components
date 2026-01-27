@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pcommon"
-	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -241,7 +240,7 @@ func TestPersistenceAndLoading(t *testing.T) {
 	proc.mu.Unlock()
 
 	// Test persistence
-	err = proc.persistTrackedEntities()
+	err := proc.persistTrackedEntities()
 	require.NoError(t, err)
 
 	// Create a new processor to test loading

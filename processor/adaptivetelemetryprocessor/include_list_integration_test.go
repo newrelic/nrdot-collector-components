@@ -52,7 +52,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 			continue
 		}
 
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
 		assert.Equal(t, "include_list", stageVal.Str())
 	}
@@ -113,7 +113,7 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 			continue
 		}
 
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
 		assert.Equal(t, "include_list", stageVal.Str())
 
@@ -168,7 +168,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 			continue
 		}
 
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
 		assert.Equal(t, "static_threshold", stageVal.Str())
 	}

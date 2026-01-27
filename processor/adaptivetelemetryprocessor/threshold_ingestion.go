@@ -42,8 +42,8 @@ func (p *processorImp) determineEffectiveThreshold(metricName string, staticThre
 }
 
 // addThresholdAttributes adds threshold-related attributes to the thresholds details map
-func addThresholdAttributes(thresholdsDetails map[string]interface{}, metricName string, threshold, value float64, thresholdType string) {
-	thresholdsDetails[metricName] = map[string]interface{}{
+func addThresholdAttributes(thresholdsDetails map[string]any, metricName string, threshold, value float64, thresholdType string) {
+	thresholdsDetails[metricName] = map[string]any{
 		"threshold":            threshold,
 		"observed_value":       value,
 		"threshold_type":       thresholdType,
@@ -65,7 +65,7 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 	}
 
 	capturedCount := 0
-	thresholdsDetails := make(map[string]interface{})
+	thresholdsDetails := make(map[string]any)
 
 	for metricName, metricValue := range values {
 		if metricName == "" {

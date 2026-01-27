@@ -87,14 +87,16 @@ func TestProcessMetricsExtended(t *testing.T) {
 
 		// Verify that the resource has been marked
 		rm := result.ResourceMetrics().At(0)
-		stageAttr, exists := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey)
+		stageAttr, exists := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, exists, "Filter stage attribute should be set")
-		// The implementation seems to prefer dynamic thresholds over static ones
-		// so we accept either value
-		actualStage := stageAttr.AsString()
-		assert.True(t,
-			actualStage == stageStaticThreshold || actualStage == stageDynamicThreshold,
-			"Filter stage should be either static_threshold or dynamic_threshold, got: %s", actualStage)
+		if exists {
+			// The implementation seems to prefer dynamic thresholds over static ones
+			// so we accept either value
+			actualStage := stageAttr.AsString()
+			assert.True(t,
+				actualStage == stageStaticThreshold || actualStage == stageDynamicThreshold,
+				"Filter stage should be either static_threshold or dynamic_threshold, got: %s", actualStage)
+		}
 	})
 
 	t.Run("Process with history for dynamic thresholds", func(t *testing.T) {
@@ -244,13 +246,24 @@ func countNonSummaryResources(metrics pmetric.Metrics) int {
 	for i := 0; i < metrics.ResourceMetrics().Len(); i++ {
 		rm := metrics.ResourceMetrics().At(i)
 
-		// Skip summary metrics resources (internal monitoring metrics)
-		if metricType, exists := rm.Resource().Attributes().Get("process.atp.metric_type"); exists {
-			if metricType.Str() == "filter_summary" {
-				continue
+		// Skip summary metrics resources (identified by process.atp metric)
+		isSummaryResource := false
+		for j := 0; j < rm.ScopeMetrics().Len(); j++ {
+			sm := rm.ScopeMetrics().At(j)
+			for k := 0; k < sm.Metrics().Len(); k++ {
+				if sm.Metrics().At(k).Name() == "process.atp" {
+					isSummaryResource = true
+					break
+				}
+			}
+			if isSummaryResource {
+				break
 			}
 		}
-		count++
+
+		if !isSummaryResource {
+			count++
+		}
 	}
 	return count
 }

@@ -330,7 +330,7 @@ func TestShouldIncludeResource(t *testing.T) {
 
 			// Check stage attribute if included
 			if included && tc.expectedStage != "" {
-				stageAttr, exists := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey)
+				stageAttr, exists := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 				assert.True(t, exists, "Filter stage attribute should be set")
 				assert.Equal(t, tc.expectedStage, stageAttr.AsString())
 			}

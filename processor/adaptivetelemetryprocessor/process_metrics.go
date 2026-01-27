@@ -504,7 +504,7 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 		setResourceFilterStage(resource, stageMultiMetric)
 
 		// Add composite score and threshold to process.atp JSON
-		multiMetricDetails := map[string]interface{}{
+		multiMetricDetails := map[string]any{
 			"composite_score": compScore,
 			"threshold":       threshold,
 		}
@@ -638,7 +638,7 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 
 	if compScore >= threshold {
 		// Add composite score and threshold to process.atp JSON
-		multiMetricDetails := map[string]interface{}{
+		multiMetricDetails := map[string]any{
 			"composite_score": compScore,
 			"threshold":       threshold,
 		}
@@ -805,7 +805,7 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 	efficiencyRatio := float64(filteredResourceCount) / float64(inputResourceCount)
 
 	// Consolidate summary stats into a JSON object
-	summaryDetails := map[string]interface{}{
+	summaryDetails := map[string]any{
 		"source":                   "adaptive_telemetry_processor",
 		"metric_type":              "filter_summary",
 		"efficiency_ratio":         efficiencyRatio,
@@ -816,7 +816,7 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 		"evaluation_timestamp":     time.Now().Unix(),
 	}
 
-	atpData := map[string]interface{}{
+	atpData := map[string]any{
 		"filtering_summary": summaryDetails,
 	}
 
