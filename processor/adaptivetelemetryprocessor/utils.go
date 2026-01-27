@@ -298,11 +298,12 @@ func extractProcessExecutablePath(attrs pcommon.Map) string {
 
 				// Find the first valid extension
 				endIdx := -1
-				if exeIdx > 0 {
+				switch {
+				case exeIdx > 0:
 					endIdx = exeIdx + 4 // +4 for ".exe"
-				} else if batIdx > 0 {
+				case batIdx > 0:
 					endIdx = batIdx + 4 // +4 for ".bat"
-				} else if cmdIdx > 0 {
+				case cmdIdx > 0:
 					endIdx = cmdIdx + 4 // +4 for ".cmd"
 				}
 

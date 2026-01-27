@@ -109,7 +109,7 @@ func getAllowedStorageDirectory() string {
 // - additionalAllowedDirs: Ignored - only /var/lib/nrdot-collector/ is allowed
 //
 // Returns an error if validation fails, nil otherwise.
-func validateStoragePath(storagePath string, additionalAllowedDirs []string) error {
+func validateStoragePath(storagePath string, _ []string) error {
 	if storagePath == "" {
 		return errors.New("storage_path cannot be empty")
 	}
@@ -177,7 +177,7 @@ func checkPathForSymlinks(path, baseDir string) error {
 
 		// Check for path traversal attempts
 		if part == ".." {
-			return fmt.Errorf("path traversal detected: .. in path")
+			return errors.New("path traversal detected: .. in path")
 		}
 
 		currentPath = filepath.Join(currentPath, part)
