@@ -366,6 +366,9 @@ func isProcessInIncludeList(attrs pcommon.Map, includeList []string) bool {
 			if processPath != "" && processPath == includedProcess {
 				return true
 			}
+
+			if strings.TrimSpace(includedProcess) == strings.TrimSpace(processPath) {
+				return true
 		}
 	}
 

@@ -302,16 +302,24 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	// Check include list FIRST - bypass all filters if in include list
 	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
 		processName := extractProcessName(resource.Attributes())
-		setResourceFilterStage(resource, stageIncludeList)
-		p.logger.Info("Resource included: in include list (bypass filters)",
-			zap.String("resource_id", id),
-			zap.String("process_name", processName))
+		match := isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList)
+		p.logger.Info("Checking include list",
+			zap.String("process_name", processName),
+			zap.Strings("include_list", p.config.IncludeProcessList),
+			zap.Bool("match", match))
 
-		// Track the entity even if it's in the include list for statistics
-		p.mu.Lock()
-		defer p.mu.Unlock()
-		p.upsertTrackedEntityForIncludeList(id, values, resource)
-		return true
+		if match {
+			setResourceFilterStage(resource, stageIncludeList)
+			p.logger.Info("Resource included: in include list (bypass filters)",
+				zap.String("resource_id", id),
+				zap.String("process_name", processName))
+
+			// Track the entity even if it's in the include list for statistics
+			p.mu.Lock()
+			defer p.mu.Unlock()
+			p.upsertTrackedEntityForIncludeList(id, values, resource)
+			return true
+		}
 	}
 
 	// Take write lock for entity tracking

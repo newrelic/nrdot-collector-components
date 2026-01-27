@@ -38,6 +38,15 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	// Create metrics for nginx (in include list) with low CPU usage
 	md := createTestProcessMetrics("nginx", 1234, 5.0) // Well below threshold
 
+	// Verify attributes are set correctly
+	rm := md.ResourceMetrics().At(0)
+	val, ok := rm.Resource().Attributes().Get("process.executable.name")
+	require.True(t, ok)
+	require.Equal(t, "nginx", val.Str())
+
+	// Verify config
+	require.Equal(t, []string{"nginx", "postgres"}, proc.config.IncludeProcessList)
+
 	// Process metrics
 	result, err := proc.processMetrics(t.Context(), md)
 	require.NoError(t, err)
