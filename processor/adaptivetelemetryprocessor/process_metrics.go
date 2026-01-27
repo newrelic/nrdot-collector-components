@@ -850,28 +850,19 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 
 // isResourceTargeted checks if any metric in the values map is present in the configuration
 func (p *processorImp) isResourceTargeted(values map[string]float64) bool {
-	hasStaticThresholds := p.config.MetricThresholds != nil
-	hasDynamicThresholds := p.dynamicThresholdsEnabled && p.dynamicCustomThresholds != nil
-	hasWeights := p.multiMetricEnabled && len(p.config.Weights) > 0
-
-	for m := range values {
-		// Check static thresholds
-		if hasStaticThresholds {
+	// Check static thresholds
+	if p.config.MetricThresholds != nil {
+		for m := range values {
 			if _, ok := p.config.MetricThresholds[m]; ok {
 				return true
 			}
 		}
+	}
 
-		// Check dynamic thresholds
-		if hasDynamicThresholds {
+	// Check dynamic thresholds
+	if p.dynamicThresholdsEnabled && p.dynamicCustomThresholds != nil {
+		for m := range values {
 			if _, ok := p.dynamicCustomThresholds[m]; ok {
-				return true
-			}
-		}
-
-		// Check weights (multi-metric) - essential to ensure weighted-only metrics don't bypass filtering
-		if hasWeights {
-			if _, ok := p.config.Weights[m]; ok {
 				return true
 			}
 		}
