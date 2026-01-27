@@ -205,8 +205,10 @@ func (p *processorImp) handleIncludedResource(rm pmetric.ResourceMetrics, resour
 
 	dest := filtered.ResourceMetrics().AppendEmpty()
 	rm.CopyTo(dest)
-	// Remove the internal filter stage attribute from the output
-	dest.Resource().Attributes().Remove(internalFilterStageAttributeKey)
+	// Remove the internal filter stage attribute from the output, unless debugging is enabled
+	if !p.config.DebugShowAllFilterStages {
+		dest.Resource().Attributes().Remove(internalFilterStageAttributeKey)
+	}
 }
 
 // handleExcludedResource processes a resource that should be excluded from output
@@ -777,6 +779,7 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 
 	// Add ATP-specific attributes (these will become entity tags)
 	// These are now included in the JSON payload of the process.atp metric
+	summaryAttrs.PutStr("process.atp.metric_type", "filter_summary")
 
 	p.logger.Info("ATP Summary: Created summary resource",
 		zap.String("atp_source", "adaptive_telemetry_processor"),

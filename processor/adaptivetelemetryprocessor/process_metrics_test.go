@@ -64,6 +64,10 @@ func TestProcessMetricsExtended(t *testing.T) {
 	})
 
 	t.Run("Process metrics above threshold", func(t *testing.T) {
+		// Enable debug mode for this test to verify filter stage attribute
+		config.DebugShowAllFilterStages = true
+		defer func() { config.DebugShowAllFilterStages = false }()
+
 		// Create test metrics with values above thresholds
 		metrics := createExtendedTestMetrics(
 			map[string]string{"service.name": "test-service"},
