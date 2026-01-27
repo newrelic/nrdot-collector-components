@@ -5,6 +5,7 @@ package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collecto
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand/v2"
 	"time"
@@ -202,17 +203,10 @@ func (p *processorImp) handleIncludedResource(rm pmetric.ResourceMetrics, resour
 		zap.Int("scope_count", rm.ScopeMetrics().Len()),
 		zap.Int("metric_count_in_resource", countMetricsInResource(rm)))
 
-	if includeReason != "" {
-		// Ensure filter stage attribute is set
-		if _, hasStage := rm.Resource().Attributes().Get(adaptiveFilterStageAttributeKey); !hasStage {
-			rm.Resource().Attributes().PutStr(adaptiveFilterStageAttributeKey, includeReason)
-		}
-
-		// Add the filter stage attribute to all datapoints in the resource metrics
-		addStageAttributeToMetrics(rm, includeReason)
-	}
-
-	rm.CopyTo(filtered.ResourceMetrics().AppendEmpty())
+	dest := filtered.ResourceMetrics().AppendEmpty()
+	rm.CopyTo(dest)
+	// Remove the internal filter stage attribute from the output
+	dest.Resource().Attributes().Remove(internalFilterStageAttributeKey)
 }
 
 // handleExcludedResource processes a resource that should be excluded from output
@@ -222,17 +216,6 @@ func (p *processorImp) handleExcludedResource(rm pmetric.ResourceMetrics, resour
 		zap.String("resource_id", resourceID),
 		zap.String("resource_type", resourceType),
 		zap.Int("metric_count", countMetricsInResource(rm)))
-}
-
-// addStageAttributeToMetrics adds filter stage attribute to all metric data points
-func addStageAttributeToMetrics(rm pmetric.ResourceMetrics, includeReason string) {
-	for i := 0; i < rm.ScopeMetrics().Len(); i++ {
-		sm := rm.ScopeMetrics().At(i)
-		for j := 0; j < sm.Metrics().Len(); j++ {
-			m := sm.Metrics().At(j)
-			addAttributeToMetricDataPoints(m, adaptiveFilterStageAttributeKey, includeReason)
-		}
-	}
 }
 
 // performPostProcessingTasks handles cleanup and final logging
@@ -519,9 +502,14 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
 		setResourceFilterStage(resource, stageMultiMetric)
-		// Add composite score and threshold as resource attributes
-		resource.Attributes().PutDouble(multiMetricCompositeScoreKey, compScore)
-		resource.Attributes().PutDouble(multiMetricThresholdKey, threshold)
+
+		// Add composite score and threshold to process.atp JSON
+		multiMetricDetails := map[string]interface{}{
+			"composite_score": compScore,
+			"threshold":       threshold,
+		}
+		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+
 		p.logger.Info("Resource included: multi-metric",
 			zap.String("resource_id", id),
 			zap.Float64("score", compScore),
@@ -649,9 +637,13 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 	}
 
 	if compScore >= threshold {
-		// Add composite score and threshold as resource attributes
-		resource.Attributes().PutDouble(multiMetricCompositeScoreKey, compScore)
-		resource.Attributes().PutDouble(multiMetricThresholdKey, threshold)
+		// Add composite score and threshold to process.atp JSON
+		multiMetricDetails := map[string]interface{}{
+			"composite_score": compScore,
+			"threshold":       threshold,
+		}
+		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+
 		p.logger.Info("New resource exceeds multi-metric threshold",
 			zap.String("resource_id", id),
 			zap.Float64("score", compScore),
@@ -733,11 +725,10 @@ func (p *processorImp) handleDebugMode(resource pcommon.Resource, id string, val
 
 // setResourceFilterStage sets the filter stage attribute on a resource
 func setResourceFilterStage(resource pcommon.Resource, stage string) {
-	resource.Attributes().PutStr(adaptiveFilterStageAttributeKey, stage)
+	resource.Attributes().PutStr(internalFilterStageAttributeKey, stage)
 }
 
 // generateFilteringSummaryMetrics creates summary metrics about filtering performance
-// These provide customer visibility into filter effectiveness with minimal ingestion overhead
 func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics, inputResourceCount, outputResourceCount, inputMetricCount, outputMetricCount int, stageHits map[string]int) {
 	p.logger.Info("ATP Summary: generateFilteringSummaryMetrics called",
 		zap.Int("input_resources", inputResourceCount),
@@ -785,10 +776,9 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 	}
 
 	// Add ATP-specific attributes (these will become entity tags)
-	summaryAttrs.PutStr(atpSourceAttribute, "adaptive_telemetry_processor")
-	summaryAttrs.PutStr(atpMetricTypeAttribute, "filter_summary")
+	// These are now included in the JSON payload of the process.atp metric
 
-	p.logger.Info("ATP Summary: Created summary resource with attributes",
+	p.logger.Info("ATP Summary: Created summary resource",
 		zap.String("atp_source", "adaptive_telemetry_processor"),
 		zap.String("atp_metric_type", "filter_summary"))
 
@@ -800,58 +790,38 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 	summaryScope.Scope().Attributes().PutStr(attrOtelLibraryName, atpScopeName)
 	summaryScope.Scope().Attributes().PutStr(attrOtelLibraryVersion, atpScopeVersion)
 
+	// Create a single process.atp metric
+	atpMetric := summaryScope.Metrics().AppendEmpty()
+	atpMetric.SetName("process.atp")
+	atpMetric.SetDescription("Adaptive Telemetry Processor summary metrics")
+	atpMetric.SetUnit("1")
+	atpGauge := atpMetric.SetEmptyGauge()
+	atpDP := atpGauge.DataPoints().AppendEmpty()
+	atpDP.SetDoubleValue(1.0)
+	atpDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+
 	// Metric 1: Efficiency ratio (percentage of resources filtered)
 	filteredResourceCount := inputResourceCount - outputResourceCount
 	efficiencyRatio := float64(filteredResourceCount) / float64(inputResourceCount)
 
-	efficiencyMetric := summaryScope.Metrics().AppendEmpty()
-	efficiencyMetric.SetName(filteringEfficiencyRatioMetric)
-	efficiencyMetric.SetDescription("Percentage of resources filtered out by adaptive telemetry processor")
-	efficiencyMetric.SetUnit("1") // dimensionless ratio
-	efficiencyGauge := efficiencyMetric.SetEmptyGauge()
-	efficiencyDP := efficiencyGauge.DataPoints().AppendEmpty()
-	efficiencyDP.SetDoubleValue(efficiencyRatio)
-	efficiencyDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+	// Consolidate summary stats into a JSON object
+	summaryDetails := map[string]interface{}{
+		"source":                   "adaptive_telemetry_processor",
+		"metric_type":              "filter_summary",
+		"efficiency_ratio":         efficiencyRatio,
+		"total_resource_count":     inputResourceCount,
+		"resources_filtered_count": filteredResourceCount,
+		"resources_included_count": outputResourceCount,
+		"stage_hits":               stageHits,
+		"evaluation_timestamp":     time.Now().Unix(),
+	}
 
-	p.logger.Info("ATP Summary: Created efficiency metric",
-		zap.String("metric_name", filteringEfficiencyRatioMetric),
-		zap.Float64("efficiency_ratio", efficiencyRatio))
+	atpData := map[string]interface{}{
+		"filtering_summary": summaryDetails,
+	}
 
-	// Metric 2: Resource counts with status dimension
-	resourceCountMetric := summaryScope.Metrics().AppendEmpty()
-	resourceCountMetric.SetName(filteringResourceCountMetric)
-	resourceCountMetric.SetDescription("Count of resources by filter status")
-	resourceCountMetric.SetUnit("1")
-	resourceCountGauge := resourceCountMetric.SetEmptyGauge()
-
-	// Included resources count
-	includedDP := resourceCountGauge.DataPoints().AppendEmpty()
-	includedDP.SetIntValue(int64(outputResourceCount))
-	includedDP.Attributes().PutStr(atpStatusAttribute, statusIncluded)
-	includedDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-
-	// Filtered resources count
-	filteredDP := resourceCountGauge.DataPoints().AppendEmpty()
-	filteredDP.SetIntValue(int64(filteredResourceCount))
-	filteredDP.Attributes().PutStr(atpStatusAttribute, statusFiltered)
-	filteredDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-
-	// Metric 3: Stage trigger counts (only for stages that were actually triggered)
-	if len(stageHits) > 0 {
-		stageTriggersMetric := summaryScope.Metrics().AppendEmpty()
-		stageTriggersMetric.SetName(filteringThresholdTriggersMetric)
-		stageTriggersMetric.SetDescription("Count of resources included by each filter stage")
-		stageTriggersMetric.SetUnit("1")
-		stageTriggersGauge := stageTriggersMetric.SetEmptyGauge()
-
-		for stage, count := range stageHits {
-			if count > 0 {
-				stageDP := stageTriggersGauge.DataPoints().AppendEmpty()
-				stageDP.SetIntValue(int64(count))
-				stageDP.Attributes().PutStr(atpStageAttribute, stage)
-				stageDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-			}
-		}
+	if jsonData, err := json.Marshal(atpData); err == nil {
+		atpDP.Attributes().PutStr("process.atp", string(jsonData))
 	}
 
 	p.logger.Info("Generated filtering summary metrics",
