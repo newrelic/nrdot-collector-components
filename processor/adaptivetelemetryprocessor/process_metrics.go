@@ -301,7 +301,20 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 		return true
 	}
 
-	// Check include list - override filters if in include list
+	// Check if this is a zombie process - always include if so
+	if isZombieProcess(resource.Attributes()) {
+		setResourceFilterStage(resource, stageZombieProcess)
+		p.logger.Info("Resource included: zombie process",
+			zap.String("resource_id", id))
+
+		// Track the entity even if it's a zombie process for statistics
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		p.upsertTrackedEntityForIncludeList(id, values, resource)
+		return true
+	}
+
+	// Check include list FIRST - bypass all filters if in include list
 	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
 		processName := extractProcessName(resource.Attributes())
 		setResourceFilterStage(resource, stageIncludeList)
@@ -850,28 +863,19 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 
 // isResourceTargeted checks if any metric in the values map is present in the configuration
 func (p *processorImp) isResourceTargeted(values map[string]float64) bool {
-	hasStaticThresholds := p.config.MetricThresholds != nil
-	hasDynamicThresholds := p.dynamicThresholdsEnabled && p.dynamicCustomThresholds != nil
-	hasWeights := p.multiMetricEnabled && len(p.config.Weights) > 0
-
-	for m := range values {
-		// Check static thresholds
-		if hasStaticThresholds {
+	// Check static thresholds
+	if p.config.MetricThresholds != nil {
+		for m := range values {
 			if _, ok := p.config.MetricThresholds[m]; ok {
 				return true
 			}
 		}
+	}
 
-		// Check dynamic thresholds
-		if hasDynamicThresholds {
+	// Check dynamic thresholds
+	if p.dynamicThresholdsEnabled && p.dynamicCustomThresholds != nil {
+		for m := range values {
 			if _, ok := p.dynamicCustomThresholds[m]; ok {
-				return true
-			}
-		}
-
-		// Check weights (multi-metric) - essential to ensure weighted-only metrics don't bypass filtering
-		if hasWeights {
-			if _, ok := p.config.Weights[m]; ok {
 				return true
 			}
 		}

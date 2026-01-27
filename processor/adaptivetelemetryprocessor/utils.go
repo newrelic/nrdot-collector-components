@@ -294,3 +294,12 @@ func isProcessInIncludeList(attrs pcommon.Map, includeList []string) bool {
 
 	return false
 }
+
+// isZombieProcess checks if the process is in a zombie (defunct) state.
+// Return true if process.state attribute is "Z".
+func isZombieProcess(attrs pcommon.Map) bool {
+	if state, ok := attrs.Get("process.state"); ok {
+		return state.Str() == "Z"
+	}
+	return false
+}
