@@ -659,7 +659,7 @@ clean:
 	find . -type f -name 'builtunitetest.test' -delete
 
 .PHONY: generate-gh-issue-templates
-generate-gh-issue-templates:
+generate-gh-issue-templates: $(GITHUBGEN)
 	$(GITHUBGEN) issue-templates
 
 .PHONY: checks
@@ -676,3 +676,4 @@ checks:
 	$(MAKE) -j4 generate
 	$(MAKE) multimod-verify
 	git diff --exit-code || (echo 'Some files need committing' && git status && exit 1)
+

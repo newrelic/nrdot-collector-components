@@ -32,6 +32,10 @@ component_management:
     name: exporter_nop
     paths:
     - exporter/nopexporter/**
+  - component_id: processor_adaptivetelemetry
+    name: processor_adaptivetelemetry
+    paths:
+    - processor/adaptivetelemetryprocessor/**
   - component_id: receiver_nop
     name: receiver_nop
     paths:
