@@ -23,6 +23,7 @@ exporter/nopexporter/                                            @newrelic/otelc
 internal/common/                                                 @newrelic/otelcomm
 internal/coreinternal/                                           @newrelic/otelcomm
 internal/tools/                                                  @newrelic/otelcomm
+processor/adaptivetelemetryprocessor/                            @newrelic/dbi @newrelic/ohai
 receiver/nopreceiver/                                            @newrelic/otelcomm
 testbed/                                                         @newrelic/otelcomm
 
