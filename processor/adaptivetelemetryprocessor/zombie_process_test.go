@@ -18,7 +18,8 @@ func TestZombieProcessAlwaysIncluded(t *testing.T) {
 		MetricThresholds: map[string]float64{
 			"process.cpu.utilization": 50.0, // High threshold
 		},
-		EnableStorage: ptrBool(false),
+		EnableStorage:            ptrBool(false),
+		DebugShowAllFilterStages: true,
 	}
 	cfg.Normalize()
 
@@ -69,7 +70,7 @@ func TestZombieProcessAlwaysIncluded(t *testing.T) {
 		}
 
 		found = true
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
 		assert.Equal(t, stageZombieProcess, stageVal.Str())
 	}
