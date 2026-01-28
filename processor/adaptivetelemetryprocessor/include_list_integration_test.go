@@ -227,7 +227,7 @@ func addProcessToMetrics(md pmetric.Metrics, processName string, pid int, cpuUti
 		execPath = "/usr/sbin/apache2"
 	default:
 		// If it looks like a path, use it directly
-		if len(processName) > 0 && (processName[0] == '/' || (len(processName) > 1 && processName[1] == ':')) {
+		if processName != "" && (processName[0] == '/' || (len(processName) > 1 && processName[1] == ':')) {
 			execPath = processName
 		} else {
 			execPath = "/usr/bin/" + processName
