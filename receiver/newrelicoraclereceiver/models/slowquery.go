@@ -7,7 +7,7 @@ import "database/sql"
 
 // SlowQuery represents a slow query record from Oracle V$SQL view
 type SlowQuery struct {
-	CollectionTimestamp sql.NullString  // Timestamp when query was collected from Oracle
+	CollectionTimestamp sql.NullString // Timestamp when query was collected from Oracle
 	DatabaseName        sql.NullString
 	QueryID             sql.NullString
 	SchemaName          sql.NullString

@@ -153,4 +153,3 @@ func TestEnsureCacheValid_UsesCacheWhenValid(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "19.3", scraper.cachedInfo.Version)
 }
-
