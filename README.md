@@ -15,6 +15,9 @@ This project follows semantic versioning and releases are aligned with upstream 
 This fork includes:
 
 - **Core Components**: Essential receivers and exporters (nop receiver, nop exporter)
+- **Database Receivers**:
+  - Oracle Database receiver (newrelicoraclereceiver) - Comprehensive monitoring with QPM, RAC, and PDB support
+  - SQL Server receiver (newrelicsqlserverreceiver) - Advanced monitoring with Azure AD authentication and query performance analysis
 - **Internal Utilities**: Common libraries and core internal packages for New Relic functionality
 - **Testbed Framework**: Comprehensive end-to-end testing infrastructure for component validation
 - **Build Tools**: Utilities for code generation and repository maintenance

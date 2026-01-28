@@ -1,0 +1,320 @@
+// Copyright New Relic, Inc. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+package scrapers
+
+import (
+	"context"
+	"fmt"
+	"sort"
+	"time"
+
+	commonutils "github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver/common-utils"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.uber.org/zap"
+
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver/client"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver/models"
+)
+
+// SlowQueriesScraper contains the scraper for slow queries metrics
+type SlowQueriesScraper struct {
+	client                               client.OracleClient
+	mb                                   *metadata.MetricsBuilder
+	logger                               *zap.Logger
+	metricsBuilderConfig                 metadata.MetricsBuilderConfig
+	queryMonitoringResponseTimeThreshold int
+	queryMonitoringCountThreshold        int
+	queryMonitoringIntervalSeconds       int                       // Time window for fetching queries (in seconds)
+	intervalCalculator                   *OracleIntervalCalculator // Delta-based interval calculator
+}
+
+func NewSlowQueriesScraper(oracleClient client.OracleClient, mb *metadata.MetricsBuilder, logger *zap.Logger, metricsBuilderConfig metadata.MetricsBuilderConfig, responseTimeThreshold, countThreshold, intervalSeconds int, enableIntervalCalculator bool, intervalCalculatorCacheTTLMinutes int) *SlowQueriesScraper {
+	var intervalCalc *OracleIntervalCalculator
+
+	// Initialize interval-based calculator if enabled
+	if enableIntervalCalculator {
+		cacheTTL := time.Duration(intervalCalculatorCacheTTLMinutes) * time.Minute
+		intervalCalc = NewOracleIntervalCalculator(logger, cacheTTL)
+		logger.Info("Oracle interval-based delta calculator enabled")
+	} else {
+		logger.Info("Oracle interval-based delta calculator disabled - using cumulative averages")
+	}
+
+	return &SlowQueriesScraper{
+		client:                               oracleClient,
+		mb:                                   mb,
+		logger:                               logger,
+		metricsBuilderConfig:                 metricsBuilderConfig,
+		queryMonitoringResponseTimeThreshold: responseTimeThreshold,
+		queryMonitoringCountThreshold:        countThreshold,
+		queryMonitoringIntervalSeconds:       intervalSeconds,
+		intervalCalculator:                   intervalCalc,
+	}
+}
+
+func (s *SlowQueriesScraper) ScrapeSlowQueries(ctx context.Context) ([]string, []error) {
+	var scrapeErrors []error
+	var queryIDs []string
+
+	// Fetch queries from the database with time window filter
+	// Note: intervalSeconds determines the time window (e.g., 60 = last 60 seconds)
+	//       This is critical for delta calculation to work correctly
+	// The value comes from config and is typically set to collection_interval
+	slowQueries, err := s.client.QuerySlowQueries(ctx, s.queryMonitoringIntervalSeconds, s.queryMonitoringResponseTimeThreshold, s.queryMonitoringCountThreshold)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	// Apply interval-based delta calculation if enabled
+	var queriesToProcess []models.SlowQuery
+	if s.intervalCalculator != nil {
+		now := time.Now()
+
+		// Pre-allocate slice capacity to avoid reallocations
+		queriesToProcess = make([]models.SlowQuery, 0, len(slowQueries))
+
+		// Calculate interval metrics for each query
+		for _, slowQuery := range slowQueries {
+			metrics := s.intervalCalculator.CalculateMetrics(&slowQuery, now)
+
+			if metrics == nil {
+				s.logger.Debug("Skipping query with nil metrics")
+				continue
+			}
+
+			// Skip queries with no new executions
+			if !metrics.HasNewExecutions {
+				s.logger.Debug("Skipping query with no new executions",
+					zap.String("query_id", slowQuery.GetQueryID()))
+				continue
+			}
+
+			// Apply interval-based threshold filtering
+			// First scrape: interval = historical (no baseline), filter still applies
+			// Subsequent scrapes: interval = delta, filter on delta performance
+			if metrics.IntervalAvgElapsedTimeMs < float64(s.queryMonitoringResponseTimeThreshold) {
+				continue
+			}
+
+			// Store interval metrics in new fields (preserve historical values)
+			// Historical values remain unchanged from DB
+			slowQuery.IntervalAvgElapsedTimeMS = &metrics.IntervalAvgElapsedTimeMs
+			slowQuery.IntervalExecutionCount = &metrics.IntervalExecutionCount
+
+			queriesToProcess = append(queriesToProcess, slowQuery)
+		}
+
+		// Cleanup stale entries periodically (TTL-based only)
+		s.intervalCalculator.CleanupStaleEntries(now)
+
+		// Log calculator statistics
+		stats := s.intervalCalculator.GetCacheStats()
+		s.logger.Debug("Interval calculator statistics", zap.Any("stats", stats))
+
+		// Apply Go-level sorting and top-N selection AFTER delta calculation and filtering
+		// This ensures we get the slowest queries based on interval (delta) averages, not historical
+		if len(queriesToProcess) > 0 {
+			// Sort by interval average elapsed time (delta) - slowest first
+			sort.Slice(queriesToProcess, func(i, j int) bool {
+				// Handle nil cases - queries without interval metrics go to the end
+				if queriesToProcess[i].IntervalAvgElapsedTimeMS == nil {
+					return false
+				}
+				if queriesToProcess[j].IntervalAvgElapsedTimeMS == nil {
+					return true
+				}
+				// Sort descending (highest delta average first)
+				return *queriesToProcess[i].IntervalAvgElapsedTimeMS > *queriesToProcess[j].IntervalAvgElapsedTimeMS
+			})
+
+			// Take top N queries after sorting
+			if len(queriesToProcess) > s.queryMonitoringCountThreshold {
+				queriesToProcess = queriesToProcess[:s.queryMonitoringCountThreshold]
+			}
+		}
+	} else {
+		// No interval calculator - use raw results
+		queriesToProcess = slowQueries
+	}
+
+	now := pcommon.NewTimestampFromTime(time.Now())
+
+	for _, slowQuery := range queriesToProcess {
+		if !slowQuery.IsValidForMetrics() {
+			continue
+		}
+
+		collectionTimestamp := slowQuery.GetCollectionTimestamp()
+		dbName := slowQuery.GetDatabaseName()
+		qID := slowQuery.GetQueryID()
+		qText := commonutils.AnonymizeAndNormalize(slowQuery.GetQueryText())
+		userName := slowQuery.GetUserName()
+		schName := slowQuery.GetSchemaName()
+		lastActiveTime := slowQuery.GetLastActiveTime()
+
+		if err := s.recordMetrics(now, &slowQuery, collectionTimestamp, dbName, qID, qText, userName, schName, lastActiveTime); err != nil {
+			s.logger.Warn("Failed to record metrics for slow query",
+				zap.String("sql_id", qID),
+				zap.Error(err))
+			scrapeErrors = append(scrapeErrors, err)
+			continue
+		}
+
+		if slowQuery.QueryID.Valid {
+			queryIDs = append(queryIDs, slowQuery.QueryID.String)
+		}
+	}
+
+	s.logger.Debug("Slow queries scrape completed",
+		zap.Int("errors", len(scrapeErrors)))
+
+	return queryIDs, scrapeErrors
+}
+
+func (s *SlowQueriesScraper) recordMetrics(now pcommon.Timestamp, slowQuery *models.SlowQuery, collectionTimestamp, dbName, qID, qText, userName, schName, lastActiveTime string) error {
+	if slowQuery == nil {
+		s.logger.Warn("Attempted to record metrics for nil slow query")
+		return fmt.Errorf("slow query is nil")
+	}
+	if slowQuery.ExecutionCount.Valid {
+		s.mb.RecordNewrelicoracledbSlowQueriesExecutionCountDataPoint(
+			now,
+			float64(slowQuery.ExecutionCount.Int64),
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	if slowQuery.AvgCPUTimeMs.Valid {
+		s.mb.RecordNewrelicoracledbSlowQueriesAvgCPUTimeDataPoint(
+			now,
+			slowQuery.AvgCPUTimeMs.Float64,
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	if slowQuery.AvgDiskReads.Valid {
+		s.mb.RecordNewrelicoracledbSlowQueriesAvgDiskReadsDataPoint(
+			now,
+			slowQuery.AvgDiskReads.Float64,
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	if slowQuery.AvgDiskWrites.Valid {
+		s.mb.RecordNewrelicoracledbSlowQueriesAvgDiskWritesDataPoint(
+			now,
+			slowQuery.AvgDiskWrites.Float64,
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	// Record historical (cumulative) average elapsed time
+	s.mb.RecordNewrelicoracledbSlowQueriesAvgElapsedTimeDataPoint(
+		now,
+		slowQuery.AvgElapsedTimeMs.Float64,
+		collectionTimestamp,
+		dbName,
+		qID,
+		userName,
+	)
+
+	// Record interval-based average elapsed time if available (delta metric)
+	if slowQuery.IntervalAvgElapsedTimeMS != nil {
+		s.mb.RecordNewrelicoracledbSlowQueriesIntervalAvgElapsedTimeDataPoint(
+			now,
+			*slowQuery.IntervalAvgElapsedTimeMS,
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	// Record interval execution count if available (delta metric)
+	if slowQuery.IntervalExecutionCount != nil {
+		s.mb.RecordNewrelicoracledbSlowQueriesIntervalExecutionCountDataPoint(
+			now,
+			float64(*slowQuery.IntervalExecutionCount),
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	if slowQuery.AvgRowsExamined.Valid {
+		s.mb.RecordNewrelicoracledbSlowQueriesAvgRowsExaminedDataPoint(
+			now,
+			slowQuery.AvgRowsExamined.Float64,
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	if slowQuery.AvgLockTimeMs.Valid {
+		s.mb.RecordNewrelicoracledbSlowQueriesAvgLockTimeDataPoint(
+			now,
+			slowQuery.AvgLockTimeMs.Float64,
+			collectionTimestamp,
+			dbName,
+			qID,
+			userName,
+		)
+	}
+
+	s.mb.RecordNewrelicoracledbSlowQueriesQueryDetailsDataPoint(
+		now,
+		1,
+		collectionTimestamp,
+		dbName,
+		qID,
+		qText,
+		schName,
+		userName,
+		lastActiveTime,
+	)
+
+	return nil
+}
+
+// GetSlowQueryIDs returns only the query IDs without emitting metrics
+// This is used by the logs scraper to get query IDs for execution plans
+// without duplicating the slow query metrics already emitted by the metrics scraper
+func (s *SlowQueriesScraper) GetSlowQueryIDs(ctx context.Context) ([]string, []error) {
+	var queryIDs []string
+
+	slowQueries, err := s.client.QuerySlowQueries(ctx, s.queryMonitoringIntervalSeconds, s.queryMonitoringResponseTimeThreshold, s.queryMonitoringCountThreshold)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	for _, slowQuery := range slowQueries {
+		if !slowQuery.IsValidForMetrics() {
+			continue
+		}
+
+		if slowQuery.QueryID.Valid {
+			queryIDs = append(queryIDs, slowQuery.QueryID.String)
+		}
+	}
+
+	s.logger.Debug("Fetched slow query IDs")
+
+	return queryIDs, nil
+}
