@@ -325,18 +325,12 @@ func extractProcessExecutablePath(attrs pcommon.Map) string {
 }
 
 // isProcessInIncludeList checks if a process should be included based on the include list.
-// SECURITY: This function validates processes using full path matching only
-// to prevent malicious processes from spoofing their names (e.g., /tmp/nginx bypassing filters).
+// SECURITY: This function validates processes using full path matching explicitly.
 //
 // Matching logic:
-// - Include list entries must contain a path separator (/ or \) to be valid
-// - Matches against process.executable.path or process.command (full path only)
-// - Example: "/usr/sbin/nginx" will NOT match "/tmp/nginx"
-// - Entries without path separators will not match any process
-//
-// Additional security considerations:
-// - Always use full paths in include_process_list (e.g., "/usr/sbin/nginx")
-// - Consider adding process owner validation in future enhancements
+// - Include list entries MUST contain a path separator (/ or \) to be valid
+// - Matches against process.executable.path (full path only)
+// - Entries without path separators are ignored for security reasons (prevents spoofing)
 //
 // Returns true if the process is in the include list, false otherwise.
 func isProcessInIncludeList(attrs pcommon.Map, includeList []string) bool {
@@ -344,7 +338,7 @@ func isProcessInIncludeList(attrs pcommon.Map, includeList []string) bool {
 		return false
 	}
 
-	// Extract the full executable path
+	// Extract path
 	processPath := extractProcessExecutablePath(attrs)
 
 	if processPath == "" {
@@ -353,18 +347,21 @@ func isProcessInIncludeList(attrs pcommon.Map, includeList []string) bool {
 
 	// Check if process matches any entry in the include list
 	for _, includedProcess := range includeList {
-		// Empty entry - skip
 		if includedProcess == "" {
 			continue
 		}
 
+		cleanInclude := strings.TrimSpace(includedProcess)
+
 		// Check if the include entry is a full path (contains path separator)
-		isFullPath := strings.ContainsAny(includedProcess, "/\\")
+		isFullPath := strings.ContainsAny(cleanInclude, "/\\")
 
 		if isFullPath {
-			// Full path matching - requires exact path match for security
-			if processPath != "" && processPath == includedProcess {
-				return true
+			// Full path matching - requires exact path match of the executable path
+			if processPath != "" {
+				if processPath == cleanInclude || strings.TrimSpace(processPath) == cleanInclude {
+					return true
+				}
 			}
 		}
 	}

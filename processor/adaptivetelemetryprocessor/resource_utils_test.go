@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pcommon"
-	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -171,7 +170,7 @@ func TestSnapshotResourceAttributes(t *testing.T) {
 			name: "With reserved attributes",
 			attributes: map[string]string{
 				"service.name":                  "test-service",
-				adaptiveFilterStageAttributeKey: "some-stage", // Should be included in snapshot
+				internalFilterStageAttributeKey: "some-stage", // Should be included in snapshot
 			},
 		},
 	}
@@ -241,9 +240,8 @@ func TestPersistenceAndLoading(t *testing.T) {
 	proc.mu.Unlock()
 
 	// Test persistence
-	if err := proc.persistTrackedEntities(); err != nil {
-		require.NoError(t, err)
-	}
+	err := proc.persistTrackedEntities()
+	require.NoError(t, err)
 
 	// Create a new processor to test loading
 	proc2 := &processorImp{
@@ -255,9 +253,8 @@ func TestPersistenceAndLoading(t *testing.T) {
 	}
 
 	// Load tracked entities
-	if err := proc2.loadTrackedEntities(); err != nil {
-		require.NoError(t, err)
-	}
+	err = proc2.loadTrackedEntities()
+	require.NoError(t, err)
 
 	// Verify entities were loaded correctly
 	proc2.mu.RLock()
@@ -282,36 +279,4 @@ func TestPersistenceAndLoading(t *testing.T) {
 	assert.Equal(t, map[string]float64{"cpu": 5.0, "memory": 20.0}, entity2.CurrentValues)
 	assert.Equal(t, map[string]float64{"cpu": 8.0, "memory": 30.0}, entity2.MaxValues)
 	assert.Equal(t, map[string]string{"type": "process", "name": "app2"}, entity2.Attributes)
-}
-
-func TestAddAttributeToMetricDataPoints(t *testing.T) {
-	md := createTestMetrics(
-		map[string]string{"service.name": "test-service"},
-		map[string]float64{
-			"process.cpu.utilization": 10.0,
-			"system.memory.usage":     50.0,
-		},
-	)
-
-	rm := md.ResourceMetrics().At(0)
-	sm := rm.ScopeMetrics().At(0)
-
-	// Add attribute to all metrics
-	for i := 0; i < sm.Metrics().Len(); i++ {
-		m := sm.Metrics().At(i)
-		addAttributeToMetricDataPoints(m, "test.attribute", "test-value")
-	}
-
-	// Verify attributes were added
-	for i := 0; i < sm.Metrics().Len(); i++ {
-		m := sm.Metrics().At(i)
-		if m.Type() == pmetric.MetricTypeGauge {
-			for j := 0; j < m.Gauge().DataPoints().Len(); j++ {
-				dp := m.Gauge().DataPoints().At(j)
-				val, exists := dp.Attributes().Get("test.attribute")
-				assert.True(t, exists)
-				assert.Equal(t, "test-value", val.AsString())
-			}
-		}
-	}
 }

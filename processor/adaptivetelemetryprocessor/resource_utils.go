@@ -4,6 +4,8 @@
 package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 import (
+	"encoding/json"
+
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 )
@@ -189,35 +191,26 @@ func countMetricsInResource(rm pmetric.ResourceMetrics) int {
 	return count
 }
 
-// addAttributeToMetricDataPoints adds the given attribute to all datapoints in a metric
-func addAttributeToMetricDataPoints(metric pmetric.Metric, key, value string) {
-	switch metric.Type() {
-	case pmetric.MetricTypeGauge:
-		dps := metric.Gauge().DataPoints()
-		for i := 0; i < dps.Len(); i++ {
-			dps.At(i).Attributes().PutStr(key, value)
-		}
-	case pmetric.MetricTypeSum:
-		dps := metric.Sum().DataPoints()
-		for i := 0; i < dps.Len(); i++ {
-			dps.At(i).Attributes().PutStr(key, value)
-		}
-	case pmetric.MetricTypeHistogram:
-		dps := metric.Histogram().DataPoints()
-		for i := 0; i < dps.Len(); i++ {
-			dps.At(i).Attributes().PutStr(key, value)
-		}
-	case pmetric.MetricTypeSummary:
-		dps := metric.Summary().DataPoints()
-		for i := 0; i < dps.Len(); i++ {
-			dps.At(i).Attributes().PutStr(key, value)
-		}
-	case pmetric.MetricTypeExponentialHistogram:
-		dps := metric.ExponentialHistogram().DataPoints()
-		for i := 0; i < dps.Len(); i++ {
-			dps.At(i).Attributes().PutStr(key, value)
-		}
-	default:
-		// Unknown or empty metric type, nothing to do
+// updateProcessATPAttribute updates the process.atp JSON attribute with new data under the given key
+func updateProcessATPAttribute(resource pcommon.Resource, key string, data any) {
+	attrs := resource.Attributes()
+	var atpData map[string]any
+
+	// Check if attribute exists and parse it
+	if val, ok := attrs.Get("process.atp"); ok {
+		// Try to unmarshal existing data
+		// If unmarshalling fails, we'll start with a clean map to avoid propagating corruption
+		// but we lose existing data (which shouldn't happen if we control writes)
+		_ = json.Unmarshal([]byte(val.AsString()), &atpData)
+	}
+
+	if atpData == nil {
+		atpData = make(map[string]any)
+	}
+
+	atpData[key] = data
+
+	if jsonData, err := json.Marshal(atpData); err == nil {
+		attrs.PutStr("process.atp", string(jsonData))
 	}
 }

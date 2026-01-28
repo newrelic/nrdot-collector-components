@@ -41,12 +41,14 @@ func (p *processorImp) determineEffectiveThreshold(metricName string, staticThre
 	return 0, "", false
 }
 
-// addThresholdAttributes adds threshold-related attributes to the resource
-func addThresholdAttributes(attrs pcommon.Map, metricName string, threshold, value float64, thresholdType string) {
-	attrs.PutDouble("adaptive.threshold."+metricName, threshold)
-	attrs.PutDouble("adaptive.value."+metricName, value)
-	attrs.PutStr("adaptive.threshold.type."+metricName, thresholdType)
-	attrs.PutInt("adaptive.eval.timestamp", time.Now().Unix())
+// addThresholdAttributes adds threshold-related attributes to the thresholds details map
+func addThresholdAttributes(thresholdsDetails map[string]any, metricName string, threshold, value float64, thresholdType string) {
+	thresholdsDetails[metricName] = map[string]any{
+		"threshold":            threshold,
+		"observed_value":       value,
+		"threshold_type":       thresholdType,
+		"evaluation_timestamp": time.Now().Unix(),
+	}
 }
 
 // captureUsedMetricThresholds captures only metric thresholds that are actually evaluated
@@ -62,8 +64,8 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 		return
 	}
 
-	attrs := resource.Attributes()
 	capturedCount := 0
+	thresholdsDetails := make(map[string]any)
 
 	for metricName, metricValue := range values {
 		if metricName == "" {
@@ -80,8 +82,12 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 			continue
 		}
 
-		addThresholdAttributes(attrs, metricName, effectiveThreshold, metricValue, thresholdType)
+		addThresholdAttributes(thresholdsDetails, metricName, effectiveThreshold, metricValue, thresholdType)
 		capturedCount++
+	}
+
+	if len(thresholdsDetails) > 0 {
+		updateProcessATPAttribute(resource, "threshold_details", thresholdsDetails)
 	}
 
 	if p.logger != nil && capturedCount > 0 {

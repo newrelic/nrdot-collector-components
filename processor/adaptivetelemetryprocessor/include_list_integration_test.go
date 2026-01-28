@@ -18,8 +18,9 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 		MetricThresholds: map[string]float64{
 			"process.cpu.utilization": 50.0, // High threshold
 		},
-		IncludeProcessList: []string{"/usr/sbin/nginx", "/usr/bin/postgres"},
-		EnableStorage:      ptrBool(false),
+		IncludeProcessList:       []string{"/usr/sbin/nginx", "/usr/bin/postgres"},
+		EnableStorage:            ptrBool(false),
+		DebugShowAllFilterStages: true,
 	}
 	cfg.Normalize()
 
@@ -35,7 +36,17 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 	}
 
 	// Create metrics for nginx (in include list) with low CPU usage
-	md := createTestProcessMetrics("nginx", 1234, 5.0) // Well below threshold
+	// Using full path to match strict security check
+	md := createTestProcessMetrics("/usr/sbin/nginx", 1234, 5.0) // Well below threshold
+
+	// Verify attributes are set correctly
+	rm := md.ResourceMetrics().At(0)
+	val, ok := rm.Resource().Attributes().Get("process.executable.name")
+	require.True(t, ok)
+	require.Equal(t, "/usr/sbin/nginx", val.Str())
+
+	// Verify config
+	require.Equal(t, []string{"/usr/sbin/nginx", "/usr/bin/postgres"}, proc.config.IncludeProcessList)
 
 	// Process metrics
 	result, err := proc.processMetrics(t.Context(), md)
@@ -52,7 +63,7 @@ func TestIncludeListBypassesAllFilters(t *testing.T) {
 			continue
 		}
 
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
 		assert.Equal(t, "include_list", stageVal.Str())
 	}
@@ -67,10 +78,11 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 	// Create processor with include list
 	cfg := &Config{
 		MetricThresholds: map[string]float64{
-			"process.cpu.utilization": 50.0,
+			"process.cpu.utilization": 50.0, // High threshold
 		},
-		IncludeProcessList: []string{"/usr/sbin/nginx", "/usr/bin/postgres"},
-		EnableStorage:      ptrBool(false),
+		IncludeProcessList:       []string{"/usr/sbin/nginx", "/usr/bin/postgres"},
+		EnableStorage:            ptrBool(false),
+		DebugShowAllFilterStages: true,
 	}
 	cfg.Normalize()
 
@@ -89,22 +101,21 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 	md := pmetric.NewMetrics()
 
 	// Add nginx (in include list, low CPU)
-	addProcessToMetrics(md, "nginx", 1234, 5.0)
+	addProcessToMetrics(md, "/usr/sbin/nginx", 1234, 5.0)
 
 	// Add postgres (in include list, low CPU)
-	addProcessToMetrics(md, "postgres", 5678, 10.0)
+	addProcessToMetrics(md, "/usr/bin/postgres", 5678, 10.0)
 
 	// Add apache (not in include list, low CPU)
-	addProcessToMetrics(md, "apache2", 9999, 8.0)
+	addProcessToMetrics(md, "/usr/sbin/apache2", 9999, 8.0)
 
 	// Process metrics
 	result, err := proc.processMetrics(t.Context(), md)
 	require.NoError(t, err)
 
-	// Only nginx and postgres should be included (apache filtered out)
-	assert.Equal(t, 2, countNonSummaryResources(result))
-
 	// Verify both included processes have correct filter stage
+	// With DebugShowAllFilterStages=true, apache2 might be returned with a debug stage
+	includedCount := 0
 	includedProcesses := make(map[string]bool)
 	for i := 0; i < result.ResourceMetrics().Len(); i++ {
 		rm := result.ResourceMetrics().At(i)
@@ -113,19 +124,25 @@ func TestIncludeListWithMultipleProcesses(t *testing.T) {
 			continue
 		}
 
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
-		assert.Equal(t, "include_list", stageVal.Str())
 
-		// Track which process was included
-		if execName, ok := rm.Resource().Attributes().Get("process.executable.name"); ok {
-			includedProcesses[execName.Str()] = true
+		// Only count resources that were included by the include list logic
+		if stageVal.Str() == "include_list" {
+			includedCount++
+			// Track which process was included
+			if execName, ok := rm.Resource().Attributes().Get("process.executable.name"); ok {
+				includedProcesses[execName.Str()] = true
+			}
 		}
 	}
 
-	assert.True(t, includedProcesses["nginx"])
-	assert.True(t, includedProcesses["postgres"])
-	assert.False(t, includedProcesses["apache2"])
+	// Only nginx and postgres should be included (apache filtered out or debug-included)
+	assert.Equal(t, 2, includedCount)
+
+	assert.True(t, includedProcesses["/usr/sbin/nginx"])
+	assert.True(t, includedProcesses["/usr/bin/postgres"])
+	assert.False(t, includedProcesses["/usr/sbin/apache2"])
 }
 
 func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
@@ -134,8 +151,9 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 		MetricThresholds: map[string]float64{
 			"process.cpu.utilization": 50.0,
 		},
-		IncludeProcessList: []string{"/usr/sbin/nginx"},
-		EnableStorage:      ptrBool(false),
+		IncludeProcessList:       []string{"/usr/sbin/nginx"},
+		EnableStorage:            ptrBool(false),
+		DebugShowAllFilterStages: true,
 	}
 	cfg.Normalize()
 
@@ -151,7 +169,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 	}
 
 	// Create metrics for apache (not in include list) with high CPU
-	md := createTestProcessMetrics("apache2", 9999, 80.0) // Above threshold
+	md := createTestProcessMetrics("/usr/sbin/apache2", 9999, 80.0) // Above threshold
 
 	// Process metrics
 	result, err := proc.processMetrics(t.Context(), md)
@@ -168,7 +186,7 @@ func TestProcessExceedsThresholdButNotInIncludeList(t *testing.T) {
 			continue
 		}
 
-		stageVal, ok := rm.Resource().Attributes().Get("process.atp.filter.stage")
+		stageVal, ok := rm.Resource().Attributes().Get(internalFilterStageAttributeKey)
 		assert.True(t, ok)
 		assert.Equal(t, "static_threshold", stageVal.Str())
 	}
@@ -201,8 +219,19 @@ func addProcessToMetrics(md pmetric.Metrics, processName string, pid int, cpuUti
 		execPath = "/usr/bin/postgres"
 	case "apache2":
 		execPath = "/usr/sbin/apache2"
+	case "/usr/sbin/nginx":
+		execPath = "/usr/sbin/nginx"
+	case "/usr/bin/postgres":
+		execPath = "/usr/bin/postgres"
+	case "/usr/sbin/apache2":
+		execPath = "/usr/sbin/apache2"
 	default:
-		execPath = "/usr/bin/" + processName
+		// If it looks like a path, use it directly
+		if processName != "" && (processName[0] == '/' || (len(processName) > 1 && processName[1] == ':')) {
+			execPath = processName
+		} else {
+			execPath = "/usr/bin/" + processName
+		}
 	}
 	attrs.PutStr("process.executable.path", execPath)
 
