@@ -306,7 +306,7 @@ docker-golden:
 
 .PHONY: gengithub
 gengithub: $(GITHUBGEN)
-	$(GITHUBGEN)
+	$(GITHUBGEN) -default-codeowner "@newrelic/otelcomm" -github-org "newrelic"
 
 .PHONY: gendistributions
 gendistributions: $(GITHUBGEN)
@@ -321,7 +321,7 @@ update-codeowners: generate gengithub
 
 .PHONY: gencodeowners
 gencodeowners: install-tools
-	$(GITHUBGEN) -skipgithub
+	$(GITHUBGEN) -skipgithub -default-codeowner "@newrelic/otelcomm"
 
 .PHONY: generate-chloggen-components
 generate-chloggen-components: $(GITHUBGEN)

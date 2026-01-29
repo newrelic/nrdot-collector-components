@@ -17,14 +17,15 @@
 
 # Start components list
 
-cmd/codecovgen/                                                  @newrelic/otelcomm
-cmd/oteltestbedcol/                                              @newrelic/otelcomm
-exporter/nopexporter/                                            @newrelic/otelcomm
-internal/common/                                                 @newrelic/otelcomm
-internal/coreinternal/                                           @newrelic/otelcomm
-internal/tools/                                                  @newrelic/otelcomm
-processor/adaptivetelemetryprocessor/                            @newrelic/dbi @newrelic/ohai
-receiver/nopreceiver/                                            @newrelic/otelcomm
-testbed/                                                         @newrelic/otelcomm
+cmd/codecovgen/                       @newrelic/otelcomm
+cmd/nrdotcol/                         @newrelic/otelcomm
+cmd/oteltestbedcol/                   @newrelic/otelcomm
+exporter/nopexporter/                 @newrelic/otelcomm
+internal/common/                      @newrelic/otelcomm
+internal/coreinternal/                @newrelic/otelcomm
+internal/tools/                       @newrelic/otelcomm
+processor/adaptivetelemetryprocessor/ @newrelic/otelcomm @newrelic/dbi @newrelic/ohai
+receiver/nopreceiver/                 @newrelic/otelcomm
+testbed/                              @newrelic/otelcomm
 
 # End components list
