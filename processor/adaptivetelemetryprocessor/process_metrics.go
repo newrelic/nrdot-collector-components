@@ -300,7 +300,7 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	}
 
 	// Check include list FIRST - bypass all filters if in include list
-	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
+	if len(p.config.IncludeProcessList) > 0 {
 		processName := extractProcessName(resource.Attributes())
 		match := isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList)
 		p.logger.Info("Checking include list",
