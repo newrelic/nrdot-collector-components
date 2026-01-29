@@ -1,5 +1,6 @@
 # This file is auto-generated. Do not edit manually.
 cmd/codecovgen cmd/codecovgen
+cmd/nrdotcol cmd/nrdotcol
 cmd/oteltestbedcol cmd/oteltestbedcol
 exporter/nopexporter exporter/nop
 internal/common internal/common

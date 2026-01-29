@@ -7,4 +7,6 @@ status:
   stability:
     beta: [metrics]
   distributions: [nrdot]
+  codeowners:
+    active: [newrelic/dbi, newrelic/ohai]
 

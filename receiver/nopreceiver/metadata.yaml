@@ -7,3 +7,5 @@ status:
   stability:
     beta: [traces, metrics, logs]
   distributions: [nrdot]
+  codeowners:
+    active: []
