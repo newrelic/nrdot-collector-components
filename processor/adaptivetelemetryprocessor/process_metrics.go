@@ -666,7 +666,6 @@ func (p *processorImp) checkNewEntityMultiMetric(_ pcommon.Resource, id string, 
 		threshold = defaultCompositeThreshold
 	}
 
-	// Data is already added by addMultiMetricData, just check threshold
 	if compScore >= threshold {
 		p.logger.Info("New resource exceeds multi-metric threshold",
 			zap.String("resource_id", id),
