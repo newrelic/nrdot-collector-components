@@ -279,7 +279,6 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	// This tracks only the MetricThresholds values, not other config data
 	p.captureUsedMetricThresholds(resource, values)
 
-	// Bypass filtering if no metrics in the resource match configured thresholds
 	// This ensures we default to INCLUSION for non-targeted resources (e.g., system metrics, unconfigured processes)
 	if !p.isResourceTargeted(values) {
 		p.logger.Debug("Resource included: no specified metrics found (default inclusion)", zap.String("resource_id", id))
@@ -509,16 +508,16 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 		threshold = defaultCompositeThreshold
 	}
 
+	// Always add composite score and threshold to process.atp JSON (even if below threshold)
+	multiMetricDetails := map[string]any{
+		"composite_score": compScore,
+		"threshold":       threshold,
+	}
+	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
 		setResourceFilterStage(resource, stageMultiMetric)
-
-		// Add composite score and threshold to process.atp JSON
-		multiMetricDetails := map[string]any{
-			"composite_score": compScore,
-			"threshold":       threshold,
-		}
-		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
 
 		p.logger.Info("Resource included: multi-metric",
 			zap.String("resource_id", id),
@@ -646,14 +645,14 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 		threshold = defaultCompositeThreshold
 	}
 
-	if compScore >= threshold {
-		// Add composite score and threshold to process.atp JSON
-		multiMetricDetails := map[string]any{
-			"composite_score": compScore,
-			"threshold":       threshold,
-		}
-		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+	// Always add composite score and threshold to process.atp JSON (even if below threshold)
+	multiMetricDetails := map[string]any{
+		"composite_score": compScore,
+		"threshold":       threshold,
+	}
+	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
 
+	if compScore >= threshold {
 		p.logger.Info("New resource exceeds multi-metric threshold",
 			zap.String("resource_id", id),
 			zap.Float64("score", compScore),
@@ -784,10 +783,6 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 			val.CopyTo(summaryAttrs.PutEmpty(attrServiceName))
 		}
 	}
-
-	// Add ATP-specific attributes (these will become entity tags)
-	// These are now included in the JSON payload of the process.atp metric
-	summaryAttrs.PutStr("process.atp.metric_type", "filter_summary")
 
 	p.logger.Info("ATP Summary: Created summary resource",
 		zap.String("atp_source", "adaptive_telemetry_processor"),
