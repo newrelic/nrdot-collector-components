@@ -8,6 +8,7 @@ import (
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
+	"go.uber.org/zap"
 )
 
 // identifyHostMetricType tries to identify the type of host metric from attributes
@@ -192,16 +193,25 @@ func countMetricsInResource(rm pmetric.ResourceMetrics) int {
 }
 
 // updateProcessATPAttribute updates the process.atp JSON attribute with new data under the given key
-func updateProcessATPAttribute(resource pcommon.Resource, key string, data any) {
+// The logger parameter is optional and can be nil
+func updateProcessATPAttribute(resource pcommon.Resource, key string, data any, logger *zap.Logger) {
 	attrs := resource.Attributes()
 	var atpData map[string]any
 
 	// Check if attribute exists and parse it
 	if val, ok := attrs.Get("process.atp"); ok {
+		existingJSON := val.AsString()
 		// Try to unmarshal existing data
-		// If unmarshalling fails, we'll start with a clean map to avoid propagating corruption
-		// but we lose existing data (which shouldn't happen if we control writes)
-		_ = json.Unmarshal([]byte(val.AsString()), &atpData)
+		if err := json.Unmarshal([]byte(existingJSON), &atpData); err != nil {
+			// Log the corruption and start with a clean map to avoid propagating corruption
+			if logger != nil {
+				logger.Warn("Failed to unmarshal process.atp attribute, starting fresh",
+					zap.Error(err),
+					zap.String("corrupted_json", existingJSON),
+					zap.String("new_key", key))
+			}
+			// atpData remains nil and will be initialized below
+		}
 	}
 
 	if atpData == nil {
@@ -212,5 +222,9 @@ func updateProcessATPAttribute(resource pcommon.Resource, key string, data any) 
 
 	if jsonData, err := json.Marshal(atpData); err == nil {
 		attrs.PutStr("process.atp", string(jsonData))
+	} else if logger != nil {
+		logger.Error("Failed to marshal process.atp attribute",
+			zap.Error(err),
+			zap.String("key", key))
 	}
 }

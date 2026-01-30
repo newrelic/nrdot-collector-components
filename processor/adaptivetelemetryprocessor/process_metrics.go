@@ -513,7 +513,7 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 		"composite_score": compScore,
 		"threshold":       threshold,
 	}
-	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails, p.logger)
 
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
@@ -650,7 +650,7 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 		"composite_score": compScore,
 		"threshold":       threshold,
 	}
-	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
+	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails, p.logger)
 
 	if compScore >= threshold {
 		p.logger.Info("New resource exceeds multi-metric threshold",

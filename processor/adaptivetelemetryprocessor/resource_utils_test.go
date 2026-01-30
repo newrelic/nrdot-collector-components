@@ -4,6 +4,7 @@
 package adaptivetelemetryprocessor
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -279,4 +280,84 @@ func TestPersistenceAndLoading(t *testing.T) {
 	assert.Equal(t, map[string]float64{"cpu": 5.0, "memory": 20.0}, entity2.CurrentValues)
 	assert.Equal(t, map[string]float64{"cpu": 8.0, "memory": 30.0}, entity2.MaxValues)
 	assert.Equal(t, map[string]string{"type": "process", "name": "app2"}, entity2.Attributes)
+}
+
+func TestUpdateProcessATPAttribute(t *testing.T) {
+	logger := zaptest.NewLogger(t)
+
+	t.Run("Add new key to empty attribute", func(t *testing.T) {
+		resource := pcommon.NewResource()
+		data := map[string]any{"key1": "value1"}
+
+		updateProcessATPAttribute(resource, "test_key", data, logger)
+
+		val, ok := resource.Attributes().Get("process.atp")
+		require.True(t, ok, "process.atp attribute should exist")
+
+		var atpData map[string]any
+		err := json.Unmarshal([]byte(val.AsString()), &atpData)
+		require.NoError(t, err)
+		assert.Equal(t, data, atpData["test_key"])
+	})
+
+	t.Run("Merge new key with existing data", func(t *testing.T) {
+		resource := pcommon.NewResource()
+
+		// Add first key
+		data1 := map[string]any{"metric1": "value1"}
+		updateProcessATPAttribute(resource, "threshold_details", data1, logger)
+
+		// Add second key
+		data2 := map[string]any{"score": 0.75}
+		updateProcessATPAttribute(resource, "multi_metric", data2, logger)
+
+		val, ok := resource.Attributes().Get("process.atp")
+		require.True(t, ok)
+
+		var atpData map[string]any
+		err := json.Unmarshal([]byte(val.AsString()), &atpData)
+		require.NoError(t, err)
+
+		// Both keys should exist
+		assert.Equal(t, data1, atpData["threshold_details"])
+		assert.Equal(t, data2, atpData["multi_metric"])
+	})
+
+	t.Run("Handle corrupted JSON gracefully", func(t *testing.T) {
+		resource := pcommon.NewResource()
+
+		// Set corrupted JSON manually
+		resource.Attributes().PutStr("process.atp", "{invalid json")
+
+		// Try to add new data - should start fresh and log warning
+		data := map[string]any{"new_key": "new_value"}
+		updateProcessATPAttribute(resource, "threshold_details", data, logger)
+
+		val, ok := resource.Attributes().Get("process.atp")
+		require.True(t, ok)
+
+		var atpData map[string]any
+		err := json.Unmarshal([]byte(val.AsString()), &atpData)
+		require.NoError(t, err, "Should have valid JSON after recovering from corruption")
+
+		// Only the new key should exist (old corrupted data is lost)
+		assert.Equal(t, data, atpData["threshold_details"])
+		assert.Len(t, atpData, 1, "Should only have the new key after recovery")
+	})
+
+	t.Run("Works without logger", func(t *testing.T) {
+		resource := pcommon.NewResource()
+		data := map[string]any{"key1": "value1"}
+
+		// Should not panic with nil logger
+		updateProcessATPAttribute(resource, "test_key", data, nil)
+
+		val, ok := resource.Attributes().Get("process.atp")
+		require.True(t, ok)
+
+		var atpData map[string]any
+		err := json.Unmarshal([]byte(val.AsString()), &atpData)
+		require.NoError(t, err)
+		assert.Equal(t, data, atpData["test_key"])
+	})
 }
