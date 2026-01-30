@@ -28,7 +28,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/providers/confmap v1.0.0 // indirect
-	github.com/knadh/koanf/v2 v2.3.0 // indirect
+	github.com/knadh/koanf/v2 v2.3.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -38,6 +38,7 @@ require (
 	go.opentelemetry.io/collector/component/componentstatus v0.144.1-0.20260128232850-0bb8e65fdaa4 // indirect
 	go.opentelemetry.io/collector/consumer/xconsumer v0.144.1-0.20260128232850-0bb8e65fdaa4 // indirect
 	go.opentelemetry.io/collector/featuregate v1.50.1-0.20260128232850-0bb8e65fdaa4 // indirect
+	go.opentelemetry.io/collector/internal/componentalias v0.144.0 // indirect
 	go.opentelemetry.io/collector/pdata/pprofile v0.144.1-0.20260128232850-0bb8e65fdaa4 // indirect
 	go.opentelemetry.io/collector/pdata/testdata v0.144.1-0.20260128232850-0bb8e65fdaa4 // indirect
 	go.opentelemetry.io/collector/pipeline v1.50.1-0.20260128232850-0bb8e65fdaa4 // indirect
