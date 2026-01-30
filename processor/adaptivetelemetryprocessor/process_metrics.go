@@ -786,11 +786,18 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 		"evaluation_timestamp":     time.Now().Unix(),
 	}
 
-	// Add filtering summary to all resources' process.atp attribute
+	// Add filtering summary only to targeted resources' process.atp attribute
 	// This matches the pattern used by multi_metric and threshold_details
 	for i := 0; i < filtered.ResourceMetrics().Len(); i++ {
 		rm := filtered.ResourceMetrics().At(i)
-		updateProcessATPAttribute(rm.Resource(), "filtering_summary", summaryDetails, p.logger)
+
+		// Extract metric values to check if this resource is targeted
+		values := p.extractMetricValues(rm)
+
+		// Only add filtering summary to resources that are targeted by the processor
+		if p.isResourceTargeted(values) {
+			updateProcessATPAttribute(rm.Resource(), "filtering_summary", summaryDetails, p.logger)
+		}
 	}
 
 	p.logger.Info("Generated filtering summary metrics",
