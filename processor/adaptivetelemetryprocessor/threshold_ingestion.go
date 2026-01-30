@@ -87,7 +87,7 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 	}
 
 	if len(thresholdsDetails) > 0 {
-		updateProcessATPAttribute(resource, "threshold_details", thresholdsDetails)
+		updateProcessATPAttribute(resource, "threshold_details", thresholdsDetails, p.logger)
 	}
 
 	if p.logger != nil && capturedCount > 0 {

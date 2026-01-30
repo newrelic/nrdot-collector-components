@@ -5,7 +5,6 @@ package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collecto
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand/v2"
 	"time"
@@ -279,7 +278,6 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	// This tracks only the MetricThresholds values, not other config data
 	p.captureUsedMetricThresholds(resource, values)
 
-	// Bypass filtering if no metrics in the resource match configured thresholds
 	// This ensures we default to INCLUSION for non-targeted resources (e.g., system metrics, unconfigured processes)
 	if !p.isResourceTargeted(values) {
 		p.logger.Debug("Resource included: no specified metrics found (default inclusion)", zap.String("resource_id", id))
@@ -300,7 +298,7 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 	}
 
 	// Check include list FIRST - bypass all filters if in include list
-	if len(p.config.IncludeProcessList) > 0 && isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList) {
+	if len(p.config.IncludeProcessList) > 0 {
 		processName := extractProcessName(resource.Attributes())
 		match := isProcessInIncludeList(resource.Attributes(), p.config.IncludeProcessList)
 		p.logger.Info("Checking include list",
@@ -340,6 +338,12 @@ func (p *processorImp) evaluateExistingEntity(resource pcommon.Resource, id stri
 	// Update current and max values
 	updateEntityValues(trackedEntity, values)
 
+	// Always add multi-metric data to process.atp if multi-metric is enabled
+	// This must happen before checking filter stages to ensure data is always present
+	if p.multiMetricEnabled {
+		p.addMultiMetricData(resource, values)
+	}
+
 	// Check filter stages in order
 	return p.checkAnomalyDetectionStage(resource, id, trackedEntity, values) ||
 		p.checkThresholdStages(resource, id, trackedEntity, values) ||
@@ -377,6 +381,12 @@ func (p *processorImp) evaluateNewEntity(resource pcommon.Resource, id string, v
 // checkNewEntityFilterStages checks all filter stages for a new entity
 // Order matches requirement.md: Anomaly → Threshold → Multi-Metric
 func (p *processorImp) checkNewEntityFilterStages(resource pcommon.Resource, id string, newEntity *trackedEntity, values map[string]float64) (bool, string) {
+	// Always add multi-metric data to process.atp if multi-metric is enabled
+	// This must happen before checking filter stages to ensure data is always present
+	if p.multiMetricEnabled {
+		p.addMultiMetricData(resource, values)
+	}
+
 	// Stage 1: Check anomaly detection first (highest priority - detects sudden changes)
 	if include, stage := p.checkNewEntityAnomaly(id, newEntity, values); include {
 		return true, stage
@@ -497,6 +507,22 @@ func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id strin
 	return false
 }
 
+// addMultiMetricData adds multi-metric data to process.atp attribute
+// This is called separately from the inclusion check to ensure data is always present
+func (p *processorImp) addMultiMetricData(resource pcommon.Resource, values map[string]float64) {
+	compScore, _ := p.calculateCompositeGeneric(values)
+	threshold := p.config.CompositeThreshold
+	if threshold <= 0 {
+		threshold = defaultCompositeThreshold
+	}
+
+	multiMetricDetails := map[string]any{
+		"composite_score": compScore,
+		"threshold":       threshold,
+	}
+	updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails, p.logger)
+}
+
 // checkMultiMetricStage checks multi-metric stage for existing entities
 func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id string, trackedEntity *trackedEntity, values map[string]float64) bool {
 	if !p.multiMetricEnabled {
@@ -509,16 +535,10 @@ func (p *processorImp) checkMultiMetricStage(resource pcommon.Resource, id strin
 		threshold = defaultCompositeThreshold
 	}
 
+	// Data is already added by addMultiMetricData, just check threshold
 	if compScore >= threshold {
 		trackedEntity.LastExceeded = time.Now()
 		setResourceFilterStage(resource, stageMultiMetric)
-
-		// Add composite score and threshold to process.atp JSON
-		multiMetricDetails := map[string]any{
-			"composite_score": compScore,
-			"threshold":       threshold,
-		}
-		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
 
 		p.logger.Info("Resource included: multi-metric",
 			zap.String("resource_id", id),
@@ -635,7 +655,7 @@ func (p *processorImp) checkNewEntityThresholds(id string, values map[string]flo
 }
 
 // checkNewEntityMultiMetric checks multi-metric stage for new entities
-func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id string, values map[string]float64) (bool, string) {
+func (p *processorImp) checkNewEntityMultiMetric(_ pcommon.Resource, id string, values map[string]float64) (bool, string) {
 	if !p.multiMetricEnabled {
 		return false, ""
 	}
@@ -646,14 +666,8 @@ func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id s
 		threshold = defaultCompositeThreshold
 	}
 
+	// Data is already added by addMultiMetricData, just check threshold
 	if compScore >= threshold {
-		// Add composite score and threshold to process.atp JSON
-		multiMetricDetails := map[string]any{
-			"composite_score": compScore,
-			"threshold":       threshold,
-		}
-		updateProcessATPAttribute(resource, "multi_metric", multiMetricDetails)
-
 		p.logger.Info("New resource exceeds multi-metric threshold",
 			zap.String("resource_id", id),
 			zap.Float64("score", compScore),
@@ -751,67 +765,12 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 		return // No point generating summary for empty batch
 	}
 
-	// Create a new resource for summary metrics
-	summaryRM := filtered.ResourceMetrics().AppendEmpty()
-	summaryAttrs := summaryRM.Resource().Attributes()
-
-	// Copy only the required attributes for HOST entity synthesis
-	// Metric names starting with "process." will trigger HOST entity synthesis rules
-	if filtered.ResourceMetrics().Len() > 1 {
-		firstResource := filtered.ResourceMetrics().At(0)
-		firstAttrs := firstResource.Resource().Attributes()
-
-		// Copy host.id and host.name (required for HOST entity synthesis)
-		if val, exists := firstAttrs.Get(attrHostID); exists {
-			val.CopyTo(summaryAttrs.PutEmpty(attrHostID))
-		}
-		if val, exists := firstAttrs.Get(attrHostName); exists {
-			val.CopyTo(summaryAttrs.PutEmpty(attrHostName))
-		}
-
-		// Copy newrelic.source (required condition for synthesis)
-		if val, exists := firstAttrs.Get(attrNewRelicSource); exists {
-			val.CopyTo(summaryAttrs.PutEmpty(attrNewRelicSource))
-		}
-
-		// Copy container.id if present (synthesis rule checks this is absent for hosts)
-		if val, exists := firstAttrs.Get(attrContainerID); exists {
-			val.CopyTo(summaryAttrs.PutEmpty(attrContainerID))
-		}
-
-		// Copy service.name if present (synthesis rule checks this is absent for hosts)
-		if val, exists := firstAttrs.Get(attrServiceName); exists {
-			val.CopyTo(summaryAttrs.PutEmpty(attrServiceName))
-		}
+	if filtered.ResourceMetrics().Len() == 0 {
+		p.logger.Info("ATP Summary: Skipping summary generation - no output resources")
+		return // No resources in output to attach summary to
 	}
 
-	// Add ATP-specific attributes (these will become entity tags)
-	// These are now included in the JSON payload of the process.atp metric
-	summaryAttrs.PutStr("process.atp.metric_type", "filter_summary")
-
-	p.logger.Info("ATP Summary: Created summary resource",
-		zap.String("atp_source", "adaptive_telemetry_processor"),
-		zap.String("atp_metric_type", "filter_summary"))
-
-	summaryScope := summaryRM.ScopeMetrics().AppendEmpty()
-	summaryScope.Scope().SetName(atpScopeName)
-	summaryScope.Scope().SetVersion(atpScopeVersion)
-
-	// Add otel library attributes to scope
-	summaryScope.Scope().Attributes().PutStr(attrOtelLibraryName, atpScopeName)
-	summaryScope.Scope().Attributes().PutStr(attrOtelLibraryVersion, atpScopeVersion)
-
-	// Create a single process.atp metric
-	atpMetric := summaryScope.Metrics().AppendEmpty()
-	atpMetric.SetName("process.atp")
-	atpMetric.SetDescription("Adaptive Telemetry Processor summary metrics")
-	atpMetric.SetUnit("1")
-	atpGauge := atpMetric.SetEmptyGauge()
-	atpDP := atpGauge.DataPoints().AppendEmpty()
-	atpDP.SetDoubleValue(1.0)
-	atpDP.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
-
-	// Metric 1: Efficiency ratio (percentage of resources filtered)
+	// Calculate summary statistics
 	filteredResourceCount := inputResourceCount - outputResourceCount
 	efficiencyRatio := float64(filteredResourceCount) / float64(inputResourceCount)
 
@@ -827,12 +786,18 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 		"evaluation_timestamp":     time.Now().Unix(),
 	}
 
-	atpData := map[string]any{
-		"filtering_summary": summaryDetails,
-	}
+	// Add filtering summary only to targeted resources' process.atp attribute
+	// This matches the pattern used by multi_metric and threshold_details
+	for i := 0; i < filtered.ResourceMetrics().Len(); i++ {
+		rm := filtered.ResourceMetrics().At(i)
 
-	if jsonData, err := json.Marshal(atpData); err == nil {
-		atpDP.Attributes().PutStr("process.atp", string(jsonData))
+		// Extract metric values to check if this resource is targeted
+		values := p.extractMetricValues(rm)
+
+		// Only add filtering summary to resources that are targeted by the processor
+		if p.isResourceTargeted(values) {
+			updateProcessATPAttribute(rm.Resource(), "filtering_summary", summaryDetails, p.logger)
+		}
 	}
 
 	p.logger.Info("Generated filtering summary metrics",

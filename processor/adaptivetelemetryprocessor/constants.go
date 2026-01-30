@@ -15,9 +15,6 @@ const (
 	// Used only for internal tracking, removed before export
 	internalFilterStageAttributeKey = "ProcessATPFilterStage"
 
-	atpScopeName    = "process.atp.processor"
-	atpScopeVersion = "1.0.0"
-
 	// Filtering stage values
 	stageIncludeList               = "include_list"   // Explicitly included process
 	stageZombieProcess             = "zombie_process" // Zombie/Defunct process (always included)
@@ -41,14 +38,4 @@ const (
 	resourceTypeProcesses  = "processes"
 	resourceTypePaging     = "paging"
 	resourceTypeSystem     = "system"
-
-	// Common resource attribute keys
-	attrHostID             = "host.id"
-	attrHostName           = "host.name"
-	attrMetricName         = "metricName"
-	attrNewRelicSource     = "newrelic.source"
-	attrContainerID        = "container.id"
-	attrServiceName        = "service.name"
-	attrOtelLibraryName    = "otel.library.name"
-	attrOtelLibraryVersion = "otel.library.version"
 )
