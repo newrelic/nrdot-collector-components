@@ -655,7 +655,7 @@ func (p *processorImp) checkNewEntityThresholds(id string, values map[string]flo
 }
 
 // checkNewEntityMultiMetric checks multi-metric stage for new entities
-func (p *processorImp) checkNewEntityMultiMetric(resource pcommon.Resource, id string, values map[string]float64) (bool, string) {
+func (p *processorImp) checkNewEntityMultiMetric(_ pcommon.Resource, id string, values map[string]float64) (bool, string) {
 	if !p.multiMetricEnabled {
 		return false, ""
 	}
