@@ -144,6 +144,16 @@ func (p *processorImp) processAllResources(processCtx *processingContext, md pme
 		if i > 0 && i%25 == 0 {
 			if processCtx.ctx.Err() != nil {
 				p.logger.Warn("Context cancelled during resource processing", zap.Error(processCtx.ctx.Err()))
+
+				// Mark all processed-but-excluded or unprocessed resources with timeout stage
+				for k := 0; k < rms.Len(); k++ {
+					res := rms.At(k).Resource()
+					if _, ok := res.Attributes().Get(internalFilterStageAttributeKey); !ok {
+						setResourceFilterStage(res, stageResourceProcessingTimeout)
+						processCtx.stageHits[stageResourceProcessingTimeout]++
+					}
+				}
+
 				return md, 0 // Return original metrics on timeout
 			}
 		}
@@ -280,6 +290,7 @@ func (p *processorImp) shouldIncludeResource(resource pcommon.Resource, rm pmetr
 
 	// This ensures we default to INCLUSION for non-targeted resources (e.g., system metrics, unconfigured processes)
 	if !p.isResourceTargeted(values) {
+		setResourceFilterStage(resource, stageDefaultInclusion)
 		p.logger.Debug("Resource included: no specified metrics found (default inclusion)", zap.String("resource_id", id))
 		return true
 	}
