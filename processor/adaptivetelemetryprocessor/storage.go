@@ -189,7 +189,11 @@ func checkPathForSymlinks(path, baseDir string) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			return fmt.Errorf("failed to stat %q: %w", currentPath, err)
+			// Ignore permission errors during symlink check to allow running in restricted environments
+			if os.IsPermission(err) {
+				continue
+			}
+			return fmt.Errorf("failed to start %q: %w", currentPath, err)
 		}
 
 		// Check if it's a symlink
