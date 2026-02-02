@@ -10,12 +10,41 @@ component: processor/adaptivetelemetry
 note: "Added the Adaptive Telemetry Processor, which dynamically adjusts telemetry data based on real-time analysis to optimize performance and resource utilization."
 
 # Mandatory: One or more tracking issues related to the change. You can use the PR number here if no issue exists.
-issues: [111,153,158]
+issues: [111, 137, 138, 139, 140, 142, 145, 146, 153, 158]
 
 # (Optional) One or more lines of additional information to render under the primary note.
 # These lines will be padded with 2 spaces and then inserted directly into the document.
 # Use pipe (|) for multiline entries.
-subtext:
+subtext: |
+  The Adaptive Telemetry Processor (ATP) is an intelligent metric filtering component that reduces telemetry costs by up to 70% while maintaining high observability during critical events.
+
+  Key Features:
+  - Metric threshold filtering for CPU, memory, disk, and network metrics
+  - Process-based sampling with full path matching for security
+  - Dynamic threshold adjustment based on historical baselines
+  - Multi-metric composite scoring for holistic health assessment
+  - Anomaly detection to capture sudden metric changes
+  - Stateful processing with persistent JSON storage
+  - Security hardening with restricted storage paths, symlink protection, and proper file permissions
+
+  Configuration options include:
+  - Configurable metric thresholds for system and process metrics
+  - Dynamic threshold adjustment with exponential moving average smoothing
+  - Composite scoring with configurable metric weights
+  - Anomaly detection with configurable history size and change thresholds
+  - Process filtering by full executable path (prevents process name spoofing)
+  - Secure state file storage under /var/lib/nrdot-collector/ with automatic permission management
+
+  Related PRs:
+  - #137: Consolidated process metrics into single process.atp metric
+  - #138: Enhanced state management security controls
+  - #139: Added support for zombie processes and fixed unmonitored metrics
+  - #140: Added CODEOWNERS for ATP
+  - #142: Removed LICENSING file and minor ATP fixes
+  - #145: Fixed stage names (inclusion reason) flow
+  - #146: Minor refactoring and fixes
+  - #153: Remove 'processor' suffix from component type
+  - #158: Support state file storage on windows
 
 # If your change doesn't affect end users or the exported elements of any package,
 # you should instead start your pull request title with [chore] or use the "Skip Changelog" label.
