@@ -17,7 +17,7 @@ jobs:
       issues: write # required for creating and managing issue labels
       pull-requests: write # required for creating and managing PR labels
     runs-on: ubuntu-24.04
-    if: ${{ github.repository_owner == 'open-telemetry' }}
+    if: ${{ github.repository_owner == 'newrelic' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 

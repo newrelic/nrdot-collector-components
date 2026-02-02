@@ -17,7 +17,7 @@ permissions: read-all
 jobs:
   analysis:
     name: Scorecard analysis
-    if: github.repository == 'open-telemetry/opentelemetry-collector-contrib'
+    if: github.repository == 'newrelic/nrdot-collector-components'
     runs-on: ubuntu-latest
     permissions:
       # Needed to upload the results to code-scanning dashboard.

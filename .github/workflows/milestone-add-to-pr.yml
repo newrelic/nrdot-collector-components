@@ -15,7 +15,7 @@ jobs:
   update-pr:
     permissions:
       pull-requests: write # required for adding milestone to PRs
-    if: github.event.pull_request.merged && github.repository_owner == 'open-telemetry'
+    if: github.event.pull_request.merged && github.repository_owner == 'newrelic'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
