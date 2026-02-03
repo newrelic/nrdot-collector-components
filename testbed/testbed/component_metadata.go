@@ -55,7 +55,7 @@ func (md *ComponentMetadata) GetTestConfigBody() (string, error) {
 	}
 	cfg, err := yaml.Marshal(data)
 	if err != nil {
-		return "", fmt.Errorf("marshaling metadata condif: %w", err)
+		return "", fmt.Errorf("marshaling metadata config: %w", err)
 	}
 	return string(cfg), nil
 }
