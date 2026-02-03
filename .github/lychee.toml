@@ -8,7 +8,13 @@ exclude  = [
     "^https://dev.mysql.com",
     "^https://bugs.mysql.com",
     "^https://techdocs.akamai.com",
-    "^https://www.vultr.com"
+    "^https://www.vultr.com",
+    # disabled
+    "^https://github.com/newrelic/nrdot-collector-components/discussions",
+    # private org links
+    "^https://www.github.com/newrelic/dbi",
+    "^https://www.github.com/newrelic/ohai"
+
 ]
 
 # better to be safe and avoid failures
