@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	Type      = component.MustNewType("adaptivetelemetryprocessor")
+	Type      = component.MustNewType("adaptivetelemetry")
 	ScopeName = "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 )
 

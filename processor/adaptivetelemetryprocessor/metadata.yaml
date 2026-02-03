@@ -1,4 +1,4 @@
-type: adaptivetelemetryprocessor
+type: adaptivetelemetry
 github_project: newrelic/nrdot-collector-components
 
 status:
