@@ -41,7 +41,7 @@ The Adaptive Telemetry Processor (ATP) is an intelligent metric filtering and ad
 
 ```yaml
 processors:
-  adaptivetelemetryprocessor:
+  adaptivetelemetry:
     # Storage is enabled by default and uses platform-specific paths:
     #   Linux: /var/lib/nrdot-collector/adaptiveprocess.db
     #   Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
@@ -83,7 +83,7 @@ processors:
 
 ```yaml
 processors:
-  adaptivetelemetryprocessor:
+  adaptivetelemetry:
     # Storage is enabled by default and uses platform-specific paths
     # Linux: /var/lib/nrdot-collector/adaptiveprocess.db
     # Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
@@ -215,7 +215,7 @@ receivers:
             enabled: true
 
 processors:
-  adaptivetelemetryprocessor:
+  adaptivetelemetry:
     # Storage uses default platform-specific path
     # Linux: /var/lib/nrdot-collector/adaptiveprocess.db
     # Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
@@ -276,15 +276,15 @@ service:
       receivers: [hostmetrics]
       processors:
         - memory_limiter
-        - adaptivetelemetryprocessor
+        - adaptivetelemetry
         - resourcedetection
         - batch
       exporters: [otlphttp]
-    
+
     metrics:
       receivers: [otlp]
       processors:
-        - adaptivetelemetryprocessor
+        - adaptivetelemetry
         - resourcedetection
         - batch
       exporters: [otlphttp]
@@ -312,7 +312,7 @@ data:
           process:
     
     processors:
-      adaptivetelemetryprocessor:
+      adaptivetelemetry:
         # Storage uses default path: /var/lib/nrdot-collector/adaptiveprocess.db
         # To disable storage, set: enable_storage: false
         retention_minutes: 30
@@ -342,7 +342,7 @@ data:
       pipelines:
         metrics:
           receivers: [hostmetrics]
-          processors: [adaptivetelemetryprocessor, resourcedetection, batch]
+          processors: [adaptivetelemetry, resourcedetection, batch]
           exporters: [otlphttp]
 ---
 apiVersion: apps/v1
