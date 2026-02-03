@@ -11,6 +11,8 @@ dist:
 
 extensions:
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.142.0
+  # Sandbox: This pprofextension is necessary for load tests to read performance.
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v0.144.0
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.142.0
