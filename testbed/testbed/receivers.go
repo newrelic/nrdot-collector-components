@@ -90,7 +90,11 @@ func (bor *BaseOTLPDataReceiver) Start(tc consumer.Traces, mc consumer.Metrics, 
 		if err := InsertDefault(&cfg.HTTP); err != nil {
 			return err
 		}
-		cfg.HTTP.Get().ServerConfig.Endpoint = fmt.Sprintf("127.0.0.1:%d", bor.Port)
+		/*
+			Sandbox: This package has a breaking change as of v0.144.0 (ServerConfig.Endpoint -> ServerConfig.NetAddr.Endpoint )
+			If we're going to use this testbed with select libraries from contrib, we'll need to update to v0.144.0.
+		*/
+		cfg.HTTP.Get().ServerConfig.NetAddr.Endpoint = fmt.Sprintf("127.0.0.1:%d", bor.Port)
 	}
 
 	var err error

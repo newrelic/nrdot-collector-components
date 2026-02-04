@@ -13,32 +13,37 @@ import (
 	"testing"
 	"time"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-collector-components/testbed/correctnesstests"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/otelcol"
 )
 
 type correctnessTestCase struct {
-	t         *testing.T
-	sender    testbed.DataSender
-	receiver  testbed.DataReceiver
-	harness   *testHarness
-	collector testbed.OtelcolRunner
+	t          *testing.T
+	sender     testbed.DataSender
+	receiver   testbed.DataReceiver
+	processors []correctnesstests.ProcessorNameAndConfigBody // Each "processors" array is the sum of processors within one collector.
+	harness    *testHarness
+	collector  testbed.OtelcolRunner
 }
 
+/*
+Sandbox: Try to add custom processors to correctness test case for testing
+*/
 func newCorrectnessTestCase(
 	t *testing.T,
 	sender testbed.DataSender,
 	receiver testbed.DataReceiver,
+	processors []correctnesstests.ProcessorNameAndConfigBody,
 	harness *testHarness,
 ) *correctnessTestCase {
-	return &correctnessTestCase{t: t, sender: sender, receiver: receiver, harness: harness}
+	return &correctnessTestCase{t: t, sender: sender, receiver: receiver, processors: processors, harness: harness}
 }
 
 func (tc *correctnessTestCase) startCollector() {
 	tc.collector = testbed.NewInProcessCollector(componentFactories(tc.t))
-	_, err := tc.collector.PrepareConfig(tc.t, correctnesstests.CreateConfigYaml(tc.t, tc.sender, tc.receiver, nil, nil))
+	_, err := tc.collector.PrepareConfig(tc.t, correctnesstests.CreateConfigYaml(tc.t, tc.sender, tc.receiver, nil, tc.processors))
 	require.NoError(tc.t, err)
 	rd, err := newResultsDir(tc.t.Name())
 	require.NoError(tc.t, err)

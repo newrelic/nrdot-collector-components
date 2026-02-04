@@ -11,10 +11,11 @@ package metrics
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/newrelic/nrdot-collector-components/testbed/correctnesstests"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
@@ -63,7 +64,27 @@ func testWithMetricsGoldenDataset(
 		sender,
 		accumulator,
 	)
-	tc := newCorrectnessTestCase(t, sender, receiver, h)
+
+	/*
+		Sandbox: Pull in custom component, dynamically extract config from test metadata, see traces output
+	*/
+	atpMetadata := testbed.NewComponentMetadata("processor/adaptivetelemetryprocessor")
+
+	atpConfig, err := atpMetadata.GetTestConfigBody()
+	if err != nil {
+		return handleTestError(err, t)
+	}
+
+	fmt.Println(atpConfig)
+
+	processors := []correctnesstests.ProcessorNameAndConfigBody{
+		{
+			Name: atpMetadata.GetFullComponentName(),
+			Body: atpConfig,
+		},
+	}
+
+	tc := newCorrectnessTestCase(t, sender, receiver, processors, h)
 
 	tc.startTestbedReceiver()
 	tc.startCollector()
@@ -85,6 +106,16 @@ func testWithMetricsGoldenDataset(
 		t.Fail()
 	}
 	return r
+}
+
+func handleTestError(err error, t *testing.T) result {
+	fmt.Fprint(os.Stderr, err)
+	t.Fail()
+	return result{
+		testName:   t.Name(),
+		testResult: "FAIL",
+		numDiffs:   0,
+	}
 }
 
 func getTestMetrics(t *testing.T) []pmetric.Metrics {

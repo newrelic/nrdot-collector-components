@@ -36,6 +36,14 @@ Distributed under the following license(s):
 
 
 
+## [github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor](https://github.com/newrelic/nrdot-collector-components)
+
+Distributed under the following license(s):
+
+* Apache-2.0
+
+
+
 ## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils](https://github.com/open-telemetry/opentelemetry-collector-contrib)
 
 Distributed under the following license(s):
@@ -345,6 +353,14 @@ Distributed under the following license(s):
 Distributed under the following license(s):
 
 * Apache-2.0
+
+
+
+## [gopkg.in/yaml.v3](https://gopkg.in/yaml.v3)
+
+Distributed under the following license(s):
+
+* MIT
 
 
 

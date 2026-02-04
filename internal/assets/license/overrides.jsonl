@@ -4,3 +4,4 @@
 {"name": "github.com/newrelic/nrdot-collector-components/cmd/nrlicense", "licenceType": "Apache-2.0"}
 {"name": "github.com/newrelic/nrdot-collector-components/exporter/nopexporter", "licenceType": "Apache-2.0"}
 {"name": "github.com/newrelic/nrdot-collector-components/receiver/nopreceiver", "licenceType": "Apache-2.0"}
+{"name": "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor", "licenceType": "Apache-2.0"}

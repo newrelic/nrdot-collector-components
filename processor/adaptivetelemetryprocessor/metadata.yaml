@@ -1,4 +1,4 @@
-type: adaptivetelemetryprocessor
+type: adaptivetelemetry
 github_project: newrelic/nrdot-collector-components
 
 status:
@@ -9,4 +9,21 @@ status:
   distributions: [nrdot]
   codeowners:
     active: [newrelic/dbi, newrelic/ohai]
-
+test: # Sandbox: I grabbed this from the readme doc. I imagine actual tests may want simplified values.
+  config:
+    storage_path: "/var/lib/nrdot-collector/adaptiveprocess.db"
+    retention_minutes: 30
+    include_process_list:
+      - "/usr/sbin/nginx"
+      - "/usr/bin/java"
+      - "/usr/bin/postgres"
+    metric_thresholds:
+      system.cpu.utilization: 0.05
+      system.cpu.time: 5.0
+      system.memory.utilization: 0.05
+      system.memory.usage: 104857600
+      process.cpu.utilization: 0.05
+      process.memory.usage: 104857600
+      system.disk.io: 1048576
+      system.filesystem.utilization: 0.05
+      system.network.io: 1048576 
