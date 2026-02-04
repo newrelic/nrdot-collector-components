@@ -14,6 +14,11 @@ import (
 )
 
 func TestValidateStoragePath_ValidPaths(t *testing.T) {
+	// Skip on Windows as these tests use Unix-style absolute paths
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping Unix path validation tests on Windows")
+	}
+
 	tests := []struct {
 		name        string
 		storagePath string
@@ -45,6 +50,11 @@ func TestValidateStoragePath_ValidPaths(t *testing.T) {
 }
 
 func TestValidateStoragePath_InvalidPaths(t *testing.T) {
+	// Skip on Windows as these tests use Unix-style absolute paths
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping Unix path validation tests on Windows")
+	}
+
 	tests := []struct {
 		name          string
 		storagePath   string
@@ -190,11 +200,21 @@ func TestCheckPathForSymlinks(t *testing.T) {
 }
 
 func TestGetAllowedStorageDirectory(t *testing.T) {
+	// Skip on Windows as this tests Unix-specific directory path
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping Unix directory path test on Windows")
+	}
+
 	allowedDir := getAllowedStorageDirectory()
 	assert.Equal(t, "/var/lib/nrdot-collector/", allowedDir)
 }
 
 func TestConfigValidation_StoragePath(t *testing.T) {
+	// Skip on Windows as these tests use Unix-style absolute paths
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping Unix path validation tests on Windows")
+	}
+
 	tests := []struct {
 		name        string
 		config      *Config
@@ -302,6 +322,11 @@ func TestSymlinkAttackPrevention(t *testing.T) {
 }
 
 func TestPathTraversalPrevention(t *testing.T) {
+	// Skip on Windows as this tests Unix-style path traversal
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping Unix path traversal test on Windows")
+	}
+
 	// Test that path traversal is prevented by filepath.Clean
 	traversalPath := "/var/lib/nrdot-collector/../../etc/passwd"
 
@@ -311,6 +336,11 @@ func TestPathTraversalPrevention(t *testing.T) {
 }
 
 func TestPathValidation_EdgeCases(t *testing.T) {
+	// Skip on Windows as these tests use Unix-style absolute paths
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping Unix path validation tests on Windows")
+	}
+
 	tests := []struct {
 		name          string
 		storagePath   string
