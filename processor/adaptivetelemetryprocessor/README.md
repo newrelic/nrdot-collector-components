@@ -686,6 +686,9 @@ service:
 
 ### Common Issues
 
+#### Issue: Collector does not start on windows
+The processor is not yet compatible with Windows, we are still working on this.
+
 #### Issue: No telemetry passing through processor
 
 **Symptoms**: All telemetry is being dropped
@@ -809,7 +812,6 @@ include_process_list:
 - Always use absolute paths with full directory structure
 - Verify executable paths using `which <command>` or `readlink -f /proc/<pid>/exe`
 - Use Unix paths on Linux/macOS: `/usr/sbin/nginx`
-- Use Windows paths on Windows: `C:\Program Files\nginx\nginx.exe`
 
 
 ## Contributing
