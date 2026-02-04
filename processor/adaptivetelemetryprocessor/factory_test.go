@@ -15,6 +15,8 @@ import (
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/processor"
 	"go.uber.org/zap/zaptest"
+
+	"github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor/internal/metadata"
 )
 
 // mockMetricsConsumer implements consumer.Metrics for testing
@@ -41,7 +43,7 @@ func (m *mockMetricsConsumer) ConsumeMetrics(_ context.Context, md pmetric.Metri
 
 func TestNewFactory(t *testing.T) {
 	factory := NewFactory()
-	assert.Equal(t, component.MustNewType(typeStr), factory.Type())
+	assert.Equal(t, metadata.Type, factory.Type())
 }
 
 func TestCreateDefaultConfig(t *testing.T) {

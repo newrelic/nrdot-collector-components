@@ -10,10 +10,11 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/processor"
+
+	"github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor/internal/metadata"
 )
 
 const (
-	typeStr = "adaptivetelemetryprocessor"
 	// Constants needed for default config
 	// SECURITY: Storage path restricted to /var/lib/nrdot-collector/ for security
 	factoryDefaultStoragePath        = "/var/lib/nrdot-collector/adaptiveprocess.db"
@@ -23,9 +24,9 @@ const (
 // NewFactory creates the processor.Factory used by the Collector to construct this processor.
 func NewFactory() processor.Factory {
 	return processor.NewFactory(
-		component.MustNewType(typeStr),
+		metadata.Type,
 		createDefaultConfig,
-		processor.WithMetrics(createMetricsProcessor, component.StabilityLevelBeta),
+		processor.WithMetrics(createMetricsProcessor, metadata.MetricsStability),
 	)
 }
 
