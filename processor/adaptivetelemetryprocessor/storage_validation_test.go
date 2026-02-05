@@ -361,7 +361,7 @@ func TestGetAllowedStorageDirectory(t *testing.T) {
 		// On Windows, should return %LOCALAPPDATA%\nrdot-collector\
 		assert.Contains(t, allowedDir, "nrdot-collector")
 		assert.True(t, filepath.IsAbs(allowedDir), "Windows path should be absolute")
-		assert.True(t, len(allowedDir) > 0, "Windows path should not be empty")
+		assert.NotEmpty(t, allowedDir, "Windows path should not be empty")
 	} else {
 		// On Linux/Unix, should return /var/lib/nrdot-collector/
 		assert.Equal(t, "/var/lib/nrdot-collector/", allowedDir)

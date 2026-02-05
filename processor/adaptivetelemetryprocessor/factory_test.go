@@ -51,7 +51,7 @@ func TestCreateDefaultConfig(t *testing.T) {
 	assert.IsType(t, &Config{}, cfg)
 
 	config := cfg.(*Config)
-	assert.Equal(t, factoryDefaultStoragePath, config.StoragePath)
+	assert.Equal(t, getDefaultStoragePath(), config.StoragePath)
 	assert.Equal(t, factoryDefaultCompositeThreshold, config.CompositeThreshold)
 	assert.Equal(t, map[string]float64{}, config.MetricThresholds)
 	assert.Equal(t, map[string]float64{}, config.Weights)
