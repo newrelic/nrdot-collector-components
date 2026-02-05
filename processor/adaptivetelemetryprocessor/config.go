@@ -51,11 +51,14 @@ import (
 //
 //     # Retention & persistence
 //     retention_minutes: 30               # how long since last exceed to keep entity (capped)
-//     storage_path: /var/lib/nrdot-collector/adaptiveprocess.db
-//     # SECURITY: storage_path must be under /var/lib/nrdot-collector/
-//     # - Only absolute paths under this directory are allowed
+//     storage_path: /var/lib/nrdot-collector/adaptiveprocess.db  # Linux example
+//     # storage_path: C:\Users\username\AppData\Local\nrdot-collector\adaptiveprocess.db  # Windows example
+//     # SECURITY: storage_path must be under platform-specific allowed directory:
+//     #   - Linux/Unix: /var/lib/nrdot-collector/
+//     #   - Windows: %LOCALAPPDATA%\nrdot-collector\ (e.g., C:\Users\<user>\AppData\Local\nrdot-collector\)
+//     # - Only absolute paths under the allowed directory are accepted
 //     # - Symlinks in the path are rejected to prevent redirection attacks
-//     # - Follows Linux Filesystem Hierarchy Standard for application state data
+//     # - Path traversal attempts (.. escapes) are blocked
 //
 // Example pipeline wiring:
 // service:
