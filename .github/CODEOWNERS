@@ -25,6 +25,7 @@ internal/common/                      @newrelic/otelcomm
 internal/coreinternal/                @newrelic/otelcomm
 internal/tools/                       @newrelic/otelcomm
 processor/adaptivetelemetryprocessor/ @newrelic/otelcomm @newrelic/dbi @newrelic/ohai
+receiver/newrelicoraclereceiver/      @newrelic/otelcomm @newrelic/dbi
 receiver/nopreceiver/                 @newrelic/otelcomm
 testbed/                              @newrelic/otelcomm
 
