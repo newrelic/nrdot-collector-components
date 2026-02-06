@@ -13,10 +13,7 @@ import (
 )
 
 const (
-	typeStr = "adaptivetelemetryprocessor"
-	// Constants needed for default config
-	// SECURITY: Storage path restricted to /var/lib/nrdot-collector/ for security
-	factoryDefaultStoragePath        = "/var/lib/nrdot-collector/adaptiveprocess.db"
+	typeStr                          = "adaptivetelemetryprocessor"
 	factoryDefaultCompositeThreshold = 1.5
 )
 
@@ -35,7 +32,6 @@ func createDefaultConfig() component.Config {
 		MetricThresholds:        map[string]float64{},
 		Weights:                 map[string]float64{},
 		RetentionMinutes:        30,
-		StoragePath:             factoryDefaultStoragePath,
 		EnableDynamicThresholds: false,
 		EnableMultiMetric:       false,
 		DynamicSmoothingFactor:  0.2,
@@ -45,6 +41,8 @@ func createDefaultConfig() component.Config {
 		EnableAnomalyDetection:  false,
 		AnomalyHistorySize:      10,
 		AnomalyChangeThreshold:  200.0,
+		// EnableStorage defaults to nil, which means true (storage enabled)
+		// Storage path is determined at runtime based on platform
 	}
 }
 

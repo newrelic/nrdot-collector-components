@@ -51,11 +51,12 @@ import (
 //
 //     # Retention & persistence
 //     retention_minutes: 30               # how long since last exceed to keep entity (capped)
-//     storage_path: /var/lib/nrdot-collector/adaptiveprocess.db
-//     # SECURITY: storage_path must be under /var/lib/nrdot-collector/
-//     # - Only absolute paths under this directory are allowed
-//     # - Symlinks in the path are rejected to prevent redirection attacks
-//     # - Follows Linux Filesystem Hierarchy Standard for application state data
+//     enable_storage: true                # Enable/disable state persistence (defaults to true)
+//     # Storage path is automatically determined based on platform:
+//     #   - Linux/Unix: /var/lib/nrdot-collector/adaptiveprocess.db
+//     #   - Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
+//     # The directory will be created automatically if it doesn't exist.
+//     # If storage creation fails, the processor will continue without persistence.
 //
 // Example pipeline wiring:
 // service:
@@ -73,9 +74,8 @@ type Config struct {
 	MetricThresholds map[string]float64 `mapstructure:"metric_thresholds"`
 
 	// Common settings
-	RetentionMinutes int64  `mapstructure:"retention_minutes"`
-	StoragePath      string `mapstructure:"storage_path"`
-	EnableStorage    *bool  `mapstructure:"enable_storage"`
+	RetentionMinutes int64 `mapstructure:"retention_minutes"`
+	EnableStorage    *bool `mapstructure:"enable_storage"`
 
 	// Dynamic thresholds
 	EnableDynamicThresholds bool               `mapstructure:"enable_dynamic_thresholds"`
@@ -218,14 +218,8 @@ func (cfg *Config) Validate() error {
 		return fmt.Errorf("composite_threshold must be > 0, got %f", cfg.CompositeThreshold)
 	}
 
-	// Validate storage path if persistence is enabled
-	if cfg.EnableStorage == nil || *cfg.EnableStorage {
-		if cfg.StoragePath != "" {
-			if err := validateStoragePath(cfg.StoragePath, nil); err != nil {
-				return fmt.Errorf("invalid storage_path: %w", err)
-			}
-		}
-	}
+	// No storage path validation needed - we always use default platform-specific paths
+	// Storage is controlled via EnableStorage flag only
 
 	return nil
 }

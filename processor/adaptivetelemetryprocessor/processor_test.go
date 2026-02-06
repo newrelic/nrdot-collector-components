@@ -4,7 +4,6 @@
 package adaptivetelemetryprocessor
 
 import (
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -17,7 +16,6 @@ import (
 )
 
 func TestNewProcessor(t *testing.T) {
-	tmpDir := t.TempDir()
 	logger := zaptest.NewLogger(t)
 	nextConsumer := consumertest.NewNop()
 
@@ -32,9 +30,8 @@ func TestNewProcessor(t *testing.T) {
 				MetricThresholds: map[string]float64{
 					"process.cpu.utilization": 5.0,
 				},
-				StoragePath:      filepath.Join(tmpDir, "valid.db"),
 				RetentionMinutes: 20,
-				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using temp dir
+				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 			},
 		},
 		{
@@ -44,9 +41,8 @@ func TestNewProcessor(t *testing.T) {
 					"process.cpu.utilization":    5.0,
 					"process.memory.utilization": 10.0,
 				},
-				StoragePath:             filepath.Join(tmpDir, "features.db"),
 				RetentionMinutes:        20,
-				EnableStorage:           func() *bool { b := false; return &b }(), // Disable storage for test using temp dir
+				EnableStorage:           func() *bool { b := false; return &b }(), // Disable storage for test
 				EnableDynamicThresholds: true,
 				DynamicSmoothingFactor:  0.3,
 				MinThresholds: map[string]float64{
@@ -78,7 +74,6 @@ func TestNewProcessor(t *testing.T) {
 		{
 			name: "Storage disabled",
 			config: &Config{
-				StoragePath:      filepath.Join(tmpDir, "disabled.db"),
 				EnableStorage:    func() *bool { b := false; return &b }(),
 				RetentionMinutes: 20,
 			},
@@ -107,8 +102,6 @@ func TestNewProcessor(t *testing.T) {
 				// Test storage setting
 				if tc.config.EnableStorage != nil && !*tc.config.EnableStorage {
 					assert.False(t, proc.persistenceEnabled)
-				} else if tc.config.StoragePath != "" {
-					assert.True(t, proc.persistenceEnabled)
 				}
 
 				// Verify feature flags
@@ -124,18 +117,15 @@ func TestNewProcessor(t *testing.T) {
 }
 
 func TestProcessorStartShutdownWithStorage(t *testing.T) {
-	// Skip this test because storage path validation now requires paths under /var/lib/nrdot-collector/
-	// This test uses temp directories which are not allowed by the security restrictions
-	t.Skip("Storage path validation requires /var/lib/nrdot-collector/ - cannot use temp directory")
+	// Skip this test - storage now uses default platform paths, not temp directories
+	t.Skip("Storage now uses default platform-specific paths")
 
-	tmpDir := t.TempDir()
-	storagePath := filepath.Join(tmpDir, "processor.db")
 	logger := zaptest.NewLogger(t)
 	nextConsumer := consumertest.NewNop()
 
 	config := &Config{
-		StoragePath:      storagePath,
 		RetentionMinutes: 10,
+		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for this test
 	}
 
 	proc, err := newProcessor(logger, config, nextConsumer)

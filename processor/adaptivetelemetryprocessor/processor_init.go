@@ -24,8 +24,14 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 	// Check if storage is enabled (defaults to true if not specified)
 	storageEnabled := true
 	if config.EnableStorage != nil {
+		logger.Info("DEBUG: EnableStorage config field is set", zap.Bool("value", *config.EnableStorage))
 		storageEnabled = *config.EnableStorage
+	} else {
+		logger.Info("DEBUG: EnableStorage config field is nil, using default", zap.Bool("default", true))
 	}
+
+	// Use default storage path based on platform
+	storagePath := getDefaultStoragePath()
 
 	logger.Info("Initializing adaptivetelemetryprocessor",
 		zap.Int("metric_thresholds_count", len(config.MetricThresholds)),
@@ -36,10 +42,7 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 		zap.Int64("retention_minutes", config.RetentionMinutes),
 		zap.Float64("composite_threshold", config.CompositeThreshold),
 		zap.Float64("anomaly_change_threshold", config.AnomalyChangeThreshold),
-		zap.Bool("storage_enabled", storageEnabled),
-		zap.Bool("persistence_enabled", storageEnabled && config.StoragePath != ""),
-		zap.String("storage_path", config.StoragePath),
-		zap.Int64("retention_minutes", config.RetentionMinutes))
+		zap.String("storage_path", storagePath))
 
 	logger.Info("Resource agnostic processing enabled",
 		zap.String("supported_resources", "cpu, disk, filesystem, load, memory, network, process, processes, paging"))
@@ -49,7 +52,7 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 		config:                   config,
 		nextConsumer:             nextConsumer,
 		trackedEntities:          make(map[string]*trackedEntity),
-		persistenceEnabled:       storageEnabled && config.StoragePath != "",
+		persistenceEnabled:       storageEnabled,
 		dynamicThresholdsEnabled: config.EnableDynamicThresholds,
 		multiMetricEnabled:       config.EnableMultiMetric,
 		lastThresholdUpdate:      time.Now(),
@@ -75,15 +78,19 @@ func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metr
 	}
 
 	if p.persistenceEnabled {
-		logger.Debug("Setting up persistent storage", zap.String("path", config.StoragePath))
-		storageDir := filepath.Dir(config.StoragePath)
+		logger.Info("Setting up persistent storage", zap.String("path", storagePath))
+		storageDir := filepath.Dir(storagePath)
 		if err := createDirectoryIfNotExists(storageDir); err != nil {
-			logger.Warn("Failed to create storage directory", zap.String("path", storageDir), zap.Error(err))
+			logger.Warn("Failed to create storage directory, continuing without persistence",
+				zap.String("path", storageDir),
+				zap.Error(err))
 			p.persistenceEnabled = false
 		} else {
-			p.storage = newFileStorage(config.StoragePath)
+			p.storage = newFileStorage(storagePath)
 			if err := p.loadTrackedEntities(); err != nil {
-				logger.Warn("Failed to load tracked entities", zap.Error(err))
+				logger.Warn("Failed to load tracked entities, starting with empty state",
+					zap.Error(err))
+				// Continue without loaded state - don't disable persistence for future saves
 			}
 		}
 	}
