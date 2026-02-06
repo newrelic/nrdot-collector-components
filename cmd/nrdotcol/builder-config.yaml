@@ -26,6 +26,7 @@ processors:
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.142.0
+  - gomod: github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver v0.142.1
   - gomod: github.com/newrelic/nrdot-collector-components/receiver/nopreceiver v0.142.1
 
 connectors:
