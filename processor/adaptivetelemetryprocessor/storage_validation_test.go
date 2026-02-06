@@ -681,7 +681,7 @@ func TestPermissionErrorHandling(t *testing.T) {
 
 	// Create a file inside it
 	testFile := filepath.Join(restrictedDir, "test.db")
-	err = os.WriteFile(testFile, []byte("test"), 0o644)
+	err = os.WriteFile(testFile, []byte("test"), 0o600)
 	require.NoError(t, err)
 
 	// Make the directory unreadable (no execute permission means we can't access contents)

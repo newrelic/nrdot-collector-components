@@ -23,10 +23,10 @@ type EntityStateStorage interface {
 }
 
 type fileStorage struct {
-	filePath        string
-	mu              sync.Mutex
-	allowedBaseDir  string // Base directory for symlink validation, empty means use default
-	skipValidation  bool   // For testing only - skips symlink validation
+	filePath       string
+	mu             sync.Mutex
+	allowedBaseDir string // Base directory for symlink validation, empty means use default
+	skipValidation bool   // For testing only - skips symlink validation
 }
 
 func newFileStorage(filePath string) *fileStorage {
@@ -38,7 +38,7 @@ func newFileStorage(filePath string) *fileStorage {
 
 // newFileStorageForTesting creates a file storage for testing with custom validation base directory
 // This should only be used in tests
-func newFileStorageForTesting(filePath string, allowedBaseDir string) *fileStorage {
+func newFileStorageForTesting(filePath, allowedBaseDir string) *fileStorage {
 	return &fileStorage{
 		filePath:       filePath,
 		allowedBaseDir: allowedBaseDir,
@@ -235,6 +235,13 @@ func checkPathForSymlinks(path, baseDir string) error {
 		// Check if it's a symlink
 		if info.Mode()&os.ModeSymlink != 0 {
 			return fmt.Errorf("path component %q is a symlink", currentPath)
+		}
+
+		// On Windows, also check for junctions and mount points which are not detected by os.ModeSymlink
+		if runtime.GOOS == "windows" {
+			if isWindowsReparsePoint(currentPath, info) {
+				return fmt.Errorf("path component %q is a Windows reparse point (junction/mount point)", currentPath)
+			}
 		}
 	}
 
