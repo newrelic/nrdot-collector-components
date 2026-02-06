@@ -11,10 +11,10 @@ components:
     - cmd/codecovgen
     - cmd/nrdotcol
     - cmd/oteltestbedcol
-    - exporter/nopexporter
+    - exporter/nop
     - internal/common
     - internal/coreinternal
     - internal/tools
     - processor/adaptivetelemetryprocessor
-    - receiver/nopreceiver
+    - receiver/nop
     - testbed
