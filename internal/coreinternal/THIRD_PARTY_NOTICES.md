@@ -12,55 +12,7 @@ can be found at https://github.com/newrelic/nrdot-collector-components.
 
 
 
-## [github.com/cenkalti/backoff/v4](https://github.com/cenkalti/backoff)
-
-Distributed under the following license(s):
-
-* MIT
-
-
-
-## [github.com/docker/go-connections](https://github.com/docker/go-connections)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [github.com/elastic/lunes](https://github.com/elastic/lunes)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/stretchr/testify](https://github.com/stretchr/testify)
-
-Distributed under the following license(s):
-
-* MIT
-
-
-
-## [github.com/testcontainers/testcontainers-go](https://github.com/testcontainers/testcontainers-go)
 
 Distributed under the following license(s):
 
@@ -185,14 +137,6 @@ Distributed under the following license(s):
 Distributed under the following license(s):
 
 * MIT
-
-
-
-## [golang.org/x/text](https://golang.org/x/text)
-
-Distributed under the following license(s):
-
-* BSD-3-Clause
 
 
 

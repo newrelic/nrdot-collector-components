@@ -12,14 +12,6 @@ can be found at https://github.com/newrelic/nrdot-collector-components.
 
 
 
-## [github.com/fluent/fluent-logger-golang](https://github.com/fluent/fluent-logger-golang)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/newrelic/nrdot-collector-components/internal/common](https://github.com/newrelic/nrdot-collector-components)
 
 Distributed under the following license(s):
@@ -36,23 +28,7 @@ Distributed under the following license(s):
 
 
 
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [github.com/open-telemetry/opentelemetry-collector-contrib/testbed](https://github.com/open-telemetry/opentelemetry-collector-contrib)
 
 Distributed under the following license(s):
 

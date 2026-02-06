@@ -12,14 +12,6 @@ can be found at https://github.com/newrelic/nrdot-collector-components.
 
 
 
-## [github.com/distribution/reference](https://github.com/distribution/reference)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/stretchr/testify](https://github.com/stretchr/testify)
 
 Distributed under the following license(s):
@@ -37,14 +29,6 @@ Distributed under the following license(s):
 
 
 ## [go.uber.org/goleak](https://go.uber.org/goleak)
-
-Distributed under the following license(s):
-
-* MIT
-
-
-
-## [go.uber.org/zap](https://go.uber.org/zap)
 
 Distributed under the following license(s):
 
