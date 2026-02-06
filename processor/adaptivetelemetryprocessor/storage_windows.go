@@ -22,10 +22,9 @@ import (
 //
 // We need to check the FILE_ATTRIBUTE_REPARSE_POINT flag to detect these.
 func isWindowsReparsePoint(path string, info os.FileInfo) bool {
-	// Only check directories as junctions and mount points are directory-based
-	if !info.IsDir() {
-		return false
-	}
+	// Note: We don't check info.IsDir() first because junctions may not appear as
+	// regular directories via os.Lstat(). Instead, we always check the reparse point
+	// attribute directly from Windows syscalls for any path that exists.
 
 	// Get the raw syscall.Win32FileAttributeData to check the attributes
 	// We need to use syscall package to access Windows-specific file attributes

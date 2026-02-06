@@ -47,7 +47,8 @@ func TestWindowsReparsePoint_Junction(t *testing.T) {
 	// Verify the junction was created
 	info, err := os.Lstat(junctionDir)
 	require.NoError(t, err)
-	require.True(t, info.IsDir(), "Junction should appear as a directory")
+	// Note: On Windows, junctions may not always appear as regular directories via os.Lstat()
+	// The important thing is that they exist and can be detected as reparse points
 
 	// Test that isWindowsReparsePoint detects the junction
 	isReparse := isWindowsReparsePoint(junctionDir, info)
@@ -139,7 +140,7 @@ func TestWindowsReparsePoint_NormalFile(t *testing.T) {
 	require.False(t, info.IsDir(), "Should be a file, not a directory")
 
 	// Test that isWindowsReparsePoint does NOT flag normal files
-	// (it should return false for non-directories)
+	// (normal files don't have the FILE_ATTRIBUTE_REPARSE_POINT attribute)
 	isReparse := isWindowsReparsePoint(testFile, info)
 	assert.False(t, isReparse, "Normal file should NOT be detected as a reparse point")
 
@@ -191,7 +192,7 @@ func TestWindowsReparsePoint_SaveWithJunctionProtection(t *testing.T) {
 	}
 
 	err = storage.Save(testData)
-	assert.Error(t, err, "Save should fail when path goes through a junction")
+	require.Error(t, err, "Save should fail when path goes through a junction")
 	assert.Contains(t, err.Error(), "reparse point", "Error should mention reparse point detection")
 
 	// Verify that no file was written to the target directory
