@@ -93,7 +93,7 @@ func TestWindowsReparsePoint_SymbolicLink(t *testing.T) {
 	err = checkPathForSymlinks(testFile, baseDir)
 	assert.Error(t, err, "checkPathForSymlinks should detect symbolic link")
 	// Error message might be "symlink" or "reparse point" depending on which check triggers first
-	assert.NotEqual(t, "", err.Error(), "Error message should not be empty")
+	assert.NotEmpty(t, err.Error(), "Error message should not be empty")
 }
 
 // TestWindowsReparsePoint_NormalDirectory tests that normal directories are not flagged
