@@ -6,7 +6,7 @@
 | Stability     | [alpha]: metrics   |
 | Distributions | [nrdot] |
 | Issues        | [![Open issues](https://img.shields.io/github/issues-search/newrelic/nrdot-collector-components?query=is%3Aissue%20is%3Aopen%20label%3Aprocessor%2Fadaptivetelemetry%20&label=open&color=orange&logo=opentelemetry)](https://github.com/newrelic/nrdot-collector-components/issues?q=is%3Aopen+is%3Aissue+label%3Aprocessor%2Fadaptivetelemetry) [![Closed issues](https://img.shields.io/github/issues-search/newrelic/nrdot-collector-components?query=is%3Aissue%20is%3Aclosed%20label%3Aprocessor%2Fadaptivetelemetry%20&label=closed&color=blue&logo=opentelemetry)](https://github.com/newrelic/nrdot-collector-components/issues?q=is%3Aclosed+is%3Aissue+label%3Aprocessor%2Fadaptivetelemetry) |
-| [Code Owners](https://github.com/newrelic/nrdot-collector-components/blob/main/CONTRIBUTING.md)    | [@newrelic/dbi](https://www.github.com/newrelic/dbi), [@newrelic/ohai](https://www.github.com/newrelic/ohai) |
+| [Code Owners](https://github.com/newrelic/nrdot-collector-components/blob/main/CONTRIBUTING.md)    | [@newrelic/dbi](https://github.com/newrelic/dbi), [@newrelic/ohai](https://github.com/newrelic/ohai) |
 
 [alpha]: https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/component-stability.md#alpha
 [nrdot]: https://github.com/newrelic/nrdot-collector-releases
@@ -834,7 +834,6 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for general contribution guidelines
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/newrelic/nrdot-collector-components/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/newrelic/nrdot-collector-components/discussions)
 - **Security Issues**: Report to security@newrelic.com
 - **Documentation**: [New Relic Docs](https://docs.newrelic.com/docs/more-integrations/open-source-telemetry-integrations/opentelemetry/opentelemetry-introduction/)
 

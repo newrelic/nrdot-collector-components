@@ -3,7 +3,7 @@
 
 //go:build windows
 
-package adaptivetelemetryprocessor
+package adaptivetelemetryprocessor // import "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 
 import (
 	"os"
@@ -42,8 +42,8 @@ func isWindowsReparsePoint(path string, info os.FileInfo) bool {
 		return true
 	}
 
-	// FILE_ATTRIBUTE_REPARSE_POINT = 0x400
+	// fileAttributeReparsePoint = 0x400
 	// This flag is set for junctions, mount points, and symbolic links
-	const FILE_ATTRIBUTE_REPARSE_POINT = 0x400
-	return (data.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0
+	const fileAttributeReparsePoint = 0x400
+	return (data.FileAttributes & fileAttributeReparsePoint) != 0
 }
