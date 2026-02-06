@@ -118,7 +118,7 @@ func TestPersistTrackedEntities(t *testing.T) {
 			storage := tc.setupStorage()
 			proc := &processorImp{
 				logger:             logger,
-				config:             &Config{StoragePath: "/tmp/test_data/test.db"},
+				config:             &Config{},
 				trackedEntities:    tc.setupEntities(),
 				persistenceEnabled: storage != nil,
 				storage:            storage,
@@ -205,7 +205,7 @@ func TestLoadTrackedEntities(t *testing.T) {
 			storage := tc.setupStorage()
 			proc := &processorImp{
 				logger:             logger,
-				config:             &Config{StoragePath: "/tmp/test_data/test.db"},
+				config:             &Config{},
 				trackedEntities:    make(map[string]*trackedEntity),
 				persistenceEnabled: storage != nil,
 				storage:            storage,
@@ -341,7 +341,7 @@ func TestShutdown(t *testing.T) {
 			storage := tc.setupStorage()
 			proc := &processorImp{
 				logger:             logger,
-				config:             &Config{StoragePath: "/tmp/test_data/test.db"},
+				config:             &Config{},
 				trackedEntities:    map[string]*trackedEntity{"entity1": {Identity: "entity1"}},
 				persistenceEnabled: tc.persistenceEnabled,
 				storage:            storage,

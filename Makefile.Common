@@ -230,7 +230,8 @@ addthirdparty: $(LICENSE_DETECTOR)
 checklicense: $(NRLICENSE) addthirdparty
 	@echo "Checking third party notices..."
 	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q "THIRD_PARTY_NOTICES.md" && { \
-		 echo "Third party notices out of date, please run \"make addlicense\" and commit the changes in this PR."; exit 1; \
+		 echo "Third party notices out of date, please run \"make addlicense\" and commit the changes in this PR."; \
+		git --no-pager diff; exit 1; \
 	} || exit 0
 	@echo "Checking license headers with nrlicense..."
 	@$(NRLICENSE) --check --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
