@@ -12,3 +12,27 @@ can be found at https://github.com/newrelic/nrdot-collector-components.
 
 
 
+## [github.com/bmatcuk/doublestar/v4](https://github.com/bmatcuk/doublestar)
+
+Distributed under the following license(s):
+
+* MIT
+
+
+
+## [go.yaml.in/yaml/v3](https://go.yaml.in/yaml/v3)
+
+Distributed under the following license(s):
+
+* MIT
+
+
+
+## [golang.org/x/mod](https://golang.org/x/mod)
+
+Distributed under the following license(s):
+
+* BSD-3-Clause
+
+
+
