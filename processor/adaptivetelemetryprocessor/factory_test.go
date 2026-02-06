@@ -51,7 +51,6 @@ func TestCreateDefaultConfig(t *testing.T) {
 	assert.IsType(t, &Config{}, cfg)
 
 	config := cfg.(*Config)
-	assert.Equal(t, getDefaultStoragePath(), config.StoragePath)
 	assert.Equal(t, factoryDefaultCompositeThreshold, config.CompositeThreshold)
 	assert.Equal(t, map[string]float64{}, config.MetricThresholds)
 	assert.Equal(t, map[string]float64{}, config.Weights)
@@ -79,9 +78,8 @@ func TestCreateProcessor(t *testing.T) {
 			name: "Valid config",
 			config: &Config{
 				MetricThresholds: map[string]float64{},
-				StoragePath:      "./test_data/test.db",
 				RetentionMinutes: 30,
-				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
+				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 			},
 			errorExpected: false,
 		},
@@ -91,9 +89,8 @@ func TestCreateProcessor(t *testing.T) {
 				MetricThresholds: map[string]float64{
 					"process.cpu.utilization": 5.0,
 				},
-				StoragePath:      "./test_data/test.db",
 				RetentionMinutes: 20,
-				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
+				EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 			},
 			errorExpected: false,
 		},
@@ -130,9 +127,8 @@ func TestCapabilities(t *testing.T) {
 
 	config := &Config{
 		MetricThresholds: map[string]float64{},
-		StoragePath:      "./test_data/test.db",
 		RetentionMinutes: 30,
-		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
+		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 	}
 
 	proc, err := newProcessor(logger, config, mockConsumer)
@@ -148,9 +144,8 @@ func TestStartShutdown(t *testing.T) {
 
 	config := &Config{
 		MetricThresholds: map[string]float64{},
-		StoragePath:      "./test_data/test.db",
 		RetentionMinutes: 30,
-		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test using relative path
+		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 	}
 
 	proc, err := newProcessor(logger, config, mockConsumer)

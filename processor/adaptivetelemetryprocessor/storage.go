@@ -140,10 +140,11 @@ func getDefaultStoragePath() string {
 // Security checks performed:
 // 1. Path must be under the allowed directory (Linux: /var/lib/nrdot-collector/, Windows: %LOCALAPPDATA%\nrdot-collector\)
 // 2. No component in the path can be a symlink (prevents redirection attacks)
-// 3. Path traversal is prevented (no .. escapes)
+// 3. No component in the path can be a Windows reparse point/junction (prevents redirection attacks on Windows)
+// 4. Path traversal is prevented (no .. escapes)
 //
 // Parameters:
-// - storagePath: The configured storage path to validate
+// - storagePath: The default platform-specific storage path to validate
 // - additionalAllowedDirs: Ignored - only platform-specific directory is allowed
 //
 // Returns an error if validation fails, nil otherwise.

@@ -32,7 +32,6 @@ func createDefaultConfig() component.Config {
 		MetricThresholds:        map[string]float64{},
 		Weights:                 map[string]float64{},
 		RetentionMinutes:        30,
-		StoragePath:             getDefaultStoragePath(), // Platform-aware default path
 		EnableDynamicThresholds: false,
 		EnableMultiMetric:       false,
 		DynamicSmoothingFactor:  0.2,
@@ -42,6 +41,8 @@ func createDefaultConfig() component.Config {
 		EnableAnomalyDetection:  false,
 		AnomalyHistorySize:      10,
 		AnomalyChangeThreshold:  200.0,
+		// EnableStorage defaults to nil, which means true (storage enabled)
+		// Storage path is determined at runtime based on platform
 	}
 }
 

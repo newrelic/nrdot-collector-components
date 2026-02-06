@@ -204,7 +204,6 @@ func TestPersistenceAndLoading(t *testing.T) {
 
 	// Create processor with storage
 	config := &Config{
-		StoragePath:      storagePath,
 		RetentionMinutes: 30,
 	}
 

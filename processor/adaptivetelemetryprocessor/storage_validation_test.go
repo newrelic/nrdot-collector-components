@@ -368,27 +368,7 @@ func TestGetAllowedStorageDirectory(t *testing.T) {
 	}
 }
 
-func TestConfigValidation_StoragePath(t *testing.T) {
-	// Get platform-specific paths
-	var validPath1, validPath2, invalidPath1, invalidPath2 string
-
-	if runtime.GOOS == "windows" {
-		localAppData := os.Getenv("LOCALAPPDATA")
-		if localAppData == "" {
-			localAppData = filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local")
-		}
-		baseDir := filepath.Join(localAppData, "nrdot-collector")
-		validPath1 = filepath.Join(baseDir, "state.db")
-		validPath2 = filepath.Join(baseDir, "data", "state.db")
-		invalidPath1 = "C:\\Temp\\state.db"
-		invalidPath2 = "C:\\Windows\\state.db"
-	} else {
-		validPath1 = "/var/lib/nrdot-collector/state.db"
-		validPath2 = "/var/lib/nrdot-collector/data/state.db"
-		invalidPath1 = "/tmp/state.db"
-		invalidPath2 = "/etc/state.db"
-	}
-
+func TestConfigValidation_EnableStorage(t *testing.T) {
 	tests := []struct {
 		name        string
 		config      *Config
@@ -396,58 +376,28 @@ func TestConfigValidation_StoragePath(t *testing.T) {
 		description string
 	}{
 		{
-			name: "valid storage path",
+			name: "storage enabled (default)",
 			config: &Config{
-				StoragePath:   validPath1,
+				EnableStorage: nil, // nil means default (enabled)
+			},
+			expectError: false,
+			description: "Storage enabled by default should not error",
+		},
+		{
+			name: "storage explicitly enabled",
+			config: &Config{
 				EnableStorage: ptrBool(true),
 			},
 			expectError: false,
-			description: "Valid path under allowed directory should pass",
+			description: "Explicitly enabled storage should not error",
 		},
 		{
-			name: "valid nested storage path",
+			name: "storage disabled",
 			config: &Config{
-				StoragePath:   validPath2,
-				EnableStorage: ptrBool(true),
-			},
-			expectError: false,
-			description: "Valid nested path should pass",
-		},
-		{
-			name: "invalid storage path 1",
-			config: &Config{
-				StoragePath:   invalidPath1,
-				EnableStorage: ptrBool(true),
-			},
-			expectError: true,
-			description: "Path outside allowed directory should fail",
-		},
-		{
-			name: "invalid relative path",
-			config: &Config{
-				StoragePath:   "./state.db",
-				EnableStorage: ptrBool(true),
-			},
-			expectError: true,
-			description: "Relative path should fail",
-		},
-		{
-			name: "storage disabled - no validation",
-			config: &Config{
-				StoragePath:   invalidPath2,
 				EnableStorage: ptrBool(false),
 			},
 			expectError: false,
-			description: "When storage is disabled, path validation should be skipped",
-		},
-		{
-			name: "invalid storage path 2",
-			config: &Config{
-				StoragePath:   invalidPath2,
-				EnableStorage: ptrBool(true),
-			},
-			expectError: true,
-			description: "Path outside allowed directory should fail",
+			description: "Disabled storage should not error",
 		},
 	}
 
