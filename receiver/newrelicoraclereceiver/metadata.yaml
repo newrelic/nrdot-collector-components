@@ -6,7 +6,7 @@ status:
     alpha: [metrics]
   distributions: [nrdot]
   codeowners:
-    active: [tharun0064,spathlavath,sjyothi54,RamanaReddy8801]
+    active: [newrelic/dbi]
 
 github_project: newrelic/nrdot-collector-components
 
