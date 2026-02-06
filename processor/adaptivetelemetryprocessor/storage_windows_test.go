@@ -219,7 +219,7 @@ func TestWindowsReparsePoint_MountPoint(t *testing.T) {
 	// Then test that our code detects it as a reparse point
 }
 
-// TestWindowsReparsePoint_ValidationIntegration tests the full validation flow
+// TestWindowsReparsePoint_ValidationIntegration tests the symlink/junction detection flow
 func TestWindowsReparsePoint_ValidationIntegration(t *testing.T) {
 	// Create a temporary directory structure
 	tmpDir := t.TempDir()
@@ -227,12 +227,12 @@ func TestWindowsReparsePoint_ValidationIntegration(t *testing.T) {
 	err := os.MkdirAll(baseDir, 0o755)
 	require.NoError(t, err)
 
-	// Test 1: Normal path should validate successfully
+	// Test 1: Normal path should pass checkPathForSymlinks
 	normalPath := filepath.Join(baseDir, "data", "state.db")
-	err = validateStoragePath(normalPath, nil)
-	assert.NoError(t, err, "Normal path should validate successfully")
+	err = checkPathForSymlinks(normalPath, baseDir)
+	assert.NoError(t, err, "Normal path should pass symlink check")
 
-	// Test 2: Path with junction should fail validation
+	// Test 2: Path with junction should fail checkPathForSymlinks
 	targetDir := filepath.Join(tmpDir, "target")
 	err = os.MkdirAll(targetDir, 0o755)
 	require.NoError(t, err)
@@ -248,8 +248,8 @@ func TestWindowsReparsePoint_ValidationIntegration(t *testing.T) {
 	}()
 
 	junctionPath := filepath.Join(junctionDir, "state.db")
-	err = validateStoragePath(junctionPath, nil)
-	assert.Error(t, err, "Path with junction should fail validation")
+	err = checkPathForSymlinks(junctionPath, baseDir)
+	assert.Error(t, err, "Path with junction should fail symlink check")
 	assert.Contains(t, err.Error(), "reparse point", "Error should mention reparse point")
 }
 

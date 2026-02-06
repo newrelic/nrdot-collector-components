@@ -21,8 +21,8 @@ import (
 // - Mount points are NOT detected by os.ModeSymlink (they also use reparse points)
 //
 // We need to check the FILE_ATTRIBUTE_REPARSE_POINT flag to detect these.
-func isWindowsReparsePoint(path string, info os.FileInfo) bool {
-	// Note: We don't check info.IsDir() first because junctions may not appear as
+func isWindowsReparsePoint(path string, _ os.FileInfo) bool {
+	// Note: We don't use the FileInfo parameter because junctions may not appear as
 	// regular directories via os.Lstat(). Instead, we always check the reparse point
 	// attribute directly from Windows syscalls for any path that exists.
 
