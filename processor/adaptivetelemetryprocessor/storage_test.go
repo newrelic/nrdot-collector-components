@@ -17,8 +17,8 @@ func TestFileStorage(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "test_data", "test.db")
 
-	// Test creating storage
-	storage := newFileStorage(filePath)
+	// Test creating storage - use testing constructor to skip validation
+	storage := newFileStorageForTesting(filePath, "")
 	assert.NotNil(t, storage)
 
 	// Test loading from non-existent file (should return empty map)
@@ -84,7 +84,7 @@ func TestFileStorage(t *testing.T) {
 
 	// Test creating directory when it doesn't exist
 	nestedPath := filepath.Join(tmpDir, "nested", "deep", "test_data", "test.db")
-	storage = newFileStorage(nestedPath)
+	storage = newFileStorageForTesting(nestedPath, "")
 
 	// Save should create all directories
 	err = storage.Save(testEntities)

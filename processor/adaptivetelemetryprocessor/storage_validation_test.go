@@ -599,3 +599,102 @@ func TestPathValidation_EdgeCases(t *testing.T) {
 		})
 	}
 }
+
+// TestTOCTOUProtection verifies that symlinks are re-validated immediately before write operations
+// to prevent Time-of-Check to Time-of-Use (TOCTOU) race conditions
+func TestTOCTOUProtection(t *testing.T) {
+	// Skip on Windows as symlinks require admin privileges
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping symlink tests on Windows")
+	}
+
+	// Create a temporary directory structure
+	tmpDir := t.TempDir()
+	baseDir := filepath.Join(tmpDir, "nrdot-collector")
+	err := os.MkdirAll(baseDir, 0o755)
+	require.NoError(t, err)
+
+	dataDir := filepath.Join(baseDir, "data")
+	err = os.MkdirAll(dataDir, 0o755)
+	require.NoError(t, err)
+
+	// Create a legitimate file path initially
+	filePath := filepath.Join(dataDir, "test.db")
+
+	// Create storage with the valid path
+	storage := newFileStorageForTesting(filePath, baseDir)
+
+	// Write initial data successfully
+	testEntities := map[string]*trackedEntity{
+		"entity1": {
+			Identity:      "entity1",
+			CurrentValues: map[string]float64{"metric1": 10.5},
+		},
+	}
+
+	err = storage.Save(testEntities)
+	require.NoError(t, err, "Initial save should succeed")
+
+	// Now simulate a TOCTOU attack: replace data directory with a symlink to /tmp
+	// First remove the existing data directory and file
+	err = os.RemoveAll(dataDir)
+	require.NoError(t, err)
+
+	// Create a symlink in its place pointing to /tmp
+	err = os.Symlink("/tmp", dataDir)
+	require.NoError(t, err)
+
+	// Try to write again - this should fail because symlink is re-validated before write
+	err = storage.Save(testEntities)
+	assert.Error(t, err, "Save should fail when directory is replaced with symlink")
+	assert.Contains(t, err.Error(), "symlink validation failed before write", "Error should mention validation failure")
+	assert.Contains(t, err.Error(), "is a symlink", "Error should mention symlink detection")
+
+	// Verify that no file was written to /tmp
+	tmpFilePath := filepath.Join("/tmp", "test.db")
+	_, err = os.Stat(tmpFilePath)
+	assert.True(t, os.IsNotExist(err), "File should not be written to /tmp through symlink")
+}
+
+// TestPermissionErrorHandling verifies that permission errors during symlink validation
+// do not silently bypass security checks
+func TestPermissionErrorHandling(t *testing.T) {
+	// Skip on Windows as permission handling differs significantly
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping permission tests on Windows")
+	}
+
+	// This test verifies the fix for: "Permission errors can silently bypass the symlink protection"
+	// We ensure that if we can't verify a path isn't a symlink due to permission errors,
+	// we reject it rather than allowing it
+
+	// Create a temporary directory structure
+	tmpDir := t.TempDir()
+	baseDir := filepath.Join(tmpDir, "nrdot-collector")
+	err := os.MkdirAll(baseDir, 0o755)
+	require.NoError(t, err)
+
+	// Create a directory that we'll make unreadable
+	restrictedDir := filepath.Join(baseDir, "restricted")
+	err = os.MkdirAll(restrictedDir, 0o755)
+	require.NoError(t, err)
+
+	// Create a file inside it
+	testFile := filepath.Join(restrictedDir, "test.db")
+	err = os.WriteFile(testFile, []byte("test"), 0o644)
+	require.NoError(t, err)
+
+	// Make the directory unreadable (no execute permission means we can't access contents)
+	err = os.Chmod(restrictedDir, 0o000)
+	require.NoError(t, err)
+
+	// Ensure we restore permissions after test
+	defer func() {
+		_ = os.Chmod(restrictedDir, 0o755)
+	}()
+
+	// Try to validate the path - should fail due to permission error, not silently pass
+	err = checkPathForSymlinks(testFile, baseDir)
+	assert.Error(t, err, "checkPathForSymlinks should fail when it can't verify path security")
+	assert.Contains(t, err.Error(), "cannot verify path security", "Error should indicate inability to verify")
+}

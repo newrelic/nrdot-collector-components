@@ -23,13 +23,26 @@ type EntityStateStorage interface {
 }
 
 type fileStorage struct {
-	filePath string
-	mu       sync.Mutex
+	filePath        string
+	mu              sync.Mutex
+	allowedBaseDir  string // Base directory for symlink validation, empty means use default
+	skipValidation  bool   // For testing only - skips symlink validation
 }
 
 func newFileStorage(filePath string) *fileStorage {
 	return &fileStorage{
-		filePath: filePath,
+		filePath:       filePath,
+		allowedBaseDir: getAllowedStorageDirectory(),
+	}
+}
+
+// newFileStorageForTesting creates a file storage for testing with custom validation base directory
+// This should only be used in tests
+func newFileStorageForTesting(filePath string, allowedBaseDir string) *fileStorage {
+	return &fileStorage{
+		filePath:       filePath,
+		allowedBaseDir: allowedBaseDir,
+		skipValidation: allowedBaseDir == "", // Skip validation if no base dir provided
 	}
 }
 
@@ -63,6 +76,14 @@ func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 	dir := filepath.Dir(s.filePath)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
+	}
+
+	// Re-validate symlinks immediately before write to prevent TOCTOU attacks
+	// Skip validation only in test mode
+	if !s.skipValidation {
+		if err := checkPathForSymlinks(s.filePath, s.allowedBaseDir); err != nil {
+			return fmt.Errorf("symlink validation failed before write: %w", err)
+		}
 	}
 
 	data, err := json.MarshalIndent(entities, "", "  ")
@@ -206,11 +227,9 @@ func checkPathForSymlinks(path, baseDir string) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			// Ignore permission errors during symlink check to allow running in restricted environments
-			if os.IsPermission(err) {
-				continue
-			}
-			return fmt.Errorf("failed to start %q: %w", currentPath, err)
+			// Permission errors must not be ignored as they could hide symlink attacks
+			// If we can't verify the path isn't a symlink, we must reject it
+			return fmt.Errorf("cannot verify path security for %q: %w", currentPath, err)
 		}
 
 		// Check if it's a symlink
