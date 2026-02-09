@@ -53,8 +53,12 @@ func (d *GitDetector) validatePath(filePath string) error {
 		return fmt.Errorf("resolving absolute path: %w", err)
 	}
 
+	// Normalize both paths to use forward slashes for consistent comparison on Windows
+	normalizedAbsPath := filepath.ToSlash(filepath.Clean(absPath))
+	normalizedRepoRoot := filepath.ToSlash(filepath.Clean(d.repoRoot))
+
 	// Ensure it's within the repository
-	if !strings.HasPrefix(absPath, d.repoRoot) {
+	if !strings.HasPrefix(normalizedAbsPath, normalizedRepoRoot) {
 		return fmt.Errorf("path outside repository: %s (repo root: %s)", absPath, d.repoRoot)
 	}
 
@@ -88,7 +92,8 @@ func NewGitDetector(forkCommit string) (*GitDetector, error) {
 		return nil, fmt.Errorf("not in a git repository: %w", err)
 	}
 
-	repoRoot := strings.TrimSpace(string(output))
+	// Clean and normalize the repo root path for consistent comparison across platforms
+	repoRoot := filepath.Clean(strings.TrimSpace(string(output)))
 
 	// Verify the fork commit exists
 	cmd = exec.Command("git", "rev-parse", "--verify", forkCommit)
