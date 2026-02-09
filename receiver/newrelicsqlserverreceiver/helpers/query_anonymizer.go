@@ -1,8 +1,7 @@
-package helpers
-
-// Copyright The OpenTelemetry Authors
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+package helpers
 // Package helpers provides utility functions for SQL Server query processing and anonymization.
 // This file implements comprehensive query text anonymization functionality for privacy and security.
 
