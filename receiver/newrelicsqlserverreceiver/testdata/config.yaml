@@ -1,0 +1,93 @@
+
+receivers:
+  newrelicsqlserver:
+    hostname: ""                    # e.g., "your-sql-server.com" or "192.168.1.100"
+    port: ""                        # Default SQL Server port
+    username: ""                    # e.g., "monitoring_user"
+    password: ""                    # Your SQL Server password
+    monitored_databases: []
+    timeout: 600s
+    collection_interval: 60s
+    query_monitoring_fetch_interval: 60           # seconds - captures queries from last 60 seconds (matches collection_interval)
+    enable_query_monitoring: true
+    query_monitoring_response_time_threshold: 0   # milliseconds - 0 = capture all queries (no threshold) for debugging
+    query_monitoring_count_threshold: 50          # TopN: emit top 50 slowest queries per collection cycle
+    enable_interval_based_averaging: true         # Enable delta-based interval calculations
+    interval_calculator_cache_ttl_minutes: 10     # Cache TTL for query state (10 minutes)
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 64
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  transform/host:
+    metric_statements:
+      - context: metric
+        statements:
+          - set(metric.description, "")
+          - set(metric.unit, "")
+  
+  # Filter to only include execution plan and event metrics (for logs conversion)
+  filter/exec_plan_include:
+    metrics:
+      include:
+        match_type: strict
+        metric_names:
+          - sqlserver.slowquery.query_details
+          - sqlserver.execution.plan
+          - sqlserver.blocking_query.details
+
+  # Filter to exclude execution plan and event metrics (from main metrics pipeline)
+  filter/exec_plan_exclude:
+    metrics:
+      exclude:
+        match_type: strict
+        metric_names:
+          - sqlserver.slowquery.query_details
+          - sqlserver.execution.plan
+          - sqlserver.blocking_query.details
+
+connectors:
+  # Convert metrics to logs
+  metricsaslogs:
+    include_resource_attributes: true
+    include_scope_info: true
+
+exporters:
+  otlp:
+    endpoint: "https://staging-otlp.nr-data.net:4318"
+    headers:
+      api-key: ""
+    compression: gzip
+  
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    # Main metrics pipeline - send all metrics EXCEPT execution plan
+    metrics:
+      receivers: [newrelicsqlserver]
+      processors: [memory_limiter, batch, transform/host, filter/exec_plan_exclude]
+      exporters: [otlp, debug]
+    
+    # Metrics to logs pipeline - convert execution plan metrics to logs
+    metrics/exec_plan_to_logs:
+      receivers: [newrelicsqlserver]
+      processors: [transform/host, filter/exec_plan_include]
+      exporters: [metricsaslogs]
+    
+    # Logs pipeline - receive converted metrics from connector
+    logs:
+      receivers: [metricsaslogs]
+      processors: [memory_limiter, batch]
+      exporters: [otlp, debug]
+  
+  telemetry:
+    logs:
+      level: info  # Changed from info to debug for verbose logging
+    metrics:
+      level: none
