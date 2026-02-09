@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -22,13 +23,26 @@ type EntityStateStorage interface {
 }
 
 type fileStorage struct {
-	filePath string
-	mu       sync.Mutex
+	filePath       string
+	mu             sync.Mutex
+	allowedBaseDir string // Base directory for symlink validation, empty means use default
+	skipValidation bool   // For testing only - skips symlink validation
 }
 
 func newFileStorage(filePath string) *fileStorage {
 	return &fileStorage{
-		filePath: filePath,
+		filePath:       filePath,
+		allowedBaseDir: getAllowedStorageDirectory(),
+	}
+}
+
+// newFileStorageForTesting creates a file storage for testing with custom validation base directory
+// This should only be used in tests
+func newFileStorageForTesting(filePath, allowedBaseDir string) *fileStorage {
+	return &fileStorage{
+		filePath:       filePath,
+		allowedBaseDir: allowedBaseDir,
+		skipValidation: allowedBaseDir == "", // Skip validation if no base dir provided
 	}
 }
 
@@ -64,6 +78,14 @@ func (s *fileStorage) Save(entities map[string]*trackedEntity) error {
 		return err
 	}
 
+	// Re-validate symlinks immediately before write to prevent TOCTOU attacks
+	// Skip validation only in test mode
+	if !s.skipValidation {
+		if err := checkPathForSymlinks(s.filePath, s.allowedBaseDir); err != nil {
+			return fmt.Errorf("symlink validation failed before write: %w", err)
+		}
+	}
+
 	data, err := json.MarshalIndent(entities, "", "  ")
 	if err != nil {
 		return err
@@ -85,28 +107,45 @@ func createDirectoryIfNotExists(dirPath string) error {
 	return nil
 }
 
-// getAllowedStorageDirectory returns the only allowed directory for storage paths.
-// Following Linux Filesystem Hierarchy Standard (FHS), application state data
-// should be stored under /var/lib/<appname>/.
+// getAllowedStorageDirectory returns the platform-specific allowed directory for storage paths.
+// Following platform best practices:
+// - Linux/Unix: /var/lib/<appname>/ (Filesystem Hierarchy Standard)
+// - Windows: %LOCALAPPDATA%\<appname>\ (per-user app data)
 // This prevents:
 // - Writing to world-writable directories (like /tmp)
 // - Path traversal attacks
 // - Symlink redirection to sensitive locations
-const allowedStorageDirectory = "/var/lib/nrdot-collector/"
-
 func getAllowedStorageDirectory() string {
-	return allowedStorageDirectory
+	switch runtime.GOOS {
+	case "windows":
+		// On Windows, use LOCALAPPDATA (e.g., C:\Users\<user>\AppData\Local\nrdot-collector\)
+		localAppData := os.Getenv("LOCALAPPDATA")
+		if localAppData == "" {
+			// Fallback if LOCALAPPDATA is not set (rare)
+			localAppData = filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local")
+		}
+		return filepath.Join(localAppData, "nrdot-collector") + string(filepath.Separator)
+	default:
+		// Linux/Unix: use /var/lib/nrdot-collector/
+		return "/var/lib/nrdot-collector/"
+	}
 }
 
-// validateStoragePath validates that the storage path is secure and within /var/lib/nrdot-collector/.
+// getDefaultStoragePath returns the platform-specific default path for the storage file.
+func getDefaultStoragePath() string {
+	return filepath.Join(getAllowedStorageDirectory(), "adaptiveprocess.db")
+}
+
+// validateStoragePath validates that the storage path is secure and within the platform-specific allowed directory.
 // Security checks performed:
-// 1. Path must be under /var/lib/nrdot-collector/ (no exceptions)
+// 1. Path must be under the allowed directory (Linux: /var/lib/nrdot-collector/, Windows: %LOCALAPPDATA%\nrdot-collector\)
 // 2. No component in the path can be a symlink (prevents redirection attacks)
-// 3. Path traversal is prevented (no .. escapes)
+// 3. No component in the path can be a Windows reparse point/junction (prevents redirection attacks on Windows)
+// 4. Path traversal is prevented (no .. escapes)
 //
 // Parameters:
-// - storagePath: The configured storage path to validate
-// - additionalAllowedDirs: Ignored - only /var/lib/nrdot-collector/ is allowed
+// - storagePath: The default platform-specific storage path to validate
+// - additionalAllowedDirs: Ignored - only platform-specific directory is allowed
 //
 // Returns an error if validation fails, nil otherwise.
 func validateStoragePath(storagePath string, _ []string) error {
@@ -189,16 +228,21 @@ func checkPathForSymlinks(path, baseDir string) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			// Ignore permission errors during symlink check to allow running in restricted environments
-			if os.IsPermission(err) {
-				continue
-			}
-			return fmt.Errorf("failed to start %q: %w", currentPath, err)
+			// Permission errors must not be ignored as they could hide symlink attacks
+			// If we can't verify the path isn't a symlink, we must reject it
+			return fmt.Errorf("cannot verify path security for %q: %w", currentPath, err)
 		}
 
 		// Check if it's a symlink
 		if info.Mode()&os.ModeSymlink != 0 {
 			return fmt.Errorf("path component %q is a symlink", currentPath)
+		}
+
+		// On Windows, also check for junctions and mount points which are not detected by os.ModeSymlink
+		if runtime.GOOS == "windows" {
+			if isWindowsReparsePoint(currentPath, info) {
+				return fmt.Errorf("path component %q is a Windows reparse point (junction/mount point)", currentPath)
+			}
 		}
 	}
 

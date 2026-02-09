@@ -42,9 +42,10 @@ The Adaptive Telemetry Processor (ATP) is an intelligent metric filtering and ad
 ```yaml
 processors:
   adaptivetelemetryprocessor:
-    # Storage configuration for persistence (JSON file)
-    # SECURITY: storage_path must be under /var/lib/nrdot-collector/
-    storage_path: "/var/lib/nrdot-collector/adaptiveprocess.db"
+    # Storage is enabled by default and uses platform-specific paths:
+    #   Linux: /var/lib/nrdot-collector/adaptiveprocess.db
+    #   Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
+    # To disable storage entirely, set: enable_storage: false
 
     # Data retention period in minutes
     retention_minutes: 30
@@ -83,9 +84,10 @@ processors:
 ```yaml
 processors:
   adaptivetelemetryprocessor:
-    # Storage configuration
-    # SECURITY: storage_path must be under /var/lib/nrdot-collector/
-    storage_path: "/var/lib/nrdot-collector/adaptiveprocess.db"
+    # Storage is enabled by default and uses platform-specific paths
+    # Linux: /var/lib/nrdot-collector/adaptiveprocess.db
+    # Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
+    # To disable storage, set: enable_storage: false
     retention_minutes: 30
     
     # Process filtering - monitor specific processes
@@ -214,8 +216,9 @@ receivers:
 
 processors:
   adaptivetelemetryprocessor:
-    # SECURITY: storage_path must be under /var/lib/nrdot-collector/
-    storage_path: "/var/lib/nrdot-collector/adaptiveprocess.db"
+    # Storage uses default platform-specific path
+    # Linux: /var/lib/nrdot-collector/adaptiveprocess.db
+    # Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
     retention_minutes: 30
     include_process_list:
       - "/usr/bin/stress-ng"
@@ -310,8 +313,8 @@ data:
     
     processors:
       adaptivetelemetryprocessor:
-        # SECURITY: storage_path must be under /var/lib/nrdot-collector/
-        storage_path: /var/lib/nrdot-collector/adaptiveprocess.db
+        # Storage uses default path: /var/lib/nrdot-collector/adaptiveprocess.db
+        # To disable storage, set: enable_storage: false
         retention_minutes: 30
         include_process_list:
           - "/usr/bin/java"
@@ -524,12 +527,14 @@ Every collection cycle:
 ```
 
 **State File:**
-- Location: Configured by `storage_path` (default: `/var/lib/nrdot-collector/adaptiveprocess.db`)
-- **Security**: Must be under `/var/lib/nrdot-collector/` - paths outside this directory are rejected
-- Format: JSON
-- Size: Typically 1-10 MB depending on retention and metric cardinality
-- Permissions: Automatically set to `0600` (owner read/write only) for security
-- Directory Permissions: Automatically set to `0700` (owner access only)
+- **Location**: Automatically uses platform-specific paths:
+  - **Linux**: `/var/lib/nrdot-collector/adaptiveprocess.db`
+  - **Windows**: `%LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db`
+- **Security**: Paths are hardcoded for security and cannot be changed by users
+- **Format**: JSON
+- **Size**: Typically 1-10 MB depending on retention and metric cardinality
+- **Permissions**: Automatically set to `0600` (owner read/write only) for security
+- **Directory Permissions**: Automatically set to `0700` (owner access only)
 
 ### Security Features
 
@@ -538,44 +543,22 @@ Every collection cycle:
 - Directory: Should be `0700` (owner access only)
 - Prevents unauthorized access to historical metric data
 
-#### 2. Storage Path Validation
-- **Restricted directory allowlist**: Storage paths must be under `/var/lib/nrdot-collector/` (no exceptions)
-- **Absolute path required**: Relative paths (like `./state.db` or `../data/state.db`) are rejected
+#### 2. Storage Path Security
+- **Hardcoded paths**: Storage paths are platform-specific and cannot be changed by users:
+  - **Linux**: `/var/lib/nrdot-collector/adaptiveprocess.db`
+  - **Windows**: `%LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db`
 - **Symlink protection**: Detects and rejects symlinks in the path to prevent redirection attacks
+- **Reparse point protection (Windows)**: Detects and rejects junctions and mount points
 - **Path traversal prevention**: Uses `filepath.Clean()` to prevent `..` escapes
 - **Linux FHS compliant**: Follows Filesystem Hierarchy Standard for application state data
 - **Directory permissions**: Creates directories with `0700` (owner-only access)
 - **File permissions**: Creates files with `0600` (owner read/write only)
 
-**Allowed paths (examples):**
-```yaml
-storage_path: "/var/lib/nrdot-collector/state.db"                    # ✅ Allowed
-storage_path: "/var/lib/nrdot-collector/data/state.db"               # ✅ Allowed
-storage_path: "/var/lib/nrdot-collector/tenant1/process.db"          # ✅ Allowed
-```
-
-**Rejected paths (security):**
-```yaml
-storage_path: "/tmp/state.db"                                         # ❌ Rejected - outside allowed directory
-storage_path: "/etc/state.db"                                         # ❌ Rejected - outside allowed directory
-storage_path: "./state.db"                                            # ❌ Rejected - relative path
-storage_path: "/var/lib/nrdot-collector/../../../tmp/state.db"       # ❌ Rejected - path traversal attempt
-```
-
-**Symlink attack prevention:**
-```bash
-# Attacker attempts to redirect storage to sensitive location:
-mkdir -p /var/lib/nrdot-collector/data
-ln -s /etc /var/lib/nrdot-collector/data/secrets
-# Configuration: storage_path: "/var/lib/nrdot-collector/data/secrets/state.db"
-# Result: ❌ Rejected - symlink detected in path
-```
-
-This restriction prevents:
-- Writing to world-writable directories (like `/tmp`) that could be exploited
-- Path traversal attacks trying to escape the allowed directory
-- Symlink redirection to sensitive system locations (like `/etc/passwd`)
-- User-controlled paths that could access arbitrary filesystem locations
+**Security benefits:**
+- No user-controlled paths eliminates entire class of path traversal attacks
+- Prevents writing to world-writable directories (like `/tmp`) that could be exploited
+- Eliminates symlink redirection to sensitive system locations (like `/etc/passwd`)
+- Platform-specific defaults follow OS security best practices
 
 #### 3. Process Path Filtering
 - **Full path matching**: Filters by complete executable path (e.g., "/usr/sbin/nginx")
@@ -627,7 +610,8 @@ receivers:
 
 processors:
   adaptivetelemetry:
-    storage_path: /var/lib/nrdot-collector/atp-state
+    # Uses default path: /var/lib/nrdot-collector/adaptiveprocess.db (Linux)
+    # or %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db (Windows)
     include_process_list:
       - "/usr/sbin/nginx"
       - "/usr/bin/java"
@@ -656,17 +640,17 @@ service:
 
 ### Scenario 2: Multi-Tenant Environment
 
-Isolate telemetry by tenant based on process names:
+Note: Since storage paths are now fixed and platform-specific, multi-tenant setups share the same storage file. The processor maintains state for all processes together.
 
 ```yaml
 processors:
   adaptivetelemetry/tenant1:
-    storage_path: /var/lib/nrdot-collector/atp-tenant1
+    # Uses default path (shared storage for all instances)
     include_process_list:
       - "/opt/tenant1/bin/app-tenant1"
 
   adaptivetelemetry/tenant2:
-    storage_path: /var/lib/nrdot-collector/atp-tenant2
+    # Uses default path (shared storage for all instances)
     include_process_list:
       - "/opt/tenant2/bin/app-tenant2"
 
@@ -698,15 +682,24 @@ service:
 
 #### Issue: State file errors
 
-**Symptoms**: `permission denied` or `invalid storage_path` errors
+**Symptoms**: `permission denied` or storage-related errors
 
 **Solutions**:
-1. Verify `storage_path` is under `/var/lib/nrdot-collector/` - paths outside this directory are rejected for security
-2. Ensure no symlinks exist in the storage path (use `ls -la` to check)
-3. Verify collector has write permissions: `chown -R collector-user:collector-group /var/lib/nrdot-collector/`
-4. Check directory permissions are correct: `chmod 700 /var/lib/nrdot-collector/`
-5. Check SELinux/AppArmor policies aren't blocking access
-6. Delete state file to force recreation: `rm -rf /var/lib/nrdot-collector/*`
+1. Check directory exists and is writable: 
+   - Linux: `/var/lib/nrdot-collector/`
+   - Windows: `%LOCALAPPDATA%\nrdot-collector\`
+2. Ensure no symlinks/junctions exist in the storage path (use `ls -la` on Linux, `dir /AL` on Windows)
+3. Verify collector has write permissions:
+   - Linux: `chown -R collector-user:collector-group /var/lib/nrdot-collector/`
+   - Windows: Ensure user running collector has write access
+4. Check directory permissions:
+   - Linux: `chmod 700 /var/lib/nrdot-collector/`
+   - Windows: Use Security tab in folder properties
+5. Check SELinux/AppArmor policies aren't blocking access (Linux)
+6. Delete state file to force recreation:
+   - Linux: `rm -rf /var/lib/nrdot-collector/*`
+   - Windows: `del /Q %LOCALAPPDATA%\nrdot-collector\*`
+7. To disable storage entirely, set `enable_storage: false` in config
 
 #### Issue: High CPU usage
 
@@ -738,6 +731,7 @@ Look for log entries:
 
 ### Validation Commands
 
+**Linux:**
 ```bash
 # Check state file exists and permissions (should be 0600)
 ls -la /var/lib/nrdot-collector/
@@ -759,11 +753,31 @@ ls -l /proc/<pid>/exe
 cat /proc/<pid>/cmdline
 ```
 
+**Windows:**
+```powershell
+# Check state directory exists
+dir $env:LOCALAPPDATA\nrdot-collector
+
+# View state file contents (requires jq)
+Get-Content $env:LOCALAPPDATA\nrdot-collector\adaptiveprocess.db | jq
+
+# Monitor collector logs
+Get-Content -Path "C:\ProgramData\nrdot-collector\logs\collector.log" -Wait | Select-String "adaptivetelemetry"
+
+# List matching processes
+Get-Process | Where-Object {$_.Name -match "nginx|java|postgres"}
+
+# Check process details
+Get-Process -Id <pid> | Select-Object Path, CommandLine
+```
+
 ## Security Best Practices
 
 1. **Run with Minimal Privileges**: Use a dedicated service account with only required capabilities
-2. **Restrict Storage Path**: Storage paths are automatically restricted to `/var/lib/nrdot-collector/` directory. Do not attempt to use paths outside this directory as they will be rejected. Ensure this directory has proper ownership and permissions (0700).
-3. **Audit Access**: Monitor who/what accesses the state directory using filesystem audit tools (auditd, inotify)
+2. **Storage Security**: Storage paths are automatically set to secure platform-specific locations and cannot be changed by users. Ensure the storage directory has proper ownership and permissions:
+   - Linux: `/var/lib/nrdot-collector/` with `0700` permissions
+   - Windows: `%LOCALAPPDATA%\nrdot-collector\` with restricted user access
+3. **Audit Access**: Monitor who/what accesses the state directory using filesystem audit tools (auditd/inotify on Linux, auditing policies on Windows)
 4. **Keep Updated**: Apply security patches promptly
 5. **Use Full Paths in include_process_list**: Always specify full executable paths (e.g., `/usr/sbin/nginx`) instead of just process names to prevent process name spoofing attacks. See "Process Include List Security" below.
 6. **Avoid Symlinks**: Do not use symlinks in the storage path as they are detected and rejected to prevent redirection attacks
@@ -820,7 +834,6 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for general contribution guidelines
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/newrelic/nrdot-collector-components/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/newrelic/nrdot-collector-components/discussions)
 - **Security Issues**: Report to security@newrelic.com
 - **Documentation**: [New Relic Docs](https://docs.newrelic.com/docs/more-integrations/open-source-telemetry-integrations/opentelemetry/opentelemetry-introduction/)
 
