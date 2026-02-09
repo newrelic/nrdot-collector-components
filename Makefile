@@ -680,6 +680,10 @@ clean:
 	find . -type f -name 'integration-coverage.html' -delete
 	@echo "Removing built binary files"
 	find . -type f -name 'builtunitetest.test' -delete
+	@echo "Removing build artifacts from cmd/nrdotcol"
+	cd cmd/nrdotcol && git clean -fX
+	@echo "Removing build artifacts from cmd/oteltestbedcol"
+	cd cmd/oteltestbedcol && git clean -fX
 
 .PHONY: generate-gh-issue-templates
 generate-gh-issue-templates: $(GITHUBGEN)
