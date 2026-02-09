@@ -680,6 +680,9 @@ clean:
 	find . -type f -name 'integration-coverage.html' -delete
 	@echo "Removing built binary files"
 	find . -type f -name 'builtunitetest.test' -delete
+
+.PHONY: clean-cols
+clean-cols:
 	@echo "Removing build artifacts from cmd/nrdotcol"
 	cd cmd/nrdotcol && git clean -fX
 	@echo "Removing build artifacts from cmd/oteltestbedcol"
