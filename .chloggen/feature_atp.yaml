@@ -4,7 +4,7 @@
 change_type: new_component
 
 # The name of the component, or a single word describing the area of concern, (e.g. receiver/filelog)
-component: processor/adaptivetelemetryprocessor
+component: processor/adaptivetelemetry
 
 # A brief description of the change.  Surround your text with quotes ("") if it needs to start with a backtick (`).
 note: "Added the Adaptive Telemetry Processor, which dynamically adjusts telemetry data based on real-time analysis to optimize performance and resource utilization."
