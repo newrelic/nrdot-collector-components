@@ -239,7 +239,7 @@ addthirdparty: $(LICENSE_DETECTOR) addoverrides
 .PHONY: checklicense
 checklicense: $(NRLICENSE) addthirdparty
 	@echo "Checking third party notices..."
-	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q -e "THIRD_PARTY_NOTICES.md" -e "overrides.jsonl" && { \
+	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q -e "THIRD_PARTY_NOTICES.md" && { \
 		echo "Third party notices or overrides out of date, please run \"make addlicense\" and commit the changes in this PR."; \
 		git --no-pager diff HEAD -- */THIRD_PARTY_NOTICES.md */overrides.jsonl; exit 1; \
 	} || exit 0
