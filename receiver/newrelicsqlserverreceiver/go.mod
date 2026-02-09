@@ -1,6 +1,6 @@
 module github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver
 
-go 1.25.5
+go 1.23
 
 require (
 	github.com/google/go-cmp v0.7.0
