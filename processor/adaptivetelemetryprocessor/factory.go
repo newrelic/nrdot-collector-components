@@ -10,19 +10,20 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/processor"
+
+	"github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor/internal/metadata"
 )
 
 const (
-	typeStr                          = "adaptivetelemetryprocessor"
 	factoryDefaultCompositeThreshold = 1.5
 )
 
 // NewFactory creates the processor.Factory used by the Collector to construct this processor.
 func NewFactory() processor.Factory {
 	return processor.NewFactory(
-		component.MustNewType(typeStr),
+		metadata.Type,
 		createDefaultConfig,
-		processor.WithMetrics(createMetricsProcessor, component.StabilityLevelBeta),
+		processor.WithMetrics(createMetricsProcessor, metadata.MetricsStability),
 	)
 }
 
