@@ -1,6 +1,6 @@
 module github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver
 
-go 1.25.7
+go 1.24.0
 
 require (
 	github.com/godror/godror v0.44.0
