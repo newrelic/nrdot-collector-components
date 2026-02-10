@@ -6,5 +6,6 @@ internal/common
 internal/coreinternal
 internal/tools
 processor/adaptivetelemetryprocessor
+receiver/newrelicoraclereceiver
 receiver/nopreceiver
 testbed

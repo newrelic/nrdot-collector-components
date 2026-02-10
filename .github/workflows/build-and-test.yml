@@ -81,7 +81,13 @@ jobs:
       - name: Fetch commit history up to date of fork
         run: git fetch origin main --shallow-since=2025-11-18
       - name: Lint
-        run: GOOS=${{ matrix.goos }} GOARCH=amd64 make -j2 golint GROUP=${{ matrix.group }}
+        run: |
+          if [ "${{ matrix.group }}" == "receiver" ]; then
+            # Lint non-CGO receivers only (Oracle receiver linted in build-cgo job)
+            GOOS=${{ matrix.goos }} GOARCH=amd64 make -j2 for-non-cgo-receiver-target TARGET="lint"
+          else
+            GOOS=${{ matrix.goos }} GOARCH=amd64 make -j2 golint GROUP=${{ matrix.group }}
+          fi
   lint:
     if: ${{ github.actor != 'dependabot[bot]' && always() }}
     runs-on: ubuntu-24.04
@@ -453,6 +459,39 @@ jobs:
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: collector-binaries-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./bin/*
+
+  build-cgo:
+    runs-on: ubuntu-24.04
+    needs: [setup-environment]
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+      - run: ./.github/workflows/scripts/free-disk-space.sh
+      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
+        id: go-setup
+        with:
+          go-version: oldstable
+          cache-dependency-path: "**/*.sum"
+      - name: Install dependencies
+        if: steps.go-setup.outputs.cache-hit != 'true'
+        run: make -j2 gomoddownload
+      - name: Install Tools
+        if: steps.go-setup.outputs.cache-hit != 'true'
+        run: make install-tools
+      - name: Lint CGO-enabled receiver
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 make -C receiver/newrelicoraclereceiver lint
+      - name: Test CGO-enabled receiver
+        run: CGO_ENABLED=1 make -C receiver/newrelicoraclereceiver test
+      - name: Generate CGO-enabled collector files
+        run: make gennrdotcol-cgo
+      - name: Build CGO-enabled Collector (linux/amd64)
+        run: make nrdotcol-cgo
+      - name: Upload CGO Collector Binaries
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: collector-binaries-cgo-linux-amd64
           path: ./bin/*
 
   publish-check:

@@ -70,6 +70,14 @@ jobs:
         run: make gennrdotcol
       - name: Build Collector
         run: make nrdotcol
+      - name: Generate CGO-enabled nrdotcol files
+        # Skip CGO build on Windows ARM since CGO is disabled
+        if: matrix.os != 'windows-11-arm'
+        run: make gennrdotcol-cgo
+      - name: Build CGO-enabled Collector
+        # Skip CGO build on Windows ARM since CGO is disabled
+        if: matrix.os != 'windows-11-arm'
+        run: make nrdotcol-cgo
 
   windows-unittest-matrix:
     needs: [setup-environment]

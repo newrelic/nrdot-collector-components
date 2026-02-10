@@ -1,13 +1,12 @@
 # NOTE:
 # This builder configuration is used to build the New Relic Dot Collector
-# for testing custom nrdot components. Only includes core collector components
-# and nrdot-specific components that do NOT require CGO.
-# For components requiring CGO (like newrelicoraclereceiver), see builder-config-cgo-enabled.yaml.
+# with components that require CGO_ENABLED=1 (like newrelicoraclereceiver).
+# For the standard collector build without CGO dependencies, see builder-config.yaml.
 
 dist:
   module: github.com/newrelic/nrdot-collector-components/cmd/nrdotcol
-  name: nrdotcol
-  description: New Relic Dot Collector with additional components.
+  name: nrdotcol-cgo
+  description: New Relic Dot Collector with CGO-enabled components.
   version: 0.142.1-dev
   output_path: ./cmd/nrdotcol
 
@@ -27,6 +26,7 @@ processors:
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.142.0
+  - gomod: github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver v0.142.1
   - gomod: github.com/newrelic/nrdot-collector-components/receiver/nopreceiver v0.142.1
 
 connectors:
@@ -39,7 +39,7 @@ providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.48.0
   - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.48.0
 
-# When using `make gennrdotcol`, the `replaces` content is appended to this
+# When using `make gennrdotcol-cgo`, the `replaces` content is appended to this
 # file before passing it to OCB, to ensure that local versions are used for all
 # nrdot modules.
 replaces:

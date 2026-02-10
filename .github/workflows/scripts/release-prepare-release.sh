@@ -50,17 +50,21 @@ git commit -m "update version.yaml ${CANDIDATE_BETA}"
 if [[ ${SYNC_UPSTREAM} == "true" ]]; then
     # Update all module versions
     sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config-cgo-enabled.yaml
     sed -i.bak "s|v${CURRENT_BETA_ESCAPED}|v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
 else
     # Only update nrdot module versions
     sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config.yaml
+    sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/nrdotcol/builder-config-cgo-enabled.yaml
     sed -i.bak "s|\(github\.com/newrelic/nrdot-collector-components/.* \)v${CURRENT_BETA_ESCAPED}|\1v${CANDIDATE_BETA}|g" ./cmd/oteltestbedcol/builder-config.yaml
 fi
 sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/nrdotcol/builder-config.yaml
+sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/nrdotcol/builder-config-cgo-enabled.yaml
 sed -i.bak "s|${CURRENT_BETA_ESCAPED}-dev|${CANDIDATE_BETA}-dev|g" ./cmd/oteltestbedcol/builder-config.yaml
 
 find . -name "*.bak" -type f -delete
 make gennrdotcol
+make gennrdotcol-cgo
 make genoteltestbedcol
 git add .
 git commit -m "builder config changes ${CANDIDATE_BETA}" || (echo "no builder config changes to commit")

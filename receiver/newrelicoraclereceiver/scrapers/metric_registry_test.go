@@ -19,7 +19,7 @@ func TestNewSystemMetricRegistry(t *testing.T) {
 
 	assert.NotNil(t, registry)
 	assert.NotNil(t, registry.recorders)
-	assert.Greater(t, len(registry.recorders), 0)
+	assert.NotEmpty(t, registry.recorders)
 }
 
 func TestSystemMetricRegistry_RecordMetric_Success(t *testing.T) {
@@ -174,7 +174,7 @@ func TestNewPdbMetricRegistry(t *testing.T) {
 
 	assert.NotNil(t, registry)
 	assert.NotNil(t, registry.recorders)
-	assert.Greater(t, len(registry.recorders), 0)
+	assert.NotEmpty(t, registry.recorders)
 }
 
 func TestPdbMetricRegistry_RecordMetric_Success(t *testing.T) {
