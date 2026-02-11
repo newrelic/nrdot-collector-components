@@ -317,7 +317,7 @@ func (s *WaitEventBlockingScraper) recordBlockingMetrics(now pcommon.Timestamp, 
 			"OracleQueryDetails",
 			collectionTimestamp,
 			dbName,
-			finalBlockerQueryID,
+			queryID,
 			finalBlockerQueryText,
 			"",                        // schema_name
 			"",                        // user_name
