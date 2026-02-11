@@ -200,11 +200,10 @@ func TestPersistenceAndLoading(t *testing.T) {
 
 	// Create storage
 	storagePath := tmpDir + "/test_data/test.db"
-	storage := newFileStorage(storagePath)
+	storage := newFileStorageForTesting(storagePath, "")
 
 	// Create processor with storage
 	config := &Config{
-		StoragePath:      storagePath,
 		RetentionMinutes: 30,
 	}
 

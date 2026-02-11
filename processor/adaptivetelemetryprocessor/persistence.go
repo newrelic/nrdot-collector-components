@@ -87,8 +87,7 @@ func (p *processorImp) persistTrackedEntities() error {
 	// Use Info level instead of Debug to ensure we see persistence activity
 	p.logger.Info("Successfully persisted tracked entities to storage",
 		zap.Int("count", entitiesCount),
-		zap.Duration("duration", duration),
-		zap.String("storage_path", p.config.StoragePath))
+		zap.Duration("duration", duration))
 	return nil
 }
 

@@ -15,6 +15,7 @@ components:
     - internal/common
     - internal/coreinternal
     - internal/tools
+    - processor/adaptivetelemetry
     - processor/adaptivetelemetryprocessor
     - receiver/newrelicsqlserver
     - receiver/nop
