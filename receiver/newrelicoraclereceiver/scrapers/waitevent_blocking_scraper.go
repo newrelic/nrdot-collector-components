@@ -17,7 +17,6 @@ import (
 	"github.com/newrelic/nrdot-collector-components/receiver/newrelicoraclereceiver/models"
 )
 
-
 // WaitEventBlockingScraper collects both Oracle wait events and blocking query metrics
 type WaitEventBlockingScraper struct {
 	client                        client.OracleClient
