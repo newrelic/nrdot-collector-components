@@ -534,7 +534,7 @@ func TestExtractSQLIdentifiers_ZeroTimestamp(t *testing.T) {
 	assert.False(t, identifiers[0].Timestamp.IsZero())
 }
 
-func TestRecordBlockingMetrics_ValidBlockedEvent(t *testing.T) {
+func TestRecordBlockingMetrics_ValidBlockedEvent(_ *testing.T) {
 	mockClient := &client.MockClient{}
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
@@ -567,7 +567,7 @@ func TestRecordBlockingMetrics_ValidBlockedEvent(t *testing.T) {
 	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
 }
 
-func TestRecordBlockingMetrics_ZeroWaitTime(t *testing.T) {
+func TestRecordBlockingMetrics_ZeroWaitTime(_ *testing.T) {
 	mockClient := &client.MockClient{}
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
@@ -589,7 +589,7 @@ func TestRecordBlockingMetrics_ZeroWaitTime(t *testing.T) {
 	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
 }
 
-func TestRecordBlockingMetrics_NegativeWaitTime(t *testing.T) {
+func TestRecordBlockingMetrics_NegativeWaitTime(_ *testing.T) {
 	mockClient := &client.MockClient{}
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
