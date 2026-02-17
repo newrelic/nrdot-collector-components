@@ -508,7 +508,7 @@ func (s *QueryPerformanceScraper) EmitBlockingQueriesAsCustomEvents(activeQuerie
 			anonymizedText,
 			event.BlockingNrServiceGuid,     // APM service GUID for correlation
 			event.BlockingNormalisedSqlHash, // Normalized SQL hash for cross-language correlation
-			"SqlServerSlowQueryDetails",     // event.name for New Relic custom events
+			"SqlServerQueryDetails",     // event.name for New Relic custom events
 		)
 		emittedCount++
 	}
