@@ -465,8 +465,6 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 				zap.Int("unique_query_id_count", len(slowQueryIDs)),
 				zap.Int("plan_data_map_size", len(slowQueryPlanDataMap)))
 
-			// Periodic cleanup of execution plan cache to prevent unbounded growth
-			s.queryPerformanceScraper.CleanupExecutionPlanCache()
 		}
 	} else {
 		s.logger.Info("Slow query scraping SKIPPED - EnableQueryMonitoring is false")

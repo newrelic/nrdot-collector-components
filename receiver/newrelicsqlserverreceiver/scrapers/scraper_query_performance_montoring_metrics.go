@@ -90,13 +90,6 @@ func (s *QueryPerformanceScraper) SetMetricsBuilder(mb *metadata.MetricsBuilder)
 	s.mb = mb
 }
 
-// CleanupExecutionPlanCache removes expired entries from the execution plan cache
-func (s *QueryPerformanceScraper) CleanupExecutionPlanCache() {
-	if s.executionPlanCache != nil {
-		s.executionPlanCache.CleanupStaleEntries()
-	}
-	// NOTE: APM metadata cache cleanup removed - cache is now per-scrape and auto-discarded
-}
 
 func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, intervalSeconds, topN, elapsedTimeThreshold int, emitMetrics bool, apmMetadataCache *helpers.APMMetadataCache) ([]models.SlowQuery, error) {
 	query := fmt.Sprintf(queries.SlowQuery, intervalSeconds)
@@ -195,6 +188,11 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 				s.logger.Error("Failed to process slow query metric", zap.Error(err), zap.Int("index", i))
 			}
 		}
+	}
+
+	// Cleanup expired execution plan cache entries after using cache
+	if s.executionPlanCache != nil {
+		s.executionPlanCache.CleanupStaleEntries()
 	}
 	return resultsToProcess, nil
 }
@@ -542,7 +540,7 @@ func (s *QueryPerformanceScraper) processSlowQueryMetrics(result models.SlowQuer
 		zap.String("normalised_sql_hash", normalizedSqlHash),
 		zap.String("nr_service_guid", nrServiceGuid),
 		zap.Bool("has_apm_correlation", nrServiceGuid != "" && normalizedSqlHash != ""),
-		zap.String("event_type", "SqlServerSlowQueryDetails"))
+		zap.String("event_type", "SqlServerQueryDetails"))
 
 	s.mb.RecordSqlserverSlowqueryQueryDetailsDataPoint(
 		timestamp,
@@ -555,7 +553,7 @@ func (s *QueryPerformanceScraper) processSlowQueryMetrics(result models.SlowQuer
 		lastExecutionTimestamp,
 		normalizedSqlHash,
 		nrServiceGuid,
-		"SqlServerSlowQueryDetails",
+		"SqlServerQueryDetails",
 	)
 
 	if result.AvgElapsedTimeMS != nil {
