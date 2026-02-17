@@ -80,7 +80,7 @@ func TestFetchWaitEvents_Success(t *testing.T) {
 	mockClient := &client.MockClient{
 		WaitEventsWithBlocking: []models.WaitEventWithBlocking{
 			{
-				CollectionTimestamp: sql.NullTime{Time: time.Now(), Valid: true},
+				CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 				DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 				SID:                 sql.NullInt64{Int64: 123, Valid: true},
 				WaitTimeMs:          sql.NullFloat64{Float64: 5500, Valid: true},
@@ -131,7 +131,7 @@ func TestScrapeWaitEventsAndBlocking_Success(t *testing.T) {
 	mockClient := &client.MockClient{
 		WaitEventsWithBlocking: []models.WaitEventWithBlocking{
 			{
-				CollectionTimestamp: sql.NullTime{Time: time.Now(), Valid: true},
+				CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 				DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 				SID:                 sql.NullInt64{Int64: 123, Valid: true},
 				WaitTimeMs:          sql.NullFloat64{Float64: 5500, Valid: true},
@@ -140,7 +140,7 @@ func TestScrapeWaitEventsAndBlocking_Success(t *testing.T) {
 				Event:               sql.NullString{String: "db file sequential read", Valid: true},
 			},
 			{
-				CollectionTimestamp: sql.NullTime{Time: time.Now(), Valid: true},
+				CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 				DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 				SID:                 sql.NullInt64{Int64: 456, Valid: true},
 				WaitTimeMs:          sql.NullFloat64{Float64: 3200, Valid: true},
@@ -216,9 +216,8 @@ func TestRecordWaitEventMetrics_ValidEvent(_ *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	event := &models.WaitEventWithBlocking{
-		CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+		CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 		DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 		Username:            sql.NullString{String: "testuser", Valid: true},
 		SID:                 sql.NullInt64{Int64: 123, Valid: true},
@@ -233,7 +232,7 @@ func TestRecordWaitEventMetrics_ValidEvent(_ *testing.T) {
 	}
 
 	// This should not panic
-	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
+	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), event, make(map[string]models.SQLIdentifier))
 }
 
 func TestRecordWaitEventMetrics_InvalidEvent(_ *testing.T) {
@@ -245,16 +244,15 @@ func TestRecordWaitEventMetrics_InvalidEvent(_ *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	event := &models.WaitEventWithBlocking{
 		// Missing WaitTimeMs - invalid
-		CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+		CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 		DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 		SID:                 sql.NullInt64{Int64: 123, Valid: true},
 	}
 
 	// This should return early and not panic
-	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
+	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), event, make(map[string]models.SQLIdentifier))
 }
 
 func TestEmitWaitEventMetrics_ValidEvents(t *testing.T) {
@@ -266,10 +264,9 @@ func TestEmitWaitEventMetrics_ValidEvents(t *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	waitEvents := []models.WaitEventWithBlocking{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 123, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 5500, Valid: true},
@@ -278,7 +275,7 @@ func TestEmitWaitEventMetrics_ValidEvents(t *testing.T) {
 			Event:               sql.NullString{String: "db file sequential read", Valid: true},
 		},
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 456, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 3200, Valid: true},
@@ -288,7 +285,7 @@ func TestEmitWaitEventMetrics_ValidEvents(t *testing.T) {
 		},
 	}
 
-	waitEventCount := scraper.emitWaitEventMetrics(pcommon.NewTimestampFromTime(now), waitEvents, make(map[string]models.SQLIdentifier))
+	waitEventCount := scraper.emitWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), waitEvents, make(map[string]models.SQLIdentifier))
 
 	assert.Equal(t, 2, waitEventCount) // 2 wait events recorded
 }
@@ -302,10 +299,9 @@ func TestEmitWaitEventMetrics_WithBlockedEvents(t *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	waitEvents := []models.WaitEventWithBlocking{
 		{
-			CollectionTimestamp:        sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp:        sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:               sql.NullString{String: "ORCL", Valid: true},
 			SID:                        sql.NullInt64{Int64: 123, Valid: true},
 			WaitTimeMs:                 sql.NullFloat64{Float64: 5500, Valid: true},
@@ -319,7 +315,7 @@ func TestEmitWaitEventMetrics_WithBlockedEvents(t *testing.T) {
 		},
 	}
 
-	waitEventCount := scraper.emitWaitEventMetrics(pcommon.NewTimestampFromTime(now), waitEvents, make(map[string]models.SQLIdentifier))
+	waitEventCount := scraper.emitWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), waitEvents, make(map[string]models.SQLIdentifier))
 
 	assert.Equal(t, 1, waitEventCount) // 1 blocked session recorded (includes blocking info)
 }
@@ -333,10 +329,9 @@ func TestEmitWaitEventMetrics_EmptyList(t *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	waitEvents := []models.WaitEventWithBlocking{}
 
-	waitEventCount := scraper.emitWaitEventMetrics(pcommon.NewTimestampFromTime(now), waitEvents, make(map[string]models.SQLIdentifier))
+	waitEventCount := scraper.emitWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), waitEvents, make(map[string]models.SQLIdentifier))
 
 	assert.Equal(t, 0, waitEventCount) // No events to record
 }
@@ -407,10 +402,9 @@ func TestExtractSQLIdentifiers_UniqueIdentifiers(t *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	waitEvents := []models.WaitEventWithBlocking{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 123, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 5500, Valid: true},
@@ -419,7 +413,7 @@ func TestExtractSQLIdentifiers_UniqueIdentifiers(t *testing.T) {
 			Event:               sql.NullString{String: "db file sequential read", Valid: true},
 		},
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 456, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 3200, Valid: true},
@@ -449,10 +443,9 @@ func TestExtractSQLIdentifiers_DuplicateIdentifiers(t *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	waitEvents := []models.WaitEventWithBlocking{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 123, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 5500, Valid: true},
@@ -461,7 +454,7 @@ func TestExtractSQLIdentifiers_DuplicateIdentifiers(t *testing.T) {
 			Event:               sql.NullString{String: "db file sequential read", Valid: true},
 		},
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 456, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 3200, Valid: true},
@@ -491,7 +484,7 @@ func TestExtractSQLIdentifiers_InvalidEvents(t *testing.T) {
 	waitEvents := []models.WaitEventWithBlocking{
 		{
 			// Missing WaitTimeMs - invalid
-			CollectionTimestamp: sql.NullTime{Time: time.Now(), Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 123, Valid: true},
 			SQLID:               sql.NullString{String: "abc123", Valid: true},
@@ -516,7 +509,7 @@ func TestExtractSQLIdentifiers_ZeroTimestamp(t *testing.T) {
 
 	waitEvents := []models.WaitEventWithBlocking{
 		{
-			CollectionTimestamp: sql.NullTime{}, // Zero timestamp
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true}, // Zero timestamp
 			DatabaseName:        sql.NullString{String: "ORCL", Valid: true},
 			SID:                 sql.NullInt64{Int64: 123, Valid: true},
 			WaitTimeMs:          sql.NullFloat64{Float64: 5500, Valid: true},
@@ -543,9 +536,8 @@ func TestRecordBlockingMetrics_ValidBlockedEvent(_ *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	event := &models.WaitEventWithBlocking{
-		CollectionTimestamp:        sql.NullTime{Time: now, Valid: true},
+		CollectionTimestamp:        sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 		DatabaseName:               sql.NullString{String: "ORCL", Valid: true},
 		Username:                   sql.NullString{String: "testuser", Valid: true},
 		SID:                        sql.NullInt64{Int64: 123, Valid: true},
@@ -564,7 +556,7 @@ func TestRecordBlockingMetrics_ValidBlockedEvent(_ *testing.T) {
 	}
 
 	// This should not panic
-	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
+	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), event, make(map[string]models.SQLIdentifier))
 }
 
 func TestRecordBlockingMetrics_ZeroWaitTime(_ *testing.T) {
@@ -576,9 +568,8 @@ func TestRecordBlockingMetrics_ZeroWaitTime(_ *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	event := &models.WaitEventWithBlocking{
-		CollectionTimestamp:   sql.NullTime{Time: now, Valid: true},
+		CollectionTimestamp:   sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 		DatabaseName:          sql.NullString{String: "ORCL", Valid: true},
 		SID:                   sql.NullInt64{Int64: 123, Valid: true},
 		WaitTimeMs:            sql.NullFloat64{Float64: 0.0, Valid: true}, // Zero wait time
@@ -586,7 +577,7 @@ func TestRecordBlockingMetrics_ZeroWaitTime(_ *testing.T) {
 	}
 
 	// Should return early and not panic
-	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
+	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), event, make(map[string]models.SQLIdentifier))
 }
 
 func TestRecordBlockingMetrics_NegativeWaitTime(_ *testing.T) {
@@ -598,9 +589,8 @@ func TestRecordBlockingMetrics_NegativeWaitTime(_ *testing.T) {
 
 	scraper, _ := NewWaitEventBlockingScraper(mockClient, mb, logger, config, 10)
 
-	now := time.Now()
 	event := &models.WaitEventWithBlocking{
-		CollectionTimestamp:   sql.NullTime{Time: now, Valid: true},
+		CollectionTimestamp:   sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 		DatabaseName:          sql.NullString{String: "ORCL", Valid: true},
 		SID:                   sql.NullInt64{Int64: 123, Valid: true},
 		WaitTimeMs:            sql.NullFloat64{Float64: -1.0, Valid: true}, // Negative wait time
@@ -608,5 +598,5 @@ func TestRecordBlockingMetrics_NegativeWaitTime(_ *testing.T) {
 	}
 
 	// Should return early and not panic
-	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(now), event, make(map[string]models.SQLIdentifier))
+	scraper.recordWaitEventMetrics(pcommon.NewTimestampFromTime(time.Now()), event, make(map[string]models.SQLIdentifier))
 }

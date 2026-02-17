@@ -43,7 +43,7 @@ func TestChildCursorsScraper_ScrapeWithValidData(t *testing.T) {
 
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "test_sql_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -96,7 +96,7 @@ func TestChildCursorsScraper_ScrapeWithMultipleIdentifiers(t *testing.T) {
 
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "sql_id_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -106,7 +106,7 @@ func TestChildCursorsScraper_ScrapeWithMultipleIdentifiers(t *testing.T) {
 			Executions:          sql.NullInt64{Int64: 500, Valid: true},
 		},
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "sql_id_2", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 1, Valid: true},
@@ -183,7 +183,7 @@ func TestChildCursorsScraper_ScrapeWithPartialErrors(t *testing.T) {
 	// Only add one child cursor, so the second identifier will fail
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "sql_id_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -216,7 +216,7 @@ func TestChildCursorsScraper_ScrapeWithInvalidIdentifier(t *testing.T) {
 	// Add a child cursor without valid identifier
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "", Valid: false}, // Invalid
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: false},    // Invalid
@@ -245,7 +245,7 @@ func TestChildCursorsScraper_RecordMetricsAllEnabled(t *testing.T) {
 
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "test_sql_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -294,7 +294,7 @@ func TestChildCursorsScraper_RecordMetricsAllDisabled(t *testing.T) {
 
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "test_sql_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -333,7 +333,7 @@ func TestChildCursorsScraper_RecordMetricsWithNullValues(t *testing.T) {
 	// Create a child cursor with some null values
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "test_sql_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -373,6 +373,7 @@ func TestChildCursorsScraper_RecordMetricsWithNullValues(t *testing.T) {
 
 func TestChildCursorsScraper_RecordChildCursorMetrics(t *testing.T) {
 	mockClient := client.NewMockClient()
+	now := time.Now()
 	config := metadata.DefaultMetricsBuilderConfig()
 	config.Metrics.NewrelicoracledbChildCursorsCPUTime.Enabled = true
 	config.Metrics.NewrelicoracledbChildCursorsElapsedTime.Enabled = true
@@ -381,9 +382,9 @@ func TestChildCursorsScraper_RecordChildCursorMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(config, settings)
 	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
 
-	now := pcommon.NewTimestampFromTime(time.Now())
+	timestamp := pcommon.NewTimestampFromTime(now)
 	cursor := &models.ChildCursor{
-		CollectionTimestamp: sql.NullTime{Time: time.Now(), Valid: true},
+		CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 		DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 		SQLID:               sql.NullString{String: "test_sql_1", Valid: true},
 		ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},
@@ -393,7 +394,7 @@ func TestChildCursorsScraper_RecordChildCursorMetrics(t *testing.T) {
 	}
 
 	// This should not panic or error
-	scraper.recordChildCursorMetrics(now, cursor)
+	scraper.recordChildCursorMetrics(timestamp, cursor)
 
 	metrics := mb.Emit()
 	assert.NotNil(t, metrics)
@@ -405,7 +406,7 @@ func TestChildCursorsScraper_ContextCancellation(t *testing.T) {
 
 	mockClient.ChildCursors = []models.ChildCursor{
 		{
-			CollectionTimestamp: sql.NullTime{Time: now, Valid: true},
+			CollectionTimestamp: sql.NullString{String: "2024-01-01 10:00:00", Valid: true},
 			DatabaseName:        sql.NullString{String: "TESTDB", Valid: true},
 			SQLID:               sql.NullString{String: "test_sql_1", Valid: true},
 			ChildNumber:         sql.NullInt64{Int64: 0, Valid: true},

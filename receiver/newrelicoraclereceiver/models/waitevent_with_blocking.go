@@ -5,14 +5,13 @@ package models // import "github.com/newrelic/nrdot-collector-components/receive
 
 import (
 	"database/sql"
-	"time"
 )
 
 // WaitEventWithBlocking represents a unified record combining wait events and blocking session information
 // This model is populated by the combined GetWaitEventsAndBlockingSQL query
 // Field order matches SQL column order from GetWaitEventsAndBlockingSQL
 type WaitEventWithBlocking struct {
-	CollectionTimestamp        sql.NullTime
+	CollectionTimestamp        sql.NullString // Changed from sql.NullTime for consistent formatting
 	DatabaseName               sql.NullString
 	Username                   sql.NullString
 	SID                        sql.NullInt64
@@ -24,7 +23,7 @@ type WaitEventWithBlocking struct {
 	WaitClass                  sql.NullString
 	Event                      sql.NullString
 	WaitTimeMs                 sql.NullFloat64
-	SQLExecStart               sql.NullTime
+	SQLExecStart               sql.NullString // Changed from sql.NullTime for consistent formatting
 	SQLExecID                  sql.NullInt64
 	Program                    sql.NullString
 	Machine                    sql.NullString
@@ -182,18 +181,18 @@ func (w *WaitEventWithBlocking) GetLockedBlockID() int64 {
 	return 0
 }
 
-func (w *WaitEventWithBlocking) GetSQLExecStart() time.Time {
+func (w *WaitEventWithBlocking) GetSQLExecStart() string {
 	if w.SQLExecStart.Valid {
-		return w.SQLExecStart.Time
+		return w.SQLExecStart.String
 	}
-	return time.Time{}
+	return ""
 }
 
-func (w *WaitEventWithBlocking) GetCollectionTimestamp() time.Time {
+func (w *WaitEventWithBlocking) GetCollectionTimestamp() string {
 	if w.CollectionTimestamp.Valid {
-		return w.CollectionTimestamp.Time
+		return w.CollectionTimestamp.String
 	}
-	return time.Time{}
+	return ""
 }
 
 func (w *WaitEventWithBlocking) GetDatabaseName() string {

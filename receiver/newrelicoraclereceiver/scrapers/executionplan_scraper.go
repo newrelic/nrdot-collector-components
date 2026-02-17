@@ -30,7 +30,7 @@ type ExecutionPlanScraper struct {
 	mb                   *metadata.MetricsBuilder
 	logger               *zap.Logger
 	metricsBuilderConfig metadata.MetricsBuilderConfig
-	cache                map[string]*planHashCacheEntry // key: plan_hash_value
+	cache                map[string]*planHashCacheEntry // key: sql_id_childnumber
 	cacheMutex           sync.RWMutex
 	cacheTTL             time.Duration
 }
@@ -53,29 +53,12 @@ func (s *ExecutionPlanScraper) ScrapeExecutionPlans(ctx context.Context, sqlIden
 	}
 	now := time.Now()
 	s.cleanupCache(now)
-	planHashIdentifier := make(map[string]models.SQLIdentifier)
-	s.cacheMutex.RLock()
-	for _, identifier := range sqlIdentifiers {
-		cacheKey := fmt.Sprintf("%s_%d", identifier.PlanHash, identifier.ChildNumber)
-		if _, exists := s.cache[cacheKey]; exists {
-			s.logger.Debug("skipping execution plan scrape for cached plan hash",
-				zap.String("plan_hash", identifier.PlanHash),
-				zap.Int64("child_number", identifier.ChildNumber),
-				zap.String("sql_id", identifier.SQLID))
-			continue
-		}
-		planHashIdentifier[cacheKey] = identifier
-	}
-	s.cacheMutex.RUnlock()
-	if len(planHashIdentifier) == 0 {
-		s.logger.Debug("All plan hash values are cached, skipping execution plan scraping")
-		return errs
-	}
+
 	totalTimeout := 30 * time.Second // Adjust based on your needs
 	queryCtx, cancel := context.WithTimeout(ctx, totalTimeout)
 	defer cancel()
 
-	for cacheKey, identifier := range planHashIdentifier {
+	for _, identifier := range sqlIdentifiers {
 		select {
 		case <-queryCtx.Done():
 			errs = append(errs, errors.New("context cancelled/timed out, stopping execution plan scraping"))
@@ -83,9 +66,27 @@ func (s *ExecutionPlanScraper) ScrapeExecutionPlans(ctx context.Context, sqlIden
 		default:
 			// Continue processing
 		}
+
+		if identifier.PlanHash != "" {
+			cacheKey := fmt.Sprintf("%s_%d", identifier.PlanHash, identifier.ChildNumber)
+			s.cacheMutex.RLock()
+			_, exists := s.cache[cacheKey]
+			s.cacheMutex.RUnlock()
+			if exists {
+				s.logger.Debug("skipping execution plan scrape for cached SQL_ID",
+					zap.String("sql_id", identifier.SQLID),
+					zap.Int64("child_number", identifier.ChildNumber),
+					zap.String("plan_hash", identifier.PlanHash))
+				continue
+			}
+		}
+
 		planRows, err := s.client.QueryExecutionPlanForChild(queryCtx, identifier.SQLID, identifier.ChildNumber)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("failed to query execution plan for SQL_ID %s, CHILD_NUMBER %d: %w", identifier.SQLID, identifier.ChildNumber, err))
+			continue
+		}
+		if len(planRows) == 0 {
 			continue
 		}
 		for i := range planRows {
@@ -94,33 +95,34 @@ func (s *ExecutionPlanScraper) ScrapeExecutionPlans(ctx context.Context, sqlIden
 				s.logger.Debug("Skipping row with invalid SQL_ID")
 				continue
 			}
-			if err := s.buildExecutionPlanMetrics(row, identifier.Timestamp); err != nil {
-				s.logger.Warn("Failed to build metrics for execution plan row",
-					zap.String("sql_id", row.SQLID.String),
-					zap.Error(err))
-				errs = append(errs, err)
-			}
+			s.buildExecutionPlanMetrics(row, identifier.Timestamp)
 		}
 
-		// Add plan hash value to cache after successful scraping
+		// Validate plan hash and child number before caching
+		if !planRows[0].PlanHashValue.Valid || !planRows[0].ChildNumber.Valid {
+			s.logger.Debug("Cannot cache - missing plan hash or child number in result",
+				zap.String("sql_id", identifier.SQLID))
+			continue
+		}
+
+		// Use string format to match the cache lookup format
+		cacheKey := fmt.Sprintf("%s_%d", strconv.FormatInt(planRows[0].PlanHashValue.Int64, 10), planRows[0].ChildNumber.Int64)
+
+		// Add SQL_ID to cache after successful scraping
 		s.cacheMutex.Lock()
 		s.cache[cacheKey] = &planHashCacheEntry{
 			lastScraped: now,
 		}
 		s.cacheMutex.Unlock()
 	}
-	s.logger.Debug("Scraped execution plan",
-		zap.Int("scraped_plans", len(planHashIdentifier)),
-		zap.Int("cached_plans", len(sqlIdentifiers)-len(planHashIdentifier)))
+
 	return errs
 }
 
 // buildExecutionPlanMetrics converts an execution plan row to a metric data point with all attributes.
-//
-//nolint:unparam // error return is kept for future use and API consistency
-func (s *ExecutionPlanScraper) buildExecutionPlanMetrics(row *models.ExecutionPlanRow, queryTimestamp time.Time) error {
+func (s *ExecutionPlanScraper) buildExecutionPlanMetrics(row *models.ExecutionPlanRow, queryTimestamp time.Time) {
 	if !s.metricsBuilderConfig.Metrics.NewrelicoracledbExecutionPlan.Enabled {
-		return nil
+		return
 	}
 
 	// Extract values with defaults for null fields
@@ -205,12 +207,9 @@ func (s *ExecutionPlanScraper) buildExecutionPlanMetrics(row *models.ExecutionPl
 	}
 
 	planGeneratedTimestamp := ""
-	if row.Timestamp.Valid {
-		planGeneratedTimestamp = row.Timestamp.String
+	if row.PlanGeneratedTimestamp.Valid {
+		planGeneratedTimestamp = row.PlanGeneratedTimestamp.String
 	}
-
-	// Convert queryTimestamp to string for the timestamp attribute
-	queryTimestampStr := queryTimestamp.Format(time.RFC3339)
 
 	tempSpace := int64(-1)
 	if row.TempSpace.Valid && row.TempSpace.String != "" {
@@ -257,7 +256,6 @@ func (s *ExecutionPlanScraper) buildExecutionPlanMetrics(row *models.ExecutionPl
 		bytes,
 		cpuCost,
 		ioCost,
-		queryTimestampStr,
 		planGeneratedTimestamp,
 		tempSpace,
 		accessPredicates,
@@ -265,8 +263,6 @@ func (s *ExecutionPlanScraper) buildExecutionPlanMetrics(row *models.ExecutionPl
 		timeVal,
 		filterPredicates,
 	)
-
-	return nil
 }
 
 func (s *ExecutionPlanScraper) parseIntSafe(value string) int64 {
