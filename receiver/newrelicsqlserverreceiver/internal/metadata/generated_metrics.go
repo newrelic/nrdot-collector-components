@@ -830,7 +830,7 @@ func (m *metricSqlserverBlockingQueryDetails) init() {
 	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
 }
 
-func (m *metricSqlserverBlockingQueryDetails) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, sessionIDAttributeValue int64, requestIDAttributeValue int64, requestStartTimeAttributeValue string, blockingSessionIDAttributeValue int64, blockingQueryTextAttributeValue string, blockingNrServiceGUIDAttributeValue string, blockingNormalisedSQLHashAttributeValue string, newrelicEventTypeAttributeValue string) {
+func (m *metricSqlserverBlockingQueryDetails) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, sessionIDAttributeValue int64, requestIDAttributeValue int64, requestStartTimeAttributeValue string, queryIDAttributeValue string, blockingSessionIDAttributeValue int64, blockingQueryTextAttributeValue string, blockingNrServiceGUIDAttributeValue string, blockingNormalisedSQLHashAttributeValue string, newrelicEventTypeAttributeValue string) {
 	if !m.config.Enabled {
 		return
 	}
@@ -841,6 +841,7 @@ func (m *metricSqlserverBlockingQueryDetails) recordDataPoint(start pcommon.Time
 	dp.Attributes().PutInt("session_id", sessionIDAttributeValue)
 	dp.Attributes().PutInt("request_id", requestIDAttributeValue)
 	dp.Attributes().PutStr("request_start_time", requestStartTimeAttributeValue)
+	dp.Attributes().PutStr("query_id", queryIDAttributeValue)
 	dp.Attributes().PutInt("blocking_session_id", blockingSessionIDAttributeValue)
 	dp.Attributes().PutStr("blocking_query_text", blockingQueryTextAttributeValue)
 	dp.Attributes().PutStr("blocking_nr_service_guid", blockingNrServiceGUIDAttributeValue)
@@ -9991,8 +9992,8 @@ func (mb *MetricsBuilder) RecordSqlserverActivequeryWaitTimeSecondsDataPoint(ts 
 }
 
 // RecordSqlserverBlockingQueryDetailsDataPoint adds a data point to sqlserver.blocking_query.details metric.
-func (mb *MetricsBuilder) RecordSqlserverBlockingQueryDetailsDataPoint(ts pcommon.Timestamp, val int64, sessionIDAttributeValue int64, requestIDAttributeValue int64, requestStartTimeAttributeValue string, blockingSessionIDAttributeValue int64, blockingQueryTextAttributeValue string, blockingNrServiceGUIDAttributeValue string, blockingNormalisedSQLHashAttributeValue string, newrelicEventTypeAttributeValue string) {
-	mb.metricSqlserverBlockingQueryDetails.recordDataPoint(mb.startTime, ts, val, sessionIDAttributeValue, requestIDAttributeValue, requestStartTimeAttributeValue, blockingSessionIDAttributeValue, blockingQueryTextAttributeValue, blockingNrServiceGUIDAttributeValue, blockingNormalisedSQLHashAttributeValue, newrelicEventTypeAttributeValue)
+func (mb *MetricsBuilder) RecordSqlserverBlockingQueryDetailsDataPoint(ts pcommon.Timestamp, val int64, sessionIDAttributeValue int64, requestIDAttributeValue int64, requestStartTimeAttributeValue string, queryIDAttributeValue string, blockingSessionIDAttributeValue int64, blockingQueryTextAttributeValue string, blockingNrServiceGUIDAttributeValue string, blockingNormalisedSQLHashAttributeValue string, newrelicEventTypeAttributeValue string) {
+	mb.metricSqlserverBlockingQueryDetails.recordDataPoint(mb.startTime, ts, val, sessionIDAttributeValue, requestIDAttributeValue, requestStartTimeAttributeValue, queryIDAttributeValue, blockingSessionIDAttributeValue, blockingQueryTextAttributeValue, blockingNrServiceGUIDAttributeValue, blockingNormalisedSQLHashAttributeValue, newrelicEventTypeAttributeValue)
 }
 
 // RecordSqlserverBufferCacheHitRatioDataPoint adds a data point to sqlserver.buffer.cache_hit_ratio metric.

@@ -180,6 +180,7 @@ type BlockingQueryEvent struct {
 	SessionID                 int64  // Victim's session (who is blocked)
 	RequestID                 int64  // Victim's request (handles MARS - Multiple Active Result Sets)
 	RequestStartTime          string // When victim started waiting (uniqueness + correlation)
+	QueryID                   string // Victim's query_id (for filtering in NRQL)
 	BlockingSessionID         int64  // Who is blocking
 	BlockingQueryText         string // Full SQL text of blocking query (no truncation)
 	BlockingNrServiceGuid     string // APM service GUID extracted from blocking query (for APM correlation)

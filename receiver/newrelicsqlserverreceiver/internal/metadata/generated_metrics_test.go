@@ -78,7 +78,7 @@ func TestMetricsBuilder(t *testing.T) {
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordSqlserverBlockingQueryDetailsDataPoint(ts, 1, 10, 10, "request_start_time-val", 19, "blocking_query_text-val", "blocking_nr_service_guid-val", "blocking_normalised_sql_hash-val", "newrelic.event.type-val")
+			mb.RecordSqlserverBlockingQueryDetailsDataPoint(ts, 1, 10, 10, "request_start_time-val", "query_id-val", 19, "blocking_query_text-val", "blocking_nr_service_guid-val", "blocking_normalised_sql_hash-val", "newrelic.event.type-val")
 
 			defaultMetricsCount++
 			allMetricsCount++
@@ -887,6 +887,9 @@ func TestMetricsBuilder(t *testing.T) {
 					attrVal, ok = dp.Attributes().Get("request_start_time")
 					assert.True(t, ok)
 					assert.Equal(t, "request_start_time-val", attrVal.Str())
+					attrVal, ok = dp.Attributes().Get("query_id")
+					assert.True(t, ok)
+					assert.Equal(t, "query_id-val", attrVal.Str())
 					attrVal, ok = dp.Attributes().Get("blocking_session_id")
 					assert.True(t, ok)
 					assert.EqualValues(t, 19, attrVal.Int())
