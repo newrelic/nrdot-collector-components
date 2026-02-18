@@ -10,9 +10,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/internal/metadata"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/queries"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/queries"
 )
 
 // SecurityScraper handles SQL Server security-level metrics collection

@@ -14,5 +14,5 @@ func TestType(t *testing.T) {
 }
 
 func TestScopeName(t *testing.T) {
-	assert.Equal(t, "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver", ScopeName)
+	assert.Equal(t, "github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver", ScopeName)
 }
