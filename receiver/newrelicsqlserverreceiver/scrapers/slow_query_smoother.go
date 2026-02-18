@@ -50,7 +50,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
 )
 
 // SlowQuerySmoother implements exponential smoothing for slow query metrics
