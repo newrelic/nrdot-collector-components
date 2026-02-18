@@ -3,4 +3,4 @@
 
 //go:generate mdatagen metadata.yaml
 
-package newrelicsqlserverreceiver // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver"
+package newrelicsqlserverreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver"

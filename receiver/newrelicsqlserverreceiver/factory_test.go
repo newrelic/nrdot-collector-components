@@ -15,7 +15,7 @@ import (
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/internal/metadata"
 )
 
 func TestNewFactory(t *testing.T) {
