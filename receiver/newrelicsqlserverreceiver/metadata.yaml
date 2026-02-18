@@ -1,0 +1,2014 @@
+type: newrelicsqlserver
+
+status:
+  class: receiver
+  stability:
+    alpha: [metrics]
+  distributions: [contrib]
+  codeowners:
+    active: [avadla, pkudikyala]
+
+resource_attributes:
+  database_name:
+    description: Name of the database
+    type: string
+    enabled: true
+  db.system:
+    description: Database system identifier
+    type: string
+    enabled: true
+  engine_edition:
+    description: SQL Server engine edition (e.g., Enterprise, Standard, Azure SQL Database)
+    type: string
+    enabled: true
+  server.address:
+    description: SQL Server hostname or IP address
+    type: string
+    enabled: true
+  server.port:
+    description: SQL Server port number
+    type: string
+    enabled: true
+
+metrics:
+  sqlserver.access.page_splits_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Page splits per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.activequery.wait_time_seconds:
+    enabled: true
+    stability:
+      level: alpha
+    description: Wait time for currently executing query
+    unit: "s"
+    gauge:
+      value_type: double
+    attributes:
+      [
+        session_id,
+        request_id,
+        database_name,
+        login_name,
+        host_name,
+        query_id,
+        normalised_sql_hash,
+        nr_service_guid,
+        wait_type,
+        wait_type_description,
+        wait_type_category,
+        wait_resource,
+        wait_resource_type,
+        wait_resource_object_name,
+        last_wait_type,
+        last_wait_type_description,
+        request_start_time,
+        collection_timestamp,
+        transaction_id,
+        open_transaction_count,
+        plan_handle,
+        blocking_session_id,
+        blocking_login_name,
+        blocking_query_hash,
+        blocking_nr_service_guid,
+        blocking_normalised_sql_hash,
+      ]
+
+  sqlserver.blocking_query.details:
+    enabled: true
+    stability:
+      level: alpha
+    description: Blocking query details for correlation with active queries (emitted as custom events)
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes:
+      [
+        session_id,
+        request_id,
+        request_start_time,
+        query_id,
+        blocking_session_id,
+        blocking_query_text,
+        blocking_nr_service_guid,
+        blocking_normalised_sql_hash,
+        newrelic.event.type,
+      ]
+
+  sqlserver.buffer.cache_hit_ratio:
+    enabled: true
+    stability:
+      level: alpha
+    description: Buffer cache hit ratio percentage
+    unit: "%"
+    gauge:
+      value_type: double
+
+  sqlserver.buffer.checkpoint_pages_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Checkpoint pages per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.buffer.page_life_expectancy:
+    enabled: true
+    stability:
+      level: alpha
+    description: Page life expectancy in seconds
+    unit: "s"
+    gauge:
+      value_type: int
+
+  sqlserver.bufferpool.batch_requests_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Batch requests per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.bufferpool.page_life_expectancy_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Page life expectancy in milliseconds
+    unit: "ms"
+    gauge:
+      value_type: double
+
+  sqlserver.connections.user:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of user connections
+    unit: "{connections}"
+    gauge:
+      value_type: int
+
+  sqlserver.database.bufferpool.size_per_database_bytes:
+    enabled: true
+    stability:
+      level: alpha
+    description: Size of the SQL Server buffer pool allocated for the database
+    unit: "By"
+    gauge:
+      value_type: int
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  # Database Disk Metrics
+  sqlserver.database.io.stall_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total IO stall time for the SQL Server database
+    unit: "ms"
+    gauge:
+      value_type: int
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  # Database Log Metrics
+  sqlserver.database.log.bytes_flushed_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of log bytes flushed per second
+    unit: "By/s"
+    gauge:
+      value_type: int
+    attributes: [metric_source, engine_edition, engine_edition_id]
+
+  sqlserver.database.log.flush_waits_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of flush wait operations per second
+    unit: "{operations}/s"
+    gauge:
+      value_type: int
+    attributes: [metric_source, engine_edition, engine_edition_id]
+
+  sqlserver.database.log.flushes_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of log flush operations per second
+    unit: "{operations}/s"
+    gauge:
+      value_type: int
+    attributes: [metric_source, engine_edition, engine_edition_id]
+
+  sqlserver.database.log.transaction_growth:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of log growth events for the SQL Server database
+    unit: "{events}"
+    gauge:
+      value_type: int
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  sqlserver.database.log.used_space_mb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Used log space in megabytes
+    unit: "MBy"
+    gauge:
+      value_type: double
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  # Database Page File Metrics
+  sqlserver.database.max_disk_size_bytes:
+    enabled: true
+    stability:
+      level: alpha
+    description: Maximum disk size allowed for the SQL Server database
+    unit: "By"
+    gauge:
+      value_type: int
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  # Database I/O Metrics
+  sqlserver.database.page_file_available_bytes:
+    enabled: true
+    stability:
+      level: alpha
+    description: Available page file space (reserved space not used) for the SQL Server database
+    unit: "By"
+    gauge:
+      value_type: double
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  sqlserver.database.page_file_total_bytes:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total page file space (total reserved space) for the SQL Server database
+    unit: "By"
+    gauge:
+      value_type: double
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  # Database Transaction Metrics
+
+  sqlserver.database.principals.applicationRoles:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of application roles
+    unit: "{roles}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.old:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of old principals (older than 365 days)
+    unit: "{principals}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.orphanedUsers:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of orphaned users without server login
+    unit: "{users}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  # Database Role Membership Metrics
+  sqlserver.database.principals.recentlyCreated:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of recently created principals (last 30 days)
+    unit: "{principals}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.roles:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of database roles
+    unit: "{roles}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.sqlUsers:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of SQL authentication users
+    unit: "{users}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total number of database principals
+    unit: "{principals}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.users:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of database users
+    unit: "{users}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.principals.windowsUsers:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of Windows authentication users
+    unit: "{users}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.members.applicationRoles:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of application role members
+    unit: "{members}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.members.crossRole:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of cross-role members
+    unit: "{members}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.members.highPrivilege:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of high privilege role members
+    unit: "{members}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.members.unique:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of unique members in roles
+    unit: "{members}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  # Removed: sqlserver.database.role.membership.active (too granular - individual role-member records)
+
+  sqlserver.database.role.memberships.active:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of active role memberships
+    unit: "{memberships}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.memberships.custom:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of custom role memberships
+    unit: "{memberships}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.memberships.nested:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of nested role memberships
+    unit: "{memberships}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.memberships.total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total number of role memberships
+    unit: "{memberships}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.memberships.users:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of user role memberships
+    unit: "{memberships}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  # Removed: sqlserver.database.role.nesting.level (too granular - individual nesting records)
+
+  sqlserver.database.role.permission.memberCount:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of members in role
+    unit: "{members}"
+    gauge:
+      value_type: int
+    attributes: [database_name, role_name, permission_scope]
+
+  sqlserver.database.role.permission.riskLevel:
+    enabled: true
+    stability:
+      level: alpha
+    description: Role risk level
+    unit: "{level}"
+    gauge:
+      value_type: int
+    attributes: [database_name, role_name, permission_scope]
+
+  # Removed: sqlserver.database.role.permissions.inherited (too granular - individual permission records)
+
+  # Failover Cluster / Always On Availability Group Metrics
+  sqlserver.database.role.roles.empty:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of empty roles
+    unit: "{roles}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.role.roles.withMembers:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of unique roles with members
+    unit: "{roles}"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.database.size.data_mb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total data file size excluding log files
+    unit: "MBy"
+    gauge:
+      value_type: double
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  # Database Buffer Pool Metrics
+  sqlserver.database.size.total_mb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total database size including data and log files
+    unit: "MBy"
+    gauge:
+      value_type: double
+    attributes:
+      [database_name, metric_source, engine_edition, engine_edition_id]
+
+  sqlserver.database.transactions.active:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of active transactions
+    unit: "{transactions}"
+    gauge:
+      value_type: int
+    attributes: [metric_source, engine_edition, engine_edition_id]
+
+  # Execution Plan Operator Metric (single metric with all operator details as attributes)
+  sqlserver.execution.plan:
+    enabled: true
+    stability:
+      level: alpha
+    description: SQL Server execution plan operator with detailed cost estimates, performance metrics, and resource usage
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes:
+      [
+        query_id,
+        plan_handle,
+        node_id,
+        parent_node_id,
+        physical_op,
+        logical_op,
+        input_type,
+        schema_name,
+        table_name,
+        index_name,
+        referenced_columns,
+        estimate_rows,
+        estimate_io,
+        estimate_cpu,
+        avg_row_size,
+        total_subtree_cost,
+        estimated_operator_cost,
+        estimated_execution_mode,
+        granted_memory_kb,
+        spill_occurred,
+        no_join_predicate,
+        total_worker_time,
+        total_elapsed_time,
+        total_logical_reads,
+        execution_count,
+        request_start_time,
+        last_execution_time,
+        newrelic.event.type,
+      ]
+
+  # Instance Memory Metrics
+  sqlserver.failover_cluster.ag_cluster_type:
+    enabled: true
+    stability:
+      level: alpha
+    description: Cluster type for the availability group (WSFC, EXTERNAL, NONE)
+    unit: "{status}"
+    gauge:
+      value_type: int
+    attributes: [group_name, cluster_type_desc]
+
+  # Instance Comprehensive Stats Metrics
+  sqlserver.failover_cluster.ag_failure_condition_level:
+    enabled: true
+    stability:
+      level: alpha
+    description: Automatic failover condition level for the availability group (1-5)
+    unit: "{level}"
+    gauge:
+      value_type: int
+    attributes: [group_name, cluster_type_desc]
+
+  sqlserver.failover_cluster.ag_health_check_timeout:
+    enabled: true
+    stability:
+      level: alpha
+    description: Health check timeout for the availability group in milliseconds
+    unit: "ms"
+    gauge:
+      value_type: int
+    attributes: [group_name, cluster_type_desc]
+
+  sqlserver.failover_cluster.ag_replica_role:
+    enabled: true
+    stability:
+      level: alpha
+    description: Current role of the replica within the Availability Group (PRIMARY or SECONDARY)
+    unit: "{status}"
+    gauge:
+      value_type: int
+    attributes: [replica_server_name, role_desc, synchronization_health_desc]
+
+  sqlserver.failover_cluster.ag_required_sync_secondaries:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of synchronous secondary replicas required to commit transactions
+    unit: "{replicas}"
+    gauge:
+      value_type: int
+    attributes: [group_name, cluster_type_desc]
+
+  sqlserver.failover_cluster.ag_synchronization_health:
+    enabled: true
+    stability:
+      level: alpha
+    description: Health of data synchronization between primary and secondary replica (HEALTHY, PARTIALLY_HEALTHY, NOT_HEALTHY)
+    unit: "{status}"
+    gauge:
+      value_type: int
+    attributes: [replica_server_name, role_desc, synchronization_health_desc]
+
+  sqlserver.failover_cluster.flow_control_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Time spent in flow control by log records from primary replica in milliseconds per second
+    unit: "ms/s"
+    gauge:
+      value_type: int
+    attributes: [instance_name]
+
+  sqlserver.failover_cluster.log_bytes_received_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Rate of log records received by secondary replica from primary replica in bytes per second
+    unit: "By/s"
+    gauge:
+      value_type: int
+    attributes: [instance_name]
+
+  sqlserver.failover_cluster.log_send_queue_kb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Amount of log records in the log send queue waiting to be sent to the secondary replica in kilobytes
+    unit: "KBy"
+    gauge:
+      value_type: int
+    attributes: [replica_server_name, database_name]
+
+  sqlserver.failover_cluster.redo_queue_kb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Amount of log records in the redo queue waiting to be redone on the secondary replica in kilobytes
+    unit: "KBy"
+    gauge:
+      value_type: int
+    attributes: [replica_server_name, database_name]
+
+  sqlserver.failover_cluster.redo_rate_kb_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Rate at which log records are being redone on the secondary replica in kilobytes per second
+    unit: "KBy/s"
+    gauge:
+      value_type: int
+    attributes: [replica_server_name, database_name]
+
+  sqlserver.failover_cluster.transaction_delay_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Average delay for transactions on the secondary replica in milliseconds
+    unit: "ms"
+    gauge:
+      value_type: int
+    attributes: [instance_name]
+
+  # Security Metrics
+  sqlserver.instance.background_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of background processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.blocked_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of blocked processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.buffer_pool_hit_percent:
+    enabled: true
+    stability:
+      level: alpha
+    description: Buffer pool hit percentage
+    unit: "Percent"
+    gauge:
+      value_type: double
+
+  sqlserver.instance.buffer_pool_size:
+    enabled: true
+    stability:
+      level: alpha
+    description: Buffer pool size
+    unit: "By"
+    gauge:
+      value_type: int
+
+  # Instance Process Count Metrics
+  sqlserver.instance.compilations_per_batch:
+    enabled: true
+    stability:
+      level: alpha
+    description: SQL compilations per batch request
+    unit: "1"
+    gauge:
+      value_type: double
+
+  sqlserver.instance.connections_active:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of active connections
+    unit: "1"
+    gauge:
+      value_type: int
+
+  # Instance Disk Metrics
+  sqlserver.instance.disk_in_bytes:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total disk space in bytes
+    unit: "By"
+    gauge:
+      value_type: int
+
+  # Instance Target Memory Metrics
+  sqlserver.instance.dormant_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of dormant processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.forced_parameterizations_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Forced parameterizations per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  # Instance Buffer Pool Metrics
+  sqlserver.instance.full_scans_rate:
+    enabled: true
+    stability:
+      level: alpha
+    description: Full table/index scans per second
+    unit: "1/s"
+    gauge:
+      value_type: double
+
+  # Instance Lock Timeout Metrics
+  sqlserver.instance.lock_timeouts_rate:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of lock timeouts per second
+    unit: "1/s"
+    gauge:
+      value_type: double
+
+  # Active Query Metrics
+  sqlserver.instance.memory_available:
+    enabled: true
+    stability:
+      level: alpha
+    description: Available physical memory on the system
+    unit: "By"
+    gauge:
+      value_type: double
+
+  sqlserver.instance.memory_total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total physical memory on the system
+    unit: "By"
+    gauge:
+      value_type: double
+
+  sqlserver.instance.memory_utilization_percent:
+    enabled: true
+    stability:
+      level: alpha
+    description: Percentage of memory utilization
+    unit: "%"
+    gauge:
+      value_type: double
+
+  # Database Principals Metrics
+  sqlserver.instance.page_splits_per_batch:
+    enabled: true
+    stability:
+      level: alpha
+    description: Page splits per batch request
+    unit: "1"
+    gauge:
+      value_type: double
+
+  # Instance Index Metrics
+  sqlserver.instance.preconnect_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of preconnect processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.runnable_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of runnable processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.runnable_tasks:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of runnable tasks
+    unit: "1"
+    gauge:
+      value_type: int
+
+  # Instance Active Connections Metrics
+  sqlserver.instance.running_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of running processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.sleeping_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of sleeping processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  # Instance Runnable Tasks Metrics
+  sqlserver.instance.suspended_processes_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of suspended processes
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.instance.target_memory_kb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Target server memory in KB
+    unit: "kb"
+    gauge:
+      value_type: double
+
+  # Instance Performance Ratio Metrics
+  sqlserver.instance.transactions_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Transactions per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.lock.mode.bulk_update:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of bulk update locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.mode.exclusive:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of exclusive locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.mode.intent:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of intent locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.mode.schema:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of schema locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.mode.shared:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of shared locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.mode.shared_intent_exclusive:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of shared intent exclusive locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  # Database Size Metrics
+  sqlserver.lock.mode.total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total active locks by mode
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.mode.update:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of update locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.allocation_unit:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of allocation unit locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  # Lock Mode Metrics (how it's locked)
+  sqlserver.lock.resource.application:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of application locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.database_level:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of database-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.extent:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of extent-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.file:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of file-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.hobt:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of heap or B-tree locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.key:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of key-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.metadata:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of metadata locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.page:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of page-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.row:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of row-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.table:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of table-level locks
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.lock.resource.total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total active locks in the database
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [database_name]
+
+  sqlserver.locked_object:
+    enabled: true
+    stability:
+      level: alpha
+    description: Database object locked by a session
+    unit: "1"
+    gauge:
+      value_type: int
+
+  # Slow Query Metrics
+  sqlserver.memory.target:
+    enabled: true
+    stability:
+      level: alpha
+    description: Target server memory in KB
+    unit: "kBy"
+    gauge:
+      value_type: int
+
+  # Lock Resource Metrics (what's being locked)
+  sqlserver.memory.total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total server memory in KB
+    unit: "kBy"
+    gauge:
+      value_type: int
+
+  sqlserver.plan.avg_elapsed_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Average elapsed time per execution of this plan (historical) - Used in NRQL queries
+    unit: ms
+    gauge:
+      value_type: double
+    attributes:
+      [
+        query_id,
+        plan_handle,
+        last_execution_time,
+        creation_time,
+      ]
+
+  # Individual Query Analysis Metrics
+  sqlserver.security.server_principals_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total number of server principals (logins)
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [metric.type]
+
+  sqlserver.security.server_role_members_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total number of server role members
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes: [metric.type]
+
+  sqlserver.slowquery.avg_elapsed_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Average elapsed time per execution in milliseconds (cumulative since plan cached)
+    unit: ms
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.historical_avg_elapsed_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical average elapsed time in milliseconds (cumulative since plan cached)
+    unit: ms
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name]
+
+  sqlserver.slowquery.historical_execution_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical execution count (cumulative since plan cached)
+    unit: "{executions}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.historical_logical_reads:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical total logical reads (cumulative since plan cached)
+    unit: "{reads}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.historical_physical_reads:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical total physical reads (cumulative since plan cached)
+    unit: "{reads}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.historical_rows:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical total rows returned (cumulative since plan cached)
+    unit: "{rows}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.historical_wait_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical total wait time in milliseconds (elapsed_time - worker_time, cumulative since plan cached)
+    unit: ms
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.historical_worker_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical total worker (CPU) time in milliseconds (cumulative since plan cached)
+    unit: ms
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_avg_elapsed_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval average elapsed time in milliseconds (delta for this collection interval)
+    unit: ms
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_avg_logical_reads:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval average logical reads per execution
+    unit: "{reads}"
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_avg_physical_reads:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval average physical reads per execution
+    unit: "{reads}"
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_avg_rows:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval average rows returned per execution
+    unit: "{rows}"
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_avg_wait_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval average wait time per execution in milliseconds
+    unit: ms
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_avg_worker_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval average worker (CPU) time per execution in milliseconds
+    unit: ms
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_elapsed_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval total elapsed time in milliseconds (delta for this collection interval)
+    unit: ms
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_execution_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval execution count (delta for this collection interval)
+    unit: "{executions}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_logical_reads:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval logical reads (delta for this collection interval)
+    unit: "{reads}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_physical_reads:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval physical reads (delta for this collection interval)
+    unit: "{reads}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_rows:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval rows returned (delta for this collection interval)
+    unit: "{rows}"
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_wait_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval wait time in milliseconds (delta for this collection interval)
+    unit: ms
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.interval_worker_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Interval worker (CPU) time in milliseconds (delta for this collection interval)
+    unit: ms
+    gauge:
+      value_type: int
+    attributes: [query_id, database_name, normalised_sql_hash, nr_service_guid]
+
+  sqlserver.slowquery.query_details:
+    enabled: true
+    stability:
+      level: alpha
+    description: Query details including text and timestamps for slow queries
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes:
+      [
+        query_id,
+        database_name,
+        plan_handle,
+        query_text,
+        collection_timestamp,
+        last_execution_timestamp,
+        normalised_sql_hash,
+        nr_service_guid,
+        newrelic.event.type,
+      ]
+
+  sqlserver.stats.connections:
+    enabled: true
+    stability:
+      level: alpha
+    description: Current user connections
+    unit: "1"
+    gauge:
+      value_type: int
+
+  sqlserver.stats.deadlocks_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Deadlocks per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.stats.kill_connection_errors_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Kill connection errors per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.stats.lock_waits_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Lock waits per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.stats.sql_compilations_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: SQL compilations per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.stats.sql_recompilations_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: SQL recompilations per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.stats.user_errors_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: User errors per second
+    unit: "1/s"
+    gauge:
+      value_type: int
+
+  sqlserver.tempdb.allocation_waits_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total allocation-related wait time (GAM, SGAM, PFS)
+    unit: "ms"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, tempdb_health_status, collection_timestamp]
+
+  sqlserver.tempdb.current_waiters:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of tasks currently waiting on TempDB page latches
+    unit: "{tasks}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, tempdb_health_status, collection_timestamp]
+
+  sqlserver.tempdb.data_file_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of TempDB data files
+    unit: "{files}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, tempdb_health_status, collection_timestamp]
+
+  sqlserver.tempdb.pagelatch_waits_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total page latch wait time since server start
+    unit: "ms"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, tempdb_health_status, collection_timestamp]
+
+  sqlserver.tempdb.total_size_mb:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total size of TempDB data files
+    unit: "MB"
+    gauge:
+      value_type: double
+    attributes: [sql_hostname, tempdb_health_status, collection_timestamp]
+
+  # Thread Pool Health Metrics
+  sqlserver.threadpool.current_tasks:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total tasks currently assigned to schedulers
+    unit: "{tasks}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  sqlserver.threadpool.max_workers:
+    enabled: true
+    stability:
+      level: alpha
+    description: Maximum configured worker threads
+    unit: "{threads}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  sqlserver.threadpool.runnable_tasks:
+    enabled: true
+    stability:
+      level: alpha
+    description: Tasks ready to run but waiting for CPU time
+    unit: "{tasks}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  # User Connection Status Metrics
+  sqlserver.threadpool.running_workers:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of worker threads currently running
+    unit: "{threads}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  sqlserver.threadpool.utilization_percent:
+    enabled: true
+    stability:
+      level: alpha
+    description: Percentage of worker threads currently in use
+    unit: "%"
+    gauge:
+      value_type: double
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  sqlserver.threadpool.waiting_tasks:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of tasks currently waiting for threadpool worker threads
+    unit: "{tasks}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  sqlserver.threadpool.work_queue_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total number of tasks in scheduler work queues
+    unit: "{tasks}"
+    gauge:
+      value_type: int
+    attributes: [sql_hostname, health_status, collection_timestamp]
+
+  sqlserver.user_connections.authentication.churn_rate:
+    enabled: true
+    stability:
+      level: alpha
+    description: Connection churn rate (logout/login ratio as percentage)
+    unit: "%"
+    gauge:
+      value_type: double
+
+  sqlserver.user_connections.authentication.logins_per_sec:
+    enabled: true
+    stability:
+      level: alpha
+    description: Current login rate per second
+    unit: "{logins}/s"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.authentication.recent_failed_logins:
+    enabled: true
+    stability:
+      level: alpha
+    description: Count of failed logins in the last hour
+    unit: "{attempts}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.authentication.total_failed_logins:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total count of failed login attempts in current error log
+    unit: "{attempts}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.authentication.unique_failed_sources:
+    enabled: true
+    stability:
+      level: alpha
+    description: Count of distinct source IPs with failed logins
+    unit: "{sources}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.authentication.unique_failed_users:
+    enabled: true
+    stability:
+      level: alpha
+    description: Count of distinct usernames with failed logins
+    unit: "{users}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.client.count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of connections grouped by client host and program
+    unit: "{connections}"
+    gauge:
+      value_type: int
+    attributes: [host_name, program_name]
+
+  sqlserver.user_connections.client.unique_hosts:
+    enabled: true
+    stability:
+      level: alpha
+    description: Count of unique client hosts with active connections
+    unit: "{hosts}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.client.unique_programs:
+    enabled: true
+    stability:
+      level: alpha
+    description: Count of unique programs with active connections
+    unit: "{programs}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.runnable:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of runnable user connections
+    unit: "{connections}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.running:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of running user connections
+    unit: "{connections}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.sleeping:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of sleeping user connections
+    unit: "{connections}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.suspended:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of suspended user connections
+    unit: "{connections}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.total:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total number of user connections across all statuses
+    unit: "{connections}"
+    gauge:
+      value_type: int
+
+  sqlserver.user_connections.utilization.active_ratio:
+    enabled: true
+    stability:
+      level: alpha
+    description: Ratio of active connections to total connections
+    unit: "1"
+    gauge:
+      value_type: double
+
+  sqlserver.user_connections.utilization.idle_ratio:
+    enabled: true
+    stability:
+      level: alpha
+    description: Ratio of idle connections to total connections
+    unit: "1"
+    gauge:
+      value_type: double
+
+  sqlserver.wait_stats.latch.wait_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Latch wait time in milliseconds
+    unit: ms
+    sum:
+      value_type: double
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [wait_type]
+
+  sqlserver.wait_stats.latch.waiting_tasks_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of tasks waiting on latches
+    unit: "{tasks}"
+    sum:
+      value_type: double
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [wait_type]
+
+  sqlserver.wait_stats.wait_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Total wait time in milliseconds
+    unit: ms
+    sum:
+      value_type: double
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [wait_type]
+
+  sqlserver.wait_stats.waiting_tasks_count:
+    enabled: true
+    stability:
+      level: alpha
+    description: Number of tasks currently waiting
+    unit: "{tasks}"
+    sum:
+      value_type: double
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [wait_type]
+
+attributes:
+  avg_row_size:
+    description: Average row size in bytes
+    type: double
+  blocking_login_name:
+    description: Login name of the blocking session
+    type: string
+  blocking_normalised_sql_hash:
+    description: MD5 hash of normalized blocking SQL for cross-language query correlation
+    type: string
+  blocking_nr_service_guid:
+    description: New Relic APM service GUID extracted from blocking query comments for APM-DB correlation
+    type: string
+  blocking_query_hash:
+    description: Query hash of the blocking session for correlation
+    type: string
+  blocking_query_text:
+    description: SQL query text of the blocking query (anonymized)
+    type: string
+  blocking_session_id:
+    description: Session ID that is blocking this request
+    type: int
+  # Removed: child_role_name (used by removed granular metrics)
+  cluster_type_desc:
+    description: Cluster type description (WSFC, EXTERNAL, NONE)
+    type: string
+  collection_timestamp:
+    description: Timestamp when the metric was collected
+    type: string
+  creation_time:
+    description: Timestamp when the plan was created
+    type: string
+  database_name:
+    description: Name of the database
+    type: string
+  engine_edition:
+    description: SQL Server engine edition name (e.g., Enterprise, Standard, Azure SQL Database)
+    type: string
+  engine_edition_id:
+    description: SQL Server engine edition ID
+    type: int
+  estimate_cpu:
+    description: Estimated CPU cost
+    type: double
+  estimate_io:
+    description: Estimated I/O cost
+    type: double
+  estimate_rows:
+    description: Estimated number of rows
+    type: double
+  estimated_execution_mode:
+    description: Execution mode (Row, Batch)
+    type: string
+  estimated_operator_cost:
+    description: Estimated cost of this operator alone
+    type: double
+  execution_count:
+    description: Number of times this operator executed
+    type: int
+  granted_memory_kb:
+    description: Memory granted in KB
+    type: int
+  group_name:
+    description: Availability group name
+    type: string
+  health_status:
+    description: Health status indicator
+    type: string
+  host_name:
+    description: Client host name
+    type: string
+  index_name:
+    description: Index name used by the operator
+    type: string
+  input_type:
+    description: Type of input to the operator
+    type: string
+  instance_name:
+    description: SQL Server instance name
+    type: string
+  last_execution_time:
+    description: Timestamp of last execution
+    type: string
+  last_execution_timestamp:
+    description: Timestamp of the last execution of this query
+    type: string
+  last_wait_type:
+    description: Last wait type experienced by the request
+    type: string
+  last_wait_type_description:
+    description: Human-readable description of the last wait type
+    type: string
+  logical_op:
+    description: Logical operator name
+    type: string
+  login_name:
+    description: SQL Server login name
+    type: string
+  # Removed: member_name, member_type (used by removed granular metrics)
+  metric.type:
+    description: Metric aggregation type
+    type: string
+  metric_source:
+    description: Source of the metric data (e.g., sys.dm_os_buffer_descriptors, DATABASEPROPERTYEX)
+    type: string
+  newrelic.event.type:
+    description: Event type for New Relic integration
+    type: string
+  no_join_predicate:
+    description: Whether join lacks a predicate (potential Cartesian product)
+    type: bool
+  node_id:
+    description: Execution plan node identifier
+    type: int
+  normalised_sql_hash:
+    description: MD5 hash of normalized SQL for cross-language query correlation
+    type: string
+  nr_service_guid:
+    description: New Relic APM service GUID extracted from query comments for APM-DB correlation
+    type: string
+  open_transaction_count:
+    description: Number of open transactions
+    type: int
+  parent_node_id:
+    description: Parent node identifier in execution plan tree
+    type: int
+  # Removed: parent_role_name (used by removed granular metrics)
+  permission_scope:
+    description: Permission scope
+    type: string
+  physical_op:
+    description: Physical operator name (e.g., Index Seek, Table Scan)
+    type: string
+  plan_handle:
+    description: Handle to the cached execution plan
+    type: string
+  program_name:
+    description: Client program name
+    type: string
+  query_id:
+    description: Unique identifier for the SQL query
+    type: string
+  query_text:
+    description: SQL query text (anonymized)
+    type: string
+  referenced_columns:
+    description: Comma-separated list of columns referenced
+    type: string
+  replica_server_name:
+    description: Replica server name in availability group
+    type: string
+  request_id:
+    description: SQL Server request identifier
+    type: int
+  request_start_time:
+    description: Timestamp when the request started
+    type: string
+  role_desc:
+    description: Replica role description (PRIMARY or SECONDARY)
+    type: string
+  role_name:
+    description: Database role name
+    type: string
+  # Removed: role_type (used by removed granular metrics)
+  schema_name:
+    description: Schema name of the database object
+    type: string
+  session_id:
+    description: SQL Server session identifier
+    type: int
+  spill_occurred:
+    description: Whether memory spill occurred
+    type: bool
+  sql_hostname:
+    description: SQL Server hostname
+    type: string
+  synchronization_health_desc:
+    description: Synchronization health description (HEALTHY, PARTIALLY_HEALTHY, NOT_HEALTHY)
+    type: string
+  table_name:
+    description: Table name referenced in the operator
+    type: string
+  tempdb_health_status:
+    description: TempDB health status indicator
+    type: string
+  total_elapsed_time:
+    description: Total elapsed time for this operator
+    type: double
+  total_logical_reads:
+    description: Total logical reads for this operator
+    type: int
+  total_subtree_cost:
+    description: Cumulative cost of this operator and its children
+    type: double
+  total_worker_time:
+    description: Total CPU time for this operator
+    type: double
+  transaction_id:
+    description: Transaction identifier
+    type: int
+  wait_resource:
+    description: Resource being waited on
+    type: string
+  wait_resource_object_name:
+    description: Name of the object being waited on
+    type: string
+  wait_resource_type:
+    description: Type of resource being waited on (KEY, OBJECT, PAGE, RID, etc.)
+    type: string
+  wait_type:
+    description: Type of wait (e.g., PAGEIOLATCH_SH, LCK_M_S)
+    type: string
+  wait_type_category:
+    description: Category of the wait type (I/O, Lock, Latch, CPU, Memory, Network, etc.)
+    type: string
+  wait_type_description:
+    description: Human-readable description of the wait type
+    type: string
+
+tests:
+  config:
+    hostname: "localhost"
+    port: "1433"
+    username: "test_user"
+    password: "test_password"
+    collection_interval: 15s
