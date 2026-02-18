@@ -12,9 +12,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/helpers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/queries"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/helpers"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/queries"
 )
 
 // ScrapeActiveRunningQueriesMetrics fetches active running queries from SQL Server

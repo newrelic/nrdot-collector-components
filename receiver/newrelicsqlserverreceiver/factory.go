@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package newrelicsqlserverreceiver // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver"
+package newrelicsqlserverreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver"
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/collector/scraper"
 	"go.opentelemetry.io/collector/scraper/scraperhelper"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/internal/metadata"
 )
 
 // NewFactory creates a factory for SQL Server receiver.

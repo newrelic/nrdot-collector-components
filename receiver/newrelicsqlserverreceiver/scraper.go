@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package newrelicsqlserverreceiver // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver"
+package newrelicsqlserverreceiver // import "github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver"
 
 import (
 	"context"
@@ -16,11 +16,11 @@ import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/helpers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/internal/metadata"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/queries"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/scrapers"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/helpers"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/queries"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/scrapers"
 )
 
 // sqlServerScraper handles SQL Server metrics collection

@@ -10,9 +10,9 @@ import (
 	"go.opentelemetry.io/collector/receiver/receivertest"
 	"go.uber.org/zap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/helpers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/internal/metadata"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/helpers"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
 )
 
 func TestSQLNormalizationIntegration(t *testing.T) {
