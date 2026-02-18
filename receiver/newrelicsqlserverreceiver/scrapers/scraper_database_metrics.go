@@ -12,9 +12,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.uber.org/zap"
 
-	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/internal/metadata"
-	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
-	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/queries"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/internal/metadata"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/queries"
 )
 
 // DatabaseScraper handles SQL Server database-level metrics collection

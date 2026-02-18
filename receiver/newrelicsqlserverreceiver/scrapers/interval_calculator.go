@@ -38,7 +38,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/newrelic/nrdot-collector-components/receiver/newrelicsqlserverreceiver/models"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver/models"
 )
 
 // SimplifiedQueryState tracks previous scrape data for delta calculation
