@@ -4,9 +4,8 @@
 package scrapers // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/scrapers"
 
 import (
-	"go.opentelemetry.io/collector/pdata/pcommon"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
+	"go.opentelemetry.io/collector/pdata/pcommon"
 )
 
 // MetricRecorderFunc defines a function type for recording metrics

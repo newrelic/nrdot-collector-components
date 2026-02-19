@@ -13,11 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"go.opentelemetry.io/collector/scraper/scraperhelper"
-	"go.uber.org/multierr"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/queries"
+	"go.opentelemetry.io/collector/scraper/scraperhelper"
+	"go.uber.org/multierr"
 )
 
 const (

@@ -180,6 +180,10 @@ func (c *SQLClient) QuerySpecificChildCursor(ctx context.Context, sqlID string, 
 		return &childCursor, nil
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	// No matching child cursor found
 	return nil, nil
 }

@@ -6,11 +6,10 @@ package scrapers // import "github.com/open-telemetry/opentelemetry-collector-co
 import (
 	"context"
 
-	"go.opentelemetry.io/collector/pdata/pcommon"
-	"go.uber.org/zap"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/models"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.uber.org/zap"
 )
 
 // diskIOMetricRecorder defines a metric recorder for disk I/O metrics

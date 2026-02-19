@@ -172,13 +172,13 @@ func GetSpecificChildCursorQuery(sqlID string, childNumber int64) string {
 			CASE WHEN s.executions > 0 THEN s.buffer_gets / s.executions ELSE 0 END AS avg_buffer_gets,
 			s.executions,
 			s.invalidations,
-			TO_CHAR(s.first_load_time, 'YYYY-MM-DD HH24:MI:SS') AS first_load_time,
-			TO_CHAR(s.last_load_time, 'YYYY-MM-DD HH24:MI:SS') AS last_load_time
+			TO_CHAR(TO_DATE(s.first_load_time, 'YYYY/MM/DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') AS first_load_time,
+			TO_CHAR(TO_DATE(s.last_load_time, 'YYYY/MM/DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') AS last_load_time
 		FROM
 			v$sql s
 		-- Use LEFT JOIN for Non-CDB compatibility
 		LEFT JOIN
-    		v$pdbs p ON s.con_id = p.con_id	
+    		v$pdbs p ON s.con_id = p.con_id
 		CROSS JOIN
 			v$database d
 		WHERE

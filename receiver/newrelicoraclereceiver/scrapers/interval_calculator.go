@@ -6,9 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/models"
+	"go.uber.org/zap"
 )
 
 // OracleQueryState tracks previous scrape data for delta calculation
