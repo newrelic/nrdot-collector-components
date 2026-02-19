@@ -7,6 +7,44 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
 
 <!-- next version -->
 
+## v0.142.2
+
+### 🚀 New components 🚀
+
+- `processor/adaptivetelemetry`: Added the Adaptive Telemetry Processor, which dynamically adjusts telemetry data based on real-time analysis to optimize performance and resource utilization. (#111, #137, #138, #139, #140, #142, #145, #146, #153, #158)
+  The Adaptive Telemetry Processor (ATP) is an intelligent metric filtering component that reduces telemetry costs by up to 70% while maintaining high observability during critical events.
+  
+  Key Features:
+  - Metric threshold filtering for CPU, memory, disk, and network metrics
+  - Process-based sampling with full path matching for security
+  - Dynamic threshold adjustment based on historical baselines
+  - Multi-metric composite scoring for holistic health assessment
+  - Anomaly detection to capture sudden metric changes
+  - Stateful processing with persistent JSON storage
+  - Security hardening with restricted storage paths, symlink protection, and proper file permissions
+  
+  Configuration options include:
+  - Configurable metric thresholds for system and process metrics
+  - Dynamic threshold adjustment with exponential moving average smoothing
+  - Composite scoring with configurable metric weights
+  - Anomaly detection with configurable history size and change thresholds
+  - Process filtering by full executable path (prevents process name spoofing)
+  - Secure state file storage under /var/lib/nrdot-collector/ with automatic permission management
+  
+  Related PRs:
+  - #137: Consolidated process metrics into single process.atp metric
+  - #138: Enhanced state management security controls
+  - #139: Added support for zombie processes and fixed unmonitored metrics
+  - #140: Added CODEOWNERS for ATP
+  - #142: Removed LICENSING file and minor ATP fixes
+  - #145: Fixed stage names (inclusion reason) flow
+  - #146: Minor refactoring and fixes
+  - #153: Remove 'processor' suffix from component type
+  - #158: Support state file storage on windows
+  
+
+<!-- previous-version -->
+
 ## v0.142.1
 
 <!-- previous-version -->

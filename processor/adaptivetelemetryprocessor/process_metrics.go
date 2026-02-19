@@ -232,8 +232,10 @@ func (p *processorImp) handleExcludedResource(rm pmetric.ResourceMetrics, resour
 // performPostProcessingTasks handles cleanup and final logging
 func (p *processorImp) performPostProcessingTasks(processCtx *processingContext, filtered pmetric.Metrics, start time.Time) {
 	// Perform cleanup of expired entities with controlled frequency
+	// Cleanup is synchronous to avoid race conditions in tests and has minimal performance impact
+	// since it runs infrequently (1% chance) and is fast (just iterating and deleting map entries)
 	if processCtx.resourceCount > 0 && p.config.RetentionMinutes > 0 && rand.Float64() < 0.01 {
-		go p.cleanupExpiredEntities()
+		p.cleanupExpiredEntities()
 	}
 
 	processingTime := time.Since(start)

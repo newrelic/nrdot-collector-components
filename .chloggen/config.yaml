@@ -9,8 +9,12 @@ summary_template: .chloggen/summary.tmpl
 components:
     - all
     - cmd/codecovgen
-    - exporter/nopexporter
+    - cmd/nrdotcol
+    - cmd/oteltestbedcol
+    - exporter/nop
     - internal/common
     - internal/coreinternal
-    - receiver/nopreceiver
+    - internal/tools
+    - processor/adaptivetelemetry
+    - receiver/nop
     - testbed
