@@ -23,6 +23,7 @@ body:
       - internal/core
       - internal/tools
       - processor/adaptivetelemetry
+      - receiver/newrelicoracle
       - receiver/nop
       - testbed
       # End components list

@@ -52,6 +52,7 @@ jobs:
           branch="update-otel-$(date +%s)"
           git checkout -b "$branch"
           make gennrdotcol
+          make gennrdotcol-cgo
           echo "LAST_COMMIT=$LAST_COMMIT" >> "$GITHUB_ENV"
           echo "LAST_CONTRIB_COMMIT=$LAST_CONTRIB_COMMIT" >> "$GITHUB_ENV"
           echo "BRANCH_NAME=$branch" >> "$GITHUB_ENV"

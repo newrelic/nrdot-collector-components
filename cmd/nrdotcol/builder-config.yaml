@@ -1,7 +1,8 @@
 # NOTE:
 # This builder configuration is used to build the New Relic Dot Collector
 # for testing custom nrdot components. Only includes core collector components
-# and nrdot-specific components.
+# and nrdot-specific components that do NOT require CGO.
+# For components requiring CGO (like newrelicoraclereceiver), see builder-config-cgo-enabled.yaml.
 
 dist:
   module: github.com/newrelic/nrdot-collector-components/cmd/nrdotcol

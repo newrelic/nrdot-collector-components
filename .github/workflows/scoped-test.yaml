@@ -92,6 +92,15 @@ jobs:
         env:
           CHANGED_GOLANG_TESTS: ${{ needs.changedfiles.outputs.go_tests }}
         run: |
+          # Filter out Oracle receiver tests if CGO is disabled (it requires CGO to build)
+          if [ "$CGO_ENABLED" = "0" ]; then
+            filtered_tests=$(echo "$CHANGED_GOLANG_TESTS" | grep -v "receiver/newrelicoraclereceiver" || true)
+            if [ -z "$filtered_tests" ]; then
+              echo "All changed tests require CGO, skipping"
+              exit 0
+            fi
+            export CHANGED_GOLANG_TESTS="$filtered_tests"
+          fi
           make run-changed-tests
 
       - name: Run tests on dependent components
@@ -99,6 +108,13 @@ jobs:
         env:
           CHANGED_GOLANG_SOURCES: ${{ needs.changedfiles.outputs.go_sources }}
         run: |
+          # Filter out Oracle receiver (requires CGO, has Windows path issues with license checker)
+          filtered_sources=$(echo "$CHANGED_GOLANG_SOURCES" | grep -v "receiver/newrelicoraclereceiver" || true)
+          if [ -z "$filtered_sources" ]; then
+            echo "All changed sources are Oracle receiver, skipping (tested in build-cgo job)"
+            exit 0
+          fi
+          export CHANGED_GOLANG_SOURCES="$filtered_sources"
           make for-affected-components CMD="make lint test-twice"
 
   scoped-tests:
