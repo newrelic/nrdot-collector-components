@@ -10,12 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"go.opentelemetry.io/collector/pdata/pcommon"
-	"go.uber.org/zap"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/client"
 	internalerrors "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/errors"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.uber.org/zap"
 )
 
 // ContainerScraper handles Oracle CDB/PDB container metrics

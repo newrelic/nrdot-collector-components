@@ -9,13 +9,12 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/collector/receiver/receivertest"
-	"go.uber.org/zap"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/client"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/models"
+	"github.com/stretchr/testify/assert"
+	"go.opentelemetry.io/collector/receiver/receivertest"
+	"go.uber.org/zap"
 )
 
 func TestNewSessionScraper(t *testing.T) {

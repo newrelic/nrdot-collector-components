@@ -7,11 +7,10 @@ import (
 	"context"
 	"time"
 
-	"go.opentelemetry.io/collector/pdata/pcommon"
-	"go.uber.org/zap"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/client"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.uber.org/zap"
 )
 
 type SystemScraper struct {

@@ -8,12 +8,11 @@ import (
 	"fmt"
 	"time"
 
-	"go.opentelemetry.io/collector/pdata/pcommon"
-	"go.uber.org/zap"
-
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/client"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/models"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.uber.org/zap"
 )
 
 // ChildCursorsScraper handles scraping of child cursor metrics from V$SQL
@@ -40,29 +39,37 @@ func (s *ChildCursorsScraper) ScrapeChildCursorsForIdentifiers(ctx context.Conte
 	now := pcommon.NewTimestampFromTime(time.Now())
 	metricsEmitted := 0
 
-	if len(identifiers) > 0 {
-		for i := range identifiers {
-			cursor, err := s.client.QuerySpecificChildCursor(ctx, identifiers[i].SQLID, identifiers[i].ChildNumber)
-			if err != nil {
-				s.logger.Warn("Failed to fetch specific child cursor from V$SQL",
-					zap.String("sql_id", identifiers[i].SQLID),
-					zap.Int64("child_number", identifiers[i].ChildNumber),
-					zap.Error(err))
-				errs = append(errs, err)
-				continue
-			}
-
-			if cursor != nil && cursor.HasValidIdentifier() {
-				s.recordChildCursorMetrics(now, cursor)
-				metricsEmitted++
-
-				planHashValue := fmt.Sprintf("%d", cursor.GetPlanHashValue())
-				identifiers[i].PlanHash = planHashValue
-			}
+	for i := range identifiers {
+		cursor, err := s.client.QuerySpecificChildCursor(ctx, identifiers[i].SQLID, identifiers[i].ChildNumber)
+		if err != nil {
+			s.logger.Warn("Failed to fetch specific child cursor from V$SQL",
+				zap.String("sql_id", identifiers[i].SQLID),
+				zap.Int64("child_number", identifiers[i].ChildNumber),
+				zap.Error(err))
+			errs = append(errs, err)
+			continue
 		}
+
+		if cursor == nil {
+			s.logger.Debug("No child cursor found in V$SQL",
+				zap.String("sql_id", identifiers[i].SQLID),
+				zap.Int64("child_number", identifiers[i].ChildNumber))
+			continue
+		}
+
+		if !cursor.HasValidIdentifier() {
+			s.logger.Debug("Child cursor has invalid identifier, skipping",
+				zap.String("sql_id", identifiers[i].SQLID),
+				zap.Int64("child_number", identifiers[i].ChildNumber))
+			continue
+		}
+
+		identifiers[i].PlanHash = fmt.Sprintf("%d", cursor.GetPlanHashValue())
+		s.recordChildCursorMetrics(now, cursor)
+		metricsEmitted++
 	}
 
-	s.logger.Info("Child cursors scrape completed")
+	s.logger.Info("Child cursors scrape completed", zap.Int("metrics_emitted", metricsEmitted))
 
 	return identifiers, errs
 }
