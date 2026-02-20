@@ -212,11 +212,13 @@ addlicense: $(NRLICENSE) addthirdparty
 NOTICE_OVERRIDES_FILE="$(SRC_ROOT)/internal/assets/license/overrides.jsonl"
 .PHONY: addoverrides
 addoverrides:
-	@overrides=""; \
+	@pushd $(SRC_ROOT); \
+	overrides=""; \
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
 		overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#$(SRC_ROOT)/}\", \"licenceType\": \"Apache-2.0\"}\n"; \
 	done; \
-	echo -e "$$overrides" | sort | grep -v '^$$' > "$(NOTICE_OVERRIDES_FILE)"
+	echo -e "$$overrides" | sort | grep -v '^$$' > "$(NOTICE_OVERRIDES_FILE)"; \
+	popd
 
 
 .PHONY: addthirdparty
