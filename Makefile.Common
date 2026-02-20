@@ -216,7 +216,7 @@ addoverrides:
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
 		overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#$(SRC_ROOT)/}\", \"licenceType\": \"Apache-2.0\"}\n"; \
 	done; \
-	echo -e "$$overrides" | sort > "$(NOTICE_OVERRIDES_FILE)"
+	echo -e "$$overrides" | sort | grep -v '^$$' > "$(NOTICE_OVERRIDES_FILE)"
 
 
 .PHONY: addthirdparty
