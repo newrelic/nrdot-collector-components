@@ -209,8 +209,20 @@ addlicense: $(NRLICENSE) addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
 	@$(NRLICENSE) --fix --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
+NOTICE_OVERRIDES_FILE="$(SRC_ROOT)/internal/assets/license/overrides.jsonl"
+.PHONY: addoverrides
+addoverrides:
+	@pushd $(SRC_ROOT); \
+	overrides=""; \
+	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
+		overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#$(SRC_ROOT)/}\", \"licenceType\": \"Apache-2.0\"}\n"; \
+	done; \
+	echo -e "$$overrides" | sort | grep -v '^$$' > "$(NOTICE_OVERRIDES_FILE)"; \
+	popd
+
+
 .PHONY: addthirdparty
-addthirdparty: $(LICENSE_DETECTOR)
+addthirdparty: $(LICENSE_DETECTOR) addoverrides
 	@echo "Generating third-party notices..."
 	@rules_file="$(SRC_ROOT)/internal/assets/license/rules.json"; \
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
@@ -220,7 +232,7 @@ addthirdparty: $(LICENSE_DETECTOR)
 		fi; \
 		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
 			-rules "$$rules_file" \
-			-overrides "$(SRC_ROOT)/internal/assets/license/overrides.jsonl" \
+			-overrides "$(NOTICE_OVERRIDES_FILE)" \
 			-noticeTemplate $(SRC_ROOT)/internal/assets/license/THIRD_PARTY_NOTICES.tmpl \
 			-noticeOut $$dir/THIRD_PARTY_NOTICES.md || { echo "Failing directory: $$dir"; exit 1; }; \
 		$(GOCMD) -C $$dir mod tidy -compat=1.24.0; \
@@ -229,9 +241,9 @@ addthirdparty: $(LICENSE_DETECTOR)
 .PHONY: checklicense
 checklicense: $(NRLICENSE) addthirdparty
 	@echo "Checking third party notices..."
-	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q "THIRD_PARTY_NOTICES.md" && { \
-		 echo "Third party notices out of date, please run \"make addlicense\" and commit the changes in this PR."; \
-		git --no-pager diff; exit 1; \
+	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q -e "THIRD_PARTY_NOTICES.md" && { \
+		echo "Third party notices or overrides out of date, please run \"make addlicense\" and commit the changes in this PR."; \
+		git --no-pager diff HEAD -- */THIRD_PARTY_NOTICES.md */overrides.jsonl; exit 1; \
 	} || exit 0
 	@echo "Checking license headers with nrlicense..."
 	@$(NRLICENSE) --check --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
