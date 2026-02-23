@@ -21,21 +21,30 @@ type SQLConnectionInterface interface {
 	Query(ctx context.Context, dest interface{}, query string) error
 }
 
+// ScraperConfig interface defines config methods needed by scrapers
+type ScraperConfig interface {
+	GetEnableInstanceMetrics() bool
+	GetEnableWaitTimeMetrics() bool
+	GetEnableDatabaseMetrics() bool
+}
+
 // InstanceScraper handles SQL Server instance-level metrics collection
 type InstanceScraper struct {
 	connection    SQLConnectionInterface
 	logger        *zap.Logger
 	mb            *metadata.MetricsBuilder
 	engineEdition int
+	config        ScraperConfig
 }
 
 // NewInstanceScraper creates a new instance scraper
-func NewInstanceScraper(conn SQLConnectionInterface, logger *zap.Logger, mb *metadata.MetricsBuilder, engineEdition int) *InstanceScraper {
+func NewInstanceScraper(conn SQLConnectionInterface, logger *zap.Logger, mb *metadata.MetricsBuilder, engineEdition int, config ScraperConfig) *InstanceScraper {
 	return &InstanceScraper{
 		connection:    conn,
 		logger:        logger,
 		mb:            mb,
 		engineEdition: engineEdition,
+		config:        config,
 	}
 }
 
@@ -160,16 +169,20 @@ func (s *InstanceScraper) ScrapeInstanceComprehensiveStats(ctx context.Context) 
 func (s *InstanceScraper) processInstanceMemoryMetrics(result models.InstanceMemoryDefinitionsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
-	if result.TotalPhysicalMemory != nil {
-		s.mb.RecordSqlserverInstanceMemoryTotalDataPoint(now, *result.TotalPhysicalMemory)
-	}
-
+	// ALWAYS emit mandatory metrics (required for dashboard)
 	if result.AvailablePhysicalMemory != nil {
-		s.mb.RecordSqlserverInstanceMemoryAvailableDataPoint(now, *result.AvailablePhysicalMemory)
+		s.mb.RecordSqlserverInstanceMemoryAvailableDataPoint(now, *result.AvailablePhysicalMemory) // MANDATORY: Dashboard metric
 	}
 
 	if result.MemoryUtilization != nil {
-		s.mb.RecordSqlserverInstanceMemoryUtilizationPercentDataPoint(now, *result.MemoryUtilization)
+		s.mb.RecordSqlserverInstanceMemoryUtilizationPercentDataPoint(now, *result.MemoryUtilization) // MANDATORY: Dashboard metric
+	}
+
+	// Only emit optional metrics if instance metrics are enabled
+	if s.config.GetEnableInstanceMetrics() {
+		if result.TotalPhysicalMemory != nil {
+			s.mb.RecordSqlserverInstanceMemoryTotalDataPoint(now, *result.TotalPhysicalMemory) // OPTIONAL
+		}
 	}
 
 	return nil
@@ -230,56 +243,60 @@ func (s *InstanceScraper) ScrapeInstanceStats(ctx context.Context) error {
 func (s *InstanceScraper) processInstanceStatsMetrics(result models.InstanceStatsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit mandatory metrics (required for golden metrics and dashboard)
 	if result.SQLCompilations != nil {
-		s.mb.RecordSqlserverStatsSQLCompilationsPerSecDataPoint(now, int64(*result.SQLCompilations))
-	}
-
-	if result.SQLRecompilations != nil {
-		s.mb.RecordSqlserverStatsSQLRecompilationsPerSecDataPoint(now, int64(*result.SQLRecompilations))
+		s.mb.RecordSqlserverStatsSQLCompilationsPerSecDataPoint(now, int64(*result.SQLCompilations)) // MANDATORY: Golden metric
 	}
 
 	if result.UserConnections != nil {
-		s.mb.RecordSqlserverStatsConnectionsDataPoint(now, int64(*result.UserConnections))
+		s.mb.RecordSqlserverStatsConnectionsDataPoint(now, int64(*result.UserConnections)) // MANDATORY: Golden metric
 	}
 
 	if result.LockWaitTimeMs != nil {
-		s.mb.RecordSqlserverStatsLockWaitsPerSecDataPoint(now, int64(*result.LockWaitTimeMs))
+		s.mb.RecordSqlserverStatsLockWaitsPerSecDataPoint(now, int64(*result.LockWaitTimeMs)) // MANDATORY: Dashboard metric
 	}
 
 	if result.PageSplitsSec != nil {
-		s.mb.RecordSqlserverAccessPageSplitsPerSecDataPoint(now, int64(*result.PageSplitsSec))
+		s.mb.RecordSqlserverAccessPageSplitsPerSecDataPoint(now, int64(*result.PageSplitsSec)) // MANDATORY: Dashboard metric
 	}
 
 	if result.CheckpointPagesSec != nil {
-		s.mb.RecordSqlserverBufferCheckpointPagesPerSecDataPoint(now, int64(*result.CheckpointPagesSec))
+		s.mb.RecordSqlserverBufferCheckpointPagesPerSecDataPoint(now, int64(*result.CheckpointPagesSec)) // MANDATORY: Dashboard metric
 	}
 
 	if result.DeadlocksSec != nil {
-		s.mb.RecordSqlserverStatsDeadlocksPerSecDataPoint(now, int64(*result.DeadlocksSec))
+		s.mb.RecordSqlserverStatsDeadlocksPerSecDataPoint(now, int64(*result.DeadlocksSec)) // MANDATORY: Dashboard metric
 	}
 
 	if result.UserErrors != nil {
-		s.mb.RecordSqlserverStatsUserErrorsPerSecDataPoint(now, int64(*result.UserErrors))
+		s.mb.RecordSqlserverStatsUserErrorsPerSecDataPoint(now, int64(*result.UserErrors)) // MANDATORY: Dashboard metric
 	}
 
 	if result.KillConnectionErrors != nil {
-		s.mb.RecordSqlserverStatsKillConnectionErrorsPerSecDataPoint(now, int64(*result.KillConnectionErrors))
-	}
-
-	if result.BatchRequestSec != nil {
-		s.mb.RecordSqlserverBufferpoolBatchRequestsPerSecDataPoint(now, int64(*result.BatchRequestSec))
+		s.mb.RecordSqlserverStatsKillConnectionErrorsPerSecDataPoint(now, int64(*result.KillConnectionErrors)) // MANDATORY: Dashboard metric
 	}
 
 	if result.PageLifeExpectancySec != nil {
-		s.mb.RecordSqlserverBufferpoolPageLifeExpectancyMsDataPoint(now, *result.PageLifeExpectancySec)
+		s.mb.RecordSqlserverBufferpoolPageLifeExpectancyMsDataPoint(now, *result.PageLifeExpectancySec) // MANDATORY: Dashboard metric
 	}
 
 	if result.TransactionsSec != nil {
-		s.mb.RecordSqlserverInstanceTransactionsPerSecDataPoint(now, int64(*result.TransactionsSec))
+		s.mb.RecordSqlserverInstanceTransactionsPerSecDataPoint(now, int64(*result.TransactionsSec)) // MANDATORY: Golden metric
 	}
 
 	if result.ForcedParameterizationsSec != nil {
-		s.mb.RecordSqlserverInstanceForcedParameterizationsPerSecDataPoint(now, int64(*result.ForcedParameterizationsSec))
+		s.mb.RecordSqlserverInstanceForcedParameterizationsPerSecDataPoint(now, int64(*result.ForcedParameterizationsSec)) // MANDATORY: Dashboard metric
+	}
+
+	// Only emit optional metrics if instance metrics are enabled
+	if s.config.GetEnableInstanceMetrics() {
+		if result.SQLRecompilations != nil {
+			s.mb.RecordSqlserverStatsSQLRecompilationsPerSecDataPoint(now, int64(*result.SQLRecompilations)) // OPTIONAL
+		}
+
+		if result.BatchRequestSec != nil {
+			s.mb.RecordSqlserverBufferpoolBatchRequestsPerSecDataPoint(now, int64(*result.BatchRequestSec)) // OPTIONAL
+		}
 	}
 
 	return nil
@@ -313,8 +330,9 @@ func (s *InstanceScraper) ScrapeInstanceBufferPoolHitPercent(ctx context.Context
 func (s *InstanceScraper) processInstanceBufferPoolHitPercent(result models.BufferPoolHitPercentMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - this is a MANDATORY golden metric
 	if result.BufferPoolHitPercent != nil {
-		s.mb.RecordSqlserverInstanceBufferPoolHitPercentDataPoint(now, *result.BufferPoolHitPercent)
+		s.mb.RecordSqlserverInstanceBufferPoolHitPercentDataPoint(now, *result.BufferPoolHitPercent) // MANDATORY: Golden metric
 	}
 
 	return nil
@@ -348,36 +366,40 @@ func (s *InstanceScraper) ScrapeInstanceProcessCounts(ctx context.Context) error
 func (s *InstanceScraper) processInstanceProcessCounts(result models.InstanceProcessCountsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
-	if result.Preconnect != nil {
-		s.mb.RecordSqlserverInstancePreconnectProcessesCountDataPoint(now, int64(*result.Preconnect))
-	}
-
-	if result.Background != nil {
-		s.mb.RecordSqlserverInstanceBackgroundProcessesCountDataPoint(now, int64(*result.Background))
-	}
-
-	if result.Dormant != nil {
-		s.mb.RecordSqlserverInstanceDormantProcessesCountDataPoint(now, int64(*result.Dormant))
-	}
-
-	if result.Runnable != nil {
-		s.mb.RecordSqlserverInstanceRunnableProcessesCountDataPoint(now, int64(*result.Runnable))
-	}
-
-	if result.Suspended != nil {
-		s.mb.RecordSqlserverInstanceSuspendedProcessesCountDataPoint(now, int64(*result.Suspended))
-	}
-
-	if result.Running != nil {
-		s.mb.RecordSqlserverInstanceRunningProcessesCountDataPoint(now, int64(*result.Running))
-	}
-
+	// ALWAYS emit mandatory metrics (required for golden metrics)
 	if result.Blocked != nil {
-		s.mb.RecordSqlserverInstanceBlockedProcessesCountDataPoint(now, int64(*result.Blocked))
+		s.mb.RecordSqlserverInstanceBlockedProcessesCountDataPoint(now, int64(*result.Blocked)) // MANDATORY: Golden metric
 	}
 
-	if result.Sleeping != nil {
-		s.mb.RecordSqlserverInstanceSleepingProcessesCountDataPoint(now, int64(*result.Sleeping))
+	// Only emit optional metrics if instance metrics are enabled
+	if s.config.GetEnableInstanceMetrics() {
+		if result.Preconnect != nil {
+			s.mb.RecordSqlserverInstancePreconnectProcessesCountDataPoint(now, int64(*result.Preconnect)) // OPTIONAL
+		}
+
+		if result.Background != nil {
+			s.mb.RecordSqlserverInstanceBackgroundProcessesCountDataPoint(now, int64(*result.Background)) // OPTIONAL
+		}
+
+		if result.Dormant != nil {
+			s.mb.RecordSqlserverInstanceDormantProcessesCountDataPoint(now, int64(*result.Dormant)) // OPTIONAL
+		}
+
+		if result.Runnable != nil {
+			s.mb.RecordSqlserverInstanceRunnableProcessesCountDataPoint(now, int64(*result.Runnable)) // OPTIONAL
+		}
+
+		if result.Suspended != nil {
+			s.mb.RecordSqlserverInstanceSuspendedProcessesCountDataPoint(now, int64(*result.Suspended)) // OPTIONAL
+		}
+
+		if result.Running != nil {
+			s.mb.RecordSqlserverInstanceRunningProcessesCountDataPoint(now, int64(*result.Running)) // OPTIONAL
+		}
+
+		if result.Sleeping != nil {
+			s.mb.RecordSqlserverInstanceSleepingProcessesCountDataPoint(now, int64(*result.Sleeping)) // OPTIONAL
+		}
 	}
 
 	return nil
@@ -481,8 +503,9 @@ func (s *InstanceScraper) ScrapeInstanceActiveConnections(ctx context.Context) e
 func (s *InstanceScraper) processInstanceActiveConnections(result models.InstanceActiveConnectionsMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - this is a MANDATORY golden metric
 	if result.InstanceActiveConnections != nil {
-		s.mb.RecordSqlserverInstanceConnectionsActiveDataPoint(now, int64(*result.InstanceActiveConnections))
+		s.mb.RecordSqlserverInstanceConnectionsActiveDataPoint(now, int64(*result.InstanceActiveConnections)) // MANDATORY: Golden metric
 	}
 
 	return nil
@@ -516,8 +539,9 @@ func (s *InstanceScraper) ScrapeInstanceBufferPoolSize(ctx context.Context) erro
 func (s *InstanceScraper) processInstanceBufferPoolSize(result models.InstanceBufferMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - this is a MANDATORY dashboard metric
 	if result.BufferPoolSize != nil {
-		s.mb.RecordSqlserverInstanceBufferPoolSizeDataPoint(now, int64(*result.BufferPoolSize))
+		s.mb.RecordSqlserverInstanceBufferPoolSizeDataPoint(now, int64(*result.BufferPoolSize)) // MANDATORY: Dashboard metric
 	}
 
 	return nil
@@ -527,8 +551,9 @@ func (s *InstanceScraper) processInstanceBufferPoolSize(result models.InstanceBu
 func (s *InstanceScraper) processInstanceTargetMemoryMetrics(result models.InstanceTargetMemoryModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - this is a MANDATORY dashboard metric
 	if result.TargetServerMemoryKB != nil {
-		s.mb.RecordSqlserverInstanceTargetMemoryKbDataPoint(now, *result.TargetServerMemoryKB)
+		s.mb.RecordSqlserverInstanceTargetMemoryKbDataPoint(now, *result.TargetServerMemoryKB) // MANDATORY: Dashboard metric
 	}
 
 	return nil
@@ -538,12 +563,13 @@ func (s *InstanceScraper) processInstanceTargetMemoryMetrics(result models.Insta
 func (s *InstanceScraper) processInstancePerformanceRatiosMetrics(result models.InstancePerformanceRatiosModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - these are MANDATORY dashboard metrics
 	if result.CompilationsPerBatch != nil {
-		s.mb.RecordSqlserverInstanceCompilationsPerBatchDataPoint(now, *result.CompilationsPerBatch)
+		s.mb.RecordSqlserverInstanceCompilationsPerBatchDataPoint(now, *result.CompilationsPerBatch) // MANDATORY: Dashboard metric
 	}
 
 	if result.PageSplitsPerBatch != nil {
-		s.mb.RecordSqlserverInstancePageSplitsPerBatchDataPoint(now, *result.PageSplitsPerBatch)
+		s.mb.RecordSqlserverInstancePageSplitsPerBatchDataPoint(now, *result.PageSplitsPerBatch) // MANDATORY: Dashboard metric
 	}
 
 	return nil
@@ -553,8 +579,9 @@ func (s *InstanceScraper) processInstancePerformanceRatiosMetrics(result models.
 func (s *InstanceScraper) processInstanceIndexMetrics(result models.InstanceIndexMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - this is a MANDATORY dashboard metric
 	if result.FullScansPerSec != nil {
-		s.mb.RecordSqlserverInstanceFullScansRateDataPoint(now, *result.FullScansPerSec)
+		s.mb.RecordSqlserverInstanceFullScansRateDataPoint(now, *result.FullScansPerSec) // MANDATORY: Dashboard metric
 	}
 
 	return nil
@@ -564,8 +591,9 @@ func (s *InstanceScraper) processInstanceIndexMetrics(result models.InstanceInde
 func (s *InstanceScraper) processInstanceLockMetrics(result models.InstanceLockMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ALWAYS emit - this is a MANDATORY dashboard metric
 	if result.LockTimeoutsPerSec != nil {
-		s.mb.RecordSqlserverInstanceLockTimeoutsRateDataPoint(now, *result.LockTimeoutsPerSec)
+		s.mb.RecordSqlserverInstanceLockTimeoutsRateDataPoint(now, *result.LockTimeoutsPerSec) // MANDATORY: Dashboard metric
 	}
 
 	return nil

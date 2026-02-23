@@ -316,3 +316,18 @@ func (cfg *Config) CreateAzureADConnectionURL(dbName string) string {
 
 	return connectionString
 }
+
+// GetEnableInstanceMetrics returns whether instance metrics are enabled
+func (cfg *Config) GetEnableInstanceMetrics() bool {
+	return cfg.EnableInstanceMetrics
+}
+
+// GetEnableWaitTimeMetrics returns whether wait time metrics are enabled
+func (cfg *Config) GetEnableWaitTimeMetrics() bool {
+	return cfg.EnableWaitTimeMetrics
+}
+
+// GetEnableDatabaseMetrics returns whether database metrics are enabled
+func (cfg *Config) GetEnableDatabaseMetrics() bool {
+	return cfg.EnableDatabaseMetrics
+}
