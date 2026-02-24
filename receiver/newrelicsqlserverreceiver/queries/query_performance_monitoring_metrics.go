@@ -38,9 +38,9 @@ WITH StatementDetails AS (
 			WHERE pa.attribute = 'dbid'
 		) AS pa
 	WHERE
-		-- *** KEY FILTER: Only plans that ran in the last @IntervalSeconds (e.g., 15) ***
-		qs.last_execution_time >= DATEADD(SECOND, -@IntervalSeconds, GETUTCDATE())
-		AND qs.execution_count > 0
+		-- *** REMOVED TIME FILTER: Fetch ALL queries from plan cache (no time window restriction) ***
+		-- qs.last_execution_time >= DATEADD(SECOND, -@IntervalSeconds, GETUTCDATE())
+		qs.execution_count > 0
 		AND qt.text IS NOT NULL
 		AND LTRIM(RTRIM(qt.text)) <> ''
 		AND DB_NAME(CONVERT(INT, pa.value)) NOT IN ('master', 'model', 'msdb', 'tempdb')
@@ -126,10 +126,11 @@ DEALLOCATE db_cursor;
 -- ============================================================================
 -- MAIN QUERY: Active running queries with cross-database KEY lock resolution
 -- ============================================================================
-DECLARE @Limit INT = %d; -- Set the maximum number of rows to return
-DECLARE @ElapsedTimeThresholdMs INT = %d; -- Minimum elapsed time threshold in milliseconds
+-- REMOVED: @Limit and @ElapsedTimeThresholdMs parameters - fetching ALL active queries
+-- DECLARE @Limit INT = %d;
+-- DECLARE @ElapsedTimeThresholdMs INT = %d;
 
-SELECT TOP (@Limit)
+SELECT
     -- A. SESSION IDENTIFICATION (Required for correlation)
     r_wait.session_id AS current_session_id,
     r_wait.request_id AS request_id,
@@ -258,8 +259,9 @@ WHERE
     AND r_wait.database_id > 4
     AND r_wait.wait_type IS NOT NULL
     AND r_wait.query_hash IS NOT NULL  -- Filter out queries without query_hash (PREEMPTIVE waits, system queries)
-    AND r_wait.total_elapsed_time >= @ElapsedTimeThresholdMs  -- Filter by elapsed time threshold
-    %s  -- Placeholder for additional query_hash IN filter (injected from Go code)
+    -- REMOVED: Elapsed time threshold filter - fetching ALL active queries regardless of elapsed time
+    -- AND r_wait.total_elapsed_time >= @ElapsedTimeThresholdMs
+    -- REMOVED: query_hash IN filter - now fetching ALL active queries for independent monitoring
 ORDER BY
     r_wait.total_elapsed_time DESC  -- Sort by slowest executions first (not wait_time)
 OPTION (RECOMPILE);  -- OPTIMIZED: Recompile for current parameter values

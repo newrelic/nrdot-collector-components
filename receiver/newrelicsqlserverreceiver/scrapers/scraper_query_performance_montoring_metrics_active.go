@@ -19,13 +19,9 @@ import (
 
 // ScrapeActiveRunningQueriesMetrics fetches active running queries from SQL Server
 // Returns the list of active queries for further processing (metrics emission and execution plan fetching)
-func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.Context, limit, elapsedTimeThreshold int, slowQueryIDs []string) ([]models.ActiveRunningQuery, error) {
-	// Skip active query scraping if no slow queries found (nothing to correlate)
-	if len(slowQueryIDs) == 0 {
-		s.logger.Info("No slow queries found, skipping active query scraping (nothing to correlate)")
-		return nil, nil
-	}
-
+// NOTE: Fetches ALL active queries with NO filtering (no limit, no threshold, no slow query correlation)
+// This enables complete independent active query monitoring
+func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.Context) ([]models.ActiveRunningQuery, error) {
 	// Build database filter for KEY/OBJECT lock resolution from monitored_databases
 	dbFilter := ""
 	if s.metadataCache != nil {
@@ -42,25 +38,19 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 		}
 	}
 
-	// Build query with slow query correlation filter
-	queryIDFilter := ""
-	if len(slowQueryIDs) > 0 {
-		queryIDFilter = "AND r_wait.query_hash IN (" + strings.Join(slowQueryIDs, ",") + ")"
-	}
-	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, dbFilter, limit, elapsedTimeThreshold, queryIDFilter)
+	// Build query WITHOUT any filters (no limit, no threshold)
+	// This fetches ALL active queries from dm_exec_requests
+	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, dbFilter)
 
-	s.logger.Debug("Executing active running queries fetch",
-		zap.String("query", queries.TruncateQuery(query, 100)),
-		zap.Int("limit", limit),
-		zap.Int("elapsed_time_threshold_ms", elapsedTimeThreshold),
-		zap.Int("slow_query_id_count", len(slowQueryIDs)))
+	s.logger.Debug("Executing active running queries fetch (NO filters - fetching ALL active queries)",
+		zap.String("query", queries.TruncateQuery(query, 100)))
 
 	var results []models.ActiveRunningQuery
 	if err := s.connection.Query(ctx, &results, query); err != nil {
 		return nil, fmt.Errorf("failed to execute active running queries query: %w", err)
 	}
 
-	s.logger.Info("Active running queries fetched from database",
+	s.logger.Info("Active running queries fetched from database (ALL queries - no filtering)",
 		zap.Int("result_count", len(results)))
 
 	return results, nil
@@ -68,6 +58,7 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 
 // EmitActiveRunningQueriesMetrics emits metrics for active running queries
 // This processes the active queries and emits metrics (no execution plans)
+// NOTE: Now emits metrics for ALL active queries, with optional enrichment from slow query plan data
 func (s *QueryPerformanceScraper) EmitActiveRunningQueriesMetrics(ctx context.Context, activeQueries []models.ActiveRunningQuery, slowQueryPlanDataMap map[string]models.SlowQueryPlanData, apmMetadataCache *helpers.APMMetadataCache) error {
 	if len(activeQueries) == 0 {
 		s.logger.Info("No active queries to emit metrics for")
@@ -76,7 +67,8 @@ func (s *QueryPerformanceScraper) EmitActiveRunningQueriesMetrics(ctx context.Co
 
 	filteredCount := 0
 	processedCount := 0
-	skippedNoSlowQueryMatch := 0
+	matchedWithSlowQuery := 0
+	withoutSlowQueryMatch := 0
 
 	for i, result := range activeQueries {
 		// Defensive checks for required fields
@@ -94,27 +86,27 @@ func (s *QueryPerformanceScraper) EmitActiveRunningQueriesMetrics(ctx context.Co
 			continue
 		}
 
-		// Get plan_handle from lightweight plan data using query_id
+		// Try to get plan_handle from lightweight plan data using query_id (for correlation)
 		var slowQueryPlanHandle *models.QueryID
 		if result.QueryID != nil && !result.QueryID.IsEmpty() {
 			queryIDStr := result.QueryID.String()
 			if planData, found := slowQueryPlanDataMap[queryIDStr]; found {
 				slowQueryPlanHandle = planData.PlanHandle
+				matchedWithSlowQuery++
+				s.logger.Debug("Active query matched with slow query data",
+					zap.Any("session_id", result.CurrentSessionID),
+					zap.String("query_id", queryIDStr))
+			} else {
+				withoutSlowQueryMatch++
+				s.logger.Debug("Active query has no slow query match - emitting without plan enrichment",
+					zap.Any("session_id", result.CurrentSessionID),
+					zap.String("query_id", queryIDStr))
 			}
-		}
-
-		// Skip if no matching slow query plan_handle found
-		if slowQueryPlanHandle == nil || slowQueryPlanHandle.IsEmpty() {
-			skippedNoSlowQueryMatch++
-			s.logger.Debug("No matching slow query plan_handle found for active query, skipping metric emission",
-				zap.Any("session_id", result.CurrentSessionID),
-				zap.Any("query_id", result.QueryID))
-			continue
 		}
 
 		processedCount++
 
-		// Emit metrics for this active query (no execution plan XML) using slow query plan_handle
+		// Emit metrics for this active query (with optional plan_handle enrichment)
 		// Pass by pointer so blocking metadata modifications persist
 		if err := s.processActiveRunningQueryMetricsWithPlan(&activeQueries[i], i, "", slowQueryPlanHandle, apmMetadataCache); err != nil {
 			s.logger.Error("Failed to emit active running query metrics", zap.Error(err), zap.Int("index", i))
@@ -124,7 +116,8 @@ func (s *QueryPerformanceScraper) EmitActiveRunningQueriesMetrics(ctx context.Co
 	s.logger.Info("Active running queries metrics emission complete",
 		zap.Int("total_queries", len(activeQueries)),
 		zap.Int("filtered_out", filteredCount),
-		zap.Int("skipped_no_slow_query_match", skippedNoSlowQueryMatch),
+		zap.Int("matched_with_slow_query", matchedWithSlowQuery),
+		zap.Int("without_slow_query_match", withoutSlowQueryMatch),
 		zap.Int("metrics_emitted", processedCount))
 
 	return nil
