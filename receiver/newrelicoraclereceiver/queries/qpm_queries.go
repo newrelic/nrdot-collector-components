@@ -5,7 +5,6 @@ package queries // import "github.com/open-telemetry/opentelemetry-collector-con
 
 import (
 	"fmt"
-	"strings"
 )
 
 // GetSlowQueriesSQL returns SQL for slow queries with configurable time window
@@ -63,28 +62,20 @@ func GetSlowQueriesSQL(intervalSeconds int) string {
 			sa.elapsed_time DESC`, intervalSeconds)
 }
 
-// GetWaitEventsAndBlockingSQL returns SQL for wait events with optional blocking information
-// This combines both wait events and blocking queries into a single query to reduce overhead
+// GetWaitEventsAndBlockingSQL returns SQL for active session wait events with blocking information.
+// This combines both wait events and blocking queries into a single query to reduce overhead.
 // High cardinality mitigation:
 // - FETCH FIRST limits total rows returned to configured rowLimit
 // - Filters active sessions capturing both CPU activity and actual waits (status='ACTIVE', excludes Idle waits and BACKGROUND processes)
-// - Optional SQL_ID filter (slowQuerySQLIDs) for database-level filtering
 // - Orders by time in state (CPU or wait time) to get most impactful sessions first
 //
-// Key improvements:
+// Key notes:
 // - Captures CPU activity (state != 'WAITING') in addition to wait events
 // - Correctly labels activity as 'ON CPU' or actual wait event name
 // - Uses proper timer: wait_time_micro for WAITING state, time_since_last_wait_micro for CPU
 // - Excludes background processes to match ASH behavior
-func GetWaitEventsAndBlockingSQL(rowLimit int, slowQuerySQLIDs []string) string {
-	sqlIDFilter := ""
-	if len(slowQuerySQLIDs) > 0 {
-		quotedIDs := make([]string, len(slowQuerySQLIDs))
-		for i, id := range slowQuerySQLIDs {
-			quotedIDs[i] = fmt.Sprintf("'%s'", id)
-		}
-		sqlIDFilter = fmt.Sprintf("AND s.sql_id IN (%s)", strings.Join(quotedIDs, ", "))
-	}
+// - Metadata (nrServiceGUID, normalisedSQLHash) is attached in Go using the slow-query sqlIDMap
+func GetWaitEventsAndBlockingSQL(rowLimit int) string {
 	return fmt.Sprintf(`
 		SELECT
 			TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') AS COLLECTION_TIMESTAMP,
@@ -122,7 +113,8 @@ func GetWaitEventsAndBlockingSQL(rowLimit int, slowQuerySQLIDs []string) string 
 			final_blocker.serial# AS final_blocker_serial,
 			-- Enhanced: Prioritize SQL_ID, fallback to PREV_SQL_ID
 			COALESCE(final_blocker.sql_id, final_blocker.prev_sql_id) AS final_blocker_query_id,
-			COALESCE(final_blocker_sql.sql_fulltext, prev_final_blocker_sql.sql_fulltext) AS final_blocker_query_text
+			COALESCE(final_blocker_sql.sql_fulltext, prev_final_blocker_sql.sql_fulltext) AS final_blocker_query_text,
+			active_sql.sql_fulltext AS query_text
 		FROM
 			v$session s
 		LEFT JOIN
@@ -131,9 +123,12 @@ func GetWaitEventsAndBlockingSQL(rowLimit int, slowQuerySQLIDs []string) string 
 			v$session final_blocker ON s.FINAL_BLOCKING_SESSION = final_blocker.sid
 		LEFT JOIN
 			v$sqlarea final_blocker_sql ON final_blocker.sql_id = final_blocker_sql.sql_id
-		-- NEW JOIN: Join to V$SQLAREA using the FINAL BLOCKER'S PREV_SQL_ID
+		-- Join to V$SQLAREA using the FINAL BLOCKER'S PREV_SQL_ID
 		LEFT JOIN
 			v$sqlarea prev_final_blocker_sql ON final_blocker.prev_sql_id = prev_final_blocker_sql.sql_id
+		-- Join to V$SQLAREA for the active session's own query text
+		LEFT JOIN
+			v$sqlarea active_sql ON s.sql_id = active_sql.sql_id
 		-- Use LEFT JOIN for Non-CDB compatibility
 		LEFT JOIN
     		v$pdbs p ON s.con_id = p.con_id
@@ -147,13 +142,12 @@ func GetWaitEventsAndBlockingSQL(rowLimit int, slowQuerySQLIDs []string) string 
 				s.state != 'WAITING'
 				OR s.wait_class <> 'Idle'
 			)
-			%s
 		ORDER BY
 			CASE
 				WHEN s.state = 'WAITING' THEN s.WAIT_TIME_MICRO
 				ELSE s.TIME_SINCE_LAST_WAIT_MICRO
 			END DESC
-		FETCH FIRST %d ROWS ONLY`, sqlIDFilter, rowLimit)
+		FETCH FIRST %d ROWS ONLY`, rowLimit)
 }
 
 // GetSpecificChildCursorQuery returns SQL to get a SPECIFIC child cursor by sql_id and child_number

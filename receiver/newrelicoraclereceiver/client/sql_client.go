@@ -188,11 +188,10 @@ func (c *SQLClient) QuerySpecificChildCursor(ctx context.Context, sqlID string, 
 	return nil, nil
 }
 
-// QueryWaitEventsWithBlocking executes the combined wait events with blocking information query.
-// This replaces the separate QueryBlockingQueries and QueryWaitEvents methods.
-// slowQuerySQLIDs: Optional list of SQL_IDs to filter by at database level (empty slice returns all)
-func (c *SQLClient) QueryWaitEventsWithBlocking(ctx context.Context, countThreshold int, slowQuerySQLIDs []string) ([]models.WaitEventWithBlocking, error) {
-	query := queries.GetWaitEventsAndBlockingSQL(countThreshold, slowQuerySQLIDs)
+// QueryWaitEventsWithBlocking executes the combined wait events with blocking information query
+// for all active non-idle sessions. Metadata is attached in Go from the slow-query sqlIDMap.
+func (c *SQLClient) QueryWaitEventsWithBlocking(ctx context.Context, countThreshold int) ([]models.WaitEventWithBlocking, error) {
+	query := queries.GetWaitEventsAndBlockingSQL(countThreshold)
 
 	rows, err := c.db.QueryContext(ctx, query)
 	if err != nil {
@@ -236,6 +235,7 @@ func (c *SQLClient) QueryWaitEventsWithBlocking(ctx context.Context, countThresh
 			&w.FinalBlockerSerial,
 			&w.FinalBlockerQueryID,
 			&w.FinalBlockerQueryText,
+			&w.QueryText,
 		)
 		if err != nil {
 			return nil, err
