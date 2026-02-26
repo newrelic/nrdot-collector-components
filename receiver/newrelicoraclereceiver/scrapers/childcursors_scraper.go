@@ -17,19 +17,21 @@ import (
 
 // ChildCursorsScraper handles scraping of child cursor metrics from V$SQL
 type ChildCursorsScraper struct {
-	client               client.OracleClient
-	mb                   *metadata.MetricsBuilder
-	logger               *zap.Logger
-	metricsBuilderConfig metadata.MetricsBuilderConfig
+	client                client.OracleClient
+	mb                    *metadata.MetricsBuilder
+	logger                *zap.Logger
+	metricsBuilderConfig  metadata.MetricsBuilderConfig
+	enableAdvancedMetrics bool
 }
 
 // NewChildCursorsScraper creates a new child cursors scraper
-func NewChildCursorsScraper(oracleClient client.OracleClient, mb *metadata.MetricsBuilder, logger *zap.Logger, metricsBuilderConfig metadata.MetricsBuilderConfig) *ChildCursorsScraper {
+func NewChildCursorsScraper(oracleClient client.OracleClient, mb *metadata.MetricsBuilder, logger *zap.Logger, metricsBuilderConfig metadata.MetricsBuilderConfig, enableAdvancedMetrics bool) *ChildCursorsScraper {
 	return &ChildCursorsScraper{
-		client:               oracleClient,
-		mb:                   mb,
-		logger:               logger,
-		metricsBuilderConfig: metricsBuilderConfig,
+		client:                oracleClient,
+		mb:                    mb,
+		logger:                logger,
+		metricsBuilderConfig:  metricsBuilderConfig,
+		enableAdvancedMetrics: enableAdvancedMetrics,
 	}
 }
 
@@ -74,28 +76,14 @@ func (s *ChildCursorsScraper) ScrapeChildCursorsForIdentifiers(ctx context.Conte
 	return identifiers, errs
 }
 
-// recordChildCursorMetrics records all metrics for a single child cursor
+// recordChildCursorMetrics records UI-critical metrics for a single child cursor
 func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cursor *models.ChildCursor) {
-	collectionTimestamp := cursor.GetCollectionTimestamp() // Already formatted as string in query
+	collectionTimestamp := cursor.GetCollectionTimestamp()
 	sqlID := cursor.GetSQLID()
 	childNumber := cursor.GetChildNumber()
 	planHashValue := fmt.Sprintf("%d", cursor.GetPlanHashValue())
 	databaseName := cursor.GetDatabaseName()
 
-	// Record CPU time
-	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsCPUTime.Enabled {
-		s.mb.RecordNewrelicoracledbChildCursorsCPUTimeDataPoint(
-			now,
-			cursor.GetCPUTime(),
-			collectionTimestamp,
-			databaseName,
-			sqlID,
-			childNumber,
-			planHashValue,
-		)
-	}
-
-	// Record elapsed time
 	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsElapsedTime.Enabled {
 		s.mb.RecordNewrelicoracledbChildCursorsElapsedTimeDataPoint(
 			now,
@@ -108,7 +96,38 @@ func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cu
 		)
 	}
 
-	// Record user I/O wait time
+	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsDetails.Enabled {
+		s.mb.RecordNewrelicoracledbChildCursorsDetailsDataPoint(
+			now,
+			1,
+			collectionTimestamp,
+			databaseName,
+			sqlID,
+			childNumber,
+			planHashValue,
+			cursor.GetFirstLoadTime(),
+			cursor.GetLastLoadTime(),
+		)
+	}
+
+	if s.enableAdvancedMetrics {
+		s.recordAdvancedChildCursorMetrics(now, cursor, collectionTimestamp, databaseName, sqlID, childNumber, planHashValue)
+	}
+}
+
+func (s *ChildCursorsScraper) recordAdvancedChildCursorMetrics(now pcommon.Timestamp, cursor *models.ChildCursor, collectionTimestamp, databaseName, sqlID string, childNumber int64, planHashValue string) {
+	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsCPUTime.Enabled {
+		s.mb.RecordNewrelicoracledbChildCursorsCPUTimeDataPoint(
+			now,
+			cursor.GetCPUTime(),
+			collectionTimestamp,
+			databaseName,
+			sqlID,
+			childNumber,
+			planHashValue,
+		)
+	}
+
 	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsUserIoWaitTime.Enabled {
 		s.mb.RecordNewrelicoracledbChildCursorsUserIoWaitTimeDataPoint(
 			now,
@@ -121,7 +140,6 @@ func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cu
 		)
 	}
 
-	// Record executions
 	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsExecutions.Enabled {
 		s.mb.RecordNewrelicoracledbChildCursorsExecutionsDataPoint(
 			now,
@@ -134,7 +152,6 @@ func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cu
 		)
 	}
 
-	// Record disk reads
 	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsDiskReads.Enabled {
 		s.mb.RecordNewrelicoracledbChildCursorsDiskReadsDataPoint(
 			now,
@@ -147,7 +164,6 @@ func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cu
 		)
 	}
 
-	// Record buffer gets
 	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsBufferGets.Enabled {
 		s.mb.RecordNewrelicoracledbChildCursorsBufferGetsDataPoint(
 			now,
@@ -160,7 +176,6 @@ func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cu
 		)
 	}
 
-	// Record invalidations
 	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsInvalidations.Enabled {
 		s.mb.RecordNewrelicoracledbChildCursorsInvalidationsDataPoint(
 			now,
@@ -170,21 +185,6 @@ func (s *ChildCursorsScraper) recordChildCursorMetrics(now pcommon.Timestamp, cu
 			sqlID,
 			childNumber,
 			planHashValue,
-		)
-	}
-
-	// Record details with load times
-	if s.metricsBuilderConfig.Metrics.NewrelicoracledbChildCursorsDetails.Enabled {
-		s.mb.RecordNewrelicoracledbChildCursorsDetailsDataPoint(
-			now,
-			1, // count of 1 for each child cursor
-			collectionTimestamp,
-			databaseName,
-			sqlID,
-			childNumber,
-			planHashValue,
-			cursor.GetFirstLoadTime(),
-			cursor.GetLastLoadTime(),
 		)
 	}
 }

@@ -26,7 +26,7 @@ func TestNewConnectionScraper(t *testing.T) {
 	config := metadata.DefaultMetricsBuilderConfig()
 
 	t.Run("valid scraper creation", func(t *testing.T) {
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 
 		require.NoError(t, err)
 		assert.NotNil(t, scraper)
@@ -37,7 +37,7 @@ func TestNewConnectionScraper(t *testing.T) {
 	})
 
 	t.Run("nil client", func(t *testing.T) {
-		scraper, err := NewConnectionScraper(nil, mb, logger, config)
+		scraper, err := NewConnectionScraper(nil, mb, logger, config, true)
 
 		assert.Error(t, err)
 		assert.Nil(t, scraper)
@@ -45,7 +45,7 @@ func TestNewConnectionScraper(t *testing.T) {
 	})
 
 	t.Run("nil metrics builder", func(t *testing.T) {
-		scraper, err := NewConnectionScraper(mockClient, nil, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, nil, logger, config, true)
 
 		assert.Error(t, err)
 		assert.Nil(t, scraper)
@@ -53,7 +53,7 @@ func TestNewConnectionScraper(t *testing.T) {
 	})
 
 	t.Run("nil logger", func(t *testing.T) {
-		scraper, err := NewConnectionScraper(mockClient, mb, nil, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, nil, config, true)
 
 		assert.Error(t, err)
 		assert.Nil(t, scraper)
@@ -61,7 +61,7 @@ func TestNewConnectionScraper(t *testing.T) {
 	})
 
 	t.Run("empty instance name", func(t *testing.T) {
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 
 		require.NoError(t, err)
 		assert.NotNil(t, scraper)
@@ -80,7 +80,7 @@ func TestConnectionScraper_CoreConnectionCounts(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -96,7 +96,7 @@ func TestConnectionScraper_CoreConnectionCounts(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -115,7 +115,7 @@ func TestConnectionScraper_CoreConnectionCounts(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -152,7 +152,7 @@ func TestConnectionScraper_SessionBreakdown(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -169,7 +169,7 @@ func TestConnectionScraper_SessionBreakdown(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -190,7 +190,7 @@ func TestConnectionScraper_SessionBreakdown(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -217,7 +217,7 @@ func TestConnectionScraper_LogonStats(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -233,7 +233,7 @@ func TestConnectionScraper_LogonStats(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -258,7 +258,7 @@ func TestConnectionScraper_LogonStats(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -274,7 +274,7 @@ func TestConnectionScraper_LogonStats(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -305,7 +305,7 @@ func TestConnectionScraper_ConnectionPoolMetrics(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -321,7 +321,7 @@ func TestConnectionScraper_ConnectionPoolMetrics(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -346,7 +346,7 @@ func TestConnectionScraper_ConnectionPoolMetrics(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -362,7 +362,7 @@ func TestConnectionScraper_ConnectionPoolMetrics(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -395,7 +395,7 @@ func TestConnectionScraper_SessionLimits(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -411,7 +411,7 @@ func TestConnectionScraper_SessionLimits(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -436,7 +436,7 @@ func TestConnectionScraper_SessionLimits(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -452,7 +452,7 @@ func TestConnectionScraper_SessionLimits(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -503,7 +503,7 @@ func TestConnectionScraper_ConnectionQuality(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -519,7 +519,7 @@ func TestConnectionScraper_ConnectionQuality(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -544,7 +544,7 @@ func TestConnectionScraper_ConnectionQuality(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -560,7 +560,7 @@ func TestConnectionScraper_ConnectionQuality(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -577,7 +577,7 @@ func TestConnectionScraper_IntegrationWithMultipleErrors(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(config, settings)
 	logger := zap.NewNop()
 
-	scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+	scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 	require.NoError(t, err)
 
 	errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -605,7 +605,7 @@ func TestConnectionScraper_NullValuesHandling(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -620,7 +620,7 @@ func TestConnectionScraper_ContextCancellation(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(config, settings)
 	logger := zap.NewNop()
 
-	scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+	scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 	require.NoError(t, err)
 
 	ctx, cancel := context.WithCancel(t.Context())
@@ -648,7 +648,7 @@ func TestConnectionScraper_SessionLimitsUnlimitedValue(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(config, settings)
 	logger := zap.NewNop()
 
-	scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+	scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 	require.NoError(t, err)
 
 	errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -671,7 +671,7 @@ func TestConnectionScraper_UnknownMetricNames(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -692,7 +692,7 @@ func TestConnectionScraper_UnknownMetricNames(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
@@ -713,7 +713,7 @@ func TestConnectionScraper_UnknownMetricNames(t *testing.T) {
 		mb := metadata.NewMetricsBuilder(config, settings)
 		logger := zap.NewNop()
 
-		scraper, err := NewConnectionScraper(mockClient, mb, logger, config)
+		scraper, err := NewConnectionScraper(mockClient, mb, logger, config, true)
 		require.NoError(t, err)
 
 		errs := scraper.ScrapeConnectionMetrics(t.Context())
