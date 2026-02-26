@@ -272,17 +272,17 @@ type DatabaseTransactionLogMetrics struct {
 	// LogFlushesPerSec represents the number of log flush operations per second
 	// This metric corresponds to log flush rate
 	// Query source: sys.dm_os_performance_counters for 'Log Flushes/sec' counter
-	LogFlushesPerSec *int64 `db:"Log Flushes/sec" metric_name:"sqlserver.database.log.flushes_per_sec" source_type:"gauge"`
+	LogFlushesPerSec *int64 `db:"Log Flushes/sec" metric_name:"sqlserver.database.log.flushes_per_sec" source_type:"rate"`
 
 	// LogBytesFlushesPerSec represents the number of log bytes flushed per second
 	// This metric corresponds to log bytes flush rate
 	// Query source: sys.dm_os_performance_counters for 'Log Bytes Flushed/sec' counter
-	LogBytesFlushesPerSec *int64 `db:"Log Bytes Flushed/sec" metric_name:"sqlserver.database.log.bytes_flushed_per_sec" source_type:"gauge"`
+	LogBytesFlushesPerSec *int64 `db:"Log Bytes Flushed/sec" metric_name:"sqlserver.database.log.bytes_flushed_per_sec" source_type:"rate"`
 
 	// FlushWaitsPerSec represents the number of flush wait operations per second
 	// This metric corresponds to flush wait rate
 	// Query source: sys.dm_os_performance_counters for 'Flush Waits/sec' counter
-	FlushWaitsPerSec *int64 `db:"Flush Waits/sec" metric_name:"sqlserver.database.log.flush_waits_per_sec" source_type:"gauge"`
+	FlushWaitsPerSec *int64 `db:"Flush Waits/sec" metric_name:"sqlserver.database.log.flush_waits_per_sec" source_type:"rate"`
 
 	// ActiveTransactions represents the number of active transactions
 	// This metric corresponds to active transaction count

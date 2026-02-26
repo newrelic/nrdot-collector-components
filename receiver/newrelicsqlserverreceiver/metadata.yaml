@@ -37,8 +37,10 @@ metrics:
       level: alpha
     description: Page splits per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.activequery.wait_time_seconds:
     enabled: true
@@ -114,8 +116,10 @@ metrics:
       level: alpha
     description: Checkpoint pages per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.buffer.page_life_expectancy:
     enabled: true
@@ -132,8 +136,10 @@ metrics:
       level: alpha
     description: Batch requests per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.bufferpool.page_life_expectancy_ms:
     enabled: true
@@ -183,8 +189,10 @@ metrics:
       level: alpha
     description: Number of log bytes flushed per second
     unit: "By/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
     attributes: [metric_source, engine_edition, engine_edition_id]
 
   sqlserver.database.log.flush_waits_per_sec:
@@ -193,8 +201,10 @@ metrics:
       level: alpha
     description: Number of flush wait operations per second
     unit: "{operations}/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
     attributes: [metric_source, engine_edition, engine_edition_id]
 
   sqlserver.database.log.flushes_per_sec:
@@ -203,8 +213,10 @@ metrics:
       level: alpha
     description: Number of log flush operations per second
     unit: "{operations}/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
     attributes: [metric_source, engine_edition, engine_edition_id]
 
   sqlserver.database.log.transaction_growth:
@@ -646,8 +658,10 @@ metrics:
       level: alpha
     description: Rate of log records received by secondary replica from primary replica in bytes per second
     unit: "By/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
     attributes: [instance_name]
 
   sqlserver.failover_cluster.log_send_queue_kb:
@@ -772,8 +786,10 @@ metrics:
       level: alpha
     description: Forced parameterizations per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   # Instance Buffer Pool Metrics
   sqlserver.instance.full_scans_rate:
@@ -782,8 +798,10 @@ metrics:
       level: alpha
     description: Full table/index scans per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: double
+      monotonic: true
+      aggregation_temporality: cumulative
 
   # Instance Lock Timeout Metrics
   sqlserver.instance.lock_timeouts_rate:
@@ -792,8 +810,10 @@ metrics:
       level: alpha
     description: Number of lock timeouts per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: double
+      monotonic: true
+      aggregation_temporality: cumulative
 
   # Active Query Metrics
   sqlserver.instance.memory_available:
@@ -906,8 +926,10 @@ metrics:
       level: alpha
     description: Transactions per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.lock.mode.bulk_update:
     enabled: true
@@ -1423,8 +1445,10 @@ metrics:
       level: alpha
     description: Deadlocks per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.stats.kill_connection_errors_per_sec:
     enabled: true
@@ -1432,8 +1456,10 @@ metrics:
       level: alpha
     description: Kill connection errors per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.stats.lock_waits_per_sec:
     enabled: true
@@ -1441,8 +1467,10 @@ metrics:
       level: alpha
     description: Lock waits per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.stats.sql_compilations_per_sec:
     enabled: true
@@ -1450,8 +1478,10 @@ metrics:
       level: alpha
     description: SQL compilations per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.stats.sql_recompilations_per_sec:
     enabled: true
@@ -1459,8 +1489,10 @@ metrics:
       level: alpha
     description: SQL recompilations per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.stats.user_errors_per_sec:
     enabled: true
@@ -1468,8 +1500,10 @@ metrics:
       level: alpha
     description: User errors per second
     unit: "1/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.tempdb.allocation_waits_ms:
     enabled: true
@@ -1608,8 +1642,10 @@ metrics:
       level: alpha
     description: Current login rate per second
     unit: "{logins}/s"
-    gauge:
+    sum:
       value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
 
   sqlserver.user_connections.authentication.recent_failed_logins:
     enabled: true

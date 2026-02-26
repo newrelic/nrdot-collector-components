@@ -701,14 +701,16 @@ func (m *metricSqlserverAccessPageSplitsPerSec) init() {
 	m.data.SetName("sqlserver.access.page_splits_per_sec")
 	m.data.SetDescription("Page splits per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverAccessPageSplitsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -716,14 +718,14 @@ func (m *metricSqlserverAccessPageSplitsPerSec) recordDataPoint(start pcommon.Ti
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverAccessPageSplitsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverAccessPageSplitsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -934,14 +936,16 @@ func (m *metricSqlserverBufferCheckpointPagesPerSec) init() {
 	m.data.SetName("sqlserver.buffer.checkpoint_pages_per_sec")
 	m.data.SetDescription("Checkpoint pages per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverBufferCheckpointPagesPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -949,14 +953,14 @@ func (m *metricSqlserverBufferCheckpointPagesPerSec) recordDataPoint(start pcomm
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverBufferCheckpointPagesPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverBufferCheckpointPagesPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -1032,14 +1036,16 @@ func (m *metricSqlserverBufferpoolBatchRequestsPerSec) init() {
 	m.data.SetName("sqlserver.bufferpool.batch_requests_per_sec")
 	m.data.SetDescription("Batch requests per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverBufferpoolBatchRequestsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -1047,14 +1053,14 @@ func (m *metricSqlserverBufferpoolBatchRequestsPerSec) recordDataPoint(start pco
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverBufferpoolBatchRequestsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverBufferpoolBatchRequestsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -1287,15 +1293,17 @@ func (m *metricSqlserverDatabaseLogBytesFlushedPerSec) init() {
 	m.data.SetName("sqlserver.database.log.bytes_flushed_per_sec")
 	m.data.SetDescription("Number of log bytes flushed per second")
 	m.data.SetUnit("By/s")
-	m.data.SetEmptyGauge()
-	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
+	m.data.Sum().DataPoints().EnsureCapacity(m.capacity)
 }
 
 func (m *metricSqlserverDatabaseLogBytesFlushedPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, metricSourceAttributeValue string, engineEditionAttributeValue string, engineEditionIDAttributeValue int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -1306,14 +1314,14 @@ func (m *metricSqlserverDatabaseLogBytesFlushedPerSec) recordDataPoint(start pco
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverDatabaseLogBytesFlushedPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverDatabaseLogBytesFlushedPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -1340,15 +1348,17 @@ func (m *metricSqlserverDatabaseLogFlushWaitsPerSec) init() {
 	m.data.SetName("sqlserver.database.log.flush_waits_per_sec")
 	m.data.SetDescription("Number of flush wait operations per second")
 	m.data.SetUnit("{operations}/s")
-	m.data.SetEmptyGauge()
-	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
+	m.data.Sum().DataPoints().EnsureCapacity(m.capacity)
 }
 
 func (m *metricSqlserverDatabaseLogFlushWaitsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, metricSourceAttributeValue string, engineEditionAttributeValue string, engineEditionIDAttributeValue int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -1359,14 +1369,14 @@ func (m *metricSqlserverDatabaseLogFlushWaitsPerSec) recordDataPoint(start pcomm
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverDatabaseLogFlushWaitsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverDatabaseLogFlushWaitsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -1393,15 +1403,17 @@ func (m *metricSqlserverDatabaseLogFlushesPerSec) init() {
 	m.data.SetName("sqlserver.database.log.flushes_per_sec")
 	m.data.SetDescription("Number of log flush operations per second")
 	m.data.SetUnit("{operations}/s")
-	m.data.SetEmptyGauge()
-	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
+	m.data.Sum().DataPoints().EnsureCapacity(m.capacity)
 }
 
 func (m *metricSqlserverDatabaseLogFlushesPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, metricSourceAttributeValue string, engineEditionAttributeValue string, engineEditionIDAttributeValue int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -1412,14 +1424,14 @@ func (m *metricSqlserverDatabaseLogFlushesPerSec) recordDataPoint(start pcommon.
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverDatabaseLogFlushesPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverDatabaseLogFlushesPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -3446,15 +3458,17 @@ func (m *metricSqlserverFailoverClusterLogBytesReceivedPerSec) init() {
 	m.data.SetName("sqlserver.failover_cluster.log_bytes_received_per_sec")
 	m.data.SetDescription("Rate of log records received by secondary replica from primary replica in bytes per second")
 	m.data.SetUnit("By/s")
-	m.data.SetEmptyGauge()
-	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
+	m.data.Sum().DataPoints().EnsureCapacity(m.capacity)
 }
 
 func (m *metricSqlserverFailoverClusterLogBytesReceivedPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, instanceNameAttributeValue string) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -3463,14 +3477,14 @@ func (m *metricSqlserverFailoverClusterLogBytesReceivedPerSec) recordDataPoint(s
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverFailoverClusterLogBytesReceivedPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverFailoverClusterLogBytesReceivedPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -4096,14 +4110,16 @@ func (m *metricSqlserverInstanceForcedParameterizationsPerSec) init() {
 	m.data.SetName("sqlserver.instance.forced_parameterizations_per_sec")
 	m.data.SetDescription("Forced parameterizations per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverInstanceForcedParameterizationsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -4111,14 +4127,14 @@ func (m *metricSqlserverInstanceForcedParameterizationsPerSec) recordDataPoint(s
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverInstanceForcedParameterizationsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverInstanceForcedParameterizationsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -4145,14 +4161,16 @@ func (m *metricSqlserverInstanceFullScansRate) init() {
 	m.data.SetName("sqlserver.instance.full_scans_rate")
 	m.data.SetDescription("Full table/index scans per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverInstanceFullScansRate) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val float64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetDoubleValue(val)
@@ -4160,14 +4178,14 @@ func (m *metricSqlserverInstanceFullScansRate) recordDataPoint(start pcommon.Tim
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverInstanceFullScansRate) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverInstanceFullScansRate) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -4194,14 +4212,16 @@ func (m *metricSqlserverInstanceLockTimeoutsRate) init() {
 	m.data.SetName("sqlserver.instance.lock_timeouts_rate")
 	m.data.SetDescription("Number of lock timeouts per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverInstanceLockTimeoutsRate) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val float64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetDoubleValue(val)
@@ -4209,14 +4229,14 @@ func (m *metricSqlserverInstanceLockTimeoutsRate) recordDataPoint(start pcommon.
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverInstanceLockTimeoutsRate) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverInstanceLockTimeoutsRate) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -4782,14 +4802,16 @@ func (m *metricSqlserverInstanceTransactionsPerSec) init() {
 	m.data.SetName("sqlserver.instance.transactions_per_sec")
 	m.data.SetDescription("Transactions per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverInstanceTransactionsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -4797,14 +4819,14 @@ func (m *metricSqlserverInstanceTransactionsPerSec) recordDataPoint(start pcommo
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverInstanceTransactionsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverInstanceTransactionsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -7394,14 +7416,16 @@ func (m *metricSqlserverStatsDeadlocksPerSec) init() {
 	m.data.SetName("sqlserver.stats.deadlocks_per_sec")
 	m.data.SetDescription("Deadlocks per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverStatsDeadlocksPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -7409,14 +7433,14 @@ func (m *metricSqlserverStatsDeadlocksPerSec) recordDataPoint(start pcommon.Time
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverStatsDeadlocksPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverStatsDeadlocksPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -7443,14 +7467,16 @@ func (m *metricSqlserverStatsKillConnectionErrorsPerSec) init() {
 	m.data.SetName("sqlserver.stats.kill_connection_errors_per_sec")
 	m.data.SetDescription("Kill connection errors per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverStatsKillConnectionErrorsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -7458,14 +7484,14 @@ func (m *metricSqlserverStatsKillConnectionErrorsPerSec) recordDataPoint(start p
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverStatsKillConnectionErrorsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverStatsKillConnectionErrorsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -7492,14 +7518,16 @@ func (m *metricSqlserverStatsLockWaitsPerSec) init() {
 	m.data.SetName("sqlserver.stats.lock_waits_per_sec")
 	m.data.SetDescription("Lock waits per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverStatsLockWaitsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -7507,14 +7535,14 @@ func (m *metricSqlserverStatsLockWaitsPerSec) recordDataPoint(start pcommon.Time
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverStatsLockWaitsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverStatsLockWaitsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -7541,14 +7569,16 @@ func (m *metricSqlserverStatsSQLCompilationsPerSec) init() {
 	m.data.SetName("sqlserver.stats.sql_compilations_per_sec")
 	m.data.SetDescription("SQL compilations per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverStatsSQLCompilationsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -7556,14 +7586,14 @@ func (m *metricSqlserverStatsSQLCompilationsPerSec) recordDataPoint(start pcommo
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverStatsSQLCompilationsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverStatsSQLCompilationsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -7590,14 +7620,16 @@ func (m *metricSqlserverStatsSQLRecompilationsPerSec) init() {
 	m.data.SetName("sqlserver.stats.sql_recompilations_per_sec")
 	m.data.SetDescription("SQL recompilations per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverStatsSQLRecompilationsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -7605,14 +7637,14 @@ func (m *metricSqlserverStatsSQLRecompilationsPerSec) recordDataPoint(start pcom
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverStatsSQLRecompilationsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverStatsSQLRecompilationsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -7639,14 +7671,16 @@ func (m *metricSqlserverStatsUserErrorsPerSec) init() {
 	m.data.SetName("sqlserver.stats.user_errors_per_sec")
 	m.data.SetDescription("User errors per second")
 	m.data.SetUnit("1/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverStatsUserErrorsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -7654,14 +7688,14 @@ func (m *metricSqlserverStatsUserErrorsPerSec) recordDataPoint(start pcommon.Tim
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverStatsUserErrorsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverStatsUserErrorsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
@@ -8373,14 +8407,16 @@ func (m *metricSqlserverUserConnectionsAuthenticationLoginsPerSec) init() {
 	m.data.SetName("sqlserver.user_connections.authentication.logins_per_sec")
 	m.data.SetDescription("Current login rate per second")
 	m.data.SetUnit("{logins}/s")
-	m.data.SetEmptyGauge()
+	m.data.SetEmptySum()
+	m.data.Sum().SetIsMonotonic(true)
+	m.data.Sum().SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
 }
 
 func (m *metricSqlserverUserConnectionsAuthenticationLoginsPerSec) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
 	if !m.config.Enabled {
 		return
 	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp := m.data.Sum().DataPoints().AppendEmpty()
 	dp.SetStartTimestamp(start)
 	dp.SetTimestamp(ts)
 	dp.SetIntValue(val)
@@ -8388,14 +8424,14 @@ func (m *metricSqlserverUserConnectionsAuthenticationLoginsPerSec) recordDataPoi
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
 func (m *metricSqlserverUserConnectionsAuthenticationLoginsPerSec) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
+	if m.data.Sum().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Sum().DataPoints().Len()
 	}
 }
 
 // emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
 func (m *metricSqlserverUserConnectionsAuthenticationLoginsPerSec) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+	if m.config.Enabled && m.data.Sum().DataPoints().Len() > 0 {
 		m.updateCapacity()
 		m.data.MoveTo(metrics.AppendEmpty())
 		m.init()
