@@ -27,7 +27,7 @@ func TestNewChildCursorsScraper(t *testing.T) {
 	logger := zap.NewNop()
 	config := metadata.DefaultMetricsBuilderConfig()
 
-	scraper := NewChildCursorsScraper(mockClient, mb, logger, config)
+	scraper := NewChildCursorsScraper(mockClient, mb, logger, config, true)
 
 	assert.NotNil(t, scraper)
 	assert.Equal(t, mockClient, scraper.client)
@@ -71,7 +71,7 @@ func TestChildCursorsScraper_ScrapeWithValidData(t *testing.T) {
 
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{
@@ -122,7 +122,7 @@ func TestChildCursorsScraper_ScrapeWithMultipleIdentifiers(t *testing.T) {
 
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "sql_id_1", ChildNumber: 0, Timestamp: now},
@@ -141,7 +141,7 @@ func TestChildCursorsScraper_ScrapeWithEmptyIdentifiers(t *testing.T) {
 	config := metadata.DefaultMetricsBuilderConfig()
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{}
 
@@ -163,7 +163,7 @@ func TestChildCursorsScraper_ScrapeWithQueryError(t *testing.T) {
 	config := metadata.DefaultMetricsBuilderConfig()
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "test_sql_1", ChildNumber: 0, Timestamp: now},
@@ -195,7 +195,7 @@ func TestChildCursorsScraper_ScrapeWithPartialErrors(t *testing.T) {
 	config.Metrics.NewrelicoracledbChildCursorsCPUTime.Enabled = true
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "sql_id_1", ChildNumber: 0, Timestamp: now},
@@ -227,7 +227,7 @@ func TestChildCursorsScraper_ScrapeWithInvalidIdentifier(t *testing.T) {
 	config.Metrics.NewrelicoracledbChildCursorsCPUTime.Enabled = true
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "", ChildNumber: 0, Timestamp: now},
@@ -274,7 +274,7 @@ func TestChildCursorsScraper_RecordMetricsAllEnabled(t *testing.T) {
 
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "test_sql_1", ChildNumber: 0, Timestamp: now},
@@ -315,7 +315,7 @@ func TestChildCursorsScraper_RecordMetricsAllDisabled(t *testing.T) {
 
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "test_sql_1", ChildNumber: 0, Timestamp: now},
@@ -356,7 +356,7 @@ func TestChildCursorsScraper_RecordMetricsWithNullValues(t *testing.T) {
 
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	identifiers := []models.SQLIdentifier{
 		{SQLID: "test_sql_1", ChildNumber: 0, Timestamp: now},
@@ -379,7 +379,7 @@ func TestChildCursorsScraper_RecordChildCursorMetrics(t *testing.T) {
 
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	timestamp := pcommon.NewTimestampFromTime(now)
 	cursor := &models.ChildCursor{
@@ -416,7 +416,7 @@ func TestChildCursorsScraper_ContextCancellation(t *testing.T) {
 	config := metadata.DefaultMetricsBuilderConfig()
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
-	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config)
+	scraper := NewChildCursorsScraper(mockClient, mb, zap.NewNop(), config, true)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Cancel immediately

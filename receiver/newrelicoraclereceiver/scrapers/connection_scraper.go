@@ -17,10 +17,11 @@ import (
 
 // ConnectionScraper contains the scraper for Oracle connection statistics
 type ConnectionScraper struct {
-	client               client.OracleClient
-	mb                   *metadata.MetricsBuilder
-	logger               *zap.Logger
-	metricsBuilderConfig metadata.MetricsBuilderConfig
+	client                client.OracleClient
+	mb                    *metadata.MetricsBuilder
+	logger                *zap.Logger
+	metricsBuilderConfig  metadata.MetricsBuilderConfig
+	enableAdvancedMetrics bool
 }
 
 // NewConnectionScraper creates a new Connection Scraper instance
@@ -29,6 +30,7 @@ func NewConnectionScraper(
 	mb *metadata.MetricsBuilder,
 	logger *zap.Logger,
 	metricsBuilderConfig metadata.MetricsBuilderConfig,
+	enableAdvancedMetrics bool,
 ) (*ConnectionScraper, error) {
 	if oracleClient == nil {
 		return nil, errors.New("client cannot be nil")
@@ -41,10 +43,11 @@ func NewConnectionScraper(
 	}
 
 	return &ConnectionScraper{
-		client:               oracleClient,
-		mb:                   mb,
-		logger:               logger,
-		metricsBuilderConfig: metricsBuilderConfig,
+		client:                oracleClient,
+		mb:                    mb,
+		logger:                logger,
+		metricsBuilderConfig:  metricsBuilderConfig,
+		enableAdvancedMetrics: enableAdvancedMetrics,
 	}, nil
 }
 
@@ -53,12 +56,14 @@ func (s *ConnectionScraper) ScrapeConnectionMetrics(ctx context.Context) []error
 	var scrapeErrors []error
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// Always emit UI-critical metrics
 	scrapeErrors = append(scrapeErrors, s.scrapeCoreConnectionCounts(ctx, now)...)
-	scrapeErrors = append(scrapeErrors, s.scrapeSessionBreakdown(ctx, now)...)
-	scrapeErrors = append(scrapeErrors, s.scrapeLogonStats(ctx, now)...)
-	scrapeErrors = append(scrapeErrors, s.scrapeConnectionPoolMetrics(ctx, now)...)
-	scrapeErrors = append(scrapeErrors, s.scrapeSessionLimits(ctx, now)...)
 	scrapeErrors = append(scrapeErrors, s.scrapeConnectionQuality(ctx, now)...)
+
+	// Emit advanced metrics only when flag is enabled
+	if s.enableAdvancedMetrics {
+		scrapeErrors = append(scrapeErrors, s.scrapeAdvancedMetrics(ctx, now)...)
+	}
 
 	return scrapeErrors
 }
@@ -263,24 +268,41 @@ func (s *ConnectionScraper) scrapeConnectionQuality(ctx context.Context, timesta
 		}
 
 		switch metric.Name.String {
-		case "user commits":
-			s.mb.RecordNewrelicoracledbConnectionUserCommitsDataPoint(timestamp, metric.Value.Float64)
-		case "user rollbacks":
-			s.mb.RecordNewrelicoracledbConnectionUserRollbacksDataPoint(timestamp, metric.Value.Float64)
-		case "parse count (total)":
-			s.mb.RecordNewrelicoracledbConnectionParseCountTotalDataPoint(timestamp, metric.Value.Float64)
-		case "parse count (hard)":
-			s.mb.RecordNewrelicoracledbConnectionParseCountHardDataPoint(timestamp, metric.Value.Float64)
 		case "execute count":
 			s.mb.RecordNewrelicoracledbConnectionExecuteCountDataPoint(timestamp, metric.Value.Float64)
-		case "SQL*Net roundtrips to/from client":
-			s.mb.RecordNewrelicoracledbConnectionSqlnetRoundtripsDataPoint(timestamp, metric.Value.Float64)
-		case "bytes sent via SQL*Net to client":
-			s.mb.RecordNewrelicoracledbConnectionBytesSentDataPoint(timestamp, metric.Value.Float64)
-		case "bytes received via SQL*Net from client":
-			s.mb.RecordNewrelicoracledbConnectionBytesReceivedDataPoint(timestamp, metric.Value.Float64)
+		}
+
+		if s.enableAdvancedMetrics {
+			switch metric.Name.String {
+			case "user commits":
+				s.mb.RecordNewrelicoracledbConnectionUserCommitsDataPoint(timestamp, metric.Value.Float64)
+			case "user rollbacks":
+				s.mb.RecordNewrelicoracledbConnectionUserRollbacksDataPoint(timestamp, metric.Value.Float64)
+			case "parse count (total)":
+				s.mb.RecordNewrelicoracledbConnectionParseCountTotalDataPoint(timestamp, metric.Value.Float64)
+			case "parse count (hard)":
+				s.mb.RecordNewrelicoracledbConnectionParseCountHardDataPoint(timestamp, metric.Value.Float64)
+			case "SQL*Net roundtrips to/from client":
+				s.mb.RecordNewrelicoracledbConnectionSqlnetRoundtripsDataPoint(timestamp, metric.Value.Float64)
+			case "bytes sent via SQL*Net to client":
+				s.mb.RecordNewrelicoracledbConnectionBytesSentDataPoint(timestamp, metric.Value.Float64)
+			case "bytes received via SQL*Net from client":
+				s.mb.RecordNewrelicoracledbConnectionBytesReceivedDataPoint(timestamp, metric.Value.Float64)
+			}
 		}
 	}
+
+	return errors
+}
+
+// scrapeAdvancedMetrics emits all advanced connection metrics
+func (s *ConnectionScraper) scrapeAdvancedMetrics(ctx context.Context, timestamp pcommon.Timestamp) []error {
+	var errors []error
+
+	errors = append(errors, s.scrapeSessionBreakdown(ctx, timestamp)...)
+	errors = append(errors, s.scrapeLogonStats(ctx, timestamp)...)
+	errors = append(errors, s.scrapeConnectionPoolMetrics(ctx, timestamp)...)
+	errors = append(errors, s.scrapeSessionLimits(ctx, timestamp)...)
 
 	return errors
 }

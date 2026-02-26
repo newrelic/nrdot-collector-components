@@ -119,9 +119,12 @@ You must provide either `datasource` OR all individual parameters.
 | `disable_connection_pool` | Disable connection pooling | false |
 
 #### Query Performance Monitoring Settings
+
+**Note:** QPM scrapers always run to emit UI-critical metrics. The `enable_query_monitoring` flag only controls optional metrics like disk I/O statistics.
+
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `enable_query_monitoring` | Enable query performance monitoring (slow queries, execution plans, child cursors) | false |
+| `enable_query_monitoring` | Enable optional QPM metrics (disk reads/writes, detailed I/O stats) | false |
 | `enable_interval_based_averaging` | Calculate interval-based (delta) metrics for query performance | false |
 | `query_monitoring_response_time_threshold` | Minimum response time in seconds to report slow queries (0 = all queries) | 0 |
 | `query_monitoring_count_threshold` | Minimum execution count to report queries | 49 |

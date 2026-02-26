@@ -25,7 +25,7 @@ func TestScrapeLockedAccountsMetrics_Disabled(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -54,7 +54,7 @@ func TestScrapeLockedAccountsMetrics_Success(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -74,7 +74,7 @@ func TestScrapeLockedAccountsMetrics_QueryError(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -96,7 +96,7 @@ func TestScrapeLockedAccountsMetrics_EmptyResult(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -121,7 +121,7 @@ func TestScrapeLockedAccountsMetrics_ZeroAccounts(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -150,7 +150,7 @@ func TestScrapeGlobalNameInstanceMetrics_Success(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -169,7 +169,7 @@ func TestScrapeGlobalNameInstanceMetrics_QueryError(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -190,7 +190,7 @@ func TestScrapeGlobalNameInstanceMetrics_EmptyResult(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -214,7 +214,7 @@ func TestScrapeGlobalNameInstanceMetrics_StringInstanceID(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -243,7 +243,7 @@ func TestScrapeDBIDInstanceMetrics_Success(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -262,7 +262,7 @@ func TestScrapeDBIDInstanceMetrics_QueryError(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -283,7 +283,7 @@ func TestScrapeDBIDInstanceMetrics_EmptyResult(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -307,7 +307,7 @@ func TestScrapeDBIDInstanceMetrics_NilInstanceID(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -336,7 +336,7 @@ func TestScrapeLongRunningQueriesMetrics_Success(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -355,7 +355,7 @@ func TestScrapeLongRunningQueriesMetrics_QueryError(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -376,7 +376,7 @@ func TestScrapeLongRunningQueriesMetrics_EmptyResult(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -400,7 +400,7 @@ func TestScrapeLongRunningQueriesMetrics_ZeroQueries(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -424,7 +424,7 @@ func TestScrapeLongRunningQueriesMetrics_LargeValue(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()
@@ -456,7 +456,7 @@ func TestScrapeLongRunningQueriesMetrics_MultipleInstances(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(config, settings)
 
-	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config)
+	scraper, err := NewCoreScraper(mockClient, mb, zap.NewNop(), config, true)
 	require.NoError(t, err)
 
 	ctx := t.Context()

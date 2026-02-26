@@ -30,23 +30,28 @@ func (s *CoreScraper) scrapePGAMetrics(ctx context.Context, now pcommon.Timestam
 
 	metricCount := 0
 	for instanceID, metricVals := range instanceMetrics {
-		if val, exists := metricVals["total PGA inuse"]; exists {
-			s.mb.RecordNewrelicoracledbMemoryPgaInUseBytesDataPoint(now, val, instanceID)
-		}
-		if val, exists := metricVals["total PGA allocated"]; exists {
-			s.mb.RecordNewrelicoracledbMemoryPgaAllocatedBytesDataPoint(now, val, instanceID)
-		}
-		if val, exists := metricVals["total freeable PGA memory"]; exists {
-			s.mb.RecordNewrelicoracledbMemoryPgaFreeableBytesDataPoint(now, val, instanceID)
-		}
+
 		if val, exists := metricVals["global memory bound"]; exists {
 			s.mb.RecordNewrelicoracledbMemoryPgaMaxSizeBytesDataPoint(now, val, instanceID)
+		}
+
+		// Emit advanced PGA metrics only when flag is enabled
+		if s.enableAdvancedMetrics {
+			if val, exists := metricVals["total PGA inuse"]; exists {
+				s.mb.RecordNewrelicoracledbMemoryPgaInUseBytesDataPoint(now, val, instanceID)
+			}
+			if val, exists := metricVals["total PGA allocated"]; exists {
+				s.mb.RecordNewrelicoracledbMemoryPgaAllocatedBytesDataPoint(now, val, instanceID)
+			}
+			if val, exists := metricVals["total freeable PGA memory"]; exists {
+				s.mb.RecordNewrelicoracledbMemoryPgaFreeableBytesDataPoint(now, val, instanceID)
+			}
 		}
 
 		metricCount++
 	}
 
-	s.logger.Debug("PGA memory metrics scrape completed")
+	s.logger.Debug("PGA mandatory metrics scrape completed")
 
 	return nil
 }

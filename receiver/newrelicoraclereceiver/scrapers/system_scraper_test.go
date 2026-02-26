@@ -23,7 +23,7 @@ func TestNewSystemScraper(t *testing.T) {
 	logger := zap.NewNop()
 	config := metadata.DefaultMetricsBuilderConfig()
 
-	scraper := NewSystemScraper(mockClient, mb, logger, config)
+	scraper := NewSystemScraper(mockClient, mb, logger, config, true)
 
 	assert.NotNil(t, scraper)
 	assert.Equal(t, mockClient, scraper.client)
@@ -37,7 +37,7 @@ func TestSystemScraper_NilDatabase(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotNil(t, scraper)
 	assert.Nil(t, scraper.client)
@@ -47,7 +47,7 @@ func TestSystemScraper_NilMetricsBuilder(t *testing.T) {
 	mockClient := &client.MockClient{}
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(mockClient, nil, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, nil, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotNil(t, scraper)
 	assert.Nil(t, scraper.mb)
@@ -58,7 +58,7 @@ func TestSystemScraper_NilLogger(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 
-	scraper := NewSystemScraper(mockClient, mb, nil, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, nil, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotNil(t, scraper)
 	assert.Nil(t, scraper.logger)
@@ -70,7 +70,7 @@ func TestSystemScraper_EmptyInstanceName(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotNil(t, scraper)
 }
@@ -82,7 +82,7 @@ func TestSystemScraper_MetricsBuilderConfig(t *testing.T) {
 	logger := zap.NewNop()
 	config := metadata.DefaultMetricsBuilderConfig()
 
-	scraper := NewSystemScraper(mockClient, mb, logger, config)
+	scraper := NewSystemScraper(mockClient, mb, logger, config, true)
 
 	assert.NotNil(t, scraper)
 	assert.Equal(t, config, scraper.metricsBuilderConfig)
@@ -94,8 +94,8 @@ func TestSystemScraper_MultipleInstances(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper1 := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
-	scraper2 := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper1 := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
+	scraper2 := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotEqual(t, scraper1, scraper2)
 }
@@ -105,7 +105,7 @@ func TestSystemScraper_RecordMetric_BufferCacheMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Buffer Cache Hit Ratio", 95.5, "1")
@@ -117,7 +117,7 @@ func TestSystemScraper_RecordMetric_TransactionMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "User Transaction Per Sec", 100.0, "1")
@@ -131,7 +131,7 @@ func TestSystemScraper_RecordMetric_IOMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Physical Reads Per Sec", 1000.0, "1")
@@ -145,7 +145,7 @@ func TestSystemScraper_RecordMetric_ParseMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Total Parse Count Per Sec", 200.0, "1")
@@ -159,7 +159,7 @@ func TestSystemScraper_RecordMetric_CPUMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "CPU Usage Per Sec", 75.5, "1")
@@ -173,7 +173,7 @@ func TestSystemScraper_RecordMetric_SessionMetrics(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Current Logons Count", 50.0, "1")
@@ -187,7 +187,7 @@ func TestSystemScraper_RecordMetric_UnknownMetric(t *testing.T) {
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
 
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Unknown Metric Name", 42.0, "1")
@@ -207,7 +207,7 @@ func TestScrapeSystemMetrics_Success(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -222,7 +222,7 @@ func TestScrapeSystemMetrics_QueryError(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -239,7 +239,7 @@ func TestScrapeSystemMetrics_EmptyResults(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -258,7 +258,7 @@ func TestScrapeSystemMetrics_MultipleInstances(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -280,7 +280,7 @@ func TestScrapeSystemMetrics_MixedMetrics(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -299,7 +299,7 @@ func TestScrapeSystemMetrics_UnknownMetrics(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -317,7 +317,7 @@ func TestScrapeSystemMetrics_ZeroValues(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -335,7 +335,7 @@ func TestScrapeSystemMetrics_LargeValues(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -350,7 +350,7 @@ func TestScrapeSystemMetrics_ContextCanceled(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 	errs := scraper.ScrapeSystemMetrics(ctx)
@@ -368,7 +368,7 @@ func TestScrapeSystemMetrics_MultipleSuccessfulCalls(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 
@@ -391,7 +391,7 @@ func TestScrapeSystemMetrics_ErrorThenSuccess(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(mockClient, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	ctx := t.Context()
 
@@ -415,7 +415,7 @@ func TestSystemScraper_RecordMetric_KnownMetric(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Buffer Cache Hit Ratio", 95.5, "1")
@@ -426,7 +426,7 @@ func TestSystemScraper_RecordMetric_UnknownMetricLogged(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "NonExistent Metric", 999.0, "1")
@@ -437,7 +437,7 @@ func TestSystemScraper_RecordMetric_MultipleMetrics(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "Buffer Cache Hit Ratio", 95.5, "1")
@@ -450,7 +450,7 @@ func TestSystemScraper_RecordMetric_DifferentInstances(t *testing.T) {
 	settings := receivertest.NewNopSettings(metadata.Type)
 	mb := metadata.NewMetricsBuilder(metadata.DefaultMetricsBuilderConfig(), settings)
 	logger := zap.NewNop()
-	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig())
+	scraper := NewSystemScraper(nil, mb, logger, metadata.DefaultMetricsBuilderConfig(), true)
 
 	assert.NotPanics(t, func() {
 		scraper.recordMetric(0, "CPU Usage Per Sec", 50.0, "1")
