@@ -19,9 +19,15 @@ import (
 
 // ScrapeActiveRunningQueriesMetrics fetches active running queries from SQL Server
 // Returns the list of active queries for further processing (metrics emission and execution plan fetching)
-// NOTE: Fetches ALL active queries with NO filtering (no limit, no threshold, no slow query correlation)
-// This enables complete independent active query monitoring
+// NOTE: Fetches top N active queries ordered by total_elapsed_time DESC
+// This enables focused active query monitoring on the slowest running queries
 func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.Context) ([]models.ActiveRunningQuery, error) {
+	// Get the count threshold from config (default: 40, range: 20-100)
+	countThreshold := s.config.ActiveRunningQueriesCountThreshold
+	if countThreshold == 0 {
+		countThreshold = 40 // Fallback to default if not set
+	}
+
 	// Build database filter for KEY/OBJECT lock resolution from monitored_databases
 	dbFilter := ""
 	if s.metadataCache != nil {
@@ -38,11 +44,12 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 		}
 	}
 
-	// Build query WITHOUT any filters (no limit, no threshold)
-	// This fetches ALL active queries from dm_exec_requests
-	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, dbFilter)
+	// Build query with TOP N filter
+	// This fetches top N active queries ordered by total_elapsed_time DESC
+	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, countThreshold, dbFilter)
 
-	s.logger.Debug("Executing active running queries fetch (NO filters - fetching ALL active queries)",
+	s.logger.Debug("Executing active running queries fetch with TOP N limit",
+		zap.Int("count_threshold", countThreshold),
 		zap.String("query", queries.TruncateQuery(query, 100)))
 
 	var results []models.ActiveRunningQuery
@@ -50,7 +57,8 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 		return nil, fmt.Errorf("failed to execute active running queries query: %w", err)
 	}
 
-	s.logger.Info("Active running queries fetched from database (ALL queries - no filtering)",
+	s.logger.Info("Active running queries fetched from database (TOP N by elapsed time)",
+		zap.Int("count_threshold", countThreshold),
 		zap.Int("result_count", len(results)))
 
 	return results, nil
@@ -132,14 +140,16 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 		return nil
 	}
 
-	// Get APM metadata from cache (populated by slow query scraper)
+	// Get APM metadata - try cache first, extract from query text on cache miss
 	// This enables APM integration and query correlation across different language agents
 	var nrApmGuid, sqlHash string
 	var blockingNrApmGuid string
 
-	// Try to get APM metadata from cache first (populated by slow query scraper)
+	// Extract APM metadata for active query (cache first, then query text)
 	if result.QueryID != nil && !result.QueryID.IsEmpty() && apmMetadataCache != nil {
 		queryHashStr := result.QueryID.String()
+
+		// Try cache first (fast path - populated by slow query scraper or previous active queries)
 		if cachedMetadata, found := apmMetadataCache.Get(queryHashStr); found {
 			nrApmGuid = cachedMetadata.NrServiceGuid
 			sqlHash = cachedMetadata.NormalisedSqlHash
@@ -149,11 +159,49 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 				sessionIDStr = fmt.Sprintf("%d", *result.CurrentSessionID)
 			}
 
-			s.logger.Info("✅ ACTIVE QUERY: Using cached APM metadata from slow query",
+			s.logger.Info("✅ ACTIVE QUERY: Using cached APM metadata",
 				zap.String("session_id", sessionIDStr),
 				zap.String("query_id", queryHashStr),
 				zap.String("cached_nr_service_guid", nrApmGuid),
 				zap.String("cached_normalised_sql_hash", sqlHash))
+		} else if result.QueryStatementText != nil && *result.QueryStatementText != "" {
+			// Cache miss - extract from active query text (slow path)
+			sessionIDStr := "unknown"
+			if result.CurrentSessionID != nil {
+				sessionIDStr = fmt.Sprintf("%d", *result.CurrentSessionID)
+			}
+
+			s.logger.Info("🔍 ACTIVE QUERY: Cache miss - extracting APM metadata from query text",
+				zap.String("session_id", sessionIDStr),
+				zap.String("query_id", queryHashStr),
+				zap.Int("query_text_length", len(*result.QueryStatementText)))
+
+			// Extract nr_service_guid from query comments (empty string if not present)
+			nrApmGuid, _ = helpers.ExtractNewRelicMetadata(*result.QueryStatementText)
+
+			// Generate normalized SQL hash for cross-language correlation
+			normalizedSQL := helpers.AnonymizeQueryText(*result.QueryStatementText)
+			sqlHash = helpers.GenerateMD5Hash(normalizedSQL)
+
+			// Cache for future use (benefits other active queries and slow queries in same scrape)
+			if nrApmGuid != "" || sqlHash != "" {
+				apmMetadataCache.Set(queryHashStr, nrApmGuid, sqlHash)
+
+				s.logger.Info("💾 ACTIVE QUERY: Extracted and cached APM metadata",
+					zap.String("session_id", sessionIDStr),
+					zap.String("query_id", queryHashStr),
+					zap.String("extracted_nr_service_guid", nrApmGuid),
+					zap.String("extracted_normalised_sql_hash", sqlHash),
+					zap.Bool("has_apm_guid", nrApmGuid != ""),
+					zap.Bool("has_sql_hash", sqlHash != ""))
+			} else {
+				s.logger.Debug("ACTIVE QUERY: No APM metadata found in query text (normal for non-APM queries)",
+					zap.String("session_id", sessionIDStr),
+					zap.String("query_id", queryHashStr))
+			}
+		} else {
+			s.logger.Debug("ACTIVE QUERY: No query text available for metadata extraction",
+				zap.String("query_id", queryHashStr))
 		}
 	}
 
@@ -215,25 +263,6 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 				zap.String("blocking_nr_service_guid", blockingNrApmGuid),
 				zap.String("blocking_normalised_sql_hash", blockingSqlHash))
 		}
-	}
-
-	// Cache APM metadata for slow query enrichment (in same scrape) and future active query enrichment
-	// This allows both slow queries (from plan cache) and other active queries in this scrape
-	// to be enriched with APM correlation data
-	if result.QueryID != nil && !result.QueryID.IsEmpty() && (nrApmGuid != "" || sqlHash != "") && apmMetadataCache != nil {
-		queryHashStr := result.QueryID.String()
-		apmMetadataCache.Set(queryHashStr, nrApmGuid, sqlHash)
-
-		sessionIDStr := "unknown"
-		if result.CurrentSessionID != nil {
-			sessionIDStr = fmt.Sprintf("%d", *result.CurrentSessionID)
-		}
-
-		s.logger.Info("💾 ACTIVE QUERY: Cached APM metadata for slow query enrichment",
-			zap.String("session_id", sessionIDStr),
-			zap.String("query_hash", queryHashStr),
-			zap.String("nr_service_guid", nrApmGuid),
-			zap.String("normalized_sql_hash", sqlHash))
 	}
 
 	timestamp := pcommon.NewTimestampFromTime(time.Now())

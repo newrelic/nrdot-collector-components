@@ -90,7 +90,6 @@ func (s *QueryPerformanceScraper) SetMetricsBuilder(mb *metadata.MetricsBuilder)
 	s.mb = mb
 }
 
-
 func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, intervalSeconds int, emitMetrics bool, apmMetadataCache *helpers.APMMetadataCache) ([]models.SlowQuery, error) {
 	// REMOVED: topN and elapsedTimeThreshold parameters - now fetching ALL slow queries without filtering
 	query := fmt.Sprintf(queries.SlowQuery, intervalSeconds)
@@ -424,77 +423,75 @@ func (s *QueryPerformanceScraper) processSlowQueryMetrics(result models.SlowQuer
 			zap.String("query_id", queryID),
 			zap.String("full_query_text", *result.QueryText))
 
-		// Extract metadata from New Relic query comments (e.g., /* nr_apm_guid="ABC123", nr_service="order-service" */)
-		nrApmGuid, clientName := helpers.ExtractNewRelicMetadata(*result.QueryText)
+		// Extract APM metadata - try cache first, extract from query text on cache miss
+		var nrApmGuid, clientName, sqlHash, normalizedSQL string
 
-		s.logger.Info("🏷️  SLOW QUERY: Extracted APM metadata from query text",
-			zap.String("query_id", queryID),
-			zap.String("extracted_nr_service_guid", nrApmGuid),
-			zap.String("extracted_client_name", clientName),
-			zap.Bool("extraction_successful", nrApmGuid != "" || clientName != ""))
+		// Try cache first (fast path - populated by earlier slow queries or active queries)
+		if queryID != "" && apmMetadataCache != nil {
+			if cachedMetadata, found := apmMetadataCache.Get(queryID); found {
+				nrApmGuid = cachedMetadata.NrServiceGuid
+				sqlHash = cachedMetadata.NormalisedSqlHash
 
-		// Normalize SQL and generate MD5 hash for cross-language query correlation
-		normalizedSQL, sqlHash := helpers.NormalizeSqlAndHash(*result.QueryText)
+				s.logger.Info("✅ SLOW QUERY: Using cached APM metadata",
+					zap.String("query_id", queryID),
+					zap.String("cached_nr_service_guid", nrApmGuid),
+					zap.String("cached_normalised_sql_hash", sqlHash))
 
-		s.logger.Info("🔐 SLOW QUERY: Normalized SQL and generated hash",
-			zap.String("query_id", queryID),
-			zap.String("normalised_sql_hash", sqlHash),
-			zap.Int("normalized_length", len(normalizedSQL)),
-			zap.String("normalized_sql_preview", func() string {
-				if len(normalizedSQL) > 200 {
-					return normalizedSQL[:200] + "..."
+				// Still need to normalize query text for output (even with cache hit)
+				normalizedSQL, _ = helpers.NormalizeSqlAndHash(*result.QueryText)
+			} else {
+				// Cache miss - extract from query text (slow path)
+				s.logger.Info("🔍 SLOW QUERY: Cache miss - extracting APM metadata from query text",
+					zap.String("query_id", queryID))
+
+				// Extract metadata from New Relic query comments
+				nrApmGuid, clientName = helpers.ExtractNewRelicMetadata(*result.QueryText)
+
+				s.logger.Info("🏷️  SLOW QUERY: Extracted APM metadata from query text",
+					zap.String("query_id", queryID),
+					zap.String("extracted_nr_service_guid", nrApmGuid),
+					zap.String("extracted_client_name", clientName),
+					zap.Bool("extraction_successful", nrApmGuid != "" || clientName != ""))
+
+				// Normalize SQL and generate MD5 hash for cross-language query correlation
+				normalizedSQL, sqlHash = helpers.NormalizeSqlAndHash(*result.QueryText)
+
+				s.logger.Info("🔐 SLOW QUERY: Normalized SQL and generated hash",
+					zap.String("query_id", queryID),
+					zap.String("normalised_sql_hash", sqlHash),
+					zap.Int("normalized_length", len(normalizedSQL)),
+					zap.String("normalized_sql_preview", func() string {
+						if len(normalizedSQL) > 200 {
+							return normalizedSQL[:200] + "..."
+						}
+						return normalizedSQL
+					}()))
+
+				// Cache for future use (benefits active queries and other slow queries)
+				if nrApmGuid != "" || sqlHash != "" {
+					apmMetadataCache.Set(queryID, nrApmGuid, sqlHash)
+
+					s.logger.Info("💾 SLOW QUERY: Extracted and cached APM metadata",
+						zap.String("query_id", queryID),
+						zap.String("cached_nr_service_guid", nrApmGuid),
+						zap.String("cached_normalised_sql_hash", sqlHash))
+				} else {
+					s.logger.Debug("SLOW QUERY: No APM metadata found in query text (normal for non-APM queries)",
+						zap.String("query_id", queryID))
 				}
-				return normalizedSQL
-			}()))
+			}
+		} else {
+			// No cache available - extract directly
+			nrApmGuid, clientName = helpers.ExtractNewRelicMetadata(*result.QueryText)
+			normalizedSQL, sqlHash = helpers.NormalizeSqlAndHash(*result.QueryText)
+		}
 
-		// Populate model fields with extracted metadata
+		// Populate model fields with extracted or cached metadata
 		if nrApmGuid != "" {
 			result.NrServiceGuid = &nrApmGuid
 		}
 		if sqlHash != "" {
 			result.NormalisedSqlHash = &sqlHash
-		}
-
-		// Cache APM metadata for active query enrichment (in same scrape)
-		// This allows active queries to skip extraction and use pre-computed metadata
-		if result.QueryID != nil && !result.QueryID.IsEmpty() && (nrApmGuid != "" || sqlHash != "") && apmMetadataCache != nil {
-			queryHashStr := result.QueryID.String()
-			apmMetadataCache.Set(queryHashStr, nrApmGuid, sqlHash)
-
-			s.logger.Info("💾 SLOW QUERY: Cached APM metadata for active query enrichment",
-				zap.String("query_id", queryHashStr),
-				zap.String("cached_nr_service_guid", nrApmGuid),
-				zap.String("cached_normalised_sql_hash", sqlHash))
-		}
-
-		// If no APM metadata found in query text (typical for cached plans),
-		// try to retrieve from APM metadata cache (populated by earlier slow queries in same scrape)
-		if (nrApmGuid == "" || sqlHash == "") && queryID != "" && apmMetadataCache != nil {
-			s.logger.Info("💾 SLOW QUERY: Checking cache for missing metadata",
-				zap.String("query_id", queryID),
-				zap.Bool("missing_nr_service_guid", nrApmGuid == ""),
-				zap.Bool("missing_sql_hash", sqlHash == ""))
-
-			if cachedMetadata, found := apmMetadataCache.Get(queryID); found {
-				s.logger.Info("✅ SLOW QUERY: Enriching with cached APM metadata",
-					zap.String("query_id", queryID),
-					zap.String("cached_nr_service_guid", cachedMetadata.NrServiceGuid),
-					zap.String("cached_normalized_sql_hash", cachedMetadata.NormalisedSqlHash))
-
-				// Use cached values if not already present
-				if nrApmGuid == "" && cachedMetadata.NrServiceGuid != "" {
-					nrApmGuid = cachedMetadata.NrServiceGuid
-					result.NrServiceGuid = &cachedMetadata.NrServiceGuid
-				}
-				if sqlHash == "" && cachedMetadata.NormalisedSqlHash != "" {
-					sqlHash = cachedMetadata.NormalisedSqlHash
-					result.NormalisedSqlHash = &cachedMetadata.NormalisedSqlHash
-				}
-			} else {
-				s.logger.Warn("⚠️  SLOW QUERY: No cached APM metadata found",
-					zap.String("query_id", queryID),
-					zap.String("message", "This query will be emitted WITHOUT APM correlation metadata"))
-			}
 		}
 
 		// Replace QueryText with normalized version for privacy and consistency
@@ -863,4 +860,89 @@ func (s *QueryPerformanceScraper) ExtractQueryDataFromSlowQueries(slowQueries []
 	}
 
 	return queryIDs, slowQueryPlanDataMap
+}
+
+// BackfillPlanHandlesForActiveQueries fetches plan_handle and lightweight plan data
+// for active queries that were NOT found in the slow query scrape.
+// This ensures ALL active queries can have execution plan statistics, not just slow ones.
+//
+// Uses a smart query that prioritizes:
+// 1. Active plan_handle from dm_exec_requests (current execution)
+// 2. Historical plan_handle from dm_exec_query_stats (if not currently active)
+//
+// This approach ensures we get the most accurate plan_handle for correlation.
+func (s *QueryPerformanceScraper) BackfillPlanHandlesForActiveQueries(
+	ctx context.Context,
+	missingQueryHashes []string,
+) (map[string]models.SlowQueryPlanData, error) {
+
+	if len(missingQueryHashes) == 0 {
+		s.logger.Debug("No missing query hashes to backfill")
+		return nil, nil
+	}
+
+	s.logger.Info("Starting plan handle backfill for active queries",
+		zap.Int("missing_query_count", len(missingQueryHashes)))
+
+	// Build IN clause with all missing query_hashes
+	// Format: CONVERT(VARBINARY(8), '0xABC...', 1), CONVERT(VARBINARY(8), '0xDEF...', 1), ...
+	var hashList []string
+	for _, queryHash := range missingQueryHashes {
+		hashList = append(hashList, fmt.Sprintf("CONVERT(VARBINARY(8), '%s', 1)", queryHash))
+	}
+	inClause := strings.Join(hashList, ", ")
+
+	// Use the query from queries package (same pattern as other queries)
+	// The query requires the IN clause twice (once for ActivePlans, once for HistoricalPlans)
+	query := fmt.Sprintf(queries.BackfillPlanHandlesQuery, inClause, inClause)
+
+	var results []struct {
+		QueryHash         *models.QueryID `db:"query_hash"`
+		PlanHandle        *models.QueryID `db:"plan_handle"`
+		CreationTime      *string         `db:"creation_time"`
+		LastExecutionTime *string         `db:"last_execution_time"`
+		AvgElapsedTimeMs  *float64        `db:"avg_elapsed_time_ms"`
+	}
+
+	// Execute single query for all missing query_hashes
+	if err := s.connection.Query(ctx, &results, query); err != nil {
+		s.logger.Error("Failed to backfill plan handles (batch query failed)",
+			zap.Error(err),
+			zap.Int("missing_count", len(missingQueryHashes)))
+		return nil, fmt.Errorf("batch backfill query failed: %w", err)
+	}
+
+	s.logger.Debug("Batch backfill query completed",
+		zap.Int("requested_count", len(missingQueryHashes)),
+		zap.Int("results_returned", len(results)))
+
+	// Process results into map
+	backfilledMap := make(map[string]models.SlowQueryPlanData)
+	for _, result := range results {
+		if result.QueryHash != nil && !result.QueryHash.IsEmpty() && result.PlanHandle != nil && !result.PlanHandle.IsEmpty() {
+			queryHashStr := result.QueryHash.String()
+			backfilledMap[queryHashStr] = models.SlowQueryPlanData{
+				QueryHash:         result.QueryHash,
+				PlanHandle:        result.PlanHandle,
+				CreationTime:      result.CreationTime,
+				LastExecutionTime: result.LastExecutionTime,
+				AvgElapsedTimeMs:  result.AvgElapsedTimeMs,
+			}
+
+			s.logger.Debug("Successfully backfilled plan handle",
+				zap.String("query_hash", queryHashStr),
+				zap.String("plan_handle", result.PlanHandle.String()))
+		}
+	}
+
+	successCount := len(backfilledMap)
+	failureCount := len(missingQueryHashes) - successCount
+
+	s.logger.Info("Completed plan handle backfill",
+		zap.Int("requested_count", len(missingQueryHashes)),
+		zap.Int("success_count", successCount),
+		zap.Int("failure_count", failureCount),
+		zap.Int("backfilled_map_size", len(backfilledMap)))
+
+	return backfilledMap, nil
 }
