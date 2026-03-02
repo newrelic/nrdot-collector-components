@@ -382,12 +382,15 @@ func tryNormalizeInClause(state *sqlNormalizerState) string {
 
 // removeCommentsAndNormalizeWhitespace strips all comments (single-line --, multi-line /* */, hash #)
 // and normalizes whitespace (collapses multiple spaces into single space).
+// Prefix comments (before any SQL content) are replaced with '?' to match NR APM agent behavior.
+// Inline comments (after SQL content has started) are silently removed.
 // processStringLiteral is dead code in practice since literals are replaced in pass 1,
 // but included for defensive completeness matching Java reference behavior.
 func removeCommentsAndNormalizeWhitespace(sql string) string {
 	var result strings.Builder
 	result.Grow(len(sql))
 	state := newSQLNormalizerState(sql)
+	seenSQLContent := false // tracks whether any actual SQL content has been written
 
 	for state.hasMore() {
 		current := state.current()
@@ -395,18 +398,47 @@ func removeCommentsAndNormalizeWhitespace(sql string) string {
 		switch {
 		case current == '\'':
 			// Dead code in practice: string literals were already replaced in pass 1
+			seenSQLContent = true
 			processStringLiteral(&result, state)
 		case isMultilineCommentStart(state):
-			skipMultilineComment(state)
+			if !seenSQLContent {
+				// Prefix comment: replace with ? (matches NR APM agent behavior)
+				skipMultilineComment(state)
+				result.WriteByte('?')
+				state.lastWasWhitespace = false
+				seenSQLContent = true
+			} else {
+				// Inline comment: silently remove
+				skipMultilineComment(state)
+			}
 		case isSingleLineCommentStart(state):
-			state.advanceBy(2) // skip --
-			skipToEndOfLine(state)
+			if !seenSQLContent {
+				// Prefix comment: replace with ?
+				state.advanceBy(2) // skip --
+				skipToEndOfLine(state)
+				result.WriteByte('?')
+				state.lastWasWhitespace = false
+				seenSQLContent = true
+			} else {
+				state.advanceBy(2) // skip --
+				skipToEndOfLine(state)
+			}
 		case current == '#':
-			state.advance() // skip #
-			skipToEndOfLine(state)
+			if !seenSQLContent {
+				// Prefix comment: replace with ?
+				state.advance() // skip #
+				skipToEndOfLine(state)
+				result.WriteByte('?')
+				state.lastWasWhitespace = false
+				seenSQLContent = true
+			} else {
+				state.advance() // skip #
+				skipToEndOfLine(state)
+			}
 		case unicode.IsSpace(rune(current)):
 			processWhitespace(&result, state)
 		default:
+			seenSQLContent = true
 			processRegularCharacter(&result, state)
 		}
 	}
