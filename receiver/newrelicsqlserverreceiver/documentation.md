@@ -16,9 +16,9 @@ metrics:
 
 Page splits per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.activequery.wait_time_seconds
 
@@ -93,9 +93,9 @@ Buffer cache hit ratio percentage
 
 Checkpoint pages per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.buffer.page_life_expectancy
 
@@ -109,9 +109,9 @@ Page life expectancy in seconds
 
 Batch requests per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.bufferpool.page_life_expectancy_ms
 
@@ -167,9 +167,9 @@ Total IO stall time for the SQL Server database
 
 Number of log bytes flushed per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| By/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| By/s | Sum | Int | Cumulative | true | Alpha |
 
 #### Attributes
 
@@ -183,9 +183,9 @@ Number of log bytes flushed per second
 
 Number of flush wait operations per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| {operations}/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| {operations}/s | Sum | Int | Cumulative | true | Alpha |
 
 #### Attributes
 
@@ -199,9 +199,9 @@ Number of flush wait operations per second
 
 Number of log flush operations per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| {operations}/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| {operations}/s | Sum | Int | Cumulative | true | Alpha |
 
 #### Attributes
 
@@ -809,9 +809,9 @@ Time spent in flow control by log records from primary replica in milliseconds p
 
 Rate of log records received by secondary replica from primary replica in bytes per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| By/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| By/s | Sum | Int | Cumulative | true | Alpha |
 
 #### Attributes
 
@@ -946,25 +946,25 @@ Number of dormant processes
 
 Forced parameterizations per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.instance.full_scans_rate
 
 Full table/index scans per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Double | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Double | Cumulative | true | Alpha |
 
 ### sqlserver.instance.lock_timeouts_rate
 
 Number of lock timeouts per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Double | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Double | Cumulative | true | Alpha |
 
 ### sqlserver.instance.memory_available
 
@@ -1058,9 +1058,9 @@ Target server memory in KB
 
 Transactions per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.lock.mode.bulk_update
 
@@ -1800,49 +1800,49 @@ Current user connections
 
 Deadlocks per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.stats.kill_connection_errors_per_sec
 
 Kill connection errors per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.stats.lock_waits_per_sec
 
 Lock waits per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.stats.sql_compilations_per_sec
 
 SQL compilations per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.stats.sql_recompilations_per_sec
 
 SQL recompilations per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.stats.user_errors_per_sec
 
 User errors per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| 1/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| 1/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.tempdb.allocation_waits_ms
 
@@ -2048,9 +2048,9 @@ Connection churn rate (logout/login ratio as percentage)
 
 Current login rate per second
 
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| {logins}/s | Gauge | Int | Alpha |
+| Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
+| ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
+| {logins}/s | Sum | Int | Cumulative | true | Alpha |
 
 ### sqlserver.user_connections.authentication.recent_failed_logins
 

@@ -125,7 +125,7 @@ type UserConnectionClientSummary struct {
 type LoginLogoutSummary struct {
 	// LoginsPerSec is the current login rate per second
 	// Indicates new connection establishment rate
-	LoginsPerSec *int64 `db:"logins_per_sec" metric_name:"sqlserver.user_connections.authentication.logins_per_sec" source_type:"gauge"`
+	LoginsPerSec *int64 `db:"logins_per_sec" metric_name:"sqlserver.user_connections.authentication.logins_per_sec" source_type:"rate"`
 
 	// ConnectionChurnRate is the logout/login ratio as percentage
 	// High values indicate excessive connection turnover

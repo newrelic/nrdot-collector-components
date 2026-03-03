@@ -53,7 +53,7 @@ type FailoverClusterReplicaMetrics struct {
 	// LogBytesReceivedPerSec represents the rate of log records received by secondary replica from primary
 	// This metric corresponds to 'Log Bytes Received/sec' performance counter
 	// Query source: sys.dm_os_performance_counters for Database Replica counters
-	LogBytesReceivedPerSec *int64 `db:"Log Bytes Received/sec" metric_name:"sqlserver.failover_cluster.log_bytes_received_per_sec" source_type:"gauge"`
+	LogBytesReceivedPerSec *int64 `db:"Log Bytes Received/sec" metric_name:"sqlserver.failover_cluster.log_bytes_received_per_sec" source_type:"rate"`
 
 	// TransactionDelayMs represents the average delay for transactions on the secondary replica
 	// This metric corresponds to 'Transaction Delay' performance counter
