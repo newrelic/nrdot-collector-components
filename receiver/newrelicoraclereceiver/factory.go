@@ -233,47 +233,9 @@ func determineMonitoredServices(sqlOpenerFunc sqlOpenerFunc, dataSource, configu
 		return allServices, nil
 	}
 
-	// Case 3: pdb_services=['pdb1', 'pdb2'] - fetch only specified services
-	logger.Info("Filtering services based on configuration", zap.Strings("requested_services", pdbServices))
-	allServices, err := getAvailableServiceNames(sqlOpenerFunc, dataSource, logger)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query services: %w", err)
-	}
-
-	filteredServices := filterServices(allServices, pdbServices, logger)
-	if len(filteredServices) == 0 {
-		return nil, fmt.Errorf("none of the requested services found: %v", pdbServices)
-	}
-
-	return filteredServices, nil
-}
-
-// filterServices filters services based on requested names (case-insensitive)
-func filterServices(allServices, requestedServices []string, logger *zap.Logger) []string {
-	requestMap := make(map[string]string) // lowercase -> original
-	for _, req := range requestedServices {
-		requestMap[strings.ToLower(req)] = req
-	}
-
-	var filtered []string
-	for _, service := range allServices {
-		serviceName := service
-		if dotIndex := strings.Index(service, "."); dotIndex != -1 {
-			serviceName = service[:dotIndex]
-		}
-
-		// Check if this service is in the requested list (case-insensitive)
-		if _, found := requestMap[strings.ToLower(serviceName)]; found {
-			filtered = append(filtered, service)
-			logger.Info("Including service", zap.String("service_name", service))
-		} else if _, found := requestMap[strings.ToLower(service)]; found {
-			// Also check the full FQDN
-			filtered = append(filtered, service)
-			logger.Info("Including service", zap.String("service_name", service))
-		}
-	}
-
-	return filtered
+	// Case 3: pdb_services=['pdb1', 'pdb2'] - use specified services directly
+	logger.Info("Using explicitly configured services", zap.Strings("services", pdbServices))
+	return pdbServices, nil
 }
 
 // getAvailableServiceNames queries the database for all available service names
