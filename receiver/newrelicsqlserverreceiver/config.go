@@ -53,9 +53,6 @@ type Config struct {
 	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`
 	QueryMonitoringFetchInterval         int  `mapstructure:"query_monitoring_fetch_interval"`
 
-	// Active running queries configuration
-	ActiveRunningQueriesElapsedTimeThreshold int `mapstructure:"active_running_queries_elapsed_time_threshold"` // Minimum elapsed time in milliseconds (default: 0 = capture all)
-
 	// Slow query smoothing configuration (EWMA-based smoothing)
 	EnableSlowQuerySmoothing         bool    `mapstructure:"enable_slow_query_smoothing"`          // Enable/disable EWMA smoothing algorithm
 	SlowQuerySmoothingFactor         float64 `mapstructure:"slow_query_smoothing_factor"`          // Weight for new data (0.0-1.0, default: 0.3)
@@ -113,12 +110,10 @@ func DefaultConfig() component.Config {
 		// Default query monitoring settings
 		EnableQueryMonitoring:                true,
 		QueryMonitoringResponseTimeThreshold: 0, // 0 = capture all queries (no threshold)
-		QueryMonitoringCountThreshold:        20,
+		QueryMonitoringCountThreshold:        30,
 		QueryMonitoringFetchInterval:         15,
 
-		// Default active running queries settings
-		ActiveRunningQueriesElapsedTimeThreshold: 0, // Default: 0ms (capture all active queries, including very short ones)
-
+		
 		// Default slow query smoothing settings (EWMA-based)
 		EnableSlowQuerySmoothing:         false, // Disabled - using delta calculation only
 		SlowQuerySmoothingFactor:         0.3,   // 30% new data, 70% historical data

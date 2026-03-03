@@ -74,7 +74,7 @@ func (s *WaitTimeScraper) ScrapeWaitTimeMetrics(ctx context.Context) error {
 			continue
 		}
 
-		// ALWAYS emit mandatory metric (required for golden metrics)
+		// ===== CRITICAL METRICS - ALWAYS EMIT =====
 		if result.WaitTimeMs != nil {
 			s.mb.RecordSqlserverWaitStatsWaitTimeMsDataPoint(
 				now,
@@ -83,14 +83,14 @@ func (s *WaitTimeScraper) ScrapeWaitTimeMetrics(ctx context.Context) error {
 			) // MANDATORY: Golden metric
 		}
 
-		// Only emit optional metrics if wait time metrics are enabled
+		// ===== NON-CRITICAL METRICS - ONLY EMIT IF ENABLED =====
 		if s.config.GetEnableWaitTimeMetrics() {
 			if result.WaitingTasksCount != nil {
 				s.mb.RecordSqlserverWaitStatsWaitingTasksCountDataPoint(
 					now,
 					float64(*result.WaitingTasksCount),
 					*result.WaitType,
-				) // OPTIONAL
+				)
 			}
 		}
 	}
