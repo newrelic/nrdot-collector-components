@@ -102,9 +102,9 @@ type Config struct {
 	TablespaceFilter TablespaceFilterConfig `mapstructure:"tablespace_filter"`
 
 	// PDB Services Configuration
-	// - Empty or nil: Collect only CDB service data
-	// - ["ALL"]: Collect all PDB services (excluding CDB)
-	// - ["pdb1", "pdb2"]: Collect only specified PDB services
+	// - Empty or nil: Collect only the configured service (from 'service' field)
+	// - ["ALL"]: Query database and collect all available PDB services 
+	// - ["pdb1", "pdb2"]: Use the specified service names directly
 	PdbServices []string `mapstructure:"pdb_services"`
 
 	// Feature-level flags for enabling/disabling individual scrapers
