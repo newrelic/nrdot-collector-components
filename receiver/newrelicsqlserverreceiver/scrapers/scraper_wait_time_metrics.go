@@ -23,16 +23,18 @@ type WaitTimeScraper struct {
 	startTime     pcommon.Timestamp
 	engineEdition int
 	mb            *metadata.MetricsBuilder
+	config        ScraperConfig
 }
 
 // NewWaitTimeScraper creates a new wait time scraper instance
-func NewWaitTimeScraper(connection SQLConnectionInterface, logger *zap.Logger, engineEdition int, mb *metadata.MetricsBuilder) *WaitTimeScraper {
+func NewWaitTimeScraper(connection SQLConnectionInterface, logger *zap.Logger, engineEdition int, mb *metadata.MetricsBuilder, config ScraperConfig) *WaitTimeScraper {
 	return &WaitTimeScraper{
 		connection:    connection,
 		logger:        logger,
 		startTime:     pcommon.NewTimestampFromTime(time.Now()),
 		engineEdition: engineEdition,
 		mb:            mb,
+		config:        config,
 	}
 }
 
@@ -72,20 +74,24 @@ func (s *WaitTimeScraper) ScrapeWaitTimeMetrics(ctx context.Context) error {
 			continue
 		}
 
+		// ===== CRITICAL METRICS - ALWAYS EMIT =====
 		if result.WaitTimeMs != nil {
 			s.mb.RecordSqlserverWaitStatsWaitTimeMsDataPoint(
 				now,
 				float64(*result.WaitTimeMs),
 				*result.WaitType,
-			)
+			) // MANDATORY: Golden metric
 		}
 
-		if result.WaitingTasksCount != nil {
-			s.mb.RecordSqlserverWaitStatsWaitingTasksCountDataPoint(
-				now,
-				float64(*result.WaitingTasksCount),
-				*result.WaitType,
-			)
+		// ===== NON-CRITICAL METRICS - ONLY EMIT IF ENABLED =====
+		if s.config.GetEnableWaitTimeMetrics() {
+			if result.WaitingTasksCount != nil {
+				s.mb.RecordSqlserverWaitStatsWaitingTasksCountDataPoint(
+					now,
+					float64(*result.WaitingTasksCount),
+					*result.WaitType,
+				)
+			}
 		}
 	}
 
@@ -112,25 +118,28 @@ func (s *WaitTimeScraper) ScrapeLatchWaitTimeMetrics(ctx context.Context) error 
 
 	now := pcommon.NewTimestampFromTime(time.Now())
 
-	for _, result := range results {
-		if result.WaitType == nil {
-			continue
-		}
+	// Only emit optional latch metrics if wait time metrics are enabled
+	if s.config.GetEnableWaitTimeMetrics() {
+		for _, result := range results {
+			if result.WaitType == nil {
+				continue
+			}
 
-		if result.WaitTimeMs != nil {
-			s.mb.RecordSqlserverWaitStatsLatchWaitTimeMsDataPoint(
-				now,
-				float64(*result.WaitTimeMs),
-				*result.WaitType,
-			)
-		}
+			if result.WaitTimeMs != nil {
+				s.mb.RecordSqlserverWaitStatsLatchWaitTimeMsDataPoint(
+					now,
+					float64(*result.WaitTimeMs),
+					*result.WaitType,
+				) // OPTIONAL
+			}
 
-		if result.WaitingTasksCount != nil {
-			s.mb.RecordSqlserverWaitStatsLatchWaitingTasksCountDataPoint(
-				now,
-				float64(*result.WaitingTasksCount),
-				*result.WaitType,
-			)
+			if result.WaitingTasksCount != nil {
+				s.mb.RecordSqlserverWaitStatsLatchWaitingTasksCountDataPoint(
+					now,
+					float64(*result.WaitingTasksCount),
+					*result.WaitType,
+				) // OPTIONAL
+			}
 		}
 	}
 

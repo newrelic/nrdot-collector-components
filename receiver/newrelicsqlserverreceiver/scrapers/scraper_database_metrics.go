@@ -23,15 +23,18 @@ type DatabaseScraper struct {
 	logger        *zap.Logger
 	mb            *metadata.MetricsBuilder
 	engineEdition int
+
+	config        ScraperConfig
 }
 
 // NewDatabaseScraper creates a new database scraper
-func NewDatabaseScraper(conn SQLConnectionInterface, logger *zap.Logger, mb *metadata.MetricsBuilder, engineEdition int) *DatabaseScraper {
+func NewDatabaseScraper(conn SQLConnectionInterface, logger *zap.Logger, mb *metadata.MetricsBuilder, engineEdition int, config ScraperConfig) *DatabaseScraper {
 	return &DatabaseScraper{
 		connection:    conn,
 		logger:        logger,
 		mb:            mb,
 		engineEdition: engineEdition,
+		config:        config,
 	}
 }
 
@@ -111,8 +114,9 @@ func (s *DatabaseScraper) processDatabaseBufferMetrics(result models.DatabaseBuf
 		return nil
 	}
 
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	now := pcommon.NewTimestampFromTime(time.Now())
-	s.mb.RecordSqlserverDatabaseBufferpoolSizePerDatabaseBytesDataPoint(now, *result.BufferPoolSizeBytes, result.DatabaseName, "sys.dm_os_buffer_descriptors", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+	s.mb.RecordSqlserverDatabaseBufferpoolSizePerDatabaseBytesDataPoint(now, *result.BufferPoolSizeBytes, result.DatabaseName, "sys.dm_os_buffer_descriptors", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 
 	s.logger.Debug("Successfully recorded database buffer metric",
 		zap.String("database_name", result.DatabaseName),
@@ -189,9 +193,10 @@ func (s *DatabaseScraper) ScrapeDatabaseDiskMetrics(ctx context.Context) error {
 
 // processDatabaseDiskMetrics processes disk metrics and creates OpenTelemetry metrics
 func (s *DatabaseScraper) processDatabaseDiskMetrics(result models.DatabaseDiskMetrics) error {
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.MaxDiskSizeBytes != nil {
 		now := pcommon.NewTimestampFromTime(time.Now())
-		s.mb.RecordSqlserverDatabaseMaxDiskSizeBytesDataPoint(now, *result.MaxDiskSizeBytes, result.DatabaseName, "DATABASEPROPERTYEX", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabaseMaxDiskSizeBytesDataPoint(now, *result.MaxDiskSizeBytes, result.DatabaseName, "DATABASEPROPERTYEX", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 
 		s.logger.Debug("Recorded database disk metric",
 			zap.String("database_name", result.DatabaseName),
@@ -264,9 +269,10 @@ func (s *DatabaseScraper) ScrapeDatabaseIOMetrics(ctx context.Context) error {
 
 // processDatabaseIOMetrics processes IO metrics and creates OpenTelemetry metrics
 func (s *DatabaseScraper) processDatabaseIOMetrics(result models.DatabaseIOMetrics) error {
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.IOStallTimeMs != nil {
 		now := pcommon.NewTimestampFromTime(time.Now())
-		s.mb.RecordSqlserverDatabaseIoStallMsDataPoint(now, *result.IOStallTimeMs, result.DatabaseName, "sys.dm_io_virtual_file_stats", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabaseIoStallMsDataPoint(now, *result.IOStallTimeMs, result.DatabaseName, "sys.dm_io_virtual_file_stats", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 
 		s.logger.Debug("Recorded database IO stall metric",
 			zap.String("database_name", result.DatabaseName),
@@ -331,9 +337,10 @@ func (s *DatabaseScraper) ScrapeDatabaseLogGrowthMetrics(ctx context.Context) er
 
 // processDatabaseLogGrowthMetrics processes individual database log growth metrics using reflection
 func (s *DatabaseScraper) processDatabaseLogGrowthMetrics(result models.DatabaseLogGrowthMetrics) error {
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.LogGrowthCount != nil {
 		now := pcommon.NewTimestampFromTime(time.Now())
-		s.mb.RecordSqlserverDatabaseLogTransactionGrowthDataPoint(now, *result.LogGrowthCount, result.DatabaseName, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabaseLogTransactionGrowthDataPoint(now, *result.LogGrowthCount, result.DatabaseName, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 
 		s.logger.Debug("Recorded database log growth metric",
 			zap.String("database_name", result.DatabaseName),
@@ -551,9 +558,10 @@ func (s *DatabaseScraper) scrapeDatabasePageFileTotalWithIteration(ctx context.C
 
 // processDatabasePageFileMetrics processes individual database page file metrics using reflection
 func (s *DatabaseScraper) processDatabasePageFileMetrics(result models.DatabasePageFileMetrics) error {
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.PageFileAvailableBytes != nil {
 		now := pcommon.NewTimestampFromTime(time.Now())
-		s.mb.RecordSqlserverDatabasePageFileAvailableBytesDataPoint(now, *result.PageFileAvailableBytes, result.DatabaseName, "sys.partitions_sys.allocation_units", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabasePageFileAvailableBytesDataPoint(now, *result.PageFileAvailableBytes, result.DatabaseName, "sys.partitions_sys.allocation_units", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 
 		s.logger.Debug("Recorded database page file available metric",
 			zap.String("database_name", result.DatabaseName),
@@ -565,9 +573,10 @@ func (s *DatabaseScraper) processDatabasePageFileMetrics(result models.DatabaseP
 
 // processDatabasePageFileTotalMetrics processes individual database page file total metrics using reflection
 func (s *DatabaseScraper) processDatabasePageFileTotalMetrics(result models.DatabasePageFileTotalMetrics) error {
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.PageFileTotalBytes != nil {
 		now := pcommon.NewTimestampFromTime(time.Now())
-		s.mb.RecordSqlserverDatabasePageFileTotalBytesDataPoint(now, *result.PageFileTotalBytes, result.DatabaseName, "sys.partitions_sys.allocation_units", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabasePageFileTotalBytesDataPoint(now, *result.PageFileTotalBytes, result.DatabaseName, "sys.partitions_sys.allocation_units", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 
 		s.logger.Debug("Recorded database page file total metric",
 			zap.String("database_name", result.DatabaseName),
@@ -684,14 +693,15 @@ func (s *DatabaseScraper) ScrapeDatabaseSizeMetrics(ctx context.Context) error {
 func (s *DatabaseScraper) processDatabaseSizeMetrics(result models.DatabaseSizeMetrics) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.TotalSizeMB != nil {
-		s.mb.RecordSqlserverDatabaseSizeTotalMbDataPoint(now, *result.TotalSizeMB, result.DatabaseName, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabaseSizeTotalMbDataPoint(now, *result.TotalSizeMB, result.DatabaseName, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 		s.logger.Debug("Recorded database total size metric",
 			zap.String("database_name", result.DatabaseName),
 			zap.Float64("total_size_mb", *result.TotalSizeMB))
 	}
 	if result.DataSizeMB != nil {
-		s.mb.RecordSqlserverDatabaseSizeDataMbDataPoint(now, *result.DataSizeMB, result.DatabaseName, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabaseSizeDataMbDataPoint(now, *result.DataSizeMB, result.DatabaseName, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Dashboard metric
 		s.logger.Debug("Recorded database data size metric",
 			zap.String("database_name", result.DatabaseName),
 			zap.Float64("data_size_mb", *result.DataSizeMB))
@@ -750,25 +760,30 @@ func (s *DatabaseScraper) ScrapeDatabaseTransactionLogMetrics(ctx context.Contex
 func (s *DatabaseScraper) processDatabaseTransactionLogMetrics(result models.DatabaseTransactionLogMetrics) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
+	// ===== CRITICAL METRICS - ALWAYS EMIT =====
 	if result.LogFlushesPerSec != nil {
-		s.mb.RecordSqlserverDatabaseLogFlushesPerSecDataPoint(now, *result.LogFlushesPerSec, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+		s.mb.RecordSqlserverDatabaseLogFlushesPerSecDataPoint(now, *result.LogFlushesPerSec, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition)) // MANDATORY: Golden metric
 		s.logger.Debug("Recorded log flushes per sec metric",
 			zap.Int64("log_flushes_per_sec", *result.LogFlushesPerSec))
 	}
-	if result.LogBytesFlushesPerSec != nil {
-		s.mb.RecordSqlserverDatabaseLogBytesFlushedPerSecDataPoint(now, *result.LogBytesFlushesPerSec, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
-		s.logger.Debug("Recorded log bytes flushes per sec metric",
-			zap.Int64("log_bytes_flushes_per_sec", *result.LogBytesFlushesPerSec))
-	}
-	if result.FlushWaitsPerSec != nil {
-		s.mb.RecordSqlserverDatabaseLogFlushWaitsPerSecDataPoint(now, *result.FlushWaitsPerSec, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
-		s.logger.Debug("Recorded log flush waits per sec metric",
-			zap.Int64("log_flush_waits_per_sec", *result.FlushWaitsPerSec))
-	}
-	if result.ActiveTransactions != nil {
-		s.mb.RecordSqlserverDatabaseTransactionsActiveDataPoint(now, *result.ActiveTransactions, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
-		s.logger.Debug("Recorded active transactions metric",
-			zap.Int64("active_transactions", *result.ActiveTransactions))
+
+	// ===== NON-CRITICAL METRICS - ONLY EMIT IF ENABLED =====
+	if s.config.GetEnableDatabaseMetrics() {
+		if result.LogBytesFlushesPerSec != nil {
+			s.mb.RecordSqlserverDatabaseLogBytesFlushedPerSecDataPoint(now, *result.LogBytesFlushesPerSec, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+			s.logger.Debug("Recorded log bytes flushes per sec metric",
+				zap.Int64("log_bytes_flushes_per_sec", *result.LogBytesFlushesPerSec))
+		}
+		if result.FlushWaitsPerSec != nil {
+			s.mb.RecordSqlserverDatabaseLogFlushWaitsPerSecDataPoint(now, *result.FlushWaitsPerSec, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+			s.logger.Debug("Recorded log flush waits per sec metric",
+				zap.Int64("log_flush_waits_per_sec", *result.FlushWaitsPerSec))
+		}
+		if result.ActiveTransactions != nil {
+			s.mb.RecordSqlserverDatabaseTransactionsActiveDataPoint(now, *result.ActiveTransactions, "sys.dm_os_performance_counters", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+			s.logger.Debug("Recorded active transactions metric",
+				zap.Int64("active_transactions", *result.ActiveTransactions))
+		}
 	}
 
 	return nil

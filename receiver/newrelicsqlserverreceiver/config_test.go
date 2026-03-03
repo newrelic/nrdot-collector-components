@@ -25,9 +25,8 @@ func TestDefaultConfig(t *testing.T) {
 	assert.Equal(t, false, cfg.TrustServerCertificate)
 	assert.Equal(t, true, cfg.EnableQueryMonitoring)
 	assert.Equal(t, 0, cfg.QueryMonitoringResponseTimeThreshold)
-	assert.Equal(t, 20, cfg.QueryMonitoringCountThreshold)
+	assert.Equal(t, 30, cfg.QueryMonitoringCountThreshold)
 	assert.Equal(t, 15, cfg.QueryMonitoringFetchInterval)
-	assert.Equal(t, 0, cfg.ActiveRunningQueriesElapsedTimeThreshold)
 	assert.Equal(t, false, cfg.EnableSlowQuerySmoothing)
 	assert.Equal(t, 0.3, cfg.SlowQuerySmoothingFactor)
 	assert.Equal(t, 3, cfg.SlowQuerySmoothingDecayThreshold)
@@ -168,7 +167,21 @@ func TestConfigValidate(t *testing.T) {
 				QueryMonitoringCountThreshold:        0,
 			},
 			wantErr: true,
-			errMsg:  "query_monitoring_count_threshold must be positive",
+			errMsg:  "query_monitoring_count_threshold must be >= 20 when query monitoring is enabled",
+		},
+		{
+			name: "query monitoring enabled with count threshold exceeding maximum",
+			config: &Config{
+				Hostname:                             "localhost",
+				Port:                                 "1433",
+				MaxConcurrentWorkers:                 5,
+				Timeout:                              30 * time.Second,
+				EnableQueryMonitoring:                true,
+				QueryMonitoringResponseTimeThreshold: 0,
+				QueryMonitoringCountThreshold:        51,
+			},
+			wantErr: true,
+			errMsg:  "query_monitoring_count_threshold must be <= 50 when query monitoring is enabled",
 		},
 		{
 			name: "SSL enabled without trust and without certificate",
@@ -662,9 +675,8 @@ func TestConfigStructTags(t *testing.T) {
 		"enable_query_monitoring":   true,
 		"query_monitoring_response_time_threshold":      100,
 		"query_monitoring_count_threshold":              50,
-		"query_monitoring_fetch_interval":               30,
-		"active_running_queries_elapsed_time_threshold": 1000,
-		"enable_slow_query_smoothing":                   true,
+		"query_monitoring_fetch_interval":     30,
+		"enable_slow_query_smoothing":         true,
 		"slow_query_smoothing_factor":                   0.5,
 		"slow_query_smoothing_decay_threshold":          5,
 		"slow_query_smoothing_max_age_minutes":          10,
@@ -698,7 +710,6 @@ func TestConfigStructTags(t *testing.T) {
 	assert.Equal(t, 100, cfg.QueryMonitoringResponseTimeThreshold)
 	assert.Equal(t, 50, cfg.QueryMonitoringCountThreshold)
 	assert.Equal(t, 30, cfg.QueryMonitoringFetchInterval)
-	assert.Equal(t, 1000, cfg.ActiveRunningQueriesElapsedTimeThreshold)
 	assert.Equal(t, true, cfg.EnableSlowQuerySmoothing)
 	assert.Equal(t, 0.5, cfg.SlowQuerySmoothingFactor)
 	assert.Equal(t, 5, cfg.SlowQuerySmoothingDecayThreshold)

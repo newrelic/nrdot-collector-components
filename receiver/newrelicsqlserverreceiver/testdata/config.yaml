@@ -15,6 +15,18 @@ receivers:
     enable_interval_based_averaging: true         # Enable delta-based interval calculations
     interval_calculator_cache_ttl_minutes: 10     # Cache TTL for query state (10 minutes)
 
+    # Metric Category Toggles - Enable/disable entire categories of metrics
+    enable_instance_metrics: false                 # Enable/disable instance-level metrics (memory, processes, buffer pool, disk)
+    enable_database_metrics: false                 # Enable/disable database-level metrics (size, IO, transaction logs, page files)
+    enable_user_connection_metrics: false          # Enable/disable user connection and authentication metrics
+    enable_wait_time_metrics: false                # Enable/disable wait statistics metrics
+    enable_failover_cluster_metrics: false         # Enable/disable Always On Availability Group metrics
+    enable_database_principals_metrics: false      # Enable/disable database security and principal metrics
+    enable_database_role_membership_metrics: false # Enable/disable database role and membership metrics
+    enable_security_metrics: false                 # Enable/disable server-level security metrics
+    enable_lock_metrics: false                     # Enable/disable lock analysis metrics
+    enable_thread_pool_metrics: false              # Enable/disable thread pool health monitoring metrics
+    enable_tempdb_metrics: false                   # Enable/disable TempDB contention monitoring metrics
 processors:
   memory_limiter:
     check_interval: 1s
