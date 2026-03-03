@@ -91,7 +91,8 @@ func (s *QueryPerformanceScraper) SetMetricsBuilder(mb *metadata.MetricsBuilder)
 }
 
 
-func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, intervalSeconds, topN, elapsedTimeThreshold int, emitMetrics bool, apmMetadataCache *helpers.APMMetadataCache) ([]models.SlowQuery, error) {
+func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, intervalSeconds int, emitMetrics bool, apmMetadataCache *helpers.APMMetadataCache) ([]models.SlowQuery, error) {
+	// REMOVED: topN and elapsedTimeThreshold parameters - now fetching ALL slow queries without filtering
 	query := fmt.Sprintf(queries.SlowQuery, intervalSeconds)
 
 	var rawResults []models.SlowQuery
@@ -118,9 +119,10 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 
 			}
 
-			if metrics.IntervalAvgElapsedTimeMs < float64(elapsedTimeThreshold) {
-				continue
-			}
+			// REMOVED: Elapsed time threshold filter - now including ALL queries regardless of elapsed time
+			// if metrics.IntervalAvgElapsedTimeMs < float64(elapsedTimeThreshold) {
+			// 	continue
+			// }
 
 			// Populate interval metrics in the model
 			rawQuery.IntervalElapsedTimeMS = &metrics.IntervalElapsedTimeMs
@@ -156,6 +158,8 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 		rawResults = resultsWithIntervalMetrics
 	}
 
+	// REMOVED: TOP N filtering - now returning ALL queries without limit
+	// Still sort by interval average elapsed time for consistent ordering, but no truncation
 	if s.intervalCalculator != nil && len(rawResults) > 0 {
 		sort.Slice(rawResults, func(i, j int) bool {
 			if rawResults[i].IntervalAvgElapsedTimeMS == nil {
@@ -167,9 +171,10 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 			return *rawResults[i].IntervalAvgElapsedTimeMS > *rawResults[j].IntervalAvgElapsedTimeMS
 		})
 
-		if len(rawResults) > topN {
-			rawResults = rawResults[:topN]
-		}
+		// REMOVED: topN truncation
+		// if len(rawResults) > topN {
+		// 	rawResults = rawResults[:topN]
+		// }
 	}
 
 	var resultsToProcess []models.SlowQuery
