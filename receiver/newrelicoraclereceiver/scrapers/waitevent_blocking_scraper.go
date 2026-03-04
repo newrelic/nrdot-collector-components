@@ -47,11 +47,13 @@ func NewWaitEventBlockingScraper(oracleClient client.OracleClient, mb *metadata.
 }
 
 // fetchWaitEvents retrieves all active non-idle sessions in a single DB call.
+// slowQueryIDs are the sql_ids from Phase 1; when non-empty the DB query prioritizes those
+// sessions so they are never cut off by the FETCH FIRST row limit.
 // Metadata (nrServiceGUID, normalisedSQLHash) is attached in Go: sessions whose sql_id
 // matches a Phase 1 slow query use the pre-computed values from sqlIDMap; the rest are
 // derived from the session's own query text.
-func (s *WaitEventBlockingScraper) fetchWaitEvents(ctx context.Context) ([]models.WaitEventWithBlocking, error) {
-	events, err := s.client.QueryWaitEventsWithBlocking(ctx, s.queryMonitoringCountThreshold)
+func (s *WaitEventBlockingScraper) fetchWaitEvents(ctx context.Context, slowQueryIDs []string) ([]models.WaitEventWithBlocking, error) {
+	events, err := s.client.QueryWaitEventsWithBlocking(ctx, s.queryMonitoringCountThreshold, slowQueryIDs)
 	if err != nil {
 		s.logger.Error("Failed to query active session wait events", zap.Error(err))
 		return nil, err
@@ -63,15 +65,21 @@ func (s *WaitEventBlockingScraper) fetchWaitEvents(ctx context.Context) ([]model
 // resolveQueryMetadata returns the nrServiceGUID and normalisedSQLHash for a query.
 // It prefers metadata propagated from Phase 1 (sqlIDMap); falls back to extracting
 // from rawQueryText when the SQL ID is not present in the map.
-func resolveQueryMetadata(queryID, rawQueryText string, sqlIDMap map[string]models.SQLIdentifier) (nrServiceGUID, normalisedSQLHash string) {
+// precomputedHash is optional: pass a non-empty value to reuse an already-computed
+// hash and avoid calling NormalizeSQLAndHash a second time.
+func resolveQueryMetadata(queryID, rawQueryText, precomputedHash string, sqlIDMap map[string]models.SQLIdentifier) (nrServiceGUID, normalisedSQLHash string) {
 	if md, exists := sqlIDMap[queryID]; exists {
 		return md.NRServiceGUID, md.NormalisedSQLHash
 	}
 	if rawQueryText != "" {
-		_, normalisedSQLHash = commonutils.NormalizeSQLAndHash(rawQueryText)
+		if precomputedHash != "" {
+			normalisedSQLHash = precomputedHash
+		} else {
+			_, normalisedSQLHash = commonutils.NormalizeSQLAndHash(rawQueryText)
+		}
 		nrServiceGUID = commonutils.ExtractNewRelicMetadata(rawQueryText)
 	}
-	return
+	return nrServiceGUID, normalisedSQLHash
 }
 
 // ScrapeWaitEventsAndBlocking collects wait events and blocking query metrics.
@@ -79,12 +87,15 @@ func resolveQueryMetadata(queryID, rawQueryText string, sqlIDMap map[string]mode
 // normalisedSQLHash) to matching active sessions; all other sessions derive their own.
 func (s *WaitEventBlockingScraper) ScrapeWaitEventsAndBlocking(ctx context.Context, slowQueryIdentifiers []models.SQLIdentifier) ([]models.SQLIdentifier, []error) {
 	// Build metadata lookup map from Phase 1 slow-query identifiers.
+	// Also collect the raw SQL IDs so the DB query can prioritize those sessions.
 	sqlIDMap := make(map[string]models.SQLIdentifier, len(slowQueryIdentifiers))
+	slowQueryIDs := make([]string, 0, len(slowQueryIdentifiers))
 	for _, identifier := range slowQueryIdentifiers {
 		sqlIDMap[identifier.SQLID] = identifier
+		slowQueryIDs = append(slowQueryIDs, identifier.SQLID)
 	}
 
-	waitEvents, err := s.fetchWaitEvents(ctx)
+	waitEvents, err := s.fetchWaitEvents(ctx, slowQueryIDs)
 	if err != nil {
 		return nil, []error{err}
 	}
@@ -136,15 +147,8 @@ func (s *WaitEventBlockingScraper) recordWaitEventMetrics(now pcommon.Timestamp,
 
 	// Prefer metadata propagated from Phase 1 (slow queries).
 	// For sessions not in Phase 1, derive metadata from the event's own query text.
-	var nrServiceGUID, normalisedSQLHash string
-	_, fromSlowQueryMap := sqlIDMap[queryID]
-	if fromSlowQueryMap {
-		nrServiceGUID = sqlIDMap[queryID].NRServiceGUID
-		normalisedSQLHash = sqlIDMap[queryID].NormalisedSQLHash
-	} else if rawQueryText != "" {
-		nrServiceGUID = commonutils.ExtractNewRelicMetadata(rawQueryText)
-		normalisedSQLHash = queryHash
-	}
+	// Pass queryHash so NormalizeSQLAndHash is not called a second time.
+	nrServiceGUID, normalisedSQLHash := resolveQueryMetadata(queryID, rawQueryText, queryHash, sqlIDMap)
 
 	// Get blocking attributes (will be empty strings for non-blocked sessions)
 	blockingSessionStatus := event.GetBlockingSessionStatus()
@@ -270,7 +274,7 @@ func (s *WaitEventBlockingScraper) extractSQLIdentifiers(
 		key := commonutils.GenerateSQLIdentifierKey(sqlID, childNumber)
 
 		if _, exists := identifiersMap[key]; !exists {
-			nrServiceGUID, normalisedSQLHash := resolveQueryMetadata(sqlID, event.GetQueryText(), sqlIDMap)
+			nrServiceGUID, normalisedSQLHash := resolveQueryMetadata(sqlID, event.GetQueryText(), "", sqlIDMap)
 			identifiersMap[key] = models.SQLIdentifier{
 				SQLID:             sqlID,
 				ChildNumber:       childNumber,
@@ -307,7 +311,7 @@ func (s *WaitEventBlockingScraper) recordFinalBlockerQueryDetails(now pcommon.Ti
 	queryID := event.GetQueryID()
 
 	// Get nrServiceGUID and normalised_sql_hash from sqlIDMap for the blocked (victim) query
-	nrServiceGUID, normalisedSQLHash := resolveQueryMetadata(queryID, "", sqlIDMap)
+	nrServiceGUID, normalisedSQLHash := resolveQueryMetadata(queryID, "", "", sqlIDMap)
 
 	nrBlockingServiceGUID := commonutils.ExtractNewRelicMetadata(rawFinalBlockerQueryText)
 

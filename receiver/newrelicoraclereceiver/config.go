@@ -28,6 +28,7 @@ const (
 	defaultEnableQueryMonitoring                = false
 	defaultQueryMonitoringResponseTimeThreshold = queries.DefaultQueryMonitoringResponseTimeThreshold
 	defaultQueryMonitoringCountThreshold        = queries.DefaultQueryMonitoringCountThreshold
+	defaultActiveQueryCountThreshold            = queries.DefaultActiveQueryCountThreshold
 	// Interval Calculator defaults
 	defaultEnableIntervalBasedAveraging      = true // Enable by default for better slow query detection
 	defaultIntervalCalculatorCacheTTLMinutes = 10   // 10 minutes cache TTL
@@ -47,14 +48,14 @@ const (
 	defaultEnableDatabaseInfoScraper = false
 
 	// Validation ranges
-	minCollectionInterval                   = 10 * time.Second
-	maxCollectionInterval                   = 3600 * time.Second
-	minMaxOpenConnections                   = 1
-	maxMaxOpenConnections                   = 1000
-	maxUsernameLength                       = 128
+	minCollectionInterval            = 10 * time.Second
+	maxCollectionInterval            = 3600 * time.Second
+	minMaxOpenConnections            = 1
+	maxMaxOpenConnections            = 1000
+	maxUsernameLength                = 128
 	maxServiceLength                 = 128
 	minQueryMonitoringCountThreshold = queries.MinQueryMonitoringCountThreshold
-	maxQueryMonitoringCountThreshold        = queries.MaxQueryMonitoringCountThreshold
+	maxQueryMonitoringCountThreshold = queries.MaxQueryMonitoringCountThreshold
 )
 
 var (
@@ -92,7 +93,10 @@ type Config struct {
 	EnableQueryMonitoring                bool `mapstructure:"enable_query_monitoring"`
 	QueryMonitoringResponseTimeThreshold *int `mapstructure:"query_monitoring_response_time_threshold"`
 	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`
-	QueryMonitoringIntervalSeconds       int  `mapstructure:"query_monitoring_interval_seconds"`
+	// ActiveQueryCountThreshold controls the FETCH FIRST N row limit for the active-session
+	// snapshot query (Phase 2 / Call 2). Defaults to MaxQueryMonitoringCountThreshold (50).
+	ActiveQueryCountThreshold      int `mapstructure:"active_query_count_threshold"`
+	QueryMonitoringIntervalSeconds int `mapstructure:"query_monitoring_interval_seconds"`
 
 	// Interval Calculator Configuration
 	EnableIntervalBasedAveraging      bool `mapstructure:"enable_interval_based_averaging"`
@@ -140,6 +144,10 @@ func (c *Config) SetDefaults() {
 	if c.QueryMonitoringCountThreshold == 0 || c.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold ||
 		c.QueryMonitoringCountThreshold > maxQueryMonitoringCountThreshold {
 		c.QueryMonitoringCountThreshold = defaultQueryMonitoringCountThreshold
+	}
+	if c.ActiveQueryCountThreshold == 0 || c.ActiveQueryCountThreshold < minQueryMonitoringCountThreshold ||
+		c.ActiveQueryCountThreshold > maxQueryMonitoringCountThreshold {
+		c.ActiveQueryCountThreshold = defaultActiveQueryCountThreshold
 	}
 	// Set QueryMonitoringIntervalSeconds default based on collection_interval
 	// IMPORTANT: This should be >= collection_interval to avoid missing queries between scrapes
@@ -334,6 +342,10 @@ func (c Config) validateQueryPerformanceMonitoring() error {
 
 	if c.QueryMonitoringCountThreshold < 0 {
 		allErrs = multierr.Append(allErrs, fmt.Errorf("query_monitoring_count_threshold cannot be negative: got %d", c.QueryMonitoringCountThreshold))
+	}
+
+	if c.ActiveQueryCountThreshold < 0 {
+		allErrs = multierr.Append(allErrs, fmt.Errorf("active_query_count_threshold cannot be negative: got %d", c.ActiveQueryCountThreshold))
 	}
 
 	if c.QueryMonitoringIntervalSeconds < 0 {

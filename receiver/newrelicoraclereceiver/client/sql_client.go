@@ -188,11 +188,10 @@ func (c *SQLClient) QuerySpecificChildCursor(ctx context.Context, sqlID string, 
 	return nil, nil
 }
 
-// QueryWaitEventsWithBlocking executes the combined wait events with blocking information query
-// for all active non-idle sessions. Metadata is attached in Go from the slow-query sqlIDMap.
-func (c *SQLClient) QueryWaitEventsWithBlocking(ctx context.Context, countThreshold int) ([]models.WaitEventWithBlocking, error) {
-	query := queries.GetWaitEventsAndBlockingSQL(countThreshold)
 
+// scanWaitEvents executes the given SQL and scans each row into a WaitEventWithBlocking.
+// It is the shared scan helper used by both sequential calls inside QueryWaitEventsWithBlocking.
+func (c *SQLClient) scanWaitEvents(ctx context.Context, query string) ([]models.WaitEventWithBlocking, error) {
 	rows, err := c.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -244,9 +243,36 @@ func (c *SQLClient) QueryWaitEventsWithBlocking(ctx context.Context, countThresh
 		results = append(results, w)
 	}
 
-	if err := rows.Err(); err != nil {
+	return results, rows.Err()
+}
+func (c *SQLClient) QueryWaitEventsWithBlocking(ctx context.Context, countThreshold int, slowQueryIDs []string) ([]models.WaitEventWithBlocking, error) {
+	var results []models.WaitEventWithBlocking
+	var capturedSQLIDs []string
+
+	if slowQuerySQL := queries.GetActiveSessionsForMonitoredQueriesSQL(slowQueryIDs); slowQuerySQL != "" {
+		slowSessions, err := c.scanWaitEvents(ctx, slowQuerySQL)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, slowSessions...)
+
+		// Extract unique sql_ids from Call 1 results to exclude from Call 2
+		sqlIDSet := make(map[string]struct{})
+		for i := range slowSessions {
+			if sqlID := slowSessions[i].GetQueryID(); sqlID != "" {
+				sqlIDSet[sqlID] = struct{}{}
+			}
+		}
+		for sqlID := range sqlIDSet {
+			capturedSQLIDs = append(capturedSQLIDs, sqlID)
+		}
+	}
+
+	generalSessions, err := c.scanWaitEvents(ctx, queries.GetWaitEventsAndBlockingSQL(countThreshold, capturedSQLIDs))
+	if err != nil {
 		return nil, err
 	}
+	results = append(results, generalSessions...)
 
 	return results, nil
 }
