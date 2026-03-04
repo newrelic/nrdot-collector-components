@@ -46,7 +46,6 @@ func createDefaultConfig() component.Config {
 		EnableQueryMonitoring:        defaultEnableQueryMonitoring,
 		EnableIntervalBasedAveraging: defaultEnableIntervalBasedAveraging,
 		// Set feature-level scraper flags to enabled by default
-		EnableSessionScraper:      defaultEnableSessionScraper,
 		EnableTablespaceScraper:   defaultEnableTablespaceScraper,
 		EnableCoreScraper:         defaultEnableCoreScraper,
 		EnablePdbScraper:          defaultEnablePdbScraper,
