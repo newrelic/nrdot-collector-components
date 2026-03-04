@@ -10,8 +10,8 @@ receivers:
     collection_interval: 60s
     query_monitoring_fetch_interval: 60           # seconds - captures queries from last 60 seconds (matches collection_interval)
     enable_query_monitoring: true
-    query_monitoring_response_time_threshold: 0   # milliseconds - 0 = capture all queries (no threshold) for debugging
-    query_monitoring_count_threshold: 50          # TopN: emit top 50 slowest queries per collection cycle
+    query_monitoring_response_time_threshold: 500 # milliseconds - default 500ms, 0 = capture all queries (no threshold)
+    query_monitoring_count_threshold: 30          # TopN: emit top 50 slowest queries per collection cycle
     enable_interval_based_averaging: true         # Enable delta-based interval calculations
     interval_calculator_cache_ttl_minutes: 10     # Cache TTL for query state (10 minutes)
 

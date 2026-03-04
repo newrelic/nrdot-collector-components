@@ -109,7 +109,7 @@ func DefaultConfig() component.Config {
 
 		// Default query monitoring settings
 		EnableQueryMonitoring:                true,
-		QueryMonitoringResponseTimeThreshold: 0, // 0 = capture all queries (no threshold)
+		QueryMonitoringResponseTimeThreshold: 500, // 500ms default threshold
 		QueryMonitoringCountThreshold:        30,
 		QueryMonitoringFetchInterval:         15,
 
@@ -174,7 +174,7 @@ func (cfg *Config) Validate() error {
 
 	if cfg.EnableQueryMonitoring {
 		if cfg.QueryMonitoringResponseTimeThreshold < 0 {
-			return errors.New("query_monitoring_response_time_threshold must be >= 0 when query monitoring is enabled (0 = no threshold)")
+			return errors.New("query_monitoring_response_time_threshold must be >= 0 when query monitoring is enabled (0 = no threshold, default: 500)")
 		}
 		if cfg.QueryMonitoringCountThreshold < 20 {
 			return errors.New("query_monitoring_count_threshold must be >= 20 when query monitoring is enabled")

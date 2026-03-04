@@ -24,7 +24,7 @@ func TestDefaultConfig(t *testing.T) {
 	assert.Equal(t, false, cfg.EnableSSL)
 	assert.Equal(t, false, cfg.TrustServerCertificate)
 	assert.Equal(t, true, cfg.EnableQueryMonitoring)
-	assert.Equal(t, 0, cfg.QueryMonitoringResponseTimeThreshold)
+	assert.Equal(t, 500, cfg.QueryMonitoringResponseTimeThreshold)
 	assert.Equal(t, 30, cfg.QueryMonitoringCountThreshold)
 	assert.Equal(t, 15, cfg.QueryMonitoringFetchInterval)
 	assert.Equal(t, false, cfg.EnableSlowQuerySmoothing)
