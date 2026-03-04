@@ -154,7 +154,7 @@ func (m *MockClient) QuerySpecificChildCursor(_ context.Context, sqlID string, c
 	return nil, nil
 }
 
-func (m *MockClient) QueryWaitEventsWithBlocking(_ context.Context, _ int) ([]models.WaitEventWithBlocking, error) {
+func (m *MockClient) QueryWaitEventsWithBlocking(_ context.Context, _ int, _ []string) ([]models.WaitEventWithBlocking, error) {
 	if m.QueryErr != nil {
 		return nil, m.QueryErr
 	}

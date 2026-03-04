@@ -97,7 +97,7 @@ func TestFetchWaitEvents_Success(t *testing.T) {
 
 	ctx := t.Context()
 
-	waitEvents, err := scraper.fetchWaitEvents(ctx)
+	waitEvents, err := scraper.fetchWaitEvents(ctx, nil)
 
 	assert.NoError(t, err)
 	assert.Len(t, waitEvents, 1)
@@ -117,7 +117,7 @@ func TestFetchWaitEvents_QueryError(t *testing.T) {
 
 	ctx := t.Context()
 
-	waitEvents, err := scraper.fetchWaitEvents(ctx)
+	waitEvents, err := scraper.fetchWaitEvents(ctx, nil)
 
 	assert.Error(t, err)
 	assert.Nil(t, waitEvents)
