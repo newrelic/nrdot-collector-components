@@ -416,8 +416,11 @@ func (s *InstanceScraper) ScrapeInstanceRunnableTasks(ctx context.Context) error
 func (s *InstanceScraper) processInstanceRunnableTasks(result models.RunnableTasksMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
-	if result.RunnableTasksCount != nil {
-		s.mb.RecordSqlserverInstanceRunnableTasksDataPoint(now, int64(*result.RunnableTasksCount))
+	// ===== NON-CRITICAL METRIC - ONLY EMIT IF ENABLED =====
+	if s.config.GetEnableInstanceMetrics() {
+		if result.RunnableTasksCount != nil {
+			s.mb.RecordSqlserverInstanceRunnableTasksDataPoint(now, int64(*result.RunnableTasksCount))
+		}
 	}
 
 	return nil
@@ -451,8 +454,11 @@ func (s *InstanceScraper) ScrapeInstanceDiskMetrics(ctx context.Context) error {
 func (s *InstanceScraper) processInstanceDiskMetrics(result models.InstanceDiskMetricsModel) error {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
-	if result.TotalDiskSpace != nil {
-		s.mb.RecordSqlserverInstanceDiskInBytesDataPoint(now, int64(*result.TotalDiskSpace))
+	// ===== NON-CRITICAL METRIC - ONLY EMIT IF ENABLED =====
+	if s.config.GetEnableInstanceMetrics() {
+		if result.TotalDiskSpace != nil {
+			s.mb.RecordSqlserverInstanceDiskInBytesDataPoint(now, int64(*result.TotalDiskSpace))
+		}
 	}
 
 	return nil
