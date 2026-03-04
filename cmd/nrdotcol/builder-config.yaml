@@ -42,7 +42,3 @@ providers:
 # file before passing it to OCB, to ensure that local versions are used for all
 # nrdot modules.
 replaces:
-  # Security fix: GO-2026-4394 - remove when collector v0.146.0 is adopted
-  - go.opentelemetry.io/otel/sdk v1.39.0 => go.opentelemetry.io/otel/sdk v1.40.0
-  - go.opentelemetry.io/otel/sdk/log v0.14.0 => go.opentelemetry.io/otel/sdk/log v0.15.0
-  - go.opentelemetry.io/otel/sdk/metric v1.39.0 => go.opentelemetry.io/otel/sdk/metric v1.40.0

@@ -99,12 +99,3 @@ retract (
 	v0.76.1
 	v0.65.0
 )
-
-// Security fix: GO-2026-4394 - otel/sdk v1.39.0 vulnerable to arbitrary code
-// execution via PATH. Fixed in v1.40.0. Remove once collector ships v1.40.0
-// natively (expected at collector v0.146.0).
-replace (
-	go.opentelemetry.io/otel/sdk v1.39.0 => go.opentelemetry.io/otel/sdk v1.40.0
-	go.opentelemetry.io/otel/sdk/log v0.14.0 => go.opentelemetry.io/otel/sdk/log v0.15.0
-	go.opentelemetry.io/otel/sdk/metric v1.39.0 => go.opentelemetry.io/otel/sdk/metric v1.40.0
-)
