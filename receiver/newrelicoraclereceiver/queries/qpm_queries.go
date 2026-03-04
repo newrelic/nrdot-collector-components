@@ -58,7 +58,7 @@ func GetSlowQueriesSQL(intervalSeconds int) string {
 			AND sa.sql_fulltext NOT LIKE '%%V$SESSION%%'
 			AND sa.sql_fulltext NOT LIKE '%%GV$sqlarea%%'
 			AND sa.sql_fulltext NOT LIKE '%%GV$INSTANCE%%'
-			AND au.username NOT IN ('SYS', 'SYSTEM', 'DBSNMP', 'SYSMAN', 'OUTLN', 'MDSYS', 'ORDSYS', 'EXFSYS', 'WMSYS', 'APPQOSSYS', 'APEX_030200', 'OWBSYS', 'GSMADMIN_INTERNAL', 'OLAPSYS', 'XDB', 'ANONYMOUS', 'CTXSYS', 'SI_INFORMTN_SCHEMA', 'ORDDATA', 'DVSYS', 'LBACSYS', 'OJVMSYS')
+			AND au.username NOT IN ('SYS', 'SYSTEM', 'DBSNMP', 'SYSMAN', 'OUTLN', 'MDSYS', 'ORDSYS', 'EXFSYS', 'WMSYS', 'APPQOSSYS', 'APEX_030200', 'OWBSYS', 'GSMADMIN_INTERNAL', 'OLAPSYS', 'XDB', 'ANONYMOUS', 'CTXSYS', 'SI_INFORMTN_SCHEMA', 'ORDDATA', 'DVSYS', 'LBACSYS', 'OJVMSYS', 'AUDSYS', 'DVF')
 			AND sa.last_active_time >= SYSDATE - INTERVAL '%d' SECOND
 		ORDER BY
 			sa.elapsed_time DESC`, intervalSeconds)
@@ -141,6 +141,19 @@ func GetWaitEventsAndBlockingSQL(rowLimit int, excludeSQLIDs []string) string {
 			AND (
 				s.state != 'WAITING'
 				OR s.wait_class <> 'Idle'
+			)
+			AND s.username NOT IN ('SYS', 'SYSTEM', 'DBSNMP', 'SYSMAN', 'OUTLN', 'MDSYS', 'ORDSYS', 'EXFSYS', 'WMSYS', 'APPQOSSYS', 'APEX_030200', 'OWBSYS', 'GSMADMIN_INTERNAL', 'OLAPSYS', 'XDB', 'ANONYMOUS', 'CTXSYS', 'SI_INFORMTN_SCHEMA', 'ORDDATA', 'DVSYS', 'LBACSYS', 'OJVMSYS', 'AUDSYS', 'DVF')
+			AND (
+				active_sql.sql_fulltext IS NULL
+				OR (    active_sql.sql_fulltext NOT LIKE '%%ALL_USERS%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SQL_PLAN%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SQL%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$PDBS%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%GV$PDBS%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SQLAREA%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SESSION%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%GV$sqlarea%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%GV$INSTANCE%%')
 			)
 		ORDER BY
 			CASE
@@ -227,6 +240,19 @@ func GetActiveSessionsForMonitoredQueriesSQL(slowQueryIDs []string) string {
 			AND (
 				s.state != 'WAITING'
 				OR s.wait_class <> 'Idle'
+			)
+			AND s.username NOT IN ('SYS', 'SYSTEM', 'DBSNMP', 'SYSMAN', 'OUTLN', 'MDSYS', 'ORDSYS', 'EXFSYS', 'WMSYS', 'APPQOSSYS', 'APEX_030200', 'OWBSYS', 'GSMADMIN_INTERNAL', 'OLAPSYS', 'XDB', 'ANONYMOUS', 'CTXSYS', 'SI_INFORMTN_SCHEMA', 'ORDDATA', 'DVSYS', 'LBACSYS', 'OJVMSYS', 'AUDSYS', 'DVF')
+			AND (
+				active_sql.sql_fulltext IS NULL
+				OR (    active_sql.sql_fulltext NOT LIKE '%%ALL_USERS%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SQL_PLAN%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SQL%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$PDBS%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%GV$PDBS%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SQLAREA%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%V$SESSION%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%GV$sqlarea%%'
+					AND active_sql.sql_fulltext NOT LIKE '%%GV$INSTANCE%%')
 			)
 		ORDER BY
 			CASE
