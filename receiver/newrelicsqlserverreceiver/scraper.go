@@ -240,9 +240,13 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	}
 
 	// === Database Metrics Category ===
+	// Declare context variables once for reuse throughout database scraping
+	var scrapeCtx context.Context
+	var cancel context.CancelFunc
+
 	// Scrape database-level buffer pool metrics (bufferpool.sizePerDatabaseInBytes)
 	if s.config.EnableDatabaseBufferMetrics {
-		scrapeCtx, cancel := context.WithTimeout(ctx, s.config.Timeout)
+		scrapeCtx, cancel = context.WithTimeout(ctx, s.config.Timeout)
 		defer cancel()
 
 		if err := s.databaseScraper.ScrapeDatabaseBufferMetrics(scrapeCtx); err != nil {
@@ -260,7 +264,7 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 
 	// Scrape database-level IO metrics (io.stallInMilliseconds)
 	s.logger.Debug("Starting database IO metrics scraping")
-	scrapeCtx, cancel := context.WithTimeout(ctx, s.config.Timeout)
+	scrapeCtx, cancel = context.WithTimeout(ctx, s.config.Timeout)
 	defer cancel()
 
 	if err := s.databaseScraper.ScrapeDatabaseIOMetrics(scrapeCtx); err != nil {
@@ -501,19 +505,6 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	}
 
 	// === Instance Metrics Category ===
-	s.logger.Debug("Starting instance buffer pool hit percent metrics scraping")
-	scrapeCtx, cancel = context.WithTimeout(ctx, s.config.Timeout)
-	defer cancel()
-	if err := s.instanceScraper.ScrapeInstanceComprehensiveStats(scrapeCtx); err != nil {
-		s.logger.Error("Failed to scrape instance comprehensive statistics",
-			zap.Error(err),
-			zap.Duration("timeout", s.config.Timeout))
-		scrapeErrors = append(scrapeErrors, err)
-		// Don't return here - continue with other metrics
-	} else {
-		s.logger.Debug("Instance comprehensive statistics collection is disabled")
-	}
-
 	// Scrape instance-level memory metrics
 	s.logger.Debug("Starting instance memory metrics scraping")
 	scrapeCtx, cancel = context.WithTimeout(ctx, s.config.Timeout)
