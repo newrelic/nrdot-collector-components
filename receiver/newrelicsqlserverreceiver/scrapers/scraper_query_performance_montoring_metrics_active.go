@@ -23,7 +23,7 @@ import (
 // This enables focused active query monitoring on the slowest running queries
 func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.Context) ([]models.ActiveRunningQuery, error) {
 	// Get the count threshold from config (default: 40, range: 20-100)
-	countThreshold := s.config.ActiveRunningQueriesCountThreshold
+	countThreshold := s.activeRunningQueriesCountThreshold
 	if countThreshold == 0 {
 		countThreshold = 40 // Fallback to default if not set
 	}

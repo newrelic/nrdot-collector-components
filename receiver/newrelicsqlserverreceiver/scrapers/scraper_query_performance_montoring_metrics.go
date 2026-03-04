@@ -22,17 +22,18 @@ import (
 
 // QueryPerformanceScraper handles SQL Server query performance monitoring metrics collection
 type QueryPerformanceScraper struct {
-	connection          SQLConnectionInterface
-	logger              *zap.Logger
-	mb                  *metadata.MetricsBuilder
-	startTime           pcommon.Timestamp // Used by slow query metrics (not yet migrated)
-	engineEdition       int
-	executionPlanLogger *models.ExecutionPlanLogger
-	logConsumer         plog.Logs                     // For emitting execution plan logs
-	slowQuerySmoother   *SlowQuerySmoother            // EWMA-based smoothing algorithm for slow queries
-	intervalCalculator  *SimplifiedIntervalCalculator // Simplified delta-based interval calculator
-	metadataCache       *helpers.MetadataCache        // Metadata cache for wait resource enrichment
-	executionPlanCache  *helpers.ExecutionPlanCache   // Cache for execution plan deduplication
+	connection                           SQLConnectionInterface
+	logger                               *zap.Logger
+	mb                                   *metadata.MetricsBuilder
+	startTime                            pcommon.Timestamp // Used by slow query metrics (not yet migrated)
+	engineEdition                        int
+	executionPlanLogger                  *models.ExecutionPlanLogger
+	logConsumer                          plog.Logs                     // For emitting execution plan logs
+	slowQuerySmoother                    *SlowQuerySmoother            // EWMA-based smoothing algorithm for slow queries
+	intervalCalculator                   *SimplifiedIntervalCalculator // Simplified delta-based interval calculator
+	metadataCache                        *helpers.MetadataCache        // Metadata cache for wait resource enrichment
+	executionPlanCache                   *helpers.ExecutionPlanCache   // Cache for execution plan deduplication
+	activeRunningQueriesCountThreshold   int                           // Maximum number of active queries to fetch (default: 40, range: 20-100)
 	// NOTE: apmMetadataCache removed - now passed as parameter to scrape methods
 }
 
@@ -48,6 +49,7 @@ func NewQueryPerformanceScraper(
 	maxAgeMinutes int,
 	intervalCalcEnabled bool,
 	intervalCalcCacheTTLMinutes int,
+	activeRunningQueriesCountThreshold int,
 	metadataCache *helpers.MetadataCache,
 ) *QueryPerformanceScraper {
 	var smoother *SlowQuerySmoother
@@ -71,16 +73,17 @@ func NewQueryPerformanceScraper(
 	// This ensures no stale metadata persists across scrapes
 
 	return &QueryPerformanceScraper{
-		connection:          conn,
-		logger:              logger,
-		mb:                  mb,
-		startTime:           pcommon.NewTimestampFromTime(time.Now()),
-		engineEdition:       engineEdition,
-		executionPlanLogger: models.NewExecutionPlanLogger(),
-		slowQuerySmoother:   smoother,
-		intervalCalculator:  intervalCalc,
-		metadataCache:       metadataCache,
-		executionPlanCache:  execPlanCache,
+		connection:                         conn,
+		logger:                             logger,
+		mb:                                 mb,
+		startTime:                          pcommon.NewTimestampFromTime(time.Now()),
+		engineEdition:                      engineEdition,
+		executionPlanLogger:                models.NewExecutionPlanLogger(),
+		slowQuerySmoother:                  smoother,
+		intervalCalculator:                 intervalCalc,
+		metadataCache:                      metadataCache,
+		executionPlanCache:                 execPlanCache,
+		activeRunningQueriesCountThreshold: activeRunningQueriesCountThreshold,
 	}
 }
 
