@@ -1092,10 +1092,13 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	return metrics, nil
 }
 
-// buildMetrics constructs the final metrics output with resource attributes
+// buildMetrics constructs the final metrics output with resource attributes.
+// Sets server.address (hostname) and server.port as separate resource attributes
+// following OpenTelemetry semantic conventions.
 func (s *sqlServerScraper) buildMetrics(ctx context.Context) pmetric.Metrics {
 	rb := s.mb.NewResourceBuilder()
-	rb.SetServerAddress(fmt.Sprintf("%s:%s", s.config.Hostname, s.config.Port))
+	rb.SetServerAddress(s.config.Hostname) // server.address = hostname only (not hostname:port)
+	rb.SetServerPort(s.config.Port)        // server.port = port number
 	return s.mb.Emit(metadata.WithResource(rb.Emit()))
 }
 
