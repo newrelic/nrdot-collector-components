@@ -117,13 +117,10 @@ type Config struct {
 	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`
 	QueryMonitoringFetchInterval         int  `mapstructure:"query_monitoring_fetch_interval"`
 
-<<<<<<< HEAD
-=======
 	// Active running queries configuration
 	ActiveRunningQueriesElapsedTimeThreshold int `mapstructure:"active_running_queries_elapsed_time_threshold"` // Minimum elapsed time in milliseconds (default: 0 = capture all)
 	ActiveRunningQueriesCountThreshold       int `mapstructure:"active_running_queries_count_threshold"`        // Maximum number of active queries to fetch (default: 40, range: 20-100)
 
->>>>>>> 3e1480d5f8 (feat: add active query top N config and implement cache-first APM metadata extraction)
 	// Slow query smoothing configuration (EWMA-based smoothing)
 	EnableSlowQuerySmoothing         bool    `mapstructure:"enable_slow_query_smoothing"`          // Enable/disable EWMA smoothing algorithm
 	SlowQuerySmoothingFactor         float64 `mapstructure:"slow_query_smoothing_factor"`          // Weight for new data (0.0-1.0, default: 0.3)
@@ -178,20 +175,6 @@ func DefaultConfig() component.Config {
 		EnableSSL:              false,
 		TrustServerCertificate: false,
 
-<<<<<<< HEAD
-		// Default query monitoring settings
-		EnableQueryMonitoring:                true,
-		QueryMonitoringResponseTimeThreshold: 0, // 0 = capture all queries (no threshold)
-		QueryMonitoringCountThreshold:        30,
-		QueryMonitoringFetchInterval:         15,
-
-		
-		// Default slow query smoothing settings (EWMA-based)
-		EnableSlowQuerySmoothing:         false, // Disabled - using delta calculation only
-		SlowQuerySmoothingFactor:         0.3,   // 30% new data, 70% historical data
-		SlowQuerySmoothingDecayThreshold: 3,     // Remove after 3 consecutive misses
-		SlowQuerySmoothingMaxAgeMinutes:  5,     // Maximum age of 5 minutes
-=======
 		// Query monitoring settings
 		EnableQueryMonitoring:                defaultEnableQueryMonitoring,
 		QueryMonitoringResponseTimeThreshold: defaultQueryMonitoringResponseTimeThreshold,
@@ -207,7 +190,6 @@ func DefaultConfig() component.Config {
 		SlowQuerySmoothingFactor:         defaultSlowQuerySmoothingFactor,
 		SlowQuerySmoothingDecayThreshold: defaultSlowQuerySmoothingDecayThreshold,
 		SlowQuerySmoothingMaxAgeMinutes:  defaultSlowQuerySmoothingMaxAgeMinutes,
->>>>>>> 3e1480d5f8 (feat: add active query top N config and implement cache-first APM metadata extraction)
 
 		// Interval-based averaging settings
 		EnableIntervalBasedAveraging:      defaultEnableIntervalBasedAveraging,

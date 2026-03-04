@@ -3,6 +3,8 @@ all_set:
   metrics:
     sqlserver.access.page_splits_per_sec:
       enabled: true
+    sqlserver.activequery.query_details:
+      enabled: true
     sqlserver.activequery.wait_time_seconds:
       enabled: true
     sqlserver.blocking_query.details:
@@ -349,6 +351,8 @@ all_set:
 none_set:
   metrics:
     sqlserver.access.page_splits_per_sec:
+      enabled: false
+    sqlserver.activequery.query_details:
       enabled: false
     sqlserver.activequery.wait_time_seconds:
       enabled: false

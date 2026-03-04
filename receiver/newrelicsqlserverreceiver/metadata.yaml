@@ -42,6 +42,47 @@ metrics:
       monotonic: true
       aggregation_temporality: cumulative
 
+  sqlserver.activequery.query_details:
+    enabled: true
+    stability:
+      level: alpha
+    description: Active query details including full query text and wait information (emitted as custom events)
+    unit: "1"
+    gauge:
+      value_type: int
+    attributes:
+      [
+        query_type,
+        session_id,
+        request_id,
+        database_name,
+        login_name,
+        host_name,
+        query_id,
+        query_text,
+        normalised_sql_hash,
+        nr_service_guid,
+        wait_type,
+        wait_type_description,
+        wait_type_category,
+        wait_resource,
+        wait_resource_type,
+        wait_resource_object_name,
+        last_wait_type,
+        last_wait_type_description,
+        request_start_time,
+        collection_timestamp,
+        transaction_id,
+        open_transaction_count,
+        plan_handle,
+        blocking_session_id,
+        blocking_login_name,
+        blocking_query_hash,
+        blocking_nr_service_guid,
+        blocking_normalised_sql_hash,
+        newrelic.event.type,
+      ]
+
   sqlserver.activequery.wait_time_seconds:
     enabled: true
     stability:
@@ -58,6 +99,7 @@ metrics:
         login_name,
         host_name,
         query_id,
+        query_text,
         normalised_sql_hash,
         nr_service_guid,
         wait_type,
@@ -90,6 +132,7 @@ metrics:
       value_type: int
     attributes:
       [
+        query_type,
         session_id,
         request_id,
         request_start_time,
@@ -1419,6 +1462,7 @@ metrics:
       value_type: int
     attributes:
       [
+        query_type,
         query_id,
         database_name,
         plan_handle,
@@ -1966,6 +2010,9 @@ attributes:
     type: string
   query_text:
     description: SQL query text (anonymized)
+    type: string
+  query_type:
+    description: Type of query event (slow_query, blocking_query, active_query)
     type: string
   referenced_columns:
     description: Comma-separated list of columns referenced

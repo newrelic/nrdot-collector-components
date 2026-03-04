@@ -547,6 +547,7 @@ func (s *QueryPerformanceScraper) processSlowQueryMetrics(result models.SlowQuer
 	s.mb.RecordSqlserverSlowqueryQueryDetailsDataPoint(
 		timestamp,
 		1,
+		"slow_query", // query_type
 		queryID,
 		databaseName,
 		planHandle,

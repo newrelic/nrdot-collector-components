@@ -20,6 +20,48 @@ Page splits per second
 | ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
 | 1/s | Sum | Int | Cumulative | true | Alpha |
 
+### sqlserver.activequery.query_details
+
+Active query details including full query text and wait information (emitted as custom events)
+
+| Unit | Metric Type | Value Type | Stability |
+| ---- | ----------- | ---------- | --------- |
+| 1 | Gauge | Int | Alpha |
+
+#### Attributes
+
+| Name | Description | Values | Requirement Level |
+| ---- | ----------- | ------ | -------- |
+| query_type | Type of query event (slow_query, blocking_query, active_query) | Any Str | Recommended |
+| session_id | SQL Server session identifier | Any Int | Recommended |
+| request_id | SQL Server request identifier | Any Int | Recommended |
+| database_name | Name of the database | Any Str | Recommended |
+| login_name | SQL Server login name | Any Str | Recommended |
+| host_name | Client host name | Any Str | Recommended |
+| query_id | Unique identifier for the SQL query | Any Str | Recommended |
+| query_text | SQL query text (anonymized) | Any Str | Recommended |
+| normalised_sql_hash | MD5 hash of normalized SQL for cross-language query correlation | Any Str | Recommended |
+| nr_service_guid | New Relic APM service GUID extracted from query comments for APM-DB correlation | Any Str | Recommended |
+| wait_type | Type of wait (e.g., PAGEIOLATCH_SH, LCK_M_S) | Any Str | Recommended |
+| wait_type_description | Human-readable description of the wait type | Any Str | Recommended |
+| wait_type_category | Category of the wait type (I/O, Lock, Latch, CPU, Memory, Network, etc.) | Any Str | Recommended |
+| wait_resource | Resource being waited on | Any Str | Recommended |
+| wait_resource_type | Type of resource being waited on (KEY, OBJECT, PAGE, RID, etc.) | Any Str | Recommended |
+| wait_resource_object_name | Name of the object being waited on | Any Str | Recommended |
+| last_wait_type | Last wait type experienced by the request | Any Str | Recommended |
+| last_wait_type_description | Human-readable description of the last wait type | Any Str | Recommended |
+| request_start_time | Timestamp when the request started | Any Str | Recommended |
+| collection_timestamp | Timestamp when the metric was collected | Any Str | Recommended |
+| transaction_id | Transaction identifier | Any Int | Recommended |
+| open_transaction_count | Number of open transactions | Any Int | Recommended |
+| plan_handle | Handle to the cached execution plan | Any Str | Recommended |
+| blocking_session_id | Session ID that is blocking this request | Any Int | Recommended |
+| blocking_login_name | Login name of the blocking session | Any Str | Recommended |
+| blocking_query_hash | Query hash of the blocking session for correlation | Any Str | Recommended |
+| blocking_nr_service_guid | New Relic APM service GUID extracted from blocking query comments for APM-DB correlation | Any Str | Recommended |
+| blocking_normalised_sql_hash | MD5 hash of normalized blocking SQL for cross-language query correlation | Any Str | Recommended |
+| newrelic.event.type | Event type for New Relic integration | Any Str | Recommended |
+
 ### sqlserver.activequery.wait_time_seconds
 
 Wait time for currently executing query
@@ -38,6 +80,7 @@ Wait time for currently executing query
 | login_name | SQL Server login name | Any Str | Recommended |
 | host_name | Client host name | Any Str | Recommended |
 | query_id | Unique identifier for the SQL query | Any Str | Recommended |
+| query_text | SQL query text (anonymized) | Any Str | Recommended |
 | normalised_sql_hash | MD5 hash of normalized SQL for cross-language query correlation | Any Str | Recommended |
 | nr_service_guid | New Relic APM service GUID extracted from query comments for APM-DB correlation | Any Str | Recommended |
 | wait_type | Type of wait (e.g., PAGEIOLATCH_SH, LCK_M_S) | Any Str | Recommended |
@@ -71,6 +114,7 @@ Blocking query details for correlation with active queries (emitted as custom ev
 
 | Name | Description | Values | Requirement Level |
 | ---- | ----------- | ------ | -------- |
+| query_type | Type of query event (slow_query, blocking_query, active_query) | Any Str | Recommended |
 | session_id | SQL Server session identifier | Any Int | Recommended |
 | request_id | SQL Server request identifier | Any Int | Recommended |
 | request_start_time | Timestamp when the request started | Any Str | Recommended |
@@ -1778,6 +1822,7 @@ Query details including text and timestamps for slow queries
 
 | Name | Description | Values | Requirement Level |
 | ---- | ----------- | ------ | -------- |
+| query_type | Type of query event (slow_query, blocking_query, active_query) | Any Str | Recommended |
 | query_id | Unique identifier for the SQL query | Any Str | Recommended |
 | database_name | Name of the database | Any Str | Recommended |
 | plan_handle | Handle to the cached execution plan | Any Str | Recommended |
