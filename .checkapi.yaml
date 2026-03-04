@@ -1,5 +1,6 @@
 ignored_paths:
   - cmd/codecovgen
+  - receiver/newrelicoraclereceiver
 allowed_functions:
   - name: NewFactory
     classes:

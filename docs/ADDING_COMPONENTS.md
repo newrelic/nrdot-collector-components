@@ -32,7 +32,7 @@ Use this checklist to track your progress when adding a new component:
 
 ### Integration
 - [ ] Add component to `versions.yaml`
-- [ ] Add component to `cmd/nrdotcol/builder-config.yaml`
+- [ ] Add component to `cmd/nrdotcol/builder-config.yaml` (or `builder-config-cgo-enabled.yaml` if requires CGO)
 - [ ] Add component to `cmd/oteltestbedcol/builder-config.yaml` (if testable)
 - [ ] Run `make crosslink`
 - [ ] Run `make generate`
@@ -45,7 +45,7 @@ Use this checklist to track your progress when adding a new component:
 - [ ] Run `make checkapi`
 - [ ] Run `make goporto`
 - [ ] Run `make gotidy`
-- [ ] Run `make gennrdotcol`
+- [ ] Run `make gennrdotcol` (and `make gennrdotcol-cgo` if component requires CGO)
 - [ ] Run `make genoteltestbedcol`
 - [ ] Run `make multimod-verify`
 - [ ] Run `make gengithub`
@@ -320,7 +320,9 @@ module-sets:
 
 #### Add to builder-config.yaml
 
-Edit both `cmd/nrdotcol/builder-config.yaml` and `cmd/oteltestbedcol/builder-config.yaml`:
+Edit `cmd/nrdotcol/builder-config.yaml` (or `cmd/nrdotcol/builder-config-cgo-enabled.yaml` if your component requires CGO) and `cmd/oteltestbedcol/builder-config.yaml`:
+
+**Note:** Components that require CGO (e.g., those using C libraries like Oracle database drivers) should be added to `builder-config-cgo-enabled.yaml` instead of the standard `builder-config.yaml`.
 
 ```yaml
 receivers:
@@ -340,6 +342,8 @@ make goporto
 make crosslink
 make gotidy
 make gennrdotcol
+# If component requires CGO, also run:
+make gennrdotcol-cgo
 make genoteltestbedcol
 make multimod-verify
 make gengithub
