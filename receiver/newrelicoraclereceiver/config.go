@@ -37,7 +37,6 @@ const (
 
 	// Feature-level scraper defaults (all disabled by default)
 	// Note: UI-critical metrics always emit regardless of these flags
-	defaultEnableSessionScraper      = false
 	defaultEnableTablespaceScraper   = false
 	defaultEnableCoreScraper         = false
 	defaultEnablePdbScraper          = false
@@ -112,7 +111,6 @@ type Config struct {
 	PdbServices []string `mapstructure:"pdb_services"`
 
 	// Feature-level flags for enabling/disabling individual scrapers
-	EnableSessionScraper      bool `mapstructure:"enable_session_scraper"`
 	EnableTablespaceScraper   bool `mapstructure:"enable_tablespace_scraper"`
 	EnableCoreScraper         bool `mapstructure:"enable_core_scraper"`
 	EnablePdbScraper          bool `mapstructure:"enable_pdb_scraper"`
