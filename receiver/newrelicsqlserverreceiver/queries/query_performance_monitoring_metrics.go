@@ -212,7 +212,7 @@ DEALLOCATE db_cursor;
 -- MAIN QUERY: Active running queries with cross-database KEY lock resolution
 -- ============================================================================
 -- Parameters:
--- %d = Top N count threshold (default: 40, range: 20-100)
+-- %%d = Top N count threshold (default: 40, range: 20-100)
 
 SELECT TOP (%d)
     -- A. SESSION IDENTIFICATION (Required for correlation)

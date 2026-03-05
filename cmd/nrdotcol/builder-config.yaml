@@ -27,6 +27,7 @@ processors:
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.142.0
   - gomod: github.com/newrelic/nrdot-collector-components/receiver/nopreceiver v0.142.2
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver v0.142.0
 
 connectors:
   - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.142.0
@@ -42,3 +43,4 @@ providers:
 # file before passing it to OCB, to ensure that local versions are used for all
 # nrdot modules.
 replaces:
+  - github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicsqlserverreceiver => ../../receiver/newrelicsqlserverreceiver
