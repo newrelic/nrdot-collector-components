@@ -46,7 +46,7 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 
 	// Build query with TOP N filter
 	// This fetches top N active queries ordered by total_elapsed_time DESC
-	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, countThreshold, dbFilter)
+	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, dbFilter, countThreshold)
 
 	s.logger.Debug("Executing active running queries fetch with TOP N limit",
 		zap.Int("count_threshold", countThreshold),
