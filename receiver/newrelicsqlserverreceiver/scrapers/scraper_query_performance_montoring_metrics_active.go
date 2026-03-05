@@ -33,10 +33,11 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 	if s.metadataCache != nil {
 		monitoredDBs := s.metadataCache.GetMonitoredDatabases()
 		if len(monitoredDBs) > 0 {
-			// Build IN clause with properly escaped database names
+			// Build IN clause with properly quoted database names using square brackets
 			var quotedDBs []string
 			for _, dbName := range monitoredDBs {
-				// Escape single quotes by doubling them (SQL standard)
+				// Escape square brackets by doubling them (SQL Server standard)
+				// Use single quotes for the IN clause comparison with sys.databases.name
 				escapedName := strings.ReplaceAll(dbName, "'", "''")
 				quotedDBs = append(quotedDBs, fmt.Sprintf("'%s'", escapedName))
 			}
@@ -50,10 +51,16 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 
 	s.logger.Debug("Executing active running queries fetch with TOP N limit",
 		zap.Int("count_threshold", countThreshold),
-		zap.String("query", queries.TruncateQuery(query, 100)))
+		zap.String("db_filter", dbFilter),
+		zap.String("query_preview", queries.TruncateQuery(query, 200)))
 
 	var results []models.ActiveRunningQuery
 	if err := s.connection.Query(ctx, &results, query); err != nil {
+		s.logger.Error("Failed to execute active running queries query",
+			zap.Error(err),
+			zap.String("db_filter", dbFilter),
+			zap.Int("count_threshold", countThreshold),
+			zap.String("query_preview", queries.TruncateQuery(query, 500)))
 		return nil, fmt.Errorf("failed to execute active running queries query: %w", err)
 	}
 
