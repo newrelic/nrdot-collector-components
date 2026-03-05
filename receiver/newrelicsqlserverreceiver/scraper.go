@@ -252,29 +252,6 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 		scrapeErrors = collectErrors(scrapeErrors, err)
 	}
 
-	// // Scrape blocking session metrics if query monitoring is enabled
-	// if s.config.EnableQueryMonitoring {
-	// 	scrapeCtx, cancel := context.WithTimeout(ctx, s.config.Timeout)
-	// 	defer cancel()
-
-	// 	// Use config values for blocking session parameters
-	// 	limit := s.config.QueryMonitoringCountThreshold
-	// 	textTruncateLimit := s.config.QueryMonitoringTextTruncateLimit // Use config value
-
-	// 	if err := s.queryPerformanceScraper.ScrapeBlockingSessionMetrics(scrapeCtx, scopeMetrics, limit, textTruncateLimit); err != nil {
-	// 		s.logger.Warn("Failed to scrape blocking session metrics - continuing with other metrics",
-	// 			zap.Error(err),
-	// 			zap.Duration("timeout", s.config.Timeout),
-	// 			zap.Int("limit", limit),
-	// 			zap.Int("text_truncate_limit", textTruncateLimit))
-	// 		// Don't add to scrapeErrors - just warn and continue
-	// 	} else {
-	// 		s.logger.Debug("Successfully scraped blocking session metrics",
-	// 			zap.Int("limit", limit),
-	// 			zap.Int("text_truncate_limit", textTruncateLimit))
-	// 	}
-	// }
-
 	// Scrape slow query metrics if query monitoring is enabled
 	// Store query IDs and lightweight plan data (5 fields only) for correlation with active queries
 	// Create a fresh APM metadata cache for this scrape cycle
@@ -610,10 +587,13 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	return metrics, nil
 }
 
-// buildMetrics constructs the final metrics output with resource attributes
+// buildMetrics constructs the final metrics output with resource attributes.
+// Sets server.address (hostname) and server.port as separate resource attributes
+// following OpenTelemetry semantic conventions.
 func (s *sqlServerScraper) buildMetrics(ctx context.Context) pmetric.Metrics {
 	rb := s.mb.NewResourceBuilder()
-	rb.SetServerAddress(fmt.Sprintf("%s:%s", s.config.Hostname, s.config.Port))
+	rb.SetServerAddress(s.config.Hostname) // server.address = hostname only (not hostname:port)
+	rb.SetServerPort(s.config.Port)        // server.port = port number
 	return s.mb.Emit(metadata.WithResource(rb.Emit()))
 }
 

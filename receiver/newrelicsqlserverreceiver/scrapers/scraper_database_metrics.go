@@ -913,13 +913,16 @@ func (s *DatabaseScraper) processDatabaseLogSpaceUsageMetrics(result models.Data
 
 // processDatabaseLogSpaceUsageMetricsWithDBName processes individual database log space usage metrics with database name
 func (s *DatabaseScraper) processDatabaseLogSpaceUsageMetricsWithDBName(result models.DatabaseLogSpaceUsageMetrics, databaseName string) error {
-	if result.UsedLogSpaceMB != nil {
-		now := pcommon.NewTimestampFromTime(time.Now())
-		s.mb.RecordSqlserverDatabaseLogUsedSpaceMbDataPoint(now, *result.UsedLogSpaceMB, databaseName, "sys.dm_os_sys_memory", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
+	// ===== NON-CRITICAL METRIC - ONLY EMIT IF ENABLED =====
+	if s.config.GetEnableDatabaseMetrics() {
+		if result.UsedLogSpaceMB != nil {
+			now := pcommon.NewTimestampFromTime(time.Now())
+			s.mb.RecordSqlserverDatabaseLogUsedSpaceMbDataPoint(now, *result.UsedLogSpaceMB, databaseName, "sys.dm_os_sys_memory", queries.GetEngineTypeName(s.engineEdition), int64(s.engineEdition))
 
-		s.logger.Debug("Recorded database log space usage metric",
-			zap.String("database_name", databaseName),
-			zap.Float64("used_log_space_mb", *result.UsedLogSpaceMB))
+			s.logger.Debug("Recorded database log space usage metric",
+				zap.String("database_name", databaseName),
+				zap.Float64("used_log_space_mb", *result.UsedLogSpaceMB))
+		}
 	}
 
 	return nil

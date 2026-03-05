@@ -332,7 +332,7 @@ func (cfg *Config) Validate() error {
 	// Query monitoring validation
 	if cfg.EnableQueryMonitoring {
 		if cfg.QueryMonitoringResponseTimeThreshold < 0 {
-			return errors.New("query_monitoring_response_time_threshold must be >= 0 (0 = no threshold)")
+			return errors.New("query_monitoring_response_time_threshold must be >= 0 when query monitoring is enabled (0 = no threshold, default: 500)")
 		}
 		if cfg.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold {
 			return fmt.Errorf("query_monitoring_count_threshold must be >= %d", minQueryMonitoringCountThreshold)
