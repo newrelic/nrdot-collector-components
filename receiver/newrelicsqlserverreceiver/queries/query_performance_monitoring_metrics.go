@@ -274,17 +274,8 @@ SELECT TOP (%d)
     -- G. PLAN HANDLE (Required for execution plan retrieval)
     r_wait.plan_handle AS plan_handle,
 
-    -- H. QUERY TEXT - Active Running Query
-    SUBSTRING(
-        st_wait.text,
-        (r_wait.statement_start_offset / 2) + 1,
-        (
-            CASE
-                WHEN r_wait.statement_end_offset = -1 THEN DATALENGTH(st_wait.text)
-                ELSE r_wait.statement_end_offset
-            END - r_wait.statement_start_offset
-        ) / 2
-    ) AS query_statement_text,
+    -- H. QUERY TEXT - Active Running Query (full batch for APM correlation)
+    st_wait.text AS query_statement_text,
 
     -- I. BLOCKING DETAILS (Required by NRQL Query 1)
     CASE
