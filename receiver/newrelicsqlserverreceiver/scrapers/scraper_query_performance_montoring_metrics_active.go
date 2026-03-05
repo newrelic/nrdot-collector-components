@@ -188,7 +188,8 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 
 			// Generate normalized SQL hash for cross-language correlation
 			// IMPORTANT: Must use NormalizeSqlAndHash() to match slow query behavior exactly
-			_, sqlHash = helpers.NormalizeSqlAndHash(*result.QueryStatementText)
+			normalizedSQL, normalizedHash := helpers.NormalizeSqlAndHash(*result.QueryStatementText)
+			sqlHash = normalizedHash
 
 			// Cache for future use (benefits other active queries and slow queries in same scrape)
 			if nrApmGuid != "" || sqlHash != "" {
@@ -206,9 +207,19 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 					zap.String("session_id", sessionIDStr),
 					zap.String("query_id", queryHashStr))
 			}
+
+			// Replace QueryStatementText with normalized version (EXACTLY matching slow query behavior)
+			// This removes comments and literals while preserving query structure
+			result.QueryStatementText = &normalizedSQL
 		} else {
 			s.logger.Debug("ACTIVE QUERY: No query text available for metadata extraction",
 				zap.String("query_id", queryHashStr))
+		}
+	} else {
+		// Cache hit path - also need to normalize the query text if available
+		if result.QueryStatementText != nil && *result.QueryStatementText != "" {
+			normalizedSQL, _ := helpers.NormalizeSqlAndHash(*result.QueryStatementText)
+			result.QueryStatementText = &normalizedSQL
 		}
 	}
 
@@ -241,8 +252,11 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 		blockingNrApmGuid, _ = helpers.ExtractNewRelicMetadata(*result.BlockingQueryStatementText)
 
 		// Normalize and hash the blocking query for cross-language correlation
-		blockingNormalizedSQL := helpers.AnonymizeQueryText(*result.BlockingQueryStatementText)
-		blockingSqlHash := helpers.GenerateMD5Hash(blockingNormalizedSQL)
+		// EXACTLY matching slow query behavior: NormalizeSqlAndHash first, then store normalized text
+		blockingNormalizedSQL, blockingSqlHash := helpers.NormalizeSqlAndHash(*result.BlockingQueryStatementText)
+
+		// Replace BlockingQueryStatementText with normalized version (matching slow query behavior)
+		result.BlockingQueryStatementText = &blockingNormalizedSQL
 
 		// Store blocking query metadata in model
 		if blockingNrApmGuid != "" {
@@ -578,15 +592,13 @@ func (s *QueryPerformanceScraper) EmitActiveQueryDetailsAsCustomEvents(activeQue
 			lastWaitTypeDescription = helpers.DecodeWaitType(*event.LastWaitType)
 		}
 
-		// Query text processing - EXACTLY matching slow query behavior:
-		// 1. First normalize with NormalizeSqlAndHash() - Oracle-aligned (prefix comment → '?')
-		// 2. Then anonymize with AnonymizeQueryText() - additional regex cleanup
-		normalizedQueryText, _ := helpers.NormalizeSqlAndHash(queryText)
-		finalQueryText := helpers.AnonymizeQueryText(normalizedQueryText)
+		// Query text is already normalized earlier in processActiveRunningQueryMetricsWithPlan
+		// Just apply additional anonymization for final output
+		finalQueryText := helpers.AnonymizeQueryText(queryText)
 
 		s.mb.RecordSqlserverActivequeryQueryDetailsDataPoint(
 			timestamp,
-			1, // Value is always 1 for dimensional metrics
+			1,              // Value is always 1 for dimensional metrics
 			"active_query", // query_type
 			sessionID,
 			requestID,
@@ -702,7 +714,7 @@ func (s *QueryPerformanceScraper) EmitBlockingQueriesAsCustomEvents(activeQuerie
 
 		s.mb.RecordSqlserverBlockingQueryDetailsDataPoint(
 			timestamp,
-			1, // Value is always 1 for dimensional metrics
+			1,                // Value is always 1 for dimensional metrics
 			"blocking_query", // query_type
 			event.SessionID,
 			event.RequestID,
