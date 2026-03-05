@@ -211,7 +211,7 @@ func isPrecededByIn(result *strings.Builder) bool {
 
 // isIdentifierChar checks if a character is valid in an identifier
 func isIdentifierChar(c rune) bool {
-	return unicode.IsLetter(c) || unicode.IsDigit(c) || c == '_' || c == '@'
+	return unicode.IsLetter(c) || unicode.IsDigit(c) || c == '_'
 }
 
 // isPlaceholder checks if current position is a parameter placeholder
@@ -351,7 +351,8 @@ func isNumericLiteral(state *sqlNormalizerState) bool {
 	// Check if preceded by identifier character
 	if state.idx > 0 {
 		prev := state.sql[state.idx-1]
-		if unicode.IsLetter(rune(prev)) || prev == '_' || prev == '@' {
+		// If preceded by letter, digit, underscore, or backtick, it's part of identifier
+		if unicode.IsLetter(rune(prev)) || prev == '_' || prev == '`' {
 			return false
 		}
 	}
@@ -393,23 +394,28 @@ func skipNumericLiteral(state *sqlNormalizerState) {
 	}
 }
 
-// skipStringLiteral skips over a string literal
+// skipStringLiteral skips over a string literal, handling escaped quotes
 func skipStringLiteral(state *sqlNormalizerState) {
-	// Assume current character is opening quote
-	state.advance()
+	state.advance() // Skip the opening quote
 
 	for state.hasMore() {
-		current := state.current()
+		c := state.current()
 
-		if current == '\'' {
-			// Check for escaped quote (two single quotes in T-SQL)
-			if state.hasNext() && state.peek() == '\'' {
-				state.advanceBy(2) // Skip both quotes
-			} else {
+		switch c {
+		case '\'':
+			// Check for escaped quote ''
+			if !state.hasNext() || state.peek() != '\'' {
 				state.advance() // Skip closing quote
 				return
 			}
-		} else {
+			state.advanceBy(2) // Skip both quotes
+		case '\\':
+			// Handle backslash escaping (MySQL, PostgreSQL)
+			state.advance()
+			if state.hasMore() {
+				state.advance()
+			}
+		default:
 			state.advance()
 		}
 	}
@@ -474,91 +480,148 @@ func tryNormalizeInClause(state *sqlNormalizerState) string {
 	return "()"
 }
 
-// removeCommentsAndNormalizeWhitespace removes comments and normalizes whitespace
-// Comments are completely removed (no placeholder) to match Java Agent behavior
-func removeCommentsAndNormalizeWhitespace(sql string) string {
-	if sql == "" {
-		return ""
-	}
+// processStringLiteral handles string literals in the comment removal phase
+// Dead code in practice since string literals are replaced in pass 1,
+// but included for defensive completeness matching Oracle reference behavior.
+func processStringLiteral(result *strings.Builder, state *sqlNormalizerState) {
+	result.WriteByte(state.current())
+	state.lastWasWhitespace = false
+	state.advance()
 
+	for state.hasMore() {
+		c := state.current()
+		result.WriteByte(c)
+
+		if c == '\'' {
+			//nolint:revive // early-return pattern is more readable here
+			if state.hasNext() && state.peek() == '\'' {
+				result.WriteByte('\'')
+				state.advanceBy(2)
+			} else {
+				state.advance()
+				break
+			}
+		} else {
+			state.advance()
+		}
+	}
+	state.lastWasWhitespace = false
+}
+
+// isMultilineCommentStart checks if current position is start of multiline comment
+func isMultilineCommentStart(state *sqlNormalizerState) bool {
+	return state.current() == '/' && state.hasNext() && state.peek() == '*'
+}
+
+// isSingleLineCommentStart checks if current position is start of single-line comment
+func isSingleLineCommentStart(state *sqlNormalizerState) bool {
+	return state.current() == '-' && state.hasNext() && state.peek() == '-'
+}
+
+// skipToEndOfLine skips characters until end of line
+func skipToEndOfLine(state *sqlNormalizerState) {
+	for state.hasMore() && state.current() != '\n' && state.current() != '\r' {
+		state.advance()
+	}
+	for state.hasMore() && (state.current() == '\n' || state.current() == '\r') {
+		state.advance()
+	}
+}
+
+// processWhitespace handles whitespace normalization
+func processWhitespace(result *strings.Builder, state *sqlNormalizerState) {
+	if !state.lastWasWhitespace && result.Len() > 0 {
+		result.WriteByte(' ')
+		state.lastWasWhitespace = true
+	}
+	state.advance()
+}
+
+// processRegularCharacter handles regular characters
+func processRegularCharacter(result *strings.Builder, state *sqlNormalizerState) {
+	result.WriteByte(state.current())
+	state.lastWasWhitespace = false
+	state.advance()
+}
+
+// removeCommentsAndNormalizeWhitespace strips all comments (single-line --, multi-line /* */, hash #)
+// and normalizes whitespace (collapses multiple spaces into single space).
+// Prefix comments (before any SQL content) are replaced with '?' to match NR APM agent behavior.
+// Inline comments (after SQL content has started) are silently removed.
+// processStringLiteral is dead code in practice since literals are replaced in pass 1,
+// but included for defensive completeness matching Oracle reference behavior.
+func removeCommentsAndNormalizeWhitespace(sql string) string {
 	var result strings.Builder
 	result.Grow(len(sql))
 	state := newSqlNormalizerState(sql)
+	seenSQLContent := false // tracks whether any actual SQL content has been written
 
 	for state.hasMore() {
 		current := state.current()
 
-		if current == '-' && state.hasNext() && state.peek() == '-' {
-			// Remove single-line comment completely (match Java Agent behavior)
-			skipSingleLineComment(state)
-			// No placeholder - comment is removed entirely
-		} else if current == '/' && state.hasNext() && state.peek() == '*' {
-			// Remove multi-line comment completely (match Java Agent behavior)
-			skipMultiLineComment(state)
-			// No placeholder - comment is removed entirely
-		} else if current == '#' {
-			// Remove hash-style comment (MySQL-style) completely
-			skipHashComment(state)
-			// No placeholder - comment is removed entirely
-		} else if unicode.IsSpace(rune(current)) {
-			// Collapse multiple whitespace to single space
-			if !state.lastWasWhitespace {
-				result.WriteByte(' ')
-				state.lastWasWhitespace = true
+		switch {
+		case current == '\'':
+			// Dead code in practice: string literals were already replaced in pass 1
+			seenSQLContent = true
+			processStringLiteral(&result, state)
+		case isMultilineCommentStart(state):
+			if !seenSQLContent {
+				// Prefix comment: replace with ? (matches NR APM agent behavior)
+				skipMultiLineComment(state)
+				result.WriteByte('?')
+				state.lastWasWhitespace = false
+				seenSQLContent = true
+			} else {
+				// Inline comment: silently remove
+				skipMultiLineComment(state)
 			}
-			state.advance()
-		} else {
-			result.WriteByte(current)
-			state.lastWasWhitespace = false
-			state.advance()
+		case isSingleLineCommentStart(state):
+			if !seenSQLContent {
+				// Prefix comment: replace with ?
+				state.advanceBy(2) // skip --
+				skipToEndOfLine(state)
+				result.WriteByte('?')
+				state.lastWasWhitespace = false
+				seenSQLContent = true
+			} else {
+				state.advanceBy(2) // skip --
+				skipToEndOfLine(state)
+			}
+		case current == '#':
+			if !seenSQLContent {
+				// Prefix comment: replace with ?
+				state.advance() // skip #
+				skipToEndOfLine(state)
+				result.WriteByte('?')
+				state.lastWasWhitespace = false
+				seenSQLContent = true
+			} else {
+				state.advance() // skip #
+				skipToEndOfLine(state)
+			}
+		case unicode.IsSpace(rune(current)):
+			processWhitespace(&result, state)
+		default:
+			seenSQLContent = true
+			processRegularCharacter(&result, state)
 		}
 	}
 
-	// Trim trailing whitespace
 	return strings.TrimSpace(result.String())
-}
-
-// skipSingleLineComment skips a single-line comment (-- comment)
-func skipSingleLineComment(state *sqlNormalizerState) {
-	// Skip until newline or end of string
-	for state.hasMore() {
-		current := state.current()
-		state.advance()
-		if current == '\n' {
-			break
-		}
-	}
 }
 
 // skipMultiLineComment skips a multi-line comment (/* comment */)
 func skipMultiLineComment(state *sqlNormalizerState) {
-	// Skip opening /*
-	state.advanceBy(2)
-
-	// Skip until closing */
-	for state.hasMore() {
-		if state.current() == '*' && state.hasNext() && state.peek() == '/' {
+	state.advanceBy(2) // skip /*
+	for state.idx < state.length-1 {
+		if state.current() == '*' && state.peek() == '/' {
 			state.advanceBy(2)
 			return
 		}
 		state.advance()
 	}
-}
-
-// skipHashComment skips a hash-style comment (# comment) - MySQL style
-func skipHashComment(state *sqlNormalizerState) {
-	// Skip the # character
-	state.advance()
-	// Skip until newline or end of string
-	for state.hasMore() {
-		current := state.current()
-		if current == '\n' || current == '\r' {
-			break
-		}
-		state.advance()
-	}
-	// Skip the newline character(s) if present
-	for state.hasMore() && (state.current() == '\n' || state.current() == '\r') {
+	// Handle unclosed comment
+	if state.hasMore() {
 		state.advance()
 	}
 }
