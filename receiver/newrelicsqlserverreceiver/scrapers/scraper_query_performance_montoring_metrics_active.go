@@ -171,6 +171,12 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 				zap.String("query_id", queryHashStr),
 				zap.String("cached_nr_service_guid", nrApmGuid),
 				zap.String("cached_normalised_sql_hash", sqlHash))
+
+			// Still need to normalize query text for output (EXACTLY matching slow query behavior)
+			if result.QueryStatementText != nil && *result.QueryStatementText != "" {
+				normalizedSQL, _ := helpers.NormalizeSqlAndHash(*result.QueryStatementText)
+				result.QueryStatementText = &normalizedSQL
+			}
 		} else if result.QueryStatementText != nil && *result.QueryStatementText != "" {
 			// Cache miss - extract from active query text (slow path)
 			sessionIDStr := "unknown"
@@ -216,9 +222,12 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 				zap.String("query_id", queryHashStr))
 		}
 	} else {
-		// Cache hit path - also need to normalize the query text if available
+		// No QueryID or no cache - still need to normalize query text if available
+		// This handles edge cases where QueryID is missing but query text exists
 		if result.QueryStatementText != nil && *result.QueryStatementText != "" {
-			normalizedSQL, _ := helpers.NormalizeSqlAndHash(*result.QueryStatementText)
+			nrApmGuid, _ = helpers.ExtractNewRelicMetadata(*result.QueryStatementText)
+			normalizedSQL, normalizedHash := helpers.NormalizeSqlAndHash(*result.QueryStatementText)
+			sqlHash = normalizedHash
 			result.QueryStatementText = &normalizedSQL
 		}
 	}
