@@ -31,7 +31,7 @@ const (
 	maxTimeout              = 300 * time.Second
 	minMaxConcurrentWorkers = 1
 	maxMaxConcurrentWorkers = 100
-	minCollectionInterval   = 10 * time.Second
+	minCollectionInterval   = 1 * time.Second
 	maxCollectionInterval   = 3600 * time.Second
 
 	// Query monitoring defaults
