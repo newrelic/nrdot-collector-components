@@ -29,6 +29,7 @@ func (ms *MetricConfig) Unmarshal(parser *confmap.Conf) error {
 // MetricsConfig provides config for newrelicsqlserver metrics.
 type MetricsConfig struct {
 	SqlserverAccessPageSplitsPerSec                           MetricConfig `mapstructure:"sqlserver.access.page_splits_per_sec"`
+	SqlserverActivequeryQueryDetails                          MetricConfig `mapstructure:"sqlserver.activequery.query_details"`
 	SqlserverActivequeryWaitTimeSeconds                       MetricConfig `mapstructure:"sqlserver.activequery.wait_time_seconds"`
 	SqlserverBlockingQueryDetails                             MetricConfig `mapstructure:"sqlserver.blocking_query.details"`
 	SqlserverBufferCacheHitRatio                              MetricConfig `mapstructure:"sqlserver.buffer.cache_hit_ratio"`
@@ -200,6 +201,9 @@ type MetricsConfig struct {
 func DefaultMetricsConfig() MetricsConfig {
 	return MetricsConfig{
 		SqlserverAccessPageSplitsPerSec: MetricConfig{
+			Enabled: true,
+		},
+		SqlserverActivequeryQueryDetails: MetricConfig{
 			Enabled: true,
 		},
 		SqlserverActivequeryWaitTimeSeconds: MetricConfig{

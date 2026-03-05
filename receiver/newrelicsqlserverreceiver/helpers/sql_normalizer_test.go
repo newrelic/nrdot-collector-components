@@ -51,12 +51,12 @@ func TestNormalizeSql(t *testing.T) {
 		{
 			name:     "SELECT with single-line comment",
 			input:    "SELECT * FROM users -- this is a comment\nWHERE id = 1",
-			expected: "SELECT * FROM USERS ?WHERE ID = ?",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
 		},
 		{
 			name:     "SELECT with multi-line comment",
 			input:    "SELECT * FROM users /* this is a\nmulti-line comment */ WHERE id = 1",
-			expected: "SELECT * FROM USERS ? WHERE ID = ?",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
 		},
 		{
 			name:     "Complex query with multiple literals and whitespace",
@@ -112,6 +112,26 @@ func TestNormalizeSql(t *testing.T) {
 			name:     "Query with table names containing underscores",
 			input:    "SELECT * FROM user_details WHERE user_id = 123",
 			expected: "SELECT * FROM USER_DETAILS WHERE USER_ID = ?",
+		},
+		{
+			name:     "PostgreSQL positional parameters",
+			input:    "SELECT * FROM users WHERE id = $1 AND status = $2",
+			expected: "SELECT * FROM USERS WHERE ID = ? AND STATUS = ?",
+		},
+		{
+			name:     "Oracle bind variables",
+			input:    "SELECT * FROM users WHERE id = :id AND name = :name",
+			expected: "SELECT * FROM USERS WHERE ID = ? AND NAME = ?",
+		},
+		{
+			name:     "Python-style placeholders",
+			input:    "SELECT * FROM users WHERE id = %(id)s AND name = %(name)s",
+			expected: "SELECT * FROM USERS WHERE ID = ? AND NAME = ?",
+		},
+		{
+			name:     "Hash-style comment (MySQL)",
+			input:    "SELECT * FROM users # MySQL-style comment\nWHERE id = 1",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
 		},
 	}
 
@@ -427,7 +447,7 @@ func TestNormalizeSqlEdgeCases(t *testing.T) {
 
 func TestCrossLanguageCompatibility(t *testing.T) {
 	// These tests ensure that our SQL Server implementation produces the same
-	// normalized SQL as the Oracle implementation for common queries
+	// normalized SQL as the Oracle implementation and Java Agent for common queries
 	tests := []struct {
 		name     string
 		input    string
@@ -448,6 +468,66 @@ func TestCrossLanguageCompatibility(t *testing.T) {
 			input:    "SELECT u.name, o.total FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'completed' AND o.total > 100",
 			expected: "SELECT U.NAME, O.TOTAL FROM USERS U JOIN ORDERS O ON U.ID = O.USER_ID WHERE O.STATUS = ? AND O.TOTAL > ?",
 		},
+		{
+			name:     "Query with comments - should match Java Agent",
+			input:    "SELECT * FROM users -- this is a comment\nWHERE id = 1",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
+		},
+		{
+			name:     "Multi-line comment - should match Java Agent",
+			input:    "SELECT * /* comment here */ FROM users WHERE id = 1",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
+		},
+		{
+			name:     "Hash comment - should match Java Agent",
+			input:    "SELECT * FROM users # MySQL-style comment\nWHERE id = 1",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
+		},
+		{
+			name:     "Whitespace normalization - should match Java Agent",
+			input:    "SELECT   *    FROM     users   WHERE  id  =  1",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
+		},
+		{
+			name:     "Tabs and newlines - should match Java Agent",
+			input:    "SELECT *\n\tFROM users\n\tWHERE id = 1",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
+		},
+		{
+			name:     "Escaped single quote - should match Java Agent",
+			input:    "SELECT * FROM users WHERE name = 'O''Brien'",
+			expected: "SELECT * FROM USERS WHERE NAME = ?",
+		},
+		{
+			name:     "Scientific notation - should match Java Agent",
+			input:    "SELECT * FROM measurements WHERE value = 1.5e10",
+			expected: "SELECT * FROM MEASUREMENTS WHERE VALUE = ?",
+		},
+		{
+			name:     "INSERT statement - should match Java Agent",
+			input:    "INSERT INTO users (name, email, age) VALUES ('John', 'john@example.com', 30)",
+			expected: "INSERT INTO USERS (NAME, EMAIL, AGE) VALUES (?, ?, ?)",
+		},
+		{
+			name:     "UPDATE statement - should match Java Agent",
+			input:    "UPDATE users SET name = 'Jane', age = 25 WHERE id = 123",
+			expected: "UPDATE USERS SET NAME = ?, AGE = ? WHERE ID = ?",
+		},
+		{
+			name:     "DELETE statement - should match Java Agent",
+			input:    "DELETE FROM users WHERE id = 456 AND status = 'inactive'",
+			expected: "DELETE FROM USERS WHERE ID = ? AND STATUS = ?",
+		},
+		{
+			name:     "Column names with numbers - should match Java Agent",
+			input:    "SELECT column1, column2 FROM table1 WHERE value = 123",
+			expected: "SELECT COLUMN1, COLUMN2 FROM TABLE1 WHERE VALUE = ?",
+		},
+		{
+			name:     "WITHIN keyword - should match Java Agent",
+			input:    "SELECT * FROM locations WHERE id = 1 ORDER BY distance WITHIN 10",
+			expected: "SELECT * FROM LOCATIONS WHERE ID = ? ORDER BY DISTANCE WITHIN ?",
+		},
 	}
 
 	for _, tt := range tests {
@@ -466,6 +546,75 @@ func TestCrossLanguageCompatibility(t *testing.T) {
 	}
 }
 
+// TestJavaAgentCompatibility tests specific cases from Java Agent test suite
+func TestJavaAgentCompatibility(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Java Agent - Basic SELECT",
+			input:    "SELECT * FROM users",
+			expected: "SELECT * FROM USERS",
+		},
+		{
+			name:     "Java Agent - String literal replacement",
+			input:    "SELECT * FROM users WHERE name = 'John'",
+			expected: "SELECT * FROM USERS WHERE NAME = ?",
+		},
+		{
+			name:     "Java Agent - Multiple string literals",
+			input:    "SELECT * FROM users WHERE first_name = 'John' AND last_name = 'Doe'",
+			expected: "SELECT * FROM USERS WHERE FIRST_NAME = ? AND LAST_NAME = ?",
+		},
+		{
+			name:     "Java Agent - Numeric literal replacement",
+			input:    "SELECT * FROM users WHERE id = 123",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
+		},
+		{
+			name:     "Java Agent - Decimal numeric literal",
+			input:    "SELECT * FROM products WHERE price = 19.99",
+			expected: "SELECT * FROM PRODUCTS WHERE PRICE = ?",
+		},
+		{
+			name:     "Java Agent - Negative number",
+			input:    "SELECT * FROM transactions WHERE amount = -100",
+			expected: "SELECT * FROM TRANSACTIONS WHERE AMOUNT = ?",
+		},
+		{
+			name:     "Java Agent - IN clause with numbers",
+			input:    "SELECT * FROM users WHERE id IN (1, 2, 3, 4, 5)",
+			expected: "SELECT * FROM USERS WHERE ID IN (?)",
+		},
+		{
+			name:     "Java Agent - IN clause with strings",
+			input:    "SELECT * FROM users WHERE name IN ('John', 'Jane', 'Bob')",
+			expected: "SELECT * FROM USERS WHERE NAME IN (?)",
+		},
+		{
+			name:     "Java Agent - IN clause with placeholders",
+			input:    "SELECT * FROM users WHERE id IN (?, ?, ?)",
+			expected: "SELECT * FROM USERS WHERE ID IN (?)",
+		},
+		{
+			name:     "Java Agent - Complex query",
+			input:    "SELECT u.id, u.name, o.total FROM users u JOIN orders o ON u.id = o.user_id WHERE u.status = 'active' AND o.total > 100.00 ORDER BY o.total DESC LIMIT 10",
+			expected: "SELECT U.ID, U.NAME, O.TOTAL FROM USERS U JOIN ORDERS O ON U.ID = O.USER_ID WHERE U.STATUS = ? AND O.TOTAL > ? ORDER BY O.TOTAL DESC LIMIT ?",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NormalizeSql(tt.input)
+			if result != tt.expected {
+				t.Errorf("NormalizeSql(%q) = %q; want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestNormalizeSqlWithCommentBeforeSelect(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -475,77 +624,77 @@ func TestNormalizeSqlWithCommentBeforeSelect(t *testing.T) {
 		{
 			name:     "Comment before SELECT",
 			input:    "/* text */SELECT * FROM users",
-			expected: "?SELECT * FROM USERS",
+			expected: "SELECT * FROM USERS",
 		},
 		{
 			name:     "Comment with nr_service_guid before SELECT",
 			input:    `/* nr_service_guid="ABC123" */SELECT * FROM users WHERE id = 5`,
-			expected: "?SELECT * FROM USERS WHERE ID = ?",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
 		},
 		{
 			name:     "Complex query with comment before SELECT",
 			input:    "/* text */SELECT D.DEPARTMENT_NAME, D.DEPARTMENT_ID, COUNT(DISTINCT E.EMPLOYEE_ID) AS CURRENT_EMPLOYEES FROM DEPARTMENTS D WHERE D.DEPARTMENT_NAME LIKE ? GROUP BY D.DEPARTMENT_NAME",
-			expected: "?SELECT D.DEPARTMENT_NAME, D.DEPARTMENT_ID, COUNT(DISTINCT E.EMPLOYEE_ID) AS CURRENT_EMPLOYEES FROM DEPARTMENTS D WHERE D.DEPARTMENT_NAME LIKE ? GROUP BY D.DEPARTMENT_NAME",
+			expected: "SELECT D.DEPARTMENT_NAME, D.DEPARTMENT_ID, COUNT(DISTINCT E.EMPLOYEE_ID) AS CURRENT_EMPLOYEES FROM DEPARTMENTS D WHERE D.DEPARTMENT_NAME LIKE ? GROUP BY D.DEPARTMENT_NAME",
 		},
 		{
 			name:     "Multiple comments in query",
 			input:    "/* comment1 */SELECT * FROM users /* comment2 */ WHERE id = 1 -- inline comment",
-			expected: "?SELECT * FROM USERS ? WHERE ID = ? ?",
+			expected: "SELECT * FROM USERS WHERE ID = ?",
 		},
 		{
 			name:     "Comment in the middle of query",
 			input:    "SELECT * FROM users WHERE /* filtering */ id IN (1, 2, 3)",
-			expected: "SELECT * FROM USERS WHERE ? ID IN (?)",
+			expected: "SELECT * FROM USERS WHERE ID IN (?)",
 		},
 		{
 			name:     "Comment with special characters",
 			input:    "/* @app_name='MyApp' */SELECT * FROM orders WHERE price > 100",
-			expected: "?SELECT * FROM ORDERS WHERE PRICE > ?",
+			expected: "SELECT * FROM ORDERS WHERE PRICE > ?",
 		},
 		{
 			name:     "Multiple line breaks in comment",
 			input:    "/* This is a\n   multi-line\n   comment */SELECT * FROM products",
-			expected: "?SELECT * FROM PRODUCTS",
+			expected: "SELECT * FROM PRODUCTS",
 		},
 		{
 			name:     "Comment followed by T-SQL parameter",
 			input:    "/* comment */SELECT * FROM users WHERE name = @name AND age = @age",
-			expected: "?SELECT * FROM USERS WHERE NAME = ? AND AGE = ?",
+			expected: "SELECT * FROM USERS WHERE NAME = ? AND AGE = ?",
 		},
 		{
 			name:     "Single-line comment at end of query",
 			input:    "SELECT * FROM employees WHERE dept_id = 10 -- HR department",
-			expected: "SELECT * FROM EMPLOYEES WHERE DEPT_ID = ? ?",
+			expected: "SELECT * FROM EMPLOYEES WHERE DEPT_ID = ?",
 		},
 		{
 			name:     "Comment with nested slashes",
 			input:    "/* path: /usr/local/bin */SELECT * FROM config",
-			expected: "?SELECT * FROM CONFIG",
+			expected: "SELECT * FROM CONFIG",
 		},
 		{
 			name:     "Mixed comments and literals",
 			input:    "SELECT * /* select all */ FROM users WHERE id = 123 -- get user\nAND name = 'John'",
-			expected: "SELECT * ? FROM USERS WHERE ID = ? ?AND NAME = ?",
+			expected: "SELECT * FROM USERS WHERE ID = ? AND NAME = ?",
 		},
 		{
 			name:     "Comment with SQL keywords inside",
 			input:    "/* SELECT UPDATE DELETE */SELECT column1 FROM table1",
-			expected: "?SELECT COLUMN1 FROM TABLE1",
+			expected: "SELECT COLUMN1 FROM TABLE1",
 		},
 		{
 			name:     "Empty comment",
 			input:    "/**/SELECT * FROM users",
-			expected: "?SELECT * FROM USERS",
+			expected: "SELECT * FROM USERS",
 		},
 		{
 			name:     "Comment with quotes inside",
 			input:    "/* This is 'quoted' text */SELECT * FROM products WHERE category = 'Electronics'",
-			expected: "?SELECT * FROM PRODUCTS WHERE CATEGORY = ?",
+			expected: "SELECT * FROM PRODUCTS WHERE CATEGORY = ?",
 		},
 		{
 			name:     "APM metadata comment before SELECT",
 			input:    `/* nr_apm_guid="MTE2MDAzMTl8QVBNfEFQUExJQ0FUSU9OfDI5MjMzNDQwNw", nr_service="order-service" */SELECT * FROM orders WHERE status = 'pending'`,
-			expected: "?SELECT * FROM ORDERS WHERE STATUS = ?",
+			expected: "SELECT * FROM ORDERS WHERE STATUS = ?",
 		},
 	}
 
@@ -566,9 +715,20 @@ func TestPrintNormalizedQueries(t *testing.T) {
 		"SELECT * FROM orders -- inline comment",
 	}
 
-	for _, query := range queries {
+	expectedOutputs := []string{
+		"SELECT D.DEPARTMENT_NAME FROM DEPARTMENTS",
+		"SELECT * FROM USERS WHERE ID = ?",
+		"SELECT * FROM ORDERS",
+	}
+
+	for i, query := range queries {
 		normalized := NormalizeSql(query)
 		t.Logf("Input:      %s", query)
-		t.Logf("Normalized: %s\n", normalized)
+		t.Logf("Normalized: %s", normalized)
+		t.Logf("Expected:   %s\n", expectedOutputs[i])
+
+		if normalized != expectedOutputs[i] {
+			t.Errorf("Query %d normalization mismatch:\nGot:      %s\nExpected: %s", i+1, normalized, expectedOutputs[i])
+		}
 	}
 }

@@ -215,8 +215,12 @@ func isIdentifierChar(c rune) bool {
 }
 
 // isPlaceholder checks if current position is a parameter placeholder
-// T-SQL: @paramname or @1
-// JDBC: ?
+// Supports multiple database placeholder formats:
+// - JDBC: ?
+// - T-SQL: @paramname or @1
+// - Oracle: :paramname or :1
+// - PostgreSQL: $1, $2, etc.
+// - Python: %(name)s
 func isPlaceholder(state *sqlNormalizerState) bool {
 	current := state.current()
 
@@ -235,6 +239,23 @@ func isPlaceholder(state *sqlNormalizerState) bool {
 		next := state.peek()
 		// @ followed by letter, digit, or underscore is a parameter
 		return unicode.IsLetter(rune(next)) || unicode.IsDigit(rune(next)) || next == '_'
+	}
+
+	// Oracle bind variable: :paramname or :1
+	if current == ':' && state.hasNext() {
+		next := state.peek()
+		return unicode.IsLetter(rune(next)) || unicode.IsDigit(rune(next)) || next == '_'
+	}
+
+	// PostgreSQL positional parameter: $1, $2, etc.
+	if current == '$' && state.hasNext() {
+		next := state.peek()
+		return unicode.IsDigit(rune(next))
+	}
+
+	// Python-style placeholder: %(name)s
+	if current == '%' && state.hasNext() && state.peek() == '(' {
+		return true
 	}
 
 	return false
@@ -260,6 +281,48 @@ func skipPlaceholder(state *sqlNormalizerState) {
 			} else {
 				break
 			}
+		}
+		return
+	}
+
+	// Oracle bind variable: :name or :1
+	if current == ':' {
+		state.advance()
+		// Skip the parameter name
+		for state.hasMore() {
+			c := state.current()
+			if unicode.IsLetter(rune(c)) || unicode.IsDigit(rune(c)) || c == '_' {
+				state.advance()
+			} else {
+				break
+			}
+		}
+		return
+	}
+
+	// PostgreSQL positional parameter: $1, $2, etc.
+	if current == '$' {
+		state.advance()
+		// Skip digits
+		for state.hasMore() && unicode.IsDigit(rune(state.current())) {
+			state.advance()
+		}
+		return
+	}
+
+	// Python-style placeholder: %(name)s
+	if current == '%' && state.hasNext() && state.peek() == '(' {
+		state.advanceBy(2) // Skip %(
+		// Skip until closing )
+		for state.hasMore() && state.current() != ')' {
+			state.advance()
+		}
+		if state.hasMore() && state.current() == ')' {
+			state.advance() // Skip )
+		}
+		// Skip type specifier (s, d, etc.) if present
+		if state.hasMore() && unicode.IsLetter(rune(state.current())) {
+			state.advance()
 		}
 	}
 }
@@ -412,6 +475,7 @@ func tryNormalizeInClause(state *sqlNormalizerState) string {
 }
 
 // removeCommentsAndNormalizeWhitespace removes comments and normalizes whitespace
+// Comments are completely removed (no placeholder) to match Java Agent behavior
 func removeCommentsAndNormalizeWhitespace(sql string) string {
 	if sql == "" {
 		return ""
@@ -425,15 +489,17 @@ func removeCommentsAndNormalizeWhitespace(sql string) string {
 		current := state.current()
 
 		if current == '-' && state.hasNext() && state.peek() == '-' {
-			// Replace single-line comment with placeholder
+			// Remove single-line comment completely (match Java Agent behavior)
 			skipSingleLineComment(state)
-			result.WriteByte('?')
-			state.lastWasWhitespace = false
+			// No placeholder - comment is removed entirely
 		} else if current == '/' && state.hasNext() && state.peek() == '*' {
-			// Replace multi-line comment with placeholder
+			// Remove multi-line comment completely (match Java Agent behavior)
 			skipMultiLineComment(state)
-			result.WriteByte('?')
-			state.lastWasWhitespace = false
+			// No placeholder - comment is removed entirely
+		} else if current == '#' {
+			// Remove hash-style comment (MySQL-style) completely
+			skipHashComment(state)
+			// No placeholder - comment is removed entirely
 		} else if unicode.IsSpace(rune(current)) {
 			// Collapse multiple whitespace to single space
 			if !state.lastWasWhitespace {
@@ -475,6 +541,24 @@ func skipMultiLineComment(state *sqlNormalizerState) {
 			state.advanceBy(2)
 			return
 		}
+		state.advance()
+	}
+}
+
+// skipHashComment skips a hash-style comment (# comment) - MySQL style
+func skipHashComment(state *sqlNormalizerState) {
+	// Skip the # character
+	state.advance()
+	// Skip until newline or end of string
+	for state.hasMore() {
+		current := state.current()
+		if current == '\n' || current == '\r' {
+			break
+		}
+		state.advance()
+	}
+	// Skip the newline character(s) if present
+	for state.hasMore() && (state.current() == '\n' || state.current() == '\r') {
 		state.advance()
 	}
 }
