@@ -60,7 +60,7 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 			zap.Error(err),
 			zap.String("db_filter", dbFilter),
 			zap.Int("count_threshold", countThreshold),
-			zap.String("query_preview", queries.TruncateQuery(query, 500)))
+			zap.String("full_query", query)) // Log full query for debugging
 		return nil, fmt.Errorf("failed to execute active running queries query: %w", err)
 	}
 
