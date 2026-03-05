@@ -187,8 +187,8 @@ func (s *QueryPerformanceScraper) processActiveRunningQueryMetricsWithPlan(resul
 			nrApmGuid, _ = helpers.ExtractNewRelicMetadata(*result.QueryStatementText)
 
 			// Generate normalized SQL hash for cross-language correlation
-			normalizedSQL := helpers.AnonymizeQueryText(*result.QueryStatementText)
-			sqlHash = helpers.GenerateMD5Hash(normalizedSQL)
+			// IMPORTANT: Must use NormalizeSqlAndHash() to match slow query behavior exactly
+			_, sqlHash = helpers.NormalizeSqlAndHash(*result.QueryStatementText)
 
 			// Cache for future use (benefits other active queries and slow queries in same scrape)
 			if nrApmGuid != "" || sqlHash != "" {
@@ -578,8 +578,11 @@ func (s *QueryPerformanceScraper) EmitActiveQueryDetailsAsCustomEvents(activeQue
 			lastWaitTypeDescription = helpers.DecodeWaitType(*event.LastWaitType)
 		}
 
-		// Anonymize the query text before emission
-		anonymizedText := helpers.AnonymizeQueryText(queryText)
+		// Query text processing - EXACTLY matching slow query behavior:
+		// 1. First normalize with NormalizeSqlAndHash() - Oracle-aligned (prefix comment → '?')
+		// 2. Then anonymize with AnonymizeQueryText() - additional regex cleanup
+		normalizedQueryText, _ := helpers.NormalizeSqlAndHash(queryText)
+		finalQueryText := helpers.AnonymizeQueryText(normalizedQueryText)
 
 		s.mb.RecordSqlserverActivequeryQueryDetailsDataPoint(
 			timestamp,
@@ -591,7 +594,7 @@ func (s *QueryPerformanceScraper) EmitActiveQueryDetailsAsCustomEvents(activeQue
 			loginName,
 			hostName,
 			queryID,
-			anonymizedText,
+			finalQueryText,
 			normalisedSqlHash,
 			nrServiceGuid,
 			waitType,
