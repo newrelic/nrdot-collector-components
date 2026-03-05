@@ -196,9 +196,9 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
     BEGIN TRY
         SET @sql = N'INSERT INTO #all_partitions SELECT ' + CAST(@db_id AS NVARCHAR(10)) +
-            ', p.object_id, p.index_id, p.hobt_id, i.name, i.type_desc FROM [' +
-            REPLACE(@db_name, ']', ']]') + '].sys.partitions p INNER JOIN [' +
-            REPLACE(@db_name, ']', ']]') + '].sys.indexes i ON p.object_id = i.object_id AND p.index_id = i.index_id WHERE p.object_id > 100;';
+            ', p.object_id, p.index_id, p.hobt_id, i.name, i.type_desc FROM ' +
+            QUOTENAME(@db_name) + '.sys.partitions p INNER JOIN ' +
+            QUOTENAME(@db_name) + '.sys.indexes i ON p.object_id = i.object_id AND p.index_id = i.index_id WHERE p.object_id > 100;';
         EXEC sp_executesql @sql;
     END TRY
     BEGIN CATCH END CATCH;
