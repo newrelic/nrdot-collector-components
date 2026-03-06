@@ -336,8 +336,20 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 		for _, activeQuery := range activeQueries {
 			if activeQuery.QueryID != nil && !activeQuery.QueryID.IsEmpty() {
 				queryIDStr := activeQuery.QueryID.String()
-				if _, found := slowQueryPlanDataMap[queryIDStr]; !found {
-					// Not found in slow query map - mark for backfill
+				planData, found := slowQueryPlanDataMap[queryIDStr]
+
+				// Backfill if ANY of these conditions are true:
+				// 1. Query ID not found in slow query map
+				// 2. Found but plan_handle is NULL/empty (plan evicted from cache)
+				// 3. Found but missing required fields for sqlserver.plan.avg_elapsed_time_ms metric
+				needsBackfill := !found ||
+					planData.PlanHandle == nil || planData.PlanHandle.IsEmpty() ||
+					planData.AvgElapsedTimeMs == nil ||
+					planData.CreationTime == nil ||
+					planData.LastExecutionTime == nil
+
+				if needsBackfill {
+					// Mark for backfill - will fetch from dm_exec_query_stats
 					missingQueryHashes[queryIDStr] = true
 				}
 			}
