@@ -82,85 +82,40 @@ WHERE qp.query_plan IS NOT NULL;`
 // This ensures ALL active queries can have execution plan statistics, not just slow ones
 //
 // Query Strategy:
-// 1. Checks dm_exec_requests first (currently active queries) - HIGHEST PRIORITY
-// 2. Falls back to dm_exec_query_stats (historical query stats) if not active
-// 3. Uses filter-first approach with IN clause for optimal performance
-// 4. Avoids expensive FULL OUTER JOIN by processing each source separately
+// - Queries dm_exec_query_stats (historical query stats) directly with IN clause filter
+// - Uses filter-first approach with IN clause for optimal performance
+// - Avoids expensive FULL OUTER JOIN by using direct filter
+//
+// Why we don't query dm_exec_requests:
+// - dm_exec_requests.start_time is NOT the plan creation_time (it's when the current execution started)
+// - dm_exec_requests only shows currently running queries (very narrow window)
+// - If a query is running, it's almost certainly also in dm_exec_query_stats
+// - dm_exec_query_stats has correct creation_time, last_execution_time, and avg_elapsed_time_ms
 //
 // Performance:
 // - Old approach (FULL OUTER JOIN): 5-30 seconds on 1M+ cached queries
-// - New approach (filter-first UNION): 20-100ms regardless of cache size
+// - Current approach (filter-first): 20-100ms regardless of cache size
 // - Speedup: 50-300x faster
 //
 // Parameters:
 // - %s: IN clause with query_hashes (e.g., "CONVERT(VARBINARY(8), '0xABC...', 1), ...")
 //
-// Returns per query_hash:
+// Returns per query_hash (most recent execution):
 // - query_hash: For correlation with active queries
-// - plan_handle: For fetching execution plan XML (prioritizes active > historical)
-// - creation_time: When the plan was created
+// - plan_handle: For fetching execution plan XML
+// - creation_time: When the plan was created (from dm_exec_query_stats)
 // - last_execution_time: Most recent execution time
-// - avg_elapsed_time_ms: Average elapsed time (from stats only, NULL for active)
+// - avg_elapsed_time_ms: Average elapsed time
 const BackfillPlanHandlesQuery = `
-WITH ActivePlans AS (
-	-- Priority 1: Get plan_handles from currently active queries (dm_exec_requests)
-	-- Fast: Only ~10-100 rows, uses index seek on query_hash
-	SELECT
-		r.query_hash,
-		r.plan_handle,
-		CONVERT(VARCHAR(25), SWITCHOFFSET(CAST(r.start_time AS DATETIMEOFFSET), '+00:00'), 127) + 'Z' AS creation_time,
-		CONVERT(VARCHAR(25), SWITCHOFFSET(CAST(r.start_time AS DATETIMEOFFSET), '+00:00'), 127) + 'Z' AS last_execution_time,
-		CAST(NULL AS FLOAT) AS avg_elapsed_time_ms,  -- Active queries don't have historical avg
-		1 AS priority  -- Highest priority
-	FROM sys.dm_exec_requests r
-	WHERE r.query_hash IN (%s)
-	  AND r.plan_handle IS NOT NULL
-),
-HistoricalPlans AS (
-	-- Priority 2: Get plan_handles from query stats cache (dm_exec_query_stats)
-	-- Filters FIRST with IN clause (index seek), only processes matching query_hashes
-	-- Excludes query_hashes already found in ActivePlans to avoid duplicates
-	SELECT
-		qs.query_hash,
-		qs.plan_handle,
-		CONVERT(VARCHAR(25), SWITCHOFFSET(CAST(qs.creation_time AS DATETIMEOFFSET), '+00:00'), 127) + 'Z' AS creation_time,
-		CONVERT(VARCHAR(25), SWITCHOFFSET(CAST(qs.last_execution_time AS DATETIMEOFFSET), '+00:00'), 127) + 'Z' AS last_execution_time,
-		(qs.total_elapsed_time / 1000.0) / NULLIF(qs.execution_count, 0) AS avg_elapsed_time_ms,
-		2 AS priority  -- Lower priority (fallback if not active)
-	FROM sys.dm_exec_query_stats qs
-	WHERE qs.query_hash IN (%s)
-	  AND qs.plan_handle IS NOT NULL
-	  AND qs.query_hash NOT IN (SELECT query_hash FROM ActivePlans)  -- Avoid duplicates
-),
-CombinedPlans AS (
-	-- Combine active and historical, active takes precedence
-	SELECT * FROM ActivePlans
-	UNION ALL
-	SELECT * FROM HistoricalPlans
-),
-RankedPlans AS (
-	-- Rank by priority and recency per query_hash
-	-- Ensures only the best match (active > historical, recent > old) is returned
-	SELECT
-		query_hash,
-		plan_handle,
-		creation_time,
-		last_execution_time,
-		avg_elapsed_time_ms,
-		ROW_NUMBER() OVER (
-			PARTITION BY query_hash
-			ORDER BY priority ASC, last_execution_time DESC  -- Priority 1 first, then most recent
-		) AS rank
-	FROM CombinedPlans
-)
 SELECT
-	query_hash,
-	plan_handle,
-	creation_time,
-	last_execution_time,
-	avg_elapsed_time_ms
-FROM RankedPlans
-WHERE rank = 1  -- Only the best match per query_hash
+	qs.query_hash,
+	qs.plan_handle,
+	CONVERT(VARCHAR(25), SWITCHOFFSET(CAST(qs.creation_time AS DATETIMEOFFSET), '+00:00'), 127) + 'Z' AS creation_time,
+	CONVERT(VARCHAR(25), SWITCHOFFSET(CAST(qs.last_execution_time AS DATETIMEOFFSET), '+00:00'), 127) + 'Z' AS last_execution_time,
+	(qs.total_elapsed_time / 1000.0) / NULLIF(qs.execution_count, 0) AS avg_elapsed_time_ms
+FROM sys.dm_exec_query_stats qs
+WHERE qs.query_hash IN (%s)
+  AND qs.plan_handle IS NOT NULL
 `
 
 // ActiveRunningQueriesQuery retrieves currently executing queries with wait and blocking details

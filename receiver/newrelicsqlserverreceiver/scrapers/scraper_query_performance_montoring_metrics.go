@@ -897,8 +897,8 @@ func (s *QueryPerformanceScraper) BackfillPlanHandlesForActiveQueries(
 	inClause := strings.Join(hashList, ", ")
 
 	// Use the query from queries package (same pattern as other queries)
-	// The query requires the IN clause twice (once for ActivePlans, once for HistoricalPlans)
-	query := fmt.Sprintf(queries.BackfillPlanHandlesQuery, inClause, inClause)
+	// The query now uses dm_exec_query_stats directly (single parameter)
+	query := fmt.Sprintf(queries.BackfillPlanHandlesQuery, inClause)
 
 	var results []struct {
 		QueryHash         *models.QueryID `db:"query_hash"`
