@@ -35,11 +35,8 @@ func (s *QueryPerformanceScraper) ScrapeLinkedActiveQueries(ctx context.Context,
 	}
 
 	// Build IN clause for query_hash filter
-	var hashList []string
-	for _, hash := range slowQueryHashes {
-		hashList = append(hashList, fmt.Sprintf("0x%s", hash))
-	}
-	queryHashFilter := fmt.Sprintf("AND r_wait.query_hash IN (%s)", strings.Join(hashList, ", "))
+	// Note: slowQueryHashes already contain the '0x' prefix from QueryID.String()
+	queryHashFilter := fmt.Sprintf("AND r_wait.query_hash IN (%s)", strings.Join(slowQueryHashes, ", "))
 
 	return s.scrapeActiveQueriesWithFilter(ctx, queryHashFilter)
 }
@@ -52,11 +49,8 @@ func (s *QueryPerformanceScraper) ScrapeOrphanActiveQueries(ctx context.Context,
 	}
 
 	// Build NOT IN clause for query_hash filter
-	var hashList []string
-	for _, hash := range slowQueryHashes {
-		hashList = append(hashList, fmt.Sprintf("0x%s", hash))
-	}
-	queryHashFilter := fmt.Sprintf("AND r_wait.query_hash NOT IN (%s)", strings.Join(hashList, ", "))
+	// Note: slowQueryHashes already contain the '0x' prefix from QueryID.String()
+	queryHashFilter := fmt.Sprintf("AND r_wait.query_hash NOT IN (%s)", strings.Join(slowQueryHashes, ", "))
 
 	return s.scrapeActiveQueriesWithFilter(ctx, queryHashFilter)
 }
