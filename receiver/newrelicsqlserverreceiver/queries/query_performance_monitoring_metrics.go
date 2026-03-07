@@ -230,7 +230,9 @@ SELECT TOP (%d)
     r_wait.plan_handle AS plan_handle,
 
     -- H. QUERY TEXT - Active Running Query (full batch for APM correlation)
-    st_wait.text AS query_statement_text,
+    -- IMPORTANT: Use dm_exec_input_buffer to preserve APM comments (nr_service_guid, nr_apm_guid)
+    -- dm_exec_sql_text strips comments during parsing, losing APM metadata
+    COALESCE(ib_wait.event_info, st_wait.text) AS query_statement_text,
 
     -- I. BLOCKING DETAILS (Required by NRQL Query 1)
     CASE
@@ -254,6 +256,8 @@ FROM
     sys.dm_exec_requests AS r_wait
 INNER JOIN
     sys.dm_exec_sessions AS s_wait ON s_wait.session_id = r_wait.session_id
+OUTER APPLY
+    sys.dm_exec_input_buffer(r_wait.session_id, NULL) AS ib_wait
 CROSS APPLY
     sys.dm_exec_sql_text(r_wait.sql_handle) AS st_wait
 LEFT JOIN
