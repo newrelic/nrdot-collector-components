@@ -294,41 +294,49 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 		s.logger.Info("Slow query scraping SKIPPED - EnableQueryMonitoring is false")
 	}
 
-	// Scrape active running queries metrics
+	// Scrape active running queries metrics - split into linked and orphan queries
 	scrapeCtx, cancel := context.WithTimeout(ctx, s.config.Timeout)
 	defer cancel()
 
-	// Use config values for active running queries parameters
-	limit := s.config.QueryMonitoringCountThreshold // Reuse count threshold for active queries limit
+	s.logger.Info("Attempting to scrape active running queries metrics (linked + orphan)",
+		zap.Int("slow_query_hash_count", len(slowQueryIDs)))
 
-	s.logger.Info("Attempting to scrape active running queries metrics",
-		zap.Int("limit", limit))
-
-	// Step 1: Fetch active queries from database (NO filters: no limit, no threshold, no slow query filter)
-	activeQueries, err := s.queryPerformanceScraper.ScrapeActiveRunningQueriesMetrics(scrapeCtx)
+	// Step 1a: Fetch LINKED active queries (query_hash IN slow_query_hashes)
+	linkedActiveQueries, err := s.queryPerformanceScraper.ScrapeLinkedActiveQueries(scrapeCtx, slowQueryIDs)
 	if err != nil {
-		s.logger.Warn("Failed to fetch active running queries - continuing with other metrics",
+		s.logger.Warn("Failed to fetch linked active running queries - continuing with orphan queries",
 			zap.Error(err),
 			zap.Duration("timeout", s.config.Timeout))
 		// Don't add to scrapeErrors - just warn and continue
-	} else if len(activeQueries) == 0 {
-		s.logger.Info("No active queries found (all queries are fetched without filters)")
+		linkedActiveQueries = []models.ActiveRunningQuery{} // Empty slice for processing
 	} else {
-		// Log correlation statistics
-		matchedCount := 0
-		for _, activeQuery := range activeQueries {
-			if activeQuery.QueryID != nil && !activeQuery.QueryID.IsEmpty() {
-				queryIDStr := activeQuery.QueryID.String()
-				if _, found := slowQueryPlanDataMap[queryIDStr]; found {
-					matchedCount++
-				}
-			}
-		}
+		s.logger.Info("Linked active queries fetched (correlated with slow queries)",
+			zap.Int("linked_count", len(linkedActiveQueries)))
+	}
 
-		s.logger.Info("Active queries fetched with correlation statistics",
+	// Step 1b: Fetch ORPHAN active queries (query_hash NOT IN slow_query_hashes)
+	orphanActiveQueries, err := s.queryPerformanceScraper.ScrapeOrphanActiveQueries(scrapeCtx, slowQueryIDs)
+	if err != nil {
+		s.logger.Warn("Failed to fetch orphan active running queries - continuing with linked queries",
+			zap.Error(err),
+			zap.Duration("timeout", s.config.Timeout))
+		// Don't add to scrapeErrors - just warn and continue
+		orphanActiveQueries = []models.ActiveRunningQuery{} // Empty slice for processing
+	} else {
+		s.logger.Info("Orphan active queries fetched (not correlated with slow queries)",
+			zap.Int("orphan_count", len(orphanActiveQueries)))
+	}
+
+	// Combine linked and orphan queries for processing
+	activeQueries := append(linkedActiveQueries, orphanActiveQueries...)
+
+	if len(activeQueries) == 0 {
+		s.logger.Info("No active queries found (linked + orphan = 0)")
+	} else {
+		s.logger.Info("Active queries fetched with balanced linked/orphan approach",
 			zap.Int("total_active_queries", len(activeQueries)),
-			zap.Int("matched_with_slow_queries", matchedCount),
-			zap.Int("unmatched_active_queries", len(activeQueries)-matchedCount))
+			zap.Int("linked_queries", len(linkedActiveQueries)),
+			zap.Int("orphan_queries", len(orphanActiveQueries)))
 
 		// Phase 1: Identify active queries missing from slow query map (need backfill)
 		// Collect unique query_hashes that don't have plan data yet

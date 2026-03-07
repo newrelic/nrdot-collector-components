@@ -21,7 +21,48 @@ import (
 // Returns the list of active queries for further processing (metrics emission and execution plan fetching)
 // NOTE: Fetches top N active queries ordered by total_elapsed_time DESC
 // This enables focused active query monitoring on the slowest running queries
+// ScrapeActiveRunningQueriesMetrics fetches all active queries without any filtering
+// DEPRECATED: Use ScrapeLinkedActiveQueries and ScrapeOrphanActiveQueries instead
 func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.Context) ([]models.ActiveRunningQuery, error) {
+	return s.scrapeActiveQueriesWithFilter(ctx, "")
+}
+
+// ScrapeLinkedActiveQueries fetches active queries that match slow query hashes (can be correlated)
+func (s *QueryPerformanceScraper) ScrapeLinkedActiveQueries(ctx context.Context, slowQueryHashes []string) ([]models.ActiveRunningQuery, error) {
+	if len(slowQueryHashes) == 0 {
+		s.logger.Info("No slow query hashes provided - skipping linked active queries fetch")
+		return []models.ActiveRunningQuery{}, nil
+	}
+
+	// Build IN clause for query_hash filter
+	var hashList []string
+	for _, hash := range slowQueryHashes {
+		hashList = append(hashList, fmt.Sprintf("0x%s", hash))
+	}
+	queryHashFilter := fmt.Sprintf("AND r_wait.query_hash IN (%s)", strings.Join(hashList, ", "))
+
+	return s.scrapeActiveQueriesWithFilter(ctx, queryHashFilter)
+}
+
+// ScrapeOrphanActiveQueries fetches active queries that don't match slow query hashes (orphaned)
+func (s *QueryPerformanceScraper) ScrapeOrphanActiveQueries(ctx context.Context, slowQueryHashes []string) ([]models.ActiveRunningQuery, error) {
+	if len(slowQueryHashes) == 0 {
+		s.logger.Info("No slow query hashes provided - fetching all active queries as orphans")
+		return s.scrapeActiveQueriesWithFilter(ctx, "")
+	}
+
+	// Build NOT IN clause for query_hash filter
+	var hashList []string
+	for _, hash := range slowQueryHashes {
+		hashList = append(hashList, fmt.Sprintf("0x%s", hash))
+	}
+	queryHashFilter := fmt.Sprintf("AND r_wait.query_hash NOT IN (%s)", strings.Join(hashList, ", "))
+
+	return s.scrapeActiveQueriesWithFilter(ctx, queryHashFilter)
+}
+
+// scrapeActiveQueriesWithFilter is the internal implementation that accepts a query hash filter
+func (s *QueryPerformanceScraper) scrapeActiveQueriesWithFilter(ctx context.Context, queryHashFilter string) ([]models.ActiveRunningQuery, error) {
 	// Get the count threshold from config (default: 40, range: 20-100)
 	countThreshold := s.activeRunningQueriesCountThreshold
 	if countThreshold == 0 {
@@ -45,13 +86,19 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 		}
 	}
 
-	// Build query with TOP N filter
-	// This fetches top N active queries ordered by total_elapsed_time DESC
-	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, dbFilter, countThreshold)
+	// Add query hash filter if provided (empty string means no filter)
+	if queryHashFilter == "" {
+		queryHashFilter = "-- No query_hash filter (fetching all active queries)"
+	}
 
-	s.logger.Debug("Executing active running queries fetch with TOP N limit",
+	// Build query with database filter, TOP N, and optional query_hash filter
+	// Format: dbFilter, countThreshold, queryHashFilter
+	query := fmt.Sprintf(queries.ActiveRunningQueriesQuery, dbFilter, countThreshold, queryHashFilter)
+
+	s.logger.Debug("Executing active running queries fetch with filters",
 		zap.Int("count_threshold", countThreshold),
 		zap.String("db_filter", dbFilter),
+		zap.String("query_hash_filter", queryHashFilter),
 		zap.String("query_preview", queries.TruncateQuery(query, 200)))
 
 	var results []models.ActiveRunningQuery
@@ -60,15 +107,29 @@ func (s *QueryPerformanceScraper) ScrapeActiveRunningQueriesMetrics(ctx context.
 			zap.Error(err),
 			zap.String("db_filter", dbFilter),
 			zap.Int("count_threshold", countThreshold),
+			zap.String("query_hash_filter", queryHashFilter),
 			zap.String("full_query", query)) // Log full query for debugging
 		return nil, fmt.Errorf("failed to execute active running queries query: %w", err)
 	}
 
-	s.logger.Info("Active running queries fetched from database (TOP N by elapsed time)",
+	s.logger.Info("Active running queries fetched from database",
 		zap.Int("count_threshold", countThreshold),
+		zap.String("filter_type", getFilterType(queryHashFilter)),
 		zap.Int("result_count", len(results)))
 
 	return results, nil
+}
+
+// getFilterType returns a human-readable description of the query filter
+func getFilterType(filter string) string {
+	if filter == "" || strings.Contains(filter, "No query_hash filter") {
+		return "all"
+	} else if strings.Contains(filter, "NOT IN") {
+		return "orphan"
+	} else if strings.Contains(filter, " IN") {
+		return "linked"
+	}
+	return "unknown"
 }
 
 // EmitActiveRunningQueriesMetrics emits metrics for active running queries

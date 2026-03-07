@@ -293,9 +293,7 @@ WHERE
     AND r_wait.database_id > 4
     AND r_wait.wait_type IS NOT NULL
     AND r_wait.query_hash IS NOT NULL  -- Filter out queries without query_hash (PREEMPTIVE waits, system queries)
-    -- REMOVED: Elapsed time threshold filter - fetching ALL active queries regardless of elapsed time
-    -- AND r_wait.total_elapsed_time >= @ElapsedTimeThresholdMs
-    -- REMOVED: query_hash IN filter - now fetching ALL active queries for independent monitoring
+    %s  -- Placeholder for IN/NOT IN filter (linked vs orphan queries)
 ORDER BY
     r_wait.total_elapsed_time DESC  -- Sort by slowest executions first (not wait_time)
 OPTION (RECOMPILE);  -- OPTIMIZED: Recompile for current parameter values
