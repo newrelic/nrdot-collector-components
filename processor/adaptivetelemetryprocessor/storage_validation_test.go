@@ -76,8 +76,8 @@ func TestValidateStoragePath_ValidPaths(t *testing.T) {
 				assert.NoError(t, err, tc.description)
 			})
 		}
-	} else {
-		// Run Linux tests only on non-Windows
+	} else if runtime.GOOS == "linux" {
+		// Run Linux tests only on Linux (not macOS, which has /var as a symlink)
 		for _, tc := range tests {
 			if tc.skipOnWindows {
 				t.Run(tc.name, func(t *testing.T) {
@@ -86,6 +86,9 @@ func TestValidateStoragePath_ValidPaths(t *testing.T) {
 				})
 			}
 		}
+	} else {
+		// On macOS and other platforms, skip Linux-specific path tests
+		t.Skip("Skipping Linux-specific path tests on " + runtime.GOOS)
 	}
 }
 
@@ -469,6 +472,11 @@ func TestPathTraversalPrevention(t *testing.T) {
 }
 
 func TestPathValidation_EdgeCases(t *testing.T) {
+	// Skip on macOS where /var is a symlink to /private/var
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping Linux-specific path tests on macOS (where /var is a symlink)")
+	}
+
 	// Get platform-specific base path
 	var basePath string
 	if runtime.GOOS == "windows" {
