@@ -219,6 +219,10 @@ all_set:
       enabled: true
     sqlserver.slowquery.historical_avg_elapsed_time_ms:
       enabled: true
+    sqlserver.slowquery.historical_avg_rows:
+      enabled: true
+    sqlserver.slowquery.historical_avg_worker_time_ms:
+      enabled: true
     sqlserver.slowquery.historical_execution_count:
       enabled: true
     sqlserver.slowquery.historical_logical_reads:
@@ -567,6 +571,10 @@ none_set:
     sqlserver.slowquery.avg_elapsed_time_ms:
       enabled: false
     sqlserver.slowquery.historical_avg_elapsed_time_ms:
+      enabled: false
+    sqlserver.slowquery.historical_avg_rows:
+      enabled: false
+    sqlserver.slowquery.historical_avg_worker_time_ms:
       enabled: false
     sqlserver.slowquery.historical_execution_count:
       enabled: false

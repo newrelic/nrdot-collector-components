@@ -1262,6 +1262,26 @@ metrics:
       value_type: double
     attributes: [query_id, database_name]
 
+  sqlserver.slowquery.historical_avg_rows:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical average rows returned per execution (cumulative since plan cached)
+    unit: "{rows}"
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name]
+
+  sqlserver.slowquery.historical_avg_worker_time_ms:
+    enabled: true
+    stability:
+      level: alpha
+    description: Historical average worker (CPU) time per execution in milliseconds (cumulative since plan cached)
+    unit: ms
+    gauge:
+      value_type: double
+    attributes: [query_id, database_name]
+
   sqlserver.slowquery.historical_execution_count:
     enabled: true
     stability:

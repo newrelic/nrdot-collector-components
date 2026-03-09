@@ -1487,6 +1487,36 @@ Historical average elapsed time in milliseconds (cumulative since plan cached)
 | query_id | Unique identifier for the SQL query | Any Str | Recommended |
 | database_name | Name of the database | Any Str | Recommended |
 
+### sqlserver.slowquery.historical_avg_rows
+
+Historical average rows returned per execution (cumulative since plan cached)
+
+| Unit | Metric Type | Value Type | Stability |
+| ---- | ----------- | ---------- | --------- |
+| {rows} | Gauge | Double | Alpha |
+
+#### Attributes
+
+| Name | Description | Values | Requirement Level |
+| ---- | ----------- | ------ | -------- |
+| query_id | Unique identifier for the SQL query | Any Str | Recommended |
+| database_name | Name of the database | Any Str | Recommended |
+
+### sqlserver.slowquery.historical_avg_worker_time_ms
+
+Historical average worker (CPU) time per execution in milliseconds (cumulative since plan cached)
+
+| Unit | Metric Type | Value Type | Stability |
+| ---- | ----------- | ---------- | --------- |
+| ms | Gauge | Double | Alpha |
+
+#### Attributes
+
+| Name | Description | Values | Requirement Level |
+| ---- | ----------- | ------ | -------- |
+| query_id | Unique identifier for the SQL query | Any Str | Recommended |
+| database_name | Name of the database | Any Str | Recommended |
+
 ### sqlserver.slowquery.historical_execution_count
 
 Historical execution count (cumulative since plan cached)

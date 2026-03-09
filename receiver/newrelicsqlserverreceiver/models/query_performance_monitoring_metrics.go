@@ -23,6 +23,10 @@ type SlowQuery struct {
 	TotalPhysicalReads *int64   `db:"total_physical_reads"` // Used for delta calculation
 	TotalWaitTimeMS    *int64   `db:"-"`                    // Calculated: total_elapsed_time_ms - total_worker_time_ms
 
+	// Historical average metrics (calculated in-memory from cumulative values)
+	HistoricalAvgWorkerTimeMS *float64 `db:"-" metric_name:"sqlserver.slowquery.historical_avg_worker_time_ms" source_type:"gauge"`
+	HistoricalAvgRows         *float64 `db:"-" metric_name:"sqlserver.slowquery.historical_avg_rows" source_type:"gauge"`
+
 	// Interval-based delta metrics (calculated in-memory, not from DB)
 	// These are populated by the SimplifiedIntervalCalculator
 	IntervalElapsedTimeMS    *int64   `db:"-" metric_name:"sqlserver.slowquery.interval_elapsed_time_ms" source_type:"gauge"`

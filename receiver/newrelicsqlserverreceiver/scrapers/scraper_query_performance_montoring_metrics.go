@@ -150,6 +150,10 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 				rawQuery.TotalWaitTimeMS = &waitTimeMs
 			}
 
+			// Populate historical average metrics
+			rawQuery.HistoricalAvgWorkerTimeMS = &metrics.HistoricalAvgWorkerTimeMs
+			rawQuery.HistoricalAvgRows = &metrics.HistoricalAvgRows
+
 			resultsWithIntervalMetrics = append(resultsWithIntervalMetrics, rawQuery)
 		}
 
@@ -576,6 +580,26 @@ func (s *QueryPerformanceScraper) processSlowQueryMetrics(result models.SlowQuer
 		s.mb.RecordSqlserverSlowqueryHistoricalAvgElapsedTimeMsDataPoint(
 			timestamp,
 			*result.AvgElapsedTimeMS,
+			queryID,
+			databaseName,
+		)
+	}
+
+	// Emit historical average worker time (with only query_id and database_name attributes)
+	if result.HistoricalAvgWorkerTimeMS != nil {
+		s.mb.RecordSqlserverSlowqueryHistoricalAvgWorkerTimeMsDataPoint(
+			timestamp,
+			*result.HistoricalAvgWorkerTimeMS,
+			queryID,
+			databaseName,
+		)
+	}
+
+	// Emit historical average rows (with only query_id and database_name attributes)
+	if result.HistoricalAvgRows != nil {
+		s.mb.RecordSqlserverSlowqueryHistoricalAvgRowsDataPoint(
+			timestamp,
+			*result.HistoricalAvgRows,
 			queryID,
 			databaseName,
 		)

@@ -137,6 +137,8 @@ type MetricsConfig struct {
 	SqlserverSecurityServerRoleMembersCount                   MetricConfig `mapstructure:"sqlserver.security.server_role_members_count"`
 	SqlserverSlowqueryAvgElapsedTimeMs                        MetricConfig `mapstructure:"sqlserver.slowquery.avg_elapsed_time_ms"`
 	SqlserverSlowqueryHistoricalAvgElapsedTimeMs              MetricConfig `mapstructure:"sqlserver.slowquery.historical_avg_elapsed_time_ms"`
+	SqlserverSlowqueryHistoricalAvgRows                       MetricConfig `mapstructure:"sqlserver.slowquery.historical_avg_rows"`
+	SqlserverSlowqueryHistoricalAvgWorkerTimeMs               MetricConfig `mapstructure:"sqlserver.slowquery.historical_avg_worker_time_ms"`
 	SqlserverSlowqueryHistoricalExecutionCount                MetricConfig `mapstructure:"sqlserver.slowquery.historical_execution_count"`
 	SqlserverSlowqueryHistoricalLogicalReads                  MetricConfig `mapstructure:"sqlserver.slowquery.historical_logical_reads"`
 	SqlserverSlowqueryHistoricalPhysicalReads                 MetricConfig `mapstructure:"sqlserver.slowquery.historical_physical_reads"`
@@ -525,6 +527,12 @@ func DefaultMetricsConfig() MetricsConfig {
 			Enabled: true,
 		},
 		SqlserverSlowqueryHistoricalAvgElapsedTimeMs: MetricConfig{
+			Enabled: true,
+		},
+		SqlserverSlowqueryHistoricalAvgRows: MetricConfig{
+			Enabled: true,
+		},
+		SqlserverSlowqueryHistoricalAvgWorkerTimeMs: MetricConfig{
 			Enabled: true,
 		},
 		SqlserverSlowqueryHistoricalExecutionCount: MetricConfig{

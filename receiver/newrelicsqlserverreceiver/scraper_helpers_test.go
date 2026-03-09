@@ -30,7 +30,8 @@ func TestExecuteScrape(t *testing.T) {
 			},
 			expectError: false,
 			expectLog:   true,
-		}{
+		},
+		{
 			name:       "Failed scrape",
 			metricName: "test metrics",
 			scrapeFunc: func(ctx context.Context) error {

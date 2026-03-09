@@ -66,8 +66,10 @@ type SimplifiedIntervalMetrics struct {
 	IntervalExecutionCount   int64
 
 	// Historical metrics (cumulative from DB) - all metrics
-	HistoricalAvgElapsedTimeMs float64
-	HistoricalExecutionCount   int64
+	HistoricalAvgElapsedTimeMs  float64
+	HistoricalAvgWorkerTimeMs   float64
+	HistoricalAvgRows           float64
+	HistoricalExecutionCount    int64
 
 	// New interval-based metrics (delta calculation)
 	IntervalWorkerTimeMs     int64
@@ -163,6 +165,18 @@ func (sic *SimplifiedIntervalCalculator) CalculateMetrics(query *models.SlowQuer
 		historicalAvgElapsedMs = currentTotalElapsedMs / float64(currentExecCount)
 	}
 
+	// Calculate historical average worker time
+	historicalAvgWorkerTimeMs := 0.0
+	if currentExecCount > 0 && currentTotalWorkerTimeMs > 0 {
+		historicalAvgWorkerTimeMs = currentTotalWorkerTimeMs / float64(currentExecCount)
+	}
+
+	// Calculate historical average rows
+	historicalAvgRows := 0.0
+	if currentExecCount > 0 && currentTotalRows > 0 {
+		historicalAvgRows = float64(currentTotalRows) / float64(currentExecCount)
+	}
+
 	// Calculate time since last execution from DB timestamp
 	timeSinceLastExec := 0.0
 	if query.LastExecutionTimestamp != nil {
@@ -220,6 +234,8 @@ func (sic *SimplifiedIntervalCalculator) CalculateMetrics(query *models.SlowQuer
 			IntervalAvgElapsedTimeMs:   historicalAvgElapsedMs,
 			IntervalExecutionCount:     currentExecCount,
 			HistoricalAvgElapsedTimeMs: historicalAvgElapsedMs,
+			HistoricalAvgWorkerTimeMs:  historicalAvgWorkerTimeMs,
+			HistoricalAvgRows:          historicalAvgRows,
 			HistoricalExecutionCount:   currentExecCount,
 			// New interval metrics (first scrape = cumulative values)
 			IntervalWorkerTimeMs:     int64(currentTotalWorkerTimeMs),
@@ -271,6 +287,8 @@ func (sic *SimplifiedIntervalCalculator) CalculateMetrics(query *models.SlowQuer
 			IntervalAvgElapsedTimeMs:   0,
 			IntervalExecutionCount:     0,
 			HistoricalAvgElapsedTimeMs: historicalAvgElapsedMs,
+			HistoricalAvgWorkerTimeMs:  historicalAvgWorkerTimeMs,
+			HistoricalAvgRows:          historicalAvgRows,
 			HistoricalExecutionCount:   currentExecCount,
 			// All interval metrics are 0 (no new executions)
 			IntervalWorkerTimeMs:     0,
@@ -336,6 +354,8 @@ func (sic *SimplifiedIntervalCalculator) CalculateMetrics(query *models.SlowQuer
 			IntervalAvgElapsedTimeMs:   historicalAvgElapsedMs,
 			IntervalExecutionCount:     currentExecCount,
 			HistoricalAvgElapsedTimeMs: historicalAvgElapsedMs,
+			HistoricalAvgWorkerTimeMs:  historicalAvgWorkerTimeMs,
+			HistoricalAvgRows:          historicalAvgRows,
 			HistoricalExecutionCount:   currentExecCount,
 			// New interval metrics (reset = cumulative values)
 			IntervalWorkerTimeMs:     int64(currentTotalWorkerTimeMs),
@@ -417,6 +437,8 @@ func (sic *SimplifiedIntervalCalculator) CalculateMetrics(query *models.SlowQuer
 		IntervalAvgElapsedTimeMs:   intervalAvgElapsedMs,
 		IntervalExecutionCount:     deltaExecCount,
 		HistoricalAvgElapsedTimeMs: historicalAvgElapsedMs,
+		HistoricalAvgWorkerTimeMs:  historicalAvgWorkerTimeMs,
+		HistoricalAvgRows:          historicalAvgRows,
 		HistoricalExecutionCount:   currentExecCount,
 		// New interval metrics (deltas)
 		IntervalWorkerTimeMs:     int64(deltaWorkerTimeMs),
