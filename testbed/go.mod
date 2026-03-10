@@ -441,3 +441,5 @@ retract (
 replace github.com/newrelic/nrdot-collector-components/internal/common => ../internal/common
 
 replace github.com/newrelic/nrdot-collector-components/internal/coreinternal => ../internal/coreinternal
+
+replace go.opentelemetry.io/otel/sdk => go.opentelemetry.io/otel/sdk v1.40.0

@@ -42,4 +42,8 @@ import (
 
 	_ "github.com/newrelic/nrdot-collector-components/cmd/codecovgen"
 	_ "github.com/newrelic/nrdot-collector-components/cmd/nrlicense"
+
+	// Security vulnerability fixes - pinning specific versions
+	_ "github.com/cloudflare/circl"
+	_ "github.com/go-git/go-git/v5"
 )
