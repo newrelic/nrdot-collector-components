@@ -1,0 +1,247 @@
+name: Security Scan Database Receivers - Daily Report
+on:
+  #TODO: Remove the push trigger before merging to main branch
+  push:
+    branches:
+      - '**'
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  trivy-scan:
+    name: Trivy Scan and Report
+    runs-on: ubuntu-latest
+    env:
+      TRIVY_DISABLE_VEX_NOTICE: "true"
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      
+      - name: Create Scan Template
+        run: |
+          cat << 'EOF' > scan.tpl
+          {{- range . -}}
+          {{- $target := .Target -}}
+          {{- range .Vulnerabilities -}}
+          {{ $target }} | {{ .PkgName }} | {{ .VulnerabilityID }} | {{ .Severity }} | {{ .InstalledVersion }} | {{ .FixedVersion }}
+          {{ end -}}
+          {{- end -}}
+          EOF
+
+      # TODO - remove this step once the Oracle and SQL Server receivers are added to the repository
+      - name: Run Trivy Scan - Receivers
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        with:
+          scan-type: 'fs'
+          scan-ref: 'receiver/'
+          format: 'template'
+          template: '@scan.tpl'
+          ignore-unfixed: true
+          severity: "CRITICAL,HIGH,MEDIUM,LOW"
+          vuln-type: 'os,library'
+          output: "trivy-receivers-report.txt"
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db
+
+      # TODO: Enable Oracle Receiver scan once the receiver is added to the repository
+      # - name: Run Trivy Scan - Oracle Receiver
+      #   uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+      #   with:
+      #     scan-type: 'fs'
+      #     scan-ref: 'receiver/newrelicoraclereceiver'
+      #     format: 'template'
+      #     template: '@scan.tpl'
+      #     ignore-unfixed: true
+      #     severity: "CRITICAL,HIGH,MEDIUM,LOW"
+      #     vuln-type: 'os,library'
+      #     output: "trivy-oracle-report.txt"
+      #   env:
+      #     TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
+      #     TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db
+
+      # TODO: Enable SQL Server Receiver scan once the receiver is added to the repository
+      # - name: Run Trivy Scan - SQL Server Receiver
+      #   uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+      #   with:
+      #     scan-type: 'fs'
+      #     scan-ref: 'receiver/newrelicsqlserverreceiver'
+      #     format: 'template'
+      #     template: '@scan.tpl'
+      #     ignore-unfixed: true
+      #     severity: "CRITICAL,HIGH,MEDIUM,LOW"
+      #     vuln-type: 'os,library'
+      #     output: "trivy-sqlserver-report.txt"
+      #   env:
+      #     TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
+      #     TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db
+
+      - name: Merge Reports
+        run: |
+          # Merge all available reports
+          cat trivy-oracle-report.txt > combined-report.txt 2>/dev/null || touch combined-report.txt
+          # Uncomment when SQL Server receiver is ready
+          # cat trivy-sqlserver-report.txt >> combined-report.txt 2>/dev/null || true
+          
+          # Remove empty lines
+          sed -i '/^[[:space:]]*$/d' combined-report.txt
+
+      - name: Format Slack Message
+        id: format_message
+        run: |
+          if [ -s combined-report.txt ]; then
+             # Count severities
+             CRIT_COUNT=$(grep -c "CRITICAL" combined-report.txt 2>/dev/null || echo "0")
+             HIGH_COUNT=$(grep -c "HIGH" combined-report.txt 2>/dev/null || echo "0")
+             MED_COUNT=$(grep -c "MEDIUM" combined-report.txt 2>/dev/null || echo "0")
+             LOW_COUNT=$(grep -c "LOW" combined-report.txt 2>/dev/null || echo "0")
+             
+             # Clean counts
+             CRIT_COUNT=$(echo "$CRIT_COUNT" | sed 's/[^0-9]//g')
+             HIGH_COUNT=$(echo "$HIGH_COUNT" | sed 's/[^0-9]//g')
+             MED_COUNT=$(echo "$MED_COUNT" | sed 's/[^0-9]//g')
+             LOW_COUNT=$(echo "$LOW_COUNT" | sed 's/[^0-9]//g')
+             
+             CRIT_COUNT=${CRIT_COUNT:-0}
+             HIGH_COUNT=${HIGH_COUNT:-0}
+             MED_COUNT=${MED_COUNT:-0}
+             LOW_COUNT=${LOW_COUNT:-0}
+             
+             TOTAL_COUNT=$((CRIT_COUNT + HIGH_COUNT + MED_COUNT + LOW_COUNT))
+             
+             # Count unique components
+             UNIQUE_COMP_COUNT=$(cut -d'|' -f1 combined-report.txt | sed 's|.*/||;s/ //g' | grep -v '^$' | sort -u | wc -l | sed 's/[^0-9]//g')
+             UNIQUE_COMP_COUNT=${UNIQUE_COMP_COUNT:-0}
+             
+             # Count unique CVEs
+             UNIQUE_CVE_COUNT=$(cut -d'|' -f3 combined-report.txt | sed 's/ //g' | grep -v '^$' | sort -u | wc -l | sed 's/[^0-9]//g')
+             UNIQUE_CVE_COUNT=${UNIQUE_CVE_COUNT:-0}
+
+             # Per-component aggregation
+             AGGREGATED_TABLE=$(awk -F'|' '
+             {
+                name = $1;
+                gsub(/.*\//, "", name); gsub(/ /, "", name);
+                sev = $4; gsub(/ /, "", sev);
+                
+                comps[name]++;
+                if (sev == "CRITICAL") crit[name]++;
+                else if (sev == "HIGH") high[name]++;
+                else if (sev == "MEDIUM") med[name]++;
+                else if (sev == "LOW") low[name]++;
+             }
+             END {
+                for (c in comps) {
+                   if (crit[c] > 0) icon = "🔴";
+                   else if (high[c] > 0) icon = "🟠";
+                   else if (med[c] > 0) icon = "🟡";
+                   else icon = "🔵";
+                   row_tot = (crit[c]+0) + (high[c]+0) + (med[c]+0) + (low[c]+0);
+                   printf "%s %-20s | %2d | %2d | %2d | %2d | %3d\n", icon, substr(c,1,20), crit[c], high[c], med[c], low[c], row_tot
+                }
+             }' combined-report.txt | sort -r)
+
+             # Build detailed vulnerability list (limited to top 20)
+             VULN_DETAILS=$(awk -F'|' '
+             {
+                if (NF >= 6) {
+                   pkg = $2; gsub(/^[ \t]+|[ \t]+$/, "", pkg);
+                   cve = $3; gsub(/^[ \t]+|[ \t]+$/, "", cve);
+                   sev = $4; gsub(/^[ \t]+|[ \t]+$/, "", sev);
+                   fix = $6; gsub(/^[ \t]+|[ \t]+$/, "", fix);
+                   
+                   if (sev == "CRITICAL") icon = "🔴";
+                   else if (sev == "HIGH") icon = "🟠";
+                   else if (sev == "MEDIUM") icon = "🟡";
+                   else icon = "🔵";
+                   
+                   printf "%s %-18s | %-16s | %-8s | %s\n", icon, substr(pkg,1,18), substr(cve,1,16), sev, (fix == "" ? "n/a" : fix)
+                }
+             }' combined-report.txt | head -20)
+
+             # Construct Slack message
+             {
+               echo "SLACK_MESSAGE<<EOF"
+               echo -e "*🛡️ SECURITY SCAN REPORT - Database Receivers*"
+               echo -e "*Scan Date:* \`$(date +'%Y-%m-%d %H:%M UTC')\`"
+               echo -e "*Scanner:* Trivy | *Trigger:* Push Event"
+               echo -e "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+               echo -e "*📊 OVERALL SUMMARY*"
+               echo -e "• *Total Issues:* \`$TOTAL_COUNT\` findings across \`$UNIQUE_COMP_COUNT\` component(s)"
+               echo -e "• *Unique CVEs:* \`$UNIQUE_CVE_COUNT\`"
+               echo -e "• *Critical:* 🔴 \`$CRIT_COUNT\`  |  *High:* 🟠 \`$HIGH_COUNT\`"
+               echo -e "• *Medium:* 🟡 \`$MED_COUNT\`  |  *Low:* 🔵 \`$LOW_COUNT\`"
+               echo -e "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+               echo -e "*🔎 FINDINGS BY COMPONENT:*"
+               echo -e "\`\`\`"
+               echo -e "ST  COMPONENT            | CR | HI | ME | LO | TOT"
+               echo -e "--- -------------------- | -- | -- | -- | -- | ---"
+               echo -e "$AGGREGATED_TABLE"
+               echo -e "\`\`\`"
+               echo -e "*📋 TOP VULNERABILITIES (showing up to 20):*"
+               echo -e "\`\`\`"
+               echo -e "ST  PACKAGE            | CVE ID           | SEVERITY | FIXED"
+               echo -e "--- ------------------ | ---------------- | -------- | -----"
+               echo -e "$VULN_DETAILS"
+               echo -e "\`\`\`"
+               echo -e "🔗 *Full Report:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+               echo -e "_⏰ Scan completed at $(date +'%Y-%m-%d %H:%M:%S UTC')_"
+               echo "EOF"
+             } >> $GITHUB_OUTPUT
+          else
+             echo "SLACK_MESSAGE=*✅ SECURITY SCAN PASSED - Database Receivers* | No vulnerabilities detected | Scanned on \`$(date +'%Y-%m-%d %H:%M UTC')\`" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display Report in Workflow
+        run: |
+          echo "=========================================="
+          echo "🛡️ SECURITY SCAN REPORT"
+          echo "Date: $(date +'%Y-%m-%d %H:%M UTC')"
+          echo "=========================================="
+          echo ""
+          
+          if [ -s combined-report.txt ]; then
+             CRIT_COUNT=$(grep -c "CRITICAL" combined-report.txt 2>/dev/null || echo "0")
+             HIGH_COUNT=$(grep -c "HIGH" combined-report.txt 2>/dev/null || echo "0")
+             MED_COUNT=$(grep -c "MEDIUM" combined-report.txt 2>/dev/null || echo "0")
+             LOW_COUNT=$(grep -c "LOW" combined-report.txt 2>/dev/null || echo "0")
+             
+             CRIT_COUNT=$(echo "$CRIT_COUNT" | sed 's/[^0-9]//g')
+             HIGH_COUNT=$(echo "$HIGH_COUNT" | sed 's/[^0-9]//g')
+             MED_COUNT=$(echo "$MED_COUNT" | sed 's/[^0-9]//g')
+             LOW_COUNT=$(echo "$LOW_COUNT" | sed 's/[^0-9]//g')
+             
+             CRIT_COUNT=${CRIT_COUNT:-0}
+             HIGH_COUNT=${HIGH_COUNT:-0}
+             MED_COUNT=${MED_COUNT:-0}
+             LOW_COUNT=${LOW_COUNT:-0}
+             
+             TOTAL_COUNT=$((CRIT_COUNT + HIGH_COUNT + MED_COUNT + LOW_COUNT))
+             
+             echo "📊 SUMMARY:"
+             echo "  • Total Issues: $TOTAL_COUNT"
+             echo "  • Critical: $CRIT_COUNT | High: $HIGH_COUNT | Medium: $MED_COUNT | Low: $LOW_COUNT"
+             echo ""
+             echo "=========================================="
+             echo "🔎 DETAILED FINDINGS:"
+             echo "=========================================="
+             echo ""
+             echo "Target | Package | CVE | Severity | Installed | Fixed"
+             echo "-------|---------|-----|----------|-----------|------"
+             cat combined-report.txt
+             echo ""
+             echo "=========================================="
+          else
+             echo "✅ No security issues detected!"
+          fi
+
+      - name: Send Slack Notification
+        if: always()
+        uses: archive/github-actions-slack@c643e5093620d65506466f2c9b317d5d29a5e517 # v2.10.1
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_TOKEN }}
+          slack-channel: ${{ secrets.TEST_SLACK_CHANNEL }}
+          slack-text: ${{ steps.format_message.outputs.SLACK_MESSAGE }}
+          slack-optional-parse: full
