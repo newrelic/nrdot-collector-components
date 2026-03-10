@@ -209,17 +209,20 @@ addlicense: $(NRLICENSE) addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
 	@$(NRLICENSE) --fix --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
+# Generate overrides.jsonl file for third party notice generation, ignoring .gitignored files.
 NOTICE_OVERRIDES_FILE="$(SRC_ROOT)/internal/assets/license/overrides.jsonl"
 .PHONY: addoverrides
 addoverrides:
 	@pushd $(SRC_ROOT); \
 	overrides=""; \
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
-		overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#$(SRC_ROOT)/}\", \"licenceType\": \"Apache-2.0\"}\n"; \
+		go_mod_path="$${dir#$(SRC_ROOT)/}/go.mod"; \
+		if ! git check-ignore -q "$$go_mod_path"; then \
+			overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#$(SRC_ROOT)/}\", \"licenceType\": \"Apache-2.0\"}\n"; \
+		fi; \
 	done; \
 	echo -e "$$overrides" | sort | grep -v '^$$' > "$(NOTICE_OVERRIDES_FILE)"; \
 	popd
-
 
 .PHONY: addthirdparty
 addthirdparty: $(LICENSE_DETECTOR) addoverrides
