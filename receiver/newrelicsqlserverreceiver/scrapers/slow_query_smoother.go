@@ -1,4 +1,4 @@
-// Copyright The OpenTelemetry Authors
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 // Package scrapers provides the query performance smoothing algorithm

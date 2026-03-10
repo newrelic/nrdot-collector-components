@@ -1,4 +1,4 @@
-// Copyright The OpenTelemetry Authors
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 // and failover cluster performance metrics for high availability environments.
