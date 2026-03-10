@@ -10,8 +10,15 @@
 set -e
 
 DIR="$1"
-CONFIG_IN="cmd/$DIR/builder-config.yaml"
-CONFIG_OUT="cmd/$DIR/builder-config-replaced.yaml"
+
+# Handle CGO-enabled config variant
+if [[ "$DIR" == "nrdotcol-cgo" ]]; then
+    CONFIG_IN="cmd/nrdotcol/builder-config-cgo-enabled.yaml"
+    CONFIG_OUT="cmd/nrdotcol/builder-config-cgo-enabled-replaced.yaml"
+else
+    CONFIG_IN="cmd/$DIR/builder-config.yaml"
+    CONFIG_OUT="cmd/$DIR/builder-config-replaced.yaml"
+fi
 
 cp "$CONFIG_IN" "$CONFIG_OUT"
 
