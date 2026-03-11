@@ -261,6 +261,10 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 
 	var slowQueryIDs []string
 	var slowQueryPlanDataMap map[string]models.SlowQueryPlanData
+
+	// Initialize empty map to prevent nil pointer panic when backfilling for active queries
+	slowQueryPlanDataMap = make(map[string]models.SlowQueryPlanData)
+
 	if s.config.EnableQueryMonitoring {
 		slowQueryCtx, slowQueryCancel := context.WithTimeout(ctx, s.config.Timeout)
 		defer slowQueryCancel()

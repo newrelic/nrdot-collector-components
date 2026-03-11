@@ -58,6 +58,7 @@ const (
 	// Interval-based averaging defaults
 	defaultEnableIntervalBasedAveraging      = true // Enabled by default
 	defaultIntervalCalculatorCacheTTLMinutes = 10   // 10 minute cache TTL
+	minIntervalCalculatorCacheTTLMinutes     = 10   // Minimum 10 minutes
 
 	// Wait resource enrichment defaults
 	defaultEnableWaitResourceEnrichment       = true // Enabled by default
@@ -353,6 +354,11 @@ func (cfg *Config) Validate() error {
 	}
 	if cfg.ActiveRunningQueriesCountThreshold > maxActiveRunningQueriesCountThreshold {
 		return fmt.Errorf("active_running_queries_count_threshold must be <= %d", maxActiveRunningQueriesCountThreshold)
+	}
+
+	// Interval calculator cache TTL validation
+	if cfg.EnableIntervalBasedAveraging && cfg.IntervalCalculatorCacheTTLMinutes < minIntervalCalculatorCacheTTLMinutes {
+		return fmt.Errorf("interval_calculator_cache_ttl_minutes must be >= %d", minIntervalCalculatorCacheTTLMinutes)
 	}
 
 	// SSL validation
