@@ -334,7 +334,7 @@ GRANT SELECT ON ALL_VIEWS TO c##<YOUR_DB_USERNAME> CONTAINER=ALL;
 GRANT SELECT ON GLOBAL_NAME TO c##<YOUR_DB_USERNAME> CONTAINER=ALL;
 ```
 
-#### For Non-CDB or PDB-Specific Monitoring (Oracle 11g/12c Standard)
+#### For Non-CDB or PDB-Specific Monitoring
 
 For non-container databases or when connecting directly to a PDB, use a regular user without the `C##` prefix:
 
