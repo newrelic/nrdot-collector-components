@@ -24,7 +24,7 @@ const (
 	// Concurrency and timeout defaults
 	defaultMaxConcurrentWorkers = 10
 	defaultTimeout              = 30 * time.Second
-	defaultCollectionInterval   = 15 * time.Second
+	defaultCollectionInterval   = 20 * time.Second
 
 	// Validation ranges
 	minTimeout              = 5 * time.Second
@@ -37,8 +37,9 @@ const (
 	// Query monitoring defaults
 	defaultQueryMonitoringResponseTimeThreshold = 100 // 100ms (capture queries >= 100ms)
 	defaultQueryMonitoringCountThreshold        = 30  // Top 30 slow queries
-	defaultQueryMonitoringFetchInterval         = 15
+	defaultQueryMonitoringFetchInterval         = 20  // 20 seconds
 	minQueryMonitoringResponseTimeThreshold     = 0   // 0 = capture all queries (no minimum)
+	minQueryMonitoringFetchInterval             = 1   // Minimum 1 second
 	minQueryMonitoringCountThreshold            = 20
 	maxQueryMonitoringCountThreshold            = 50
 
@@ -329,6 +330,9 @@ func (cfg *Config) Validate() error {
 	if cfg.QueryMonitoringResponseTimeThreshold < minQueryMonitoringResponseTimeThreshold {
 		return fmt.Errorf("query_monitoring_response_time_threshold must be >= %d (0 = no threshold)",
 			minQueryMonitoringResponseTimeThreshold)
+	}
+	if cfg.QueryMonitoringFetchInterval < minQueryMonitoringFetchInterval {
+		return fmt.Errorf("query_monitoring_fetch_interval must be >= %d seconds", minQueryMonitoringFetchInterval)
 	}
 	if cfg.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold {
 		return fmt.Errorf("query_monitoring_count_threshold must be >= %d", minQueryMonitoringCountThreshold)
