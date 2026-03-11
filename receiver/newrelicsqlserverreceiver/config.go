@@ -36,9 +36,10 @@ const (
 
 	// Query monitoring defaults
 	defaultEnableQueryMonitoring                = true
-	defaultQueryMonitoringResponseTimeThreshold = 0 // 0 = capture all queries
-	defaultQueryMonitoringCountThreshold        = 20
+	defaultQueryMonitoringResponseTimeThreshold = 500 // 500ms = 0.5 seconds (capture queries >= 500ms)
+	defaultQueryMonitoringCountThreshold        = 30  // Top 30 slow queries
 	defaultQueryMonitoringFetchInterval         = 15
+	minQueryMonitoringResponseTimeThreshold     = 0   // 0 = capture all queries (no minimum)
 	minQueryMonitoringCountThreshold            = 20
 	maxQueryMonitoringCountThreshold            = 50
 
@@ -113,9 +114,9 @@ type Config struct {
 
 	// Query monitoring configuration
 	EnableQueryMonitoring                bool `mapstructure:"enable_query_monitoring"`
-	QueryMonitoringResponseTimeThreshold int  `mapstructure:"query_monitoring_response_time_threshold"`
-	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`
-	QueryMonitoringFetchInterval         int  `mapstructure:"query_monitoring_fetch_interval"`
+	QueryMonitoringResponseTimeThreshold int  `mapstructure:"query_monitoring_response_time_threshold"` // Minimum elapsed time in milliseconds (default: 500ms, min: 0 = capture all)
+	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`        // Maximum number of slow queries to emit (default: 30, range: 20-50)
+	QueryMonitoringFetchInterval         int  `mapstructure:"query_monitoring_fetch_interval"`         // Scrape interval in seconds
 
 	// Active running queries configuration
 	ActiveRunningQueriesElapsedTimeThreshold int `mapstructure:"active_running_queries_elapsed_time_threshold"` // Minimum elapsed time in milliseconds (default: 0 = capture all)
@@ -331,8 +332,9 @@ func (cfg *Config) Validate() error {
 
 	// Query monitoring validation
 	if cfg.EnableQueryMonitoring {
-		if cfg.QueryMonitoringResponseTimeThreshold < 0 {
-			return errors.New("query_monitoring_response_time_threshold must be >= 0 when query monitoring is enabled (0 = no threshold, default: 500)")
+		if cfg.QueryMonitoringResponseTimeThreshold < minQueryMonitoringResponseTimeThreshold {
+			return fmt.Errorf("query_monitoring_response_time_threshold must be >= %d (0 = no threshold)",
+				minQueryMonitoringResponseTimeThreshold)
 		}
 		if cfg.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold {
 			return fmt.Errorf("query_monitoring_count_threshold must be >= %d", minQueryMonitoringCountThreshold)

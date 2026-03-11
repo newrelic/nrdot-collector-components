@@ -265,13 +265,24 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 		slowQueryCtx, slowQueryCancel := context.WithTimeout(ctx, s.config.Timeout)
 		defer slowQueryCancel()
 
-		// Use config value for slow query interval only (topN and elapsedTimeThreshold removed)
+		// Use config values for slow query monitoring
 		intervalSeconds := s.config.QueryMonitoringFetchInterval
+		elapsedTimeThresholdMS := s.config.QueryMonitoringResponseTimeThreshold
+		topN := s.config.QueryMonitoringCountThreshold
 
-		s.logger.Info("Attempting to scrape slow query metrics (NO filters - all queries)",
-			zap.Int("interval_seconds", intervalSeconds))
+		s.logger.Info("Attempting to scrape slow query metrics with filtering",
+			zap.Int("interval_seconds", intervalSeconds),
+			zap.Int("elapsed_time_threshold_ms", elapsedTimeThresholdMS),
+			zap.Int("top_n", topN))
 
-		slowQueries, err := s.queryPerformanceScraper.ScrapeSlowQueryMetrics(slowQueryCtx, intervalSeconds, true, apmMetadataCache)
+		slowQueries, err := s.queryPerformanceScraper.ScrapeSlowQueryMetrics(
+			slowQueryCtx,
+			intervalSeconds,
+			elapsedTimeThresholdMS,
+			topN,
+			true,
+			apmMetadataCache,
+		)
 		if err != nil {
 			s.logger.Warn("Failed to scrape slow query metrics - continuing with other metrics",
 				zap.Error(err),
@@ -279,8 +290,10 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 				zap.Int("interval_seconds", intervalSeconds))
 			// Don't add to scrapeErrors - just warn and continue
 		} else {
-			s.logger.Info("Successfully scraped slow query metrics (ALL queries - no filters)",
+			s.logger.Info("Successfully scraped slow query metrics with filtering applied",
 				zap.Int("interval_seconds", intervalSeconds),
+				zap.Int("elapsed_time_threshold_ms", elapsedTimeThresholdMS),
+				zap.Int("top_n", topN),
 				zap.Int("slow_query_count", len(slowQueries)))
 
 			// Extract query IDs and lightweight plan data (5 fields only) for active query correlation

@@ -93,8 +93,9 @@ func (s *QueryPerformanceScraper) SetMetricsBuilder(mb *metadata.MetricsBuilder)
 	s.mb = mb
 }
 
-func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, intervalSeconds int, emitMetrics bool, apmMetadataCache *helpers.APMMetadataCache) ([]models.SlowQuery, error) {
-	// REMOVED: topN and elapsedTimeThreshold parameters - now fetching ALL slow queries without filtering
+func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, intervalSeconds int, elapsedTimeThresholdMS int, topN int, emitMetrics bool, apmMetadataCache *helpers.APMMetadataCache) ([]models.SlowQuery, error) {
+	// elapsedTimeThresholdMS: minimum elapsed time threshold in milliseconds (0 = no threshold)
+	// topN: maximum number of queries to emit (0 = no limit)
 	query := fmt.Sprintf(queries.SlowQuery, intervalSeconds)
 
 	var rawResults []models.SlowQuery
@@ -121,10 +122,15 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 
 			}
 
-			// REMOVED: Elapsed time threshold filter - now including ALL queries regardless of elapsed time
-			// if metrics.IntervalAvgElapsedTimeMs < float64(elapsedTimeThreshold) {
-			// 	continue
-			// }
+			// Apply elapsed time threshold filter (skip queries below threshold)
+			// threshold = 0 means capture all queries (no filtering)
+			if elapsedTimeThresholdMS > 0 && metrics.IntervalAvgElapsedTimeMs < float64(elapsedTimeThresholdMS) {
+				s.logger.Debug("Skipping query below elapsed time threshold",
+					zap.String("query_id", rawQuery.QueryID.String()),
+					zap.Float64("interval_avg_elapsed_ms", metrics.IntervalAvgElapsedTimeMs),
+					zap.Int("threshold_ms", elapsedTimeThresholdMS))
+				continue
+			}
 
 			// Populate interval metrics in the model
 			rawQuery.IntervalElapsedTimeMS = &metrics.IntervalElapsedTimeMs
@@ -164,8 +170,8 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 		rawResults = resultsWithIntervalMetrics
 	}
 
-	// REMOVED: TOP N filtering - now returning ALL queries without limit
-	// Still sort by interval average elapsed time for consistent ordering, but no truncation
+	// Sort by interval average elapsed time for consistent ordering
+	// Then apply top N filtering if enabled
 	if s.intervalCalculator != nil && len(rawResults) > 0 {
 		sort.Slice(rawResults, func(i, j int) bool {
 			if rawResults[i].IntervalAvgElapsedTimeMS == nil {
@@ -177,10 +183,15 @@ func (s *QueryPerformanceScraper) ScrapeSlowQueryMetrics(ctx context.Context, in
 			return *rawResults[i].IntervalAvgElapsedTimeMS > *rawResults[j].IntervalAvgElapsedTimeMS
 		})
 
-		// REMOVED: topN truncation
-		// if len(rawResults) > topN {
-		// 	rawResults = rawResults[:topN]
-		// }
+		// Apply top N limit (only keep top N slowest queries)
+		// topN = 0 means no limit (capture all queries)
+		if topN > 0 && len(rawResults) > topN {
+			s.logger.Info("Applying top N filter to slow queries",
+				zap.Int("total_queries_after_threshold", len(rawResults)),
+				zap.Int("top_n", topN),
+				zap.Int("filtered_out", len(rawResults)-topN))
+			rawResults = rawResults[:topN]
+		}
 	}
 
 	var resultsToProcess []models.SlowQuery
