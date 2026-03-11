@@ -4,6 +4,90 @@
 
 The New Relic Oracle Receiver is a comprehensive OpenTelemetry receiver that collects extensive Oracle database metrics, performance data, and telemetry for monitoring Oracle database health, performance, and resource utilization.
 
+## Architecture
+
+The New Relic Oracle Receiver integrates seamlessly with the OpenTelemetry Collector ecosystem to provide comprehensive database monitoring:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Customer's Host                                    │
+│  ┌───────────────────────────────────────────────────────────────────────┐ │
+│  │                   NRDOT - OpenTelemetry Collector                     │ │
+│  │                                                                         │ │
+│  │   ┌──────────────┐                                                    │ │
+│  │   │ Config.yaml  │◄────── Configuration related to DB connection      │ │
+│  │   └──────┬───────┘        and Metrics/Logs pipeline                   │ │
+│  │          │                                                             │ │
+│  │          ▼                                                             │ │
+│  │   ┌──────────────────────────────────────────┐                        │ │
+│  │   │           Receivers                      │                        │ │
+│  │   │  (SQL Server, Oracle, PostgreSQL, MySQL) │                        │ │
+│  │   └──────────────┬───────────────────────────┘                        │ │
+│  │                  │                                                     │ │
+│  │                  ▼                                                     │ │
+│  │   ┌──────────────────────┐                                            │ │
+│  │   │     Processors       │                                            │ │
+│  │   └──────────┬───────────┘                                            │ │
+│  │              │                                                         │ │
+│  │              ▼                                                         │ │
+│  │   ┌──────────────────────┐        OTLP / HTTP                         │ │
+│  │   │      Exporter        │───────► Endpoint                           │ │
+│  │   └──────────────────────┘                                            │ │
+│  └───────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │ Fetches secrets and
+                                  │ keep it in NRDOT's memory
+                                  ▼
+                    ┌──────────────────────────┐
+                    │  Customer's Key Vault    │
+                    └──────────────────────────┘
+                                  │
+                                  │ queries
+                                  ▼
+         ┌─────────────────────────────────────────────────┐
+         │        Customer's Database                      │
+         │     With Performance Schema Enabled             │
+         │                                                  │
+         │  (query comment as nr_service_guid) ────────────┼─────┐
+         └─────────────────────────────────────────────────┘     │
+                                                                  │
+                                                                  ▼
+                                                      ┌──────────────────────┐
+                                                      │        APM           │
+                                                      │ (nr_service_guid:    │
+                                                      │     enabled)         │
+                                                      └──────────┬───────────┘
+                                                                 │
+                                                                 │ Via Ingest Pipeline
+                                                                 ▼
+                                                      ┌──────────────────────┐
+                                                      │    APM Consumer      │
+                                                      └──────────┬───────────┘
+                                                                 │
+                                                                 ▼
+                                                      ┌──────────────────────┐
+                                                      │        NRDB          │
+                                                      └──────────┬───────────┘
+                                                                 │
+                                                                 ▼
+                                                      ┌──────────────────────┐
+                                                      │    New Relic         │
+                                                      │   Observability      │
+                                                      │    Experience        │
+                                                      └──────────────────────┘
+```
+
+### Key Components
+
+- **Receivers**: Collects metrics from Oracle databases using native Oracle client libraries
+- **Processors**: Transforms and enriches telemetry data before export
+- **Exporter**: Sends processed metrics to New Relic via OTLP/HTTP endpoints
+- **Key Vault Integration**: Securely fetches database credentials and stores them in memory
+- **Query Correlation**: Links database queries with APM transactions using `nr_service_guid` comment tags
+- **NRDB**: New Relic's telemetry data platform for storage and querying
+- **Observability Experience**: Unified dashboards and visualization in New Relic UI
+
 ## Features
 
 This receiver collects comprehensive Oracle database metrics across multiple categories:
