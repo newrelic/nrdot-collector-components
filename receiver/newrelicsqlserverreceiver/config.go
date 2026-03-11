@@ -24,7 +24,7 @@ const (
 	// Concurrency and timeout defaults
 	defaultMaxConcurrentWorkers = 10
 	defaultTimeout              = 30 * time.Second
-	defaultCollectionInterval   = 20 * time.Second
+	defaultCollectionInterval   = 15 * time.Second
 
 	// Validation ranges
 	minTimeout              = 5 * time.Second
@@ -37,7 +37,7 @@ const (
 	// Query monitoring defaults
 	defaultQueryMonitoringResponseTimeThreshold = 100 // 100ms (capture queries >= 100ms)
 	defaultQueryMonitoringCountThreshold        = 30  // Top 30 slow queries
-	defaultQueryMonitoringFetchInterval         = 20  // 20 seconds
+	defaultQueryMonitoringFetchInterval         = 15  // 15 seconds
 	minQueryMonitoringResponseTimeThreshold     = 0   // 0 = capture all queries (no minimum)
 	minQueryMonitoringFetchInterval             = 1   // Minimum 1 second
 	minQueryMonitoringCountThreshold            = 20
