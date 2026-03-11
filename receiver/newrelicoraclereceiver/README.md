@@ -109,7 +109,7 @@ This receiver collects comprehensive Oracle database metrics across multiple cat
 ### Container Database (CDB) & Pluggable Database (PDB)
 - **CDB/PDB Status**: Container status, open mode, restricted status
 - **PDB Performance**: Per-PDB metrics including CPU usage, transactions, I/O rates
-- **Multi-tenancy Support**: Full support for Oracle 12c+ multitenant architecture
+- **Multi-tenancy Support**: Full support for Oracle 19c multitenant architecture
 
 ### Oracle RAC (Real Application Clusters)
 - **ASM Disk Groups**: Capacity, free space, offline disks
@@ -234,14 +234,14 @@ You must provide either `datasource` OR all individual parameters.
 ## Prerequisites
 
 ### Oracle Database
-- Supported versions: Oracle 11g, 12c, 19c, 21c, 23c
+- Supported version: Oracle 19c
 - Supports Standard Edition and Enterprise Edition
 - Supports non-CDB and CDB/PDB architectures
 - Oracle RAC monitoring requires appropriate cluster configuration
 
 ### Required Database Permissions
 
-#### For CDB/PDB Monitoring (Oracle 12c+)
+#### For CDB/PDB Monitoring (Oracle 19c)
 
 Create a common user with `C##` prefix and grant all required permissions:
 
