@@ -35,7 +35,7 @@ const (
 	maxCollectionInterval   = 3600 * time.Second
 
 	// Query monitoring defaults
-	defaultQueryMonitoringResponseTimeThreshold = 500 // 500ms = 0.5 seconds (capture queries >= 500ms)
+	defaultQueryMonitoringResponseTimeThreshold = 100 // 100ms (capture queries >= 100ms)
 	defaultQueryMonitoringCountThreshold        = 30  // Top 30 slow queries
 	defaultQueryMonitoringFetchInterval         = 15
 	minQueryMonitoringResponseTimeThreshold     = 0   // 0 = capture all queries (no minimum)
@@ -112,7 +112,7 @@ type Config struct {
 	ExtraConnectionURLArgs string `mapstructure:"extra_connection_url_args"`
 
 	// Query monitoring configuration (always enabled)
-	QueryMonitoringResponseTimeThreshold int `mapstructure:"query_monitoring_response_time_threshold"` // Minimum elapsed time in milliseconds (default: 500ms, min: 0 = capture all)
+	QueryMonitoringResponseTimeThreshold int `mapstructure:"query_monitoring_response_time_threshold"` // Minimum elapsed time in milliseconds (default: 100ms, min: 0 = capture all)
 	QueryMonitoringCountThreshold        int `mapstructure:"query_monitoring_count_threshold"`        // Maximum number of slow queries to emit (default: 30, range: 20-50)
 	QueryMonitoringFetchInterval         int `mapstructure:"query_monitoring_fetch_interval"`         // Scrape interval in seconds
 
