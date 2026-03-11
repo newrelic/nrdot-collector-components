@@ -132,7 +132,8 @@ func (s *sqlServerScraper) Start(ctx context.Context, _ component.Host) error {
 	s.databaseRoleMembershipScraper = scrapers.NewDatabaseRoleMembershipScraper(s.logger, s.connection, s.mb, s.engineEdition)
 
 	// Initialize query performance scraper for blocking sessions and performance monitoring
-	// Pass smoothing, interval calculator, and execution plan cache configuration parameters from config
+	// Pass smoothing and interval calculator configuration parameters from config
+	// Note: Interval-based averaging is always enabled (no longer configurable)
 	s.queryPerformanceScraper = scrapers.NewQueryPerformanceScraper(
 		s.connection,
 		s.logger,
@@ -142,7 +143,7 @@ func (s *sqlServerScraper) Start(ctx context.Context, _ component.Host) error {
 		s.config.SlowQuerySmoothingFactor,
 		s.config.SlowQuerySmoothingDecayThreshold,
 		s.config.SlowQuerySmoothingMaxAgeMinutes,
-		s.config.EnableIntervalBasedAveraging,
+		true, // Always enable interval-based averaging
 		s.config.IntervalCalculatorCacheTTLMinutes,
 		s.config.ActiveRunningQueriesCountThreshold,
 		s.metadataCache,
@@ -252,7 +253,7 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 		scrapeErrors = collectErrors(scrapeErrors, err)
 	}
 
-	// Scrape slow query metrics if query monitoring is enabled
+	// Scrape slow query metrics (always enabled)
 	// Store query IDs and lightweight plan data (5 fields only) for correlation with active queries
 	// Create a fresh APM metadata cache for this scrape cycle
 	// This cache will be shared between active and slow query scrapers and discarded at scrape end
@@ -265,50 +266,45 @@ func (s *sqlServerScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	// Initialize empty map to prevent nil pointer panic when backfilling for active queries
 	slowQueryPlanDataMap = make(map[string]models.SlowQueryPlanData)
 
-	if s.config.EnableQueryMonitoring {
-		slowQueryCtx, slowQueryCancel := context.WithTimeout(ctx, s.config.Timeout)
-		defer slowQueryCancel()
+	slowQueryCtx, slowQueryCancel := context.WithTimeout(ctx, s.config.Timeout)
+	defer slowQueryCancel()
 
-		// Use config values for slow query monitoring
-		intervalSeconds := s.config.QueryMonitoringFetchInterval
-		elapsedTimeThresholdMS := s.config.QueryMonitoringResponseTimeThreshold
-		topN := s.config.QueryMonitoringCountThreshold
+	// Use config values for slow query monitoring
+	intervalSeconds := s.config.QueryMonitoringFetchInterval
+	elapsedTimeThresholdMS := s.config.QueryMonitoringResponseTimeThreshold
+	topN := s.config.QueryMonitoringCountThreshold
 
-		s.logger.Info("Attempting to scrape slow query metrics with filtering",
+	s.logger.Info("Attempting to scrape slow query metrics with filtering",
+		zap.Int("interval_seconds", intervalSeconds),
+		zap.Int("elapsed_time_threshold_ms", elapsedTimeThresholdMS),
+		zap.Int("top_n", topN))
+
+	slowQueries, err := s.queryPerformanceScraper.ScrapeSlowQueryMetrics(
+		slowQueryCtx,
+		intervalSeconds,
+		elapsedTimeThresholdMS,
+		topN,
+		true,
+		apmMetadataCache,
+	)
+	if err != nil {
+		s.logger.Warn("Failed to scrape slow query metrics - continuing with other metrics",
+			zap.Error(err),
+			zap.Duration("timeout", s.config.Timeout),
+			zap.Int("interval_seconds", intervalSeconds))
+		// Don't add to scrapeErrors - just warn and continue
+	} else {
+		s.logger.Info("Successfully scraped slow query metrics with filtering applied",
 			zap.Int("interval_seconds", intervalSeconds),
 			zap.Int("elapsed_time_threshold_ms", elapsedTimeThresholdMS),
-			zap.Int("top_n", topN))
+			zap.Int("top_n", topN),
+			zap.Int("slow_query_count", len(slowQueries)))
 
-		slowQueries, err := s.queryPerformanceScraper.ScrapeSlowQueryMetrics(
-			slowQueryCtx,
-			intervalSeconds,
-			elapsedTimeThresholdMS,
-			topN,
-			true,
-			apmMetadataCache,
-		)
-		if err != nil {
-			s.logger.Warn("Failed to scrape slow query metrics - continuing with other metrics",
-				zap.Error(err),
-				zap.Duration("timeout", s.config.Timeout),
-				zap.Int("interval_seconds", intervalSeconds))
-			// Don't add to scrapeErrors - just warn and continue
-		} else {
-			s.logger.Info("Successfully scraped slow query metrics with filtering applied",
-				zap.Int("interval_seconds", intervalSeconds),
-				zap.Int("elapsed_time_threshold_ms", elapsedTimeThresholdMS),
-				zap.Int("top_n", topN),
-				zap.Int("slow_query_count", len(slowQueries)))
-
-			// Extract query IDs and lightweight plan data (5 fields only) for active query correlation
-			slowQueryIDs, slowQueryPlanDataMap = s.queryPerformanceScraper.ExtractQueryDataFromSlowQueries(slowQueries)
-			s.logger.Info("Extracted query IDs and lightweight plan data (5 fields only, in-memory)",
-				zap.Int("unique_query_id_count", len(slowQueryIDs)),
-				zap.Int("plan_data_map_size", len(slowQueryPlanDataMap)))
-
-		}
-	} else {
-		s.logger.Info("Slow query scraping SKIPPED - EnableQueryMonitoring is false")
+		// Extract query IDs and lightweight plan data (5 fields only) for active query correlation
+		slowQueryIDs, slowQueryPlanDataMap = s.queryPerformanceScraper.ExtractQueryDataFromSlowQueries(slowQueries)
+		s.logger.Info("Extracted query IDs and lightweight plan data (5 fields only, in-memory)",
+			zap.Int("unique_query_id_count", len(slowQueryIDs)),
+			zap.Int("plan_data_map_size", len(slowQueryPlanDataMap)))
 	}
 
 	// Scrape active running queries metrics - split into linked and orphan queries

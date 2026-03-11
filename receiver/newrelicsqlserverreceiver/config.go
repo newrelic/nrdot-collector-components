@@ -35,7 +35,6 @@ const (
 	maxCollectionInterval   = 3600 * time.Second
 
 	// Query monitoring defaults
-	defaultEnableQueryMonitoring                = true
 	defaultQueryMonitoringResponseTimeThreshold = 500 // 500ms = 0.5 seconds (capture queries >= 500ms)
 	defaultQueryMonitoringCountThreshold        = 30  // Top 30 slow queries
 	defaultQueryMonitoringFetchInterval         = 15
@@ -56,9 +55,8 @@ const (
 	defaultSlowQuerySmoothingMaxAgeMinutes  = 5     // 5 minute max age
 
 	// Interval-based averaging defaults
-	defaultEnableIntervalBasedAveraging      = true // Enabled by default
-	defaultIntervalCalculatorCacheTTLMinutes = 10   // 10 minute cache TTL
-	minIntervalCalculatorCacheTTLMinutes     = 10   // Minimum 10 minutes
+	defaultIntervalCalculatorCacheTTLMinutes = 10 // 10 minute cache TTL
+	minIntervalCalculatorCacheTTLMinutes     = 10 // Minimum 10 minutes
 
 	// Wait resource enrichment defaults
 	defaultEnableWaitResourceEnrichment       = true // Enabled by default
@@ -113,11 +111,10 @@ type Config struct {
 	// Additional connection parameters
 	ExtraConnectionURLArgs string `mapstructure:"extra_connection_url_args"`
 
-	// Query monitoring configuration
-	EnableQueryMonitoring                bool `mapstructure:"enable_query_monitoring"`
-	QueryMonitoringResponseTimeThreshold int  `mapstructure:"query_monitoring_response_time_threshold"` // Minimum elapsed time in milliseconds (default: 500ms, min: 0 = capture all)
-	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`        // Maximum number of slow queries to emit (default: 30, range: 20-50)
-	QueryMonitoringFetchInterval         int  `mapstructure:"query_monitoring_fetch_interval"`         // Scrape interval in seconds
+	// Query monitoring configuration (always enabled)
+	QueryMonitoringResponseTimeThreshold int `mapstructure:"query_monitoring_response_time_threshold"` // Minimum elapsed time in milliseconds (default: 500ms, min: 0 = capture all)
+	QueryMonitoringCountThreshold        int `mapstructure:"query_monitoring_count_threshold"`        // Maximum number of slow queries to emit (default: 30, range: 20-50)
+	QueryMonitoringFetchInterval         int `mapstructure:"query_monitoring_fetch_interval"`         // Scrape interval in seconds
 
 	// Active running queries configuration
 	ActiveRunningQueriesElapsedTimeThreshold int `mapstructure:"active_running_queries_elapsed_time_threshold"` // Minimum elapsed time in milliseconds (default: 0 = capture all)
@@ -129,10 +126,9 @@ type Config struct {
 	SlowQuerySmoothingDecayThreshold int     `mapstructure:"slow_query_smoothing_decay_threshold"` // Consecutive misses before removal (default: 3)
 	SlowQuerySmoothingMaxAgeMinutes  int     `mapstructure:"slow_query_smoothing_max_age_minutes"` // Maximum age in minutes (default: 5)
 
-	// Interval-based averaging configuration (Simplified delta-based interval calculations)
-	// This addresses the problem of cumulative averages masking recent query optimizations
-	EnableIntervalBasedAveraging      bool `mapstructure:"enable_interval_based_averaging"`       // Enable/disable interval-based averaging
-	IntervalCalculatorCacheTTLMinutes int  `mapstructure:"interval_calculator_cache_ttl_minutes"` // State cache TTL in minutes (default: 10)
+	// Interval-based averaging configuration (always enabled)
+	// Simplified delta-based interval calculations to address cumulative averages masking recent query optimizations
+	IntervalCalculatorCacheTTLMinutes int `mapstructure:"interval_calculator_cache_ttl_minutes"` // State cache TTL in minutes (default: 10, min: 10)
 
 	// Wait resource enrichment configuration
 	// Enriches wait_resource with human-readable names (database names, object names, file names, etc.)
@@ -177,8 +173,7 @@ func DefaultConfig() component.Config {
 		EnableSSL:              false,
 		TrustServerCertificate: false,
 
-		// Query monitoring settings
-		EnableQueryMonitoring:                defaultEnableQueryMonitoring,
+		// Query monitoring settings (always enabled)
 		QueryMonitoringResponseTimeThreshold: defaultQueryMonitoringResponseTimeThreshold,
 		QueryMonitoringCountThreshold:        defaultQueryMonitoringCountThreshold,
 		QueryMonitoringFetchInterval:         defaultQueryMonitoringFetchInterval,
@@ -193,8 +188,7 @@ func DefaultConfig() component.Config {
 		SlowQuerySmoothingDecayThreshold: defaultSlowQuerySmoothingDecayThreshold,
 		SlowQuerySmoothingMaxAgeMinutes:  defaultSlowQuerySmoothingMaxAgeMinutes,
 
-		// Interval-based averaging settings
-		EnableIntervalBasedAveraging:      defaultEnableIntervalBasedAveraging,
+		// Interval-based averaging settings (always enabled)
 		IntervalCalculatorCacheTTLMinutes: defaultIntervalCalculatorCacheTTLMinutes,
 
 		// Wait resource enrichment settings
@@ -331,18 +325,16 @@ func (cfg *Config) Validate() error {
 		}
 	}
 
-	// Query monitoring validation
-	if cfg.EnableQueryMonitoring {
-		if cfg.QueryMonitoringResponseTimeThreshold < minQueryMonitoringResponseTimeThreshold {
-			return fmt.Errorf("query_monitoring_response_time_threshold must be >= %d (0 = no threshold)",
-				minQueryMonitoringResponseTimeThreshold)
-		}
-		if cfg.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold {
-			return fmt.Errorf("query_monitoring_count_threshold must be >= %d", minQueryMonitoringCountThreshold)
-		}
-		if cfg.QueryMonitoringCountThreshold > maxQueryMonitoringCountThreshold {
-			return fmt.Errorf("query_monitoring_count_threshold must be <= %d", maxQueryMonitoringCountThreshold)
-		}
+	// Query monitoring validation (always enabled)
+	if cfg.QueryMonitoringResponseTimeThreshold < minQueryMonitoringResponseTimeThreshold {
+		return fmt.Errorf("query_monitoring_response_time_threshold must be >= %d (0 = no threshold)",
+			minQueryMonitoringResponseTimeThreshold)
+	}
+	if cfg.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold {
+		return fmt.Errorf("query_monitoring_count_threshold must be >= %d", minQueryMonitoringCountThreshold)
+	}
+	if cfg.QueryMonitoringCountThreshold > maxQueryMonitoringCountThreshold {
+		return fmt.Errorf("query_monitoring_count_threshold must be <= %d", maxQueryMonitoringCountThreshold)
 	}
 
 	// Active running queries validation
@@ -356,8 +348,8 @@ func (cfg *Config) Validate() error {
 		return fmt.Errorf("active_running_queries_count_threshold must be <= %d", maxActiveRunningQueriesCountThreshold)
 	}
 
-	// Interval calculator cache TTL validation
-	if cfg.EnableIntervalBasedAveraging && cfg.IntervalCalculatorCacheTTLMinutes < minIntervalCalculatorCacheTTLMinutes {
+	// Interval calculator cache TTL validation (always enabled)
+	if cfg.IntervalCalculatorCacheTTLMinutes < minIntervalCalculatorCacheTTLMinutes {
 		return fmt.Errorf("interval_calculator_cache_ttl_minutes must be >= %d", minIntervalCalculatorCacheTTLMinutes)
 	}
 
