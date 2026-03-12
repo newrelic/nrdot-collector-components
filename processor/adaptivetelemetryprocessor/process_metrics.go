@@ -214,6 +214,13 @@ func (p *processorImp) handleIncludedResource(rm pmetric.ResourceMetrics, resour
 
 	dest := filtered.ResourceMetrics().AppendEmpty()
 	rm.CopyTo(dest)
+
+	// Add process.atp.enabled=true for resources processed by ATP
+	// Exclude stageDefaultInclusion as those weren't evaluated by ATP
+	if includeReason != stageDefaultInclusion && includeReason != "" {
+		dest.Resource().Attributes().PutBool("process.atp.enabled", true)
+	}
+
 	// Remove the internal filter stage attribute from the output, unless debugging is enabled
 	if !p.config.DebugShowAllFilterStages {
 		dest.Resource().Attributes().Remove(internalFilterStageAttributeKey)

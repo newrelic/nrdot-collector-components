@@ -222,6 +222,37 @@ func TestProcessMetricsExtended(t *testing.T) {
 		assert.Equal(t, 0, countNonSummaryResources(result),
 			"All resources should be filtered out")
 	})
+
+	t.Run("ATP enabled attribute is set for processed resources", func(t *testing.T) {
+		// Test 1: Above threshold - should be included by ATP, not default inclusion
+		metrics := createExtendedTestMetrics(
+			map[string]string{"service.name": "atp-enabled-service"},
+			map[string]float64{"system.cpu.utilization": 90.0}, // Above threshold
+		)
+		result, err := processor.processMetrics(t.Context(), metrics)
+		assert.NoError(t, err)
+		assert.Positive(t, countNonSummaryResources(result), "Should have at least one resource")
+
+		rm := result.ResourceMetrics().At(0)
+		atpEnabled, exists := rm.Resource().Attributes().Get("process.atp.enabled")
+		assert.True(t, exists, "process.atp.enabled should be set for ATP-processed resource")
+		if exists {
+			assert.True(t, atpEnabled.Bool(), "process.atp.enabled should be true")
+		}
+
+		// Test 2: Below threshold with no matching metric - should be included by default, not ATP
+		metricsDefault := createExtendedTestMetrics(
+			map[string]string{"service.name": "default-inclusion-service"},
+			map[string]float64{"some.other.metric": 10.0}, // Not in MetricThresholds config
+		)
+		resultDefault, err := processor.processMetrics(t.Context(), metricsDefault)
+		assert.NoError(t, err)
+		assert.Positive(t, countNonSummaryResources(resultDefault), "Should have at least one resource")
+
+		rmDefault := resultDefault.ResourceMetrics().At(0)
+		_, existsDefault := rmDefault.Resource().Attributes().Get("process.atp.enabled")
+		assert.False(t, existsDefault, "process.atp.enabled should NOT be set for default-included resource")
+	})
 }
 
 // Helper function to count metrics in a batch, excluding summary metrics
