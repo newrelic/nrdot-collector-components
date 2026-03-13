@@ -68,22 +68,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/processor](https://go.opentelemetry.io/collector/processor)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/processor/processortest](https://go.opentelemetry.io/collector/processor/processortest)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.uber.org/goleak](https://go.uber.org/goleak)
 
 Distributed under the following license(s):

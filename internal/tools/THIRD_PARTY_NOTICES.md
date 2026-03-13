@@ -156,22 +156,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/cmd/builder](https://go.opentelemetry.io/collector/cmd/builder)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/cmd/mdatagen](https://go.opentelemetry.io/collector/cmd/mdatagen)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.uber.org/goleak](https://go.uber.org/goleak)
 
 Distributed under the following license(s):

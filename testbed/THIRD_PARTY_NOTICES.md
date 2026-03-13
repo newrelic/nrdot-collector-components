@@ -36,35 +36,11 @@ Distributed under the following license(s):
 
 
 
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden](https://github.com/open-telemetry/opentelemetry-collector-contrib)
 
 Distributed under the following license(s):
 
 * Apache-2.0
-
-
-
-## [github.com/open-telemetry/opentelemetry-collector-contrib/testbed](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [github.com/shirou/gopsutil/v4](https://github.com/shirou/gopsutil)
-
-Distributed under the following license(s):
-
-* BSD-3-Clause
 
 
 
@@ -92,31 +68,7 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/config/configcompression](https://go.opentelemetry.io/collector/config/configcompression)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/config/confignet](https://go.opentelemetry.io/collector/config/confignet)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/config/configoptional](https://go.opentelemetry.io/collector/config/configoptional)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/config/configtls](https://go.opentelemetry.io/collector/config/configtls)
 
 Distributed under the following license(s):
 
@@ -133,14 +85,6 @@ Distributed under the following license(s):
 
 
 ## [go.opentelemetry.io/collector/confmap/provider/fileprovider](https://go.opentelemetry.io/collector/confmap/provider/fileprovider)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/connector](https://go.opentelemetry.io/collector/connector)
 
 Distributed under the following license(s):
 
@@ -172,14 +116,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/exporter/debugexporter](https://go.opentelemetry.io/collector/exporter/debugexporter)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/exporter/exportertest](https://go.opentelemetry.io/collector/exporter/exportertest)
 
 Distributed under the following license(s):
@@ -188,39 +124,7 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/exporter/otlpexporter](https://go.opentelemetry.io/collector/exporter/otlpexporter)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/exporter/otlphttpexporter](https://go.opentelemetry.io/collector/exporter/otlphttpexporter)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/extension](https://go.opentelemetry.io/collector/extension)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/extension/zpagesextension](https://go.opentelemetry.io/collector/extension/zpagesextension)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/otelcol](https://go.opentelemetry.io/collector/otelcol)
 
 Distributed under the following license(s):
 
@@ -252,22 +156,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/processor/batchprocessor](https://go.opentelemetry.io/collector/processor/batchprocessor)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/processor/memorylimiterprocessor](https://go.opentelemetry.io/collector/processor/memorylimiterprocessor)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/receiver](https://go.opentelemetry.io/collector/receiver)
 
 Distributed under the following license(s):
@@ -276,23 +164,7 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/receiver/otlpreceiver](https://go.opentelemetry.io/collector/receiver/otlpreceiver)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/receiver/receivertest](https://go.opentelemetry.io/collector/receiver/receivertest)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/service](https://go.opentelemetry.io/collector/service)
 
 Distributed under the following license(s):
 

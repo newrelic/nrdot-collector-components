@@ -36,22 +36,6 @@ Distributed under the following license(s):
 
 
 
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/stretchr/testify](https://github.com/stretchr/testify)
 
 Distributed under the following license(s):
