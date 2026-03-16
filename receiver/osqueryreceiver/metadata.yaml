@@ -1,0 +1,9 @@
+type: osqueryreceiver
+
+status:
+  class: receiver
+  stability:
+    alpha: [logs]
+  distributions: []
+  codeowners:
+    active: [rohanyadav]
