@@ -448,19 +448,7 @@ update-golang:
 ifndef VERSION
 	$(error VERSION is required. Usage: make update-golang VERSION=1.24.11)
 endif
-	@echo "Bumping Go version to $(VERSION)..."
-
-	# Update main go.mod
-	@echo "Updating main go.mod..."
-	@sed -i '' -E 's/^go [0-9]+\.[0-9]+.*/go $(VERSION)/' go.mod
-
-	# Update all module go.mod files
-	@echo "Updating all module go.mod files..."
-	@find . -name "go.mod" -type f -not -path "./go.mod" -exec sed -i '' -E 's/^go [0-9]+\.[0-9]+\.[0-9]+/go $(VERSION)/g' {} \;
-
-	@echo ""
-	@echo "✓ Successfully bumped golang version to $(VERSION)"
-	@echo ""
+	@./.github/workflows/scripts/update-golang.sh -v $(VERSION)
 
 .PHONY: update-otel
 update-otel:$(MULTIMOD)
