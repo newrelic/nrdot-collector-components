@@ -20,9 +20,27 @@ fi
 echo "Bumping Go version to $VERSION..."
 
 # Determine the OS and set the sed function accordingly
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS
+  sed_inplace() {
+    sed -i '' "$@"
+  }
+else
+  # Linux
+  sed_inplace() {
+    sed -i "$@"
+  }
+fi
+
+# Find all go.mod files
+echo "Finding all go.mod files..."
+GO_MOD_FILES=$(find . -name "go.mod" -type f)
+
 # Update all go.mod files
 echo "Updating all go.mod files..."
-find . -name "go.mod" -type f -exec bash -c 'sed_inplace() { if [[ "$OSTYPE" == "darwin"* ]]; then sed -i "" "$@"; else sed -i "$@"; fi; }; sed_inplace -E "s/^go [0-9]+\.[0-9]+.*/go '"$VERSION"'/g" "$1"' bash {} \;
+while IFS= read -r file; do
+  sed_inplace -E "s/^go [0-9]+\.[0-9]+.*/go $VERSION/g" "$file"
+done <<< "$GO_MOD_FILES"
 
 echo ""
 echo "✓ Successfully bumped golang version to $VERSION"
