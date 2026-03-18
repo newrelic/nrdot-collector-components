@@ -40,8 +40,8 @@ func TestValidateStoragePath_ValidPaths(t *testing.T) {
 		},
 	}
 
-	// Add Windows-specific test cases
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		localAppData := os.Getenv("LOCALAPPDATA")
 		if localAppData == "" {
 			localAppData = filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local")
@@ -76,7 +76,7 @@ func TestValidateStoragePath_ValidPaths(t *testing.T) {
 				assert.NoError(t, err, tc.description)
 			})
 		}
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		// Run Linux tests only on Linux (not macOS, which has /var as a symlink)
 		for _, tc := range tests {
 			if tc.skipOnWindows {
@@ -86,7 +86,7 @@ func TestValidateStoragePath_ValidPaths(t *testing.T) {
 				})
 			}
 		}
-	} else {
+	default:
 		// On macOS and other platforms, skip Linux-specific path tests
 		t.Skip("Skipping Linux-specific path tests on " + runtime.GOOS)
 	}
