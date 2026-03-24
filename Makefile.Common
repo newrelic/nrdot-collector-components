@@ -111,6 +111,11 @@ ALL_SRC_AND_SHELL_CMD := find . -type f \( \( -name "*.go" -o -name "*.sh" \) -a
 # The absolute paths to all directories containing a go.mod file.
 ALL_GO_MOD_DIR_CMD := find . -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs realpath | grep -v "$(SRC_ROOT)/go.mod" | xargs dirname | sort
 
+# Relative paths to all subdirectory go.mod directories (excludes root go.mod).
+# Uses relative paths to avoid Windows path format mismatches between make and shell utilities.
+# Intended for use in targets that run from SRC_ROOT (e.g. addoverrides).
+ALL_GO_MOD_SUBDIR_CMD := find . -mindepth 2 -type f \( \( -name "go.mod" \) -and \( -not -path '*/third_party/*' \) \) | xargs dirname | sort
+
 pwd:
 	@pwd
 
@@ -215,10 +220,10 @@ NOTICE_OVERRIDES_FILE="$(SRC_ROOT)/internal/assets/license/overrides.jsonl"
 addoverrides:
 	@pushd $(SRC_ROOT); \
 	overrides=""; \
-	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
-		go_mod_path="$${dir#$(SRC_ROOT)/}/go.mod"; \
+	for dir in $$($(ALL_GO_MOD_SUBDIR_CMD)); do \
+		go_mod_path="$${dir#./}/go.mod"; \
 		if ! git check-ignore -q "$$go_mod_path"; then \
-			overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#$(SRC_ROOT)/}\", \"licenceType\": \"Apache-2.0\"}\n"; \
+			overrides+="{\"name\": \"github.com/newrelic/nrdot-collector-components/$${dir#./}\", \"licenceType\": \"Apache-2.0\"}\n"; \
 		fi; \
 	done; \
 	echo -e "$$overrides" | sort | grep -v '^$$' > "$(NOTICE_OVERRIDES_FILE)"; \
