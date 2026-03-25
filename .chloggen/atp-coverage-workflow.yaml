@@ -7,7 +7,7 @@ change_type: enhancement
 component: processor/adaptivetelemetry
 
 # A brief description of the change.  Surround your text with quotes ("") if it needs to start with a backtick (`).
-note: Add CI workflow to enforce 75% minimum unit test coverage and fix macOS test compatibility for storage validation tests.
+note: Add CI workflow to enforce 80% minimum unit test coverage and fix macOS test compatibility for storage validation tests.
 
 # Mandatory: One or more tracking issues related to the change. You can use the PR number here if no issue exists.
 issues: [185]
