@@ -78,7 +78,7 @@ jobs:
           echo "Created PR #$PR_NUMBER"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Auto-merge if minor version matches
+      - name: Auto-merge if minor version matches OR minor version bump matches Core and feature log clean
         run: |
           cd nrdot-collector-components
           # Extract current version from versions.yaml
@@ -97,15 +97,49 @@ jobs:
           echo "Current minor: $CURRENT_MINOR"
           echo "Target minor: $TARGET_MINOR"
 
-          # Enable auto-merge if minor versions match
+          AUTOMERGE_ENABLED=false
+
+          # Check if minor versions match (patch update)
           if [ "$CURRENT_MINOR" == "$TARGET_MINOR" ]; then
-            echo "Minor versions match - Automerging PR #${{ env.PR_NUMBER }}"
+            echo "Minor versions match - Patch Version Updated"
+            AUTOMERGE_ENABLED=true
+          else
+            echo "Minor version bump detected ($CURRENT_MINOR -> $TARGET_MINOR)"
+            echo "Checking additional automerge criteria for minor version bump..."
+
+            # Check if golang version matches Core
+            cd ../nrdot-collector-components
+            CURRENT_GO_VERSION=$(grep '^go ' go.mod | awk '{print $2}')
+            echo "Current Go version: $CURRENT_GO_VERSION"
+            echo "Target Go version (from Core): ${{ env.GO_VERSION }}"
+
+            # Check if changelog has new entries under "next version"
+            # Extract content between <!-- next version --> and <!-- previous-version -->
+            CHANGELOG_CONTENT=$(sed -n '/<!-- next version -->/,/<!-- previous-version -->/p' CHANGELOG.md | sed '1d;$d' | grep -v '^$' | grep -v '^##' || true)
+
+            if [ "$CURRENT_GO_VERSION" == "${{ env.GO_VERSION }}" ]; then
+              echo "Go version matches Core"
+
+              if [ -z "$CHANGELOG_CONTENT" ]; then
+                echo "No new changelog entries"
+                AUTOMERGE_ENABLED=true
+              else
+                echo "Changelog has new entries:"
+                echo "$CHANGELOG_CONTENT"
+              fi
+            else
+              echo "Go version differs from Core"
+            fi
+          fi
+
+          # Perform automerge if conditions are met
+          if [ "$AUTOMERGE_ENABLED" = true ]; then
+            echo "Automerging PR #${{ env.PR_NUMBER }}"
             cd ../nrdot-collector-components
             gh pr ready ${{ env.PR_NUMBER }}
             gh pr merge ${{ env.PR_NUMBER }} --auto --squash
           else
-            echo "Minor version bump detected ($CURRENT_MINOR -> $TARGET_MINOR)"
-            echo "Manual review required for PR #${{ env.PR_NUMBER }} minor version update"
+            echo "Manual review required for PR #${{ env.PR_NUMBER }}"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
