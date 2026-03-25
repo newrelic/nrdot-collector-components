@@ -15,7 +15,7 @@ permissions:
   pull-requests: write
 
 env:
-  MIN_COVERAGE: 75
+  MIN_COVERAGE: 80
 
 jobs:
   test-and-coverage:
