@@ -104,8 +104,17 @@ jobs:
             echo "Minor version bump detected ($CURRENT_MINOR -> $TARGET_MINOR)"
             echo "Checking additional automerge criteria for minor version bump..."
 
-            # Check if golang version matches Core
             cd ../nrdot-collector-components
+
+            # Check if current version has been released
+            if ! gh release view "v$CURRENT_VERSION" &>/dev/null; then
+              NO_AUTO_MERGE_REASONS+=' previous-version-not-released'
+              echo "Current version v$CURRENT_VERSION has not been released yet"
+            else
+              echo "Current version v$CURRENT_VERSION has been released"
+            fi
+
+            # Check if golang version matches Core
             CURRENT_GO_VERSION=$(grep '^go ' go.mod | awk '{print $2}')
             echo "Current Go version: $CURRENT_GO_VERSION"
             echo "Target Go version (from Core): ${{ env.GO_VERSION }}"
