@@ -97,13 +97,10 @@ jobs:
           echo "Current minor: $CURRENT_MINOR"
           echo "Target minor: $TARGET_MINOR"
 
-          AUTOMERGE_ENABLED=false
+          NO_AUTO_MERGE_REASONS=""
 
           # Check if minor versions match (patch update)
-          if [ "$CURRENT_MINOR" == "$TARGET_MINOR" ]; then
-            echo "Minor versions match - Patch Version Updated"
-            AUTOMERGE_ENABLED=true
-          else
+          if [ "$CURRENT_MINOR" != "$TARGET_MINOR" ]; then
             echo "Minor version bump detected ($CURRENT_MINOR -> $TARGET_MINOR)"
             echo "Checking additional automerge criteria for minor version bump..."
 
@@ -113,32 +110,32 @@ jobs:
             echo "Current Go version: $CURRENT_GO_VERSION"
             echo "Target Go version (from Core): ${{ env.GO_VERSION }}"
 
+            if [ "$CURRENT_GO_VERSION" != "${{ env.GO_VERSION }}" ]; then
+              NO_AUTO_MERGE_REASONS+=' go-version-changed'
+              echo "Go version differs from Core"
+            fi
+
             # Check if changelog has new entries under "next version"
             # Extract content between <!-- next version --> and <!-- previous-version -->
             CHANGELOG_CONTENT=$(sed -n '/<!-- next version -->/,/<!-- previous-version -->/p' CHANGELOG.md | sed '1d;$d' | grep -v '^$' | grep -v '^##' || true)
 
-            if [ "$CURRENT_GO_VERSION" == "${{ env.GO_VERSION }}" ]; then
-              echo "Go version matches Core"
-
-              if [ -z "$CHANGELOG_CONTENT" ]; then
-                echo "No new changelog entries"
-                AUTOMERGE_ENABLED=true
-              else
-                echo "Changelog has new entries:"
-                echo "$CHANGELOG_CONTENT"
-              fi
-            else
-              echo "Go version differs from Core"
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              NO_AUTO_MERGE_REASONS+=' changelog-non-empty'
+              echo "Changelog has new entries:"
+              echo "$CHANGELOG_CONTENT"
             fi
+          else
+            echo "Minor versions match - Patch Version Updated"
           fi
 
           # Perform automerge if conditions are met
-          if [ "$AUTOMERGE_ENABLED" = true ]; then
+          if [ -z "$NO_AUTO_MERGE_REASONS" ]; then
             echo "Automerging PR #${{ env.PR_NUMBER }}"
             cd ../nrdot-collector-components
             gh pr ready ${{ env.PR_NUMBER }}
             gh pr merge ${{ env.PR_NUMBER }} --auto --squash
           else
+            echo "No auto merge possible due to:$NO_AUTO_MERGE_REASONS"
             echo "Manual review required for PR #${{ env.PR_NUMBER }}"
           fi
         env:
