@@ -39,21 +39,23 @@ jobs:
 
       - name: Determine version and commit
         id: determine
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
           if [ -n "${{ inputs.version }}" ]; then
             VERSION="${{ inputs.version }}"
             echo "Using provided version: $VERSION"
           else
-            PR_TITLE="${{ github.event.pull_request.title }}"
             VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
             echo "Extracted from PR title: version=$VERSION"
           fi
-          
+
           if [ -n "${{ inputs.commit }}" ]; then
             COMMIT="${{ inputs.commit }}"
             echo "Using provided commit SHA: $COMMIT"
           else
-            COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
+            COMMIT="$MERGE_COMMIT"
             echo "Using PR merge commit: $COMMIT"
           fi
 
