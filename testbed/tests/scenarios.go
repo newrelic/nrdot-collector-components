@@ -49,7 +49,7 @@ func createConfigYaml(
 	t *testing.T,
 	sender testbed.DataSender,
 	receiver testbed.DataReceiver,
-	resultDir string,
+	_ string, // resultDir: previously used for pprof CPU profile path; pprof not in binary
 	processors []ProcessorNameAndConfigBody,
 	extensions map[string]string,
 ) string {
@@ -103,6 +103,13 @@ func createConfigYaml(
 		t.Error("Invalid DataSender type")
 	}
 
+	// Build service.extensions list — zpages is always present (registered in the
+	// testbed binary); append any test-supplied extension names after it.
+	serviceExts := "zpages"
+	if extensionsList.String() != "" {
+		serviceExts = "zpages, " + extensionsList.String()
+	}
+
 	format := `
 receivers:%v
 exporters:%v
@@ -110,12 +117,14 @@ processors:
   %s
 
 extensions:
-  pprof:
-    save_to_file: %v/cpu.prof
+  zpages:
   %s
 
 service:
-  extensions: [pprof, %s]
+  telemetry:
+    metrics:
+      level: none
+  extensions: [%s]
   pipelines:
     %s:
       receivers: [%v]
@@ -129,9 +138,8 @@ service:
 		sender.GenConfigYAMLStr(),
 		receiver.GenConfigYAMLStr(),
 		processorsSections.String(),
-		resultDir,
 		extensionsSections.String(),
-		extensionsList.String(),
+		serviceExts,
 		pipeline,
 		sender.ProtocolName(),
 		processorsList.String(),

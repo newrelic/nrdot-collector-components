@@ -111,15 +111,17 @@ func (p *processorImp) handleProcessingError(ctx context.Context, md pmetric.Met
 	return p.nextConsumer.ConsumeMetrics(ctx, md)
 }
 
-// validateProcessingResults checks if processing results are valid
-func (p *processorImp) validateProcessingResults(ctx context.Context, md, filteredMetrics pmetric.Metrics, processingDuration time.Duration) error {
-	// Safety check - if processing returned zero resources but input had resources,
-	// fall back to the original metrics to ensure data keeps flowing
+// validateProcessingResults checks if processing results are valid.
+// NOTE: Zero output after successful processing is intentional and valid for a filter processor
+// (e.g. all resources were below threshold). The error-path fallback is already handled by
+// handleProcessingError before this function is called, so no second fallback is needed here.
+func (p *processorImp) validateProcessingResults(_ context.Context, md, filteredMetrics pmetric.Metrics, processingDuration time.Duration) error {
 	if filteredMetrics.ResourceMetrics().Len() == 0 && md.ResourceMetrics().Len() > 0 {
-		p.logger.Warn("Processing resulted in zero resources, falling back to original metrics",
+		p.logger.Info("Processing filtered all resources (all below threshold or no targeted metrics)",
 			zap.Int("input_resources", md.ResourceMetrics().Len()),
 			zap.Duration("processing_duration", processingDuration))
-		return p.nextConsumer.ConsumeMetrics(ctx, md)
+		// Intentional empty result — do NOT fall back to original metrics.
+		return nil
 	}
 
 	// Log metrics count after processing with detailed timing

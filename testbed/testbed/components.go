@@ -9,6 +9,7 @@
 package testbed // import "github.com/newrelic/nrdot-collector-components/testbed/testbed"
 
 import (
+	"github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor"
 	"go.opentelemetry.io/collector/connector"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/debugexporter"
@@ -53,6 +54,7 @@ func Components() (
 	processors, err := otelcol.MakeFactoryMap[processor.Factory](
 		batchprocessor.NewFactory(),
 		memorylimiterprocessor.NewFactory(),
+		adaptivetelemetryprocessor.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 
