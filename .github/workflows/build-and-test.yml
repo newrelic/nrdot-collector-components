@@ -128,7 +128,13 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
       - name: Run `govulncheck`
-        run: make -j2 gogovulncheck GROUP=${{ matrix.group }}
+        run: |
+          out=$(mktemp)
+          make -j2 gogovulncheck GROUP=${{ matrix.group }} 2>&1 | tee "$out"
+          [[ ${PIPESTATUS[0]} -eq 0 ]] && exit 0
+          new=$(comm -23 <(grep -oE 'GO-[0-9]+-[0-9]+' "$out" | sort -u) \
+                         <(grep -v '^#' .govulncheck-exceptions | sort -u))
+          [[ -z "$new" ]] || { echo "::error::New vulnerabilities found: $new"; exit 1; }
   checks:
     runs-on: ubuntu-24.04
     needs: [setup-environment]
