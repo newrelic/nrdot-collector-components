@@ -89,9 +89,21 @@ jobs:
             MAJOR=$(echo "$CURRENT" | cut -d. -f1)
             MINOR=$(echo "$CURRENT" | cut -d. -f2)
             NEXT_MINOR=$((MINOR + 1))
-            CANDIDATE="${MAJOR}.${NEXT_MINOR}.0"
+
+            # Find the highest patch version for the next minor version
+            CANDIDATE_PREFIX="${MAJOR}.${NEXT_MINOR}"
+            HIGHEST_PATCH=$(git tag -l "v${CANDIDATE_PREFIX}.*" | sed 's/^v//' | grep -v -- '-' | sort -V | tail -1)
+
+            if [ -z "$HIGHEST_PATCH" ]; then
+              # No existing tags for this minor version, start at .0
+              CANDIDATE="${CANDIDATE_PREFIX}.0"
+            else
+              # Use the latest patch version found
+              CANDIDATE="$HIGHEST_PATCH"
+            fi
+
             echo "candidate-beta=$CANDIDATE" >> $GITHUB_OUTPUT
-          
+
             echo "sync-upstream=${{ inputs.sync-upstream }}" >> $GITHUB_OUTPUT
           else
             echo "Using provided input versions"
@@ -112,3 +124,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           ./.github/workflows/scripts/release-prepare-release.sh
+
+      - name: Send notification to Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":rotating_light: prepare-release workflow failed - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} :rotating_light:"
