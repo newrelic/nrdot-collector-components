@@ -101,3 +101,12 @@ jobs:
           echo ""
           echo "Tags pushed:"
           git tag -l "*${{ steps.determine.outputs.version }}"
+
+      - name: Send notification to Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":rotating_light: push-release-tags workflow failed - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} :rotating_light:"
