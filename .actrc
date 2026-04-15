@@ -1,0 +1,9 @@
+# .actrc
+# see team onboarding docs for instructions how to build image
+-P ubuntu-24.04=act-certs
+-P ubuntu-latest=act-certs
+--container-architecture=linux/arm64
+--pull=false
+-e event.json
+--artifact-server-path $PWD/.artifacts
+--cache-server-addr host.docker.internal

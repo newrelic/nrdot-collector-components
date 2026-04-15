@@ -1,0 +1,3 @@
+.PHONY: ci
+update_otel:
+	act workflow_dispatch -W .github/workflows/update-otel.yaml
