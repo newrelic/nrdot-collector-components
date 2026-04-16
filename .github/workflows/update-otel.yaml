@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           path: nrdot-collector-components
+          fetch-tags: true
 
       - name: Check if current version has been released
         run: |
@@ -42,6 +43,7 @@ jobs:
         with:
           path: opentelemetry-collector
           repository: open-telemetry/opentelemetry-collector
+          fetch-tags: true
 
       - name: Pull the latest contrib repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -102,9 +104,9 @@ jobs:
           CURRENT_VERSION=$(grep 'version: v' versions.yaml | head -1 | awk '{print $2}' | sed 's/v//')
           echo "Current version: $CURRENT_VERSION"
 
-          # Get target version from upstream collector repo
-          cd ../opentelemetry-collector
-          TARGET_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
+          # Get target version from Go module proxy (highest published stable version)
+          TARGET_VERSION=$(cd cmd/nrdotcol && go list -m -versions go.opentelemetry.io/collector 2>/dev/null \
+            | tr ' ' '\n' | grep -v -- '-' | grep '^v[0-9]' | sort -V | tail -1 | sed 's/v//')
           echo "Target version: $TARGET_VERSION"
 
           # Parse minor versions (format: 0.147.0 -> 147)
@@ -179,7 +181,7 @@ jobs:
           %s
           ```
           </details>' "$job_url" "$(tail -n100 log.out | tail -c63K)")"
-          gh issue create -R ${{ github.repository }} -t 'update-otel workflow failed' -b "$body" -l 'ci-cd'
+          gh issue create -R ${{ github.repository }} -t 'update-otel workflow failed' -b "$body"
         env:
           GH_TOKEN: ${{ github.token }}
 

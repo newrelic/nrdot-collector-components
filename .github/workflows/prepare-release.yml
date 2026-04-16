@@ -35,10 +35,12 @@ jobs:
         with:
           repository: open-telemetry/opentelemetry-collector
           path: opentelemetry-collector
+          fetch-tags: true
 
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           path: nrdot-collector-components
+          fetch-tags: true
 
       - name: Close pending update-otel PRs
         run: |
@@ -104,12 +106,14 @@ jobs:
 
             echo "candidate-beta=$CANDIDATE" >> $GITHUB_OUTPUT
 
-            echo "sync-upstream=${{ inputs.sync-upstream }}" >> $GITHUB_OUTPUT
+            SYNC_UPSTREAM="${{ inputs.sync-upstream }}"
+            echo "sync-upstream=${SYNC_UPSTREAM:-true}" >> $GITHUB_OUTPUT
           else
             echo "Using provided input versions"
             echo "current-beta=${{ inputs.current-beta }}" >> $GITHUB_OUTPUT
             echo "candidate-beta=${{ inputs.candidate-beta }}" >> $GITHUB_OUTPUT
-            echo "sync-upstream=${{ inputs.sync-upstream }}" >> $GITHUB_OUTPUT
+            SYNC_UPSTREAM="${{ inputs.sync-upstream }}"
+            echo "sync-upstream=${SYNC_UPSTREAM:-true}" >> $GITHUB_OUTPUT
           fi
 
       - name: Prepare release
