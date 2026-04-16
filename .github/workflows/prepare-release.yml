@@ -114,7 +114,8 @@ jobs:
             echo "Using provided input versions"
             echo "current-beta=${{ inputs.current-beta }}" >> $GITHUB_OUTPUT
             echo "candidate-beta=${{ inputs.candidate-beta }}" >> $GITHUB_OUTPUT
-            echo "sync-upstream=${{ inputs.sync-upstream }}" >> $GITHUB_OUTPUT
+            SYNC_UPSTREAM="${{ inputs.sync-upstream }}"
+            echo "sync-upstream=${SYNC_UPSTREAM:-true}" >> $GITHUB_OUTPUT
           fi
 
       - name: Prepare release

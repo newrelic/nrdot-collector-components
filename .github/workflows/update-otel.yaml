@@ -104,7 +104,7 @@ jobs:
           CURRENT_VERSION=$(grep 'version: v' versions.yaml | head -1 | awk '{print $2}' | sed 's/v//')
           echo "Current version: $CURRENT_VERSION"
 
-          # Get target version from the pulled PR changes 
+          # Get target version from the pulled PR changes
           # Parse otlpexporter version from builder-config.yaml after update-otel is run
           TARGET_VERSION_FULL=$(grep 'go.opentelemetry.io/collector/exporter/otlpexporter' cmd/nrdotcol/builder-config.yaml | awk '{print $NF}' | sed 's/^v//')
 
