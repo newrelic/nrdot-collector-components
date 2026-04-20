@@ -118,19 +118,22 @@ jobs:
           fi
 
       - name: Check if branch already exists
+        id: check-branch
         working-directory: nrdot-collector-components
         run: |
           BRANCH="prepare-release-prs/${{ steps.versions.outputs.candidate-beta }}"
           echo "Checking if branch '$BRANCH' already exists..."
 
           if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            echo "Branch '$BRANCH' already exists on remote. Skipping workflow."
-            exit 0
+            echo "Branch '$BRANCH' already exists on remote. Skipping release preparation."
+            echo "should-proceed=false" >> $GITHUB_OUTPUT
           else
             echo "Branch does not exist. Proceeding with release preparation."
+            echo "should-proceed=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Prepare release
+        if: steps.check-branch.outputs.should-proceed == 'true'
         working-directory: nrdot-collector-components
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -144,7 +147,7 @@ jobs:
           ./.github/workflows/scripts/release-prepare-release.sh
 
       - name: Send notification to Slack
-        if: failure()
+        if: failure() && steps.check-branch.outputs.should-proceed == 'true'
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
