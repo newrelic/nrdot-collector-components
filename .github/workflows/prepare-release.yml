@@ -62,28 +62,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Close pending prepare-release PRs and delete branches
-        run: |
-          cd nrdot-collector-components
-          echo "Searching for open prepare-release PRs..."
-
-          # Find all open PRs with title "[chore] Prepare release"
-          OPEN_PRS=$(gh pr list --state open --search "Prepare release in:title" --json number,title,headRefName --jq '.[] | select(.title | contains("[chore] Prepare release")) | "\(.number):\(.headRefName)"')
-
-          if [ -z "$OPEN_PRS" ]; then
-            echo "No pending prepare-release PRs found"
-          else
-            echo "Found pending prepare-release PRs: $OPEN_PRS"
-            for PR_INFO in $OPEN_PRS; do
-              PR_NUMBER=$(echo "$PR_INFO" | cut -d':' -f1)
-              BRANCH_NAME=$(echo "$PR_INFO" | cut -d':' -f2)
-              echo "Closing PR #$PR_NUMBER (branch: $BRANCH_NAME)"
-              gh pr close "$PR_NUMBER" --comment "Closing this PR as a new prepare-release run is starting." --delete-branch
-            done
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
         with:
@@ -137,6 +115,19 @@ jobs:
             echo "current-beta=${{ inputs.current-beta }}" >> $GITHUB_OUTPUT
             echo "candidate-beta=${{ inputs.candidate-beta }}" >> $GITHUB_OUTPUT
             echo "sync-upstream=${{ inputs.sync-upstream }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if branch already exists
+        working-directory: nrdot-collector-components
+        run: |
+          BRANCH="prepare-release-prs/${{ steps.versions.outputs.candidate-beta }}"
+          echo "Checking if branch '$BRANCH' already exists..."
+
+          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            echo "Branch '$BRANCH' already exists on remote. Skipping workflow."
+            exit 0
+          else
+            echo "Branch does not exist. Proceeding with release preparation."
           fi
 
       - name: Prepare release
