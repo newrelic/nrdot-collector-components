@@ -9,10 +9,6 @@ on:
         required: false
         description: Release candidate version (beta, like 0.140.0)
 
-      current-beta:
-        required: false
-        description: Current version (beta, like 0.140.0)
-
       sync-upstream:
         type: boolean
         required: false
@@ -82,10 +78,11 @@ jobs:
         id: versions
         working-directory: nrdot-collector-components
         run: |
-          if [ -z "${{ inputs.candidate-beta }}" ] || [ -z "${{ inputs.current-beta }}" ]; then
+          CURRENT=$(grep 'version: v' versions.yaml | head -1 | awk '{print $2}' | sed 's/v//')
+          echo "current-beta=$CURRENT" >> $GITHUB_OUTPUT
+
+          if [ -z "${{ inputs.candidate-beta }}" ]; then
             echo "Determine release versions"
-            CURRENT=$(grep 'version: v' versions.yaml | head -1 | awk '{print $2}' | sed 's/v//')
-            echo "current-beta=$CURRENT" >> $GITHUB_OUTPUT
 
             # Increment minor version (e.g., 0.147.1 -> 0.148.0)
             MAJOR=$(echo "$CURRENT" | cut -d. -f1)
@@ -112,28 +109,48 @@ jobs:
             echo "sync-upstream=${SYNC_UPSTREAM:-true}" >> $GITHUB_OUTPUT
           else
             echo "Using provided input versions"
-            echo "current-beta=${{ inputs.current-beta }}" >> $GITHUB_OUTPUT
             echo "candidate-beta=${{ inputs.candidate-beta }}" >> $GITHUB_OUTPUT
             echo "sync-upstream=${{ inputs.sync-upstream }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check if branch already exists
-        id: check-branch
+      - name: Check release script prerequisites
+        id: check-prerequisites
         working-directory: nrdot-collector-components
         run: |
-          BRANCH="prepare-release-prs/${{ steps.versions.outputs.candidate-beta }}"
-          echo "Checking if branch '$BRANCH' already exists..."
+          CANDIDATE_BETA="${{ steps.versions.outputs.candidate-beta }}"
+          BRANCH="prepare-release-prs/${CANDIDATE_BETA}"
+          MEETS_PREREQS=true
 
+          echo "Checking if branch '${BRANCH}' already exists..."
           if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            echo "Branch '$BRANCH' already exists on remote. Skipping release preparation."
-            echo "should-proceed=false" >> $GITHUB_OUTPUT
+            echo "Branch '${BRANCH}' already exists on remote. Skipping release preparation."
+            MEETS_PREREQS=false
+            exit 0
           else
-            echo "Branch does not exist. Proceeding with release preparation."
-            echo "should-proceed=true" >> $GITHUB_OUTPUT
+            echo "Branch does not exist. Proceeding..."
           fi
 
+          if [ "$MEETS_PREREQS" = "true" ] && [ "${{ steps.versions.outputs.sync-upstream }}" = "true" ]; then
+            echo "Checking upstream version availability..."
+            CANDIDATE_MINOR=$(echo "${CANDIDATE_BETA}" | cut -d. -f1-2)
+            HIGHEST_OTEL_VERSION=$(cd cmd/nrdotcol && go list -m -versions go.opentelemetry.io/collector 2>/dev/null | tr ' ' '\n' | grep "^v${CANDIDATE_MINOR}\." | grep -v -- '-' | sort -V | tail -1)
+            if [ -z "$HIGHEST_OTEL_VERSION" ]; then
+              echo "No published version found for v${CANDIDATE_MINOR}.x on the Go module proxy. Skipping release preparation."
+              MEETS_PREREQS=false
+              exit 0
+            else
+              echo "Found upstream version: ${HIGHEST_OTEL_VERSION} . Proceeding..."
+            fi
+          fi
+
+          if [ "$MEETS_PREREQS" = "true" ]; then
+            echo "All prerequisites satisfied. Proceeding with release PR preparation."
+          fi
+
+          echo "meets-prereqs=${MEETS_PREREQS}" >> $GITHUB_OUTPUT
+
       - name: Prepare release
-        if: steps.check-branch.outputs.should-proceed == 'true'
+        if: steps.check-prerequisites.outputs.meets-prereqs == 'true'
         working-directory: nrdot-collector-components
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
