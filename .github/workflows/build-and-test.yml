@@ -311,6 +311,17 @@ jobs:
             echo "One or more matrix jobs failed."
             false
           fi
+  # When no Go source files change, GitHub's managed CodeQL analysis does not run.
+  # This job satisfies the required "CodeQL" branch protection status check in that case.
+  # always() is required so this job runs even when the changes job was skipped (e.g. Dependabot).
+  CodeQL:
+    runs-on: ubuntu-24.04
+    needs: [changes]
+    if: always() && needs.changes.outputs.src != 'true'
+    steps:
+      - name: No source changes
+        run: echo "No Go source files changed. CodeQL analysis not required."
+
   coverage:
     runs-on: ubuntu-24.04
     needs: [changes, unittest]
