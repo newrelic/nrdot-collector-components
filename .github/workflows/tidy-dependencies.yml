@@ -52,9 +52,10 @@ jobs:
           make gotidy && make gennrdotcol && make genoteltestbedcol
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git diff --exit-code || (git add . && git commit -m "go mod tidy, make gennrdotcol and make genoteltestbedcol" && git push origin HEAD:${{ github.head_ref }})
+          git diff --exit-code || (git add . && git commit -m "go mod tidy, make gennrdotcol and make genoteltestbedcol" && git push origin "HEAD:$HEAD_REF")
         env:
           GITHUB_TOKEN: ${{ secrets.OTELCOMBOT_TOKEN }}
+          HEAD_REF: ${{ github.head_ref }}
       - uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1
         with:
           labels: renovatebot
