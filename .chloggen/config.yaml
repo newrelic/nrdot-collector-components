@@ -14,7 +14,6 @@ components:
     - exporter/nop
     - internal/common
     - internal/coreinternal
-    - internal/sqlquery
     - internal/tools
     - processor/adaptivetelemetry
     - receiver/nop

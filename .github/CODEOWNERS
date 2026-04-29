@@ -23,7 +23,6 @@ cmd/oteltestbedcol/                   @newrelic/otelcomm
 exporter/nopexporter/                 @newrelic/otelcomm
 internal/common/                      @newrelic/otelcomm
 internal/coreinternal/                @newrelic/otelcomm
-internal/sqlquery/                    @newrelic/otelcomm @newrelic/dbi
 internal/tools/                       @newrelic/otelcomm
 processor/adaptivetelemetryprocessor/ @newrelic/otelcomm @newrelic/dbi @newrelic/ohai
 receiver/nopreceiver/                 @newrelic/otelcomm

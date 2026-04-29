@@ -21,7 +21,6 @@ body:
       - exporter/nop
       - internal/common
       - internal/core
-      - internal/sqlquery
       - internal/tools
       - processor/adaptivetelemetry
       - receiver/nop
