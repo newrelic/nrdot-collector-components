@@ -1,0 +1,154 @@
+name: 'Monitor upstream DB receiver changes'
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 5" # Run at 09:00 UTC on Fridays (after update-otel runs)
+
+permissions:
+  contents: read
+
+jobs:
+  check-upstream-receivers:
+    permissions:
+      issues: write # required for creating GitHub issues
+    runs-on: ubuntu-24.04
+    if: ${{ github.repository_owner == 'newrelic' }}
+
+    env:
+      # Add or remove upstream paths to monitor as the team adopts them.
+      # Includes receivers and shared internal modules that are locally copied from upstream.
+      TRACKED_PATHS: |
+        receiver/mysqlreceiver
+        receiver/oracledbreceiver
+        receiver/postgresqlreceiver
+        receiver/sqlserverreceiver
+        internal/sqlquery
+
+    steps:
+      - name: Checkout nrdot-collector-components
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          path: nrdot-collector-components
+
+      - name: Checkout upstream otel-collector-contrib
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          repository: open-telemetry/opentelemetry-collector-contrib
+          path: opentelemetry-collector-contrib
+          fetch-depth: 0 # full history needed for diff
+
+      - name: Read last synced upstream commit
+        id: last-sync
+        run: |
+          SYNC_FILE="nrdot-collector-components/.upstream-receiver-sync"
+          if [ -f "$SYNC_FILE" ]; then
+            LAST_COMMIT=$(cat "$SYNC_FILE")
+            echo "Last synced commit: $LAST_COMMIT"
+          else
+            # First run — compare against 2 weeks ago
+            LAST_COMMIT=$(git -C opentelemetry-collector-contrib rev-list -1 --before="14 days ago" HEAD)
+            echo "No sync file found. Comparing against commit 2 weeks ago: $LAST_COMMIT"
+          fi
+          echo "last_commit=$LAST_COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Check for upstream receiver changes
+        id: check-changes
+        run: |
+          CURRENT_COMMIT=$(git -C opentelemetry-collector-contrib rev-parse HEAD)
+          LAST_COMMIT="${{ steps.last-sync.outputs.last_commit }}"
+          CHANGES_FOUND=false
+          REPORT=""
+
+          for RECEIVER in $TRACKED_PATHS; do
+            RECEIVER=$(echo "$RECEIVER" | xargs) # trim whitespace
+            [ -z "$RECEIVER" ] && continue
+
+            CHANGED_FILES=$(git -C opentelemetry-collector-contrib diff --name-only "$LAST_COMMIT" "$CURRENT_COMMIT" -- "$RECEIVER" 2>/dev/null || true)
+
+            if [ -n "$CHANGED_FILES" ]; then
+              CHANGES_FOUND=true
+              COMMIT_COUNT=$(git -C opentelemetry-collector-contrib log --oneline "$LAST_COMMIT".."$CURRENT_COMMIT" -- "$RECEIVER" | wc -l | xargs)
+              REPORT="${REPORT}\n### \`$RECEIVER\` — $COMMIT_COUNT commit(s)\n"
+
+              # List changed files (skip nr_ files — those are NR-owned)
+              while IFS= read -r FILE; do
+                BASENAME=$(basename "$FILE")
+                if [[ "$BASENAME" != nr_* ]]; then
+                  REPORT="${REPORT}- \`$FILE\`\n"
+                fi
+              done <<< "$CHANGED_FILES"
+
+              # Add recent commit messages for context
+              COMMITS=$(git -C opentelemetry-collector-contrib log --oneline "$LAST_COMMIT".."$CURRENT_COMMIT" -- "$RECEIVER")
+              REPORT="${REPORT}\n**Recent commits:**\n\`\`\`\n$COMMITS\n\`\`\`\n"
+            fi
+          done
+
+          echo "changes_found=$CHANGES_FOUND" >> "$GITHUB_OUTPUT"
+          echo "current_commit=$CURRENT_COMMIT" >> "$GITHUB_OUTPUT"
+
+          # Write report to file to avoid env var size limits
+          printf "%b" "$REPORT" > /tmp/receiver-changes-report.md
+          echo "Report written to /tmp/receiver-changes-report.md"
+
+      - name: Create GitHub issue if changes detected
+        if: steps.check-changes.outputs.changes_found == 'true'
+        run: |
+          CURRENT_COMMIT="${{ steps.check-changes.outputs.current_commit }}"
+          SHORT_COMMIT="${CURRENT_COMMIT:0:7}"
+          REPORT=$(cat /tmp/receiver-changes-report.md)
+
+          ISSUE_BODY="## Upstream DB Receiver Changes Detected
+
+          The following tracked DB receivers have changed in [\`open-telemetry/opentelemetry-collector-contrib\`](https://github.com/open-telemetry/opentelemetry-collector-contrib) since the last sync.
+
+          **Upstream commit:** \`$CURRENT_COMMIT\`
+          **Compare:** https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/${{ steps.last-sync.outputs.last_commit }}...$CURRENT_COMMIT
+
+          ---
+
+          $REPORT
+
+          ---
+
+          ## Action Required
+
+          Review the changes above and determine:
+          - [ ] Are any bug fixes relevant to our copy in \`nrdot-collector-components\`?
+          - [ ] Are any new upstream metrics/scrapers we should adopt?
+          - [ ] Do any changes conflict with our \`nr_\` files or one-line hooks?
+
+          Once reviewed, update \`.upstream-receiver-sync\` with commit \`$CURRENT_COMMIT\` and close this issue."
+
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "chore: upstream DB receiver changes detected ($(date +%Y-%m-%d))" \
+            --body "$ISSUE_BODY" \
+            --label "upstream-sync"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update last synced commit on clean run
+        if: steps.check-changes.outputs.changes_found == 'false'
+        run: |
+          CURRENT_COMMIT="${{ steps.check-changes.outputs.current_commit }}"
+          echo "$CURRENT_COMMIT" > nrdot-collector-components/.upstream-receiver-sync
+          echo "No changes found. Updated sync marker to $CURRENT_COMMIT"
+
+      - name: Send Slack notification if changes detected
+        if: steps.check-changes.outputs.changes_found == 'true'
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":upstream: Upstream DB receiver changes detected in otel-collector-contrib. A GitHub issue has been created for review: https://github.com/${{ github.repository }}/issues"
+
+      - name: Send Slack notification on workflow failure
+        if: failure()
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":rotating_light: sync-upstream-db-receivers workflow failed - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} :rotating_light:"
