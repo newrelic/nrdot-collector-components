@@ -21,9 +21,11 @@ body:
       - exporter/nop
       - internal/common
       - internal/core
+      - internal/sqlquery
       - internal/tools
       - processor/adaptivetelemetry
       - receiver/nop
+      - receiver/sqlserver
       - testbed
       # End components list
   - type: checkboxes

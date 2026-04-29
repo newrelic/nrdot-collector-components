@@ -6,4 +6,5 @@
 {"name": "github.com/newrelic/nrdot-collector-components/internal/tools", "licenceType": "Apache-2.0"}
 {"name": "github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor", "licenceType": "Apache-2.0"}
 {"name": "github.com/newrelic/nrdot-collector-components/receiver/nopreceiver", "licenceType": "Apache-2.0"}
+{"name": "github.com/newrelic/nrdot-collector-components/receiver/sqlserverreceiver", "licenceType": "Apache-2.0"}
 {"name": "github.com/newrelic/nrdot-collector-components/testbed", "licenceType": "Apache-2.0"}
