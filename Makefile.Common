@@ -238,7 +238,7 @@ addthirdparty: $(LICENSE_DETECTOR) addoverrides
 		if [ -n "$$alternative_rules" ]; then \
 			rules_file=$$alternative_rules; \
 		fi; \
-		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
+		GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
 			-rules "$$rules_file" \
 			-overrides "$(NOTICE_OVERRIDES_FILE)" \
 			-noticeTemplate $(SRC_ROOT)/internal/assets/license/THIRD_PARTY_NOTICES.tmpl \
