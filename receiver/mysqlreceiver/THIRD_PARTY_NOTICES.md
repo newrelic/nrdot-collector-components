@@ -52,7 +52,15 @@ Distributed under the following license(s):
 
 
 
-## [github.com/open-telemetry/opentelemetry-collector-contrib/internal/common](https://github.com/open-telemetry/opentelemetry-collector-contrib)
+## [github.com/newrelic/nrdot-collector-components/internal/common](https://github.com/newrelic/nrdot-collector-components)
+
+Distributed under the following license(s):
+
+* Apache-2.0
+
+
+
+## [github.com/newrelic/nrdot-collector-components/internal/coreinternal](https://github.com/newrelic/nrdot-collector-components)
 
 Distributed under the following license(s):
 
