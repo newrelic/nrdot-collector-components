@@ -1,9 +1,4 @@
-// Copyright The OpenTelemetry Authors
-// Modifications copyright New Relic, Inc.
-//
-// Modifications can be found at the following URL:
-// https://github.com/newrelic/nrdot-collector-components/commits/main/client_test.go?since=2025-11-26
-//
+// Copyright New Relic, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package mysqlreceiver
