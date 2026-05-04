@@ -92,6 +92,14 @@ Distributed under the following license(s):
 
 
 
+## [github.com/testcontainers/testcontainers-go](https://github.com/testcontainers/testcontainers-go)
+
+Distributed under the following license(s):
+
+* MIT
+
+
+
 ## [go.opentelemetry.io/collector/component](https://go.opentelemetry.io/collector/component)
 
 Distributed under the following license(s):
