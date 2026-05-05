@@ -6,7 +6,7 @@ require (
 	github.com/fluent/fluent-logger-golang v1.10.1
 	github.com/newrelic/nrdot-collector-components/internal/common v0.150.0
 	github.com/newrelic/nrdot-collector-components/internal/coreinternal v0.150.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.150.0
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.151.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.150.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/testbed v0.150.0
 	github.com/shirou/gopsutil/v4 v4.26.3
@@ -30,7 +30,7 @@ require (
 	go.opentelemetry.io/collector/extension v1.56.0
 	go.opentelemetry.io/collector/extension/zpagesextension v0.150.0
 	go.opentelemetry.io/collector/otelcol v0.150.0
-	go.opentelemetry.io/collector/pdata v1.56.0
+	go.opentelemetry.io/collector/pdata v1.57.0
 	go.opentelemetry.io/collector/pipeline v1.56.0
 	go.opentelemetry.io/collector/processor v1.56.0
 	go.opentelemetry.io/collector/processor/batchprocessor v0.150.0
@@ -377,7 +377,7 @@ require (
 	go.opentelemetry.io/collector/extension/extensionmiddleware v0.150.0 // indirect
 	go.opentelemetry.io/collector/extension/extensiontest v0.150.0 // indirect
 	go.opentelemetry.io/collector/extension/xextension v0.150.0 // indirect
-	go.opentelemetry.io/collector/featuregate v1.56.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.57.0 // indirect
 	go.opentelemetry.io/collector/internal/componentalias v0.150.0 // indirect
 	go.opentelemetry.io/collector/internal/fanoutconsumer v0.150.0 // indirect
 	go.opentelemetry.io/collector/internal/memorylimiter v0.150.0 // indirect
