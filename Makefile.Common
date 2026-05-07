@@ -238,7 +238,7 @@ addthirdparty: $(LICENSE_DETECTOR) addoverrides
 		if [ -n "$$alternative_rules" ]; then \
 			rules_file=$$alternative_rules; \
 		fi; \
-		$(GOCMD) -C $$dir list -mod=mod -tags=windows,integration -m -json all | $(LICENSE_DETECTOR) \
+		$(GOCMD) -C $$dir list -mod=mod -m -json all | $(LICENSE_DETECTOR) \
 			-rules "$$rules_file" \
 			-overrides "$(NOTICE_OVERRIDES_FILE)" \
 			-noticeTemplate $(SRC_ROOT)/internal/assets/license/THIRD_PARTY_NOTICES.tmpl \
@@ -307,6 +307,12 @@ endif
 
 .PHONY: lint
 lint: $(LINT) checklicense misspell
+	$(LINT) run
+
+# lint-no-checklicense skips the license check. Used on Windows CI runners where
+# go list prunes build-tag-constrained modules, causing false THIRD_PARTY_NOTICES.md diffs.
+.PHONY: lint-no-checklicense
+lint-no-checklicense: $(LINT) misspell
 	$(LINT) run
 
 .PHONY: govulncheck

@@ -76,23 +76,7 @@ Distributed under the following license(s):
 
 
 
-## [github.com/open-telemetry/opentelemetry-collector-contrib/pkg/winperfcounters](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/stretchr/testify](https://github.com/stretchr/testify)
-
-Distributed under the following license(s):
-
-* MIT
-
-
-
-## [github.com/testcontainers/testcontainers-go](https://github.com/testcontainers/testcontainers-go)
 
 Distributed under the following license(s):
 
