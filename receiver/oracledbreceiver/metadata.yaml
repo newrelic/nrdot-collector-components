@@ -1,5 +1,5 @@
 display_name: Oracle DB Receiver
-type: oracledb
+type: nroracledb
 
 description: |
   This receiver periodically queries an Oracle Database host to collect metrics.
