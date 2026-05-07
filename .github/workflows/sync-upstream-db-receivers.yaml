@@ -104,7 +104,6 @@ jobs:
         if: steps.check-changes.outputs.changes_found == 'true'
         run: |
           CURRENT_COMMIT="${{ steps.check-changes.outputs.current_commit }}"
-          SHORT_COMMIT="${CURRENT_COMMIT:0:7}"
           REPORT=$(cat /tmp/receiver-changes-report.md)
 
           ISSUE_BODY="## Upstream DB Receiver Changes Detected

@@ -25,7 +25,7 @@ body:
       - internal/tools
       - processor/adaptivetelemetry
       - receiver/nop
-      - receiver/nrsqlserver
+      - receiver/sqlserver
       - testbed
       # End components list
   - type: checkboxes
