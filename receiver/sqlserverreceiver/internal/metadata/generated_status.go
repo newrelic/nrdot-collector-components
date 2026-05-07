@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	Type      = component.MustNewType("sqlserver")
+	Type      = component.MustNewType("nrsqlserver")
 	ScopeName = "github.com/newrelic/nrdot-collector-components/receiver/sqlserverreceiver"
 )
 

@@ -1328,7 +1328,7 @@ func (ms *SqlserverUserConnectionCountMetricConfig) Unmarshal(parser *confmap.Co
 	return nil
 }
 
-// MetricsConfig provides config for sqlserver metrics.
+// MetricsConfig provides config for nrsqlserver metrics.
 type MetricsConfig struct {
 	SqlserverBatchRequestRate                   SqlserverBatchRequestRateMetricConfig                   `mapstructure:"sqlserver.batch.request.rate"`
 	SqlserverBatchSQLCompilationRate            SqlserverBatchSQLCompilationRateMetricConfig            `mapstructure:"sqlserver.batch.sql_compilation.rate"`
@@ -1578,7 +1578,7 @@ func (ec *EventConfig) Unmarshal(parser *confmap.Conf) error {
 	return nil
 }
 
-// EventsConfig provides config for sqlserver events.
+// EventsConfig provides config for nrsqlserver events.
 type EventsConfig struct {
 	DbServerQuerySample EventConfig `mapstructure:"db.server.query_sample"`
 	DbServerTopQuery    EventConfig `mapstructure:"db.server.top_query"`
@@ -1628,7 +1628,7 @@ func (rac *ResourceAttributeConfig) Unmarshal(parser *confmap.Conf) error {
 	return nil
 }
 
-// ResourceAttributesConfig provides config for sqlserver resource attributes.
+// ResourceAttributesConfig provides config for nrsqlserver resource attributes.
 type ResourceAttributesConfig struct {
 	HostName              ResourceAttributeConfig `mapstructure:"host.name"`
 	ServerAddress         ResourceAttributeConfig `mapstructure:"server.address"`
@@ -1665,7 +1665,7 @@ func DefaultResourceAttributesConfig() ResourceAttributesConfig {
 	}
 }
 
-// MetricsBuilderConfig is a configuration for sqlserver metrics builder.
+// MetricsBuilderConfig is a configuration for nrsqlserver metrics builder.
 type MetricsBuilderConfig struct {
 	Metrics            MetricsConfig            `mapstructure:"metrics"`
 	ResourceAttributes ResourceAttributesConfig `mapstructure:"resource_attributes"`
@@ -1678,7 +1678,7 @@ func DefaultMetricsBuilderConfig() MetricsBuilderConfig {
 	}
 }
 
-// LogsBuilderConfig is a configuration for sqlserver logs builder.
+// LogsBuilderConfig is a configuration for nrsqlserver logs builder.
 type LogsBuilderConfig struct {
 	Events             EventsConfig             `mapstructure:"events"`
 	ResourceAttributes ResourceAttributesConfig `mapstructure:"resource_attributes"`

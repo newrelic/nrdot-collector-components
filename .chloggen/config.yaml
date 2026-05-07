@@ -18,5 +18,5 @@ components:
     - internal/tools
     - processor/adaptivetelemetry
     - receiver/nop
-    - receiver/sqlserver
+    - receiver/nrsqlserver
     - testbed
