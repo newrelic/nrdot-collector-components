@@ -30,7 +30,7 @@ func TestRoundTripperAppendsUseCaseToExistingUserAgent(t *testing.T) {
 	rt, err := ext.RoundTripper(mock)
 	require.NoError(t, err)
 
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	req, err := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
 	require.NoError(t, err)
 	req.Header.Set("User-Agent", "existing-agent")
 
@@ -50,7 +50,7 @@ func TestRoundTripperSetsUseCaseWhenNoUserAgent(t *testing.T) {
 	rt, err := ext.RoundTripper(mock)
 	require.NoError(t, err)
 
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	req, err := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
 	require.NoError(t, err)
 
 	_, err = rt.RoundTrip(req)
@@ -69,7 +69,7 @@ func TestRoundTripperSkipsEmptyUseCase(t *testing.T) {
 	rt, err := ext.RoundTripper(mock)
 	require.NoError(t, err)
 
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	req, err := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
 	require.NoError(t, err)
 	req.Header.Set("User-Agent", "existing-agent")
 
