@@ -37,6 +37,17 @@
       "enabled": false
     },
     {
+      "description": "OpenTelemetry collector core and contrib modules are managed by the update-otel workflow",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchPackageNames": [
+        "go.opentelemetry.io/collector{/,}**",
+        "github.com/open-telemetry/opentelemetry-collector-contrib{/,}**"
+      ],
+      "enabled": false
+    },
+    {
       "matchManagers": [
         "gomod"
       ],
