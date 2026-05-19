@@ -3,6 +3,7 @@ cmd/codecovgen cmd/codecovgen
 cmd/nrdotcol cmd/nrdotcol
 cmd/oteltestbedcol cmd/oteltestbedcol
 exporter/nopexporter exporter/nop
+extension/usecasesetterextension extension/usecasesetter
 internal/common internal/common
 internal/coreinternal internal/core
 internal/tools internal/tools
