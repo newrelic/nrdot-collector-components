@@ -5,7 +5,7 @@ on:
     inputs:
       version:
         description: 'Version to tag (e.g., 0.140.0 - without v prefix)'
-        required: false
+        required: true
         type: string
       commit:
         description: 'Optional: Commit SHA to tag'

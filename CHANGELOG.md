@@ -7,6 +7,22 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
 
 <!-- next version -->
 
+## v0.150.0
+
+<!-- previous-version -->
+
+## v0.149.0
+
+### 💡 Enhancements 💡
+
+- `processor/adaptivetelemetry`: Enable non-sudo installation by implementing intelligent storage path selection with XDG support on Linux/Unix/macOS systems (#189)
+  The processor now tries XDG state directory (~/.local/state/nrdot-collector) first, enabling installation without root privileges.
+  Falls back to /var/lib/nrdot-collector for systemd/Docker/Kubernetes deployments.
+  Storage is gracefully disabled if neither path is writable.
+  
+
+<!-- previous-version -->
+
 ## v0.148.0
 
 <!-- previous-version -->

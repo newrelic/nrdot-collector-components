@@ -31,4 +31,4 @@ testbed/                              @newrelic/otelcomm
 # End components list
 
 # Changelog ownership for components
-.chloggen/atp_*.yaml        @newrelic/dbi @newrelic/ohai
+.chloggen/atp_*.yaml        @newrelic/otelcomm @newrelic/dbi @newrelic/ohai

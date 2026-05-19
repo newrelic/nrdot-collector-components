@@ -37,6 +37,17 @@
       "enabled": false
     },
     {
+      "description": "OpenTelemetry collector core and contrib modules are managed by the update-otel workflow",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchPackageNames": [
+        "go.opentelemetry.io/collector{/,}**",
+        "github.com/open-telemetry/opentelemetry-collector-contrib{/,}**"
+      ],
+      "enabled": false
+    },
+    {
       "matchManagers": [
         "gomod"
       ],
@@ -88,55 +99,6 @@
       "groupName": "All go.opentelemetry.io/build-tools packages",
       "matchPackageNames": [
         "go.opentelemetry.io/build-tools{/,}**"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "groupName": "All go.opentelemetry.io/otel packages",
-      "matchSourceUrls": [
-        "https://go.opentelemetry.io/otel{/,}**"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector"
-      ],
-      "groupName": "All OpenTelemetry Collector dev packages",
-      "matchUpdateTypes": [
-        "digest"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector"
-      ],
-      "groupName": "All OpenTelemetry Collector packages",
-      "matchUpdateTypes": [
-        "major",
-        "minor",
-        "patch"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector-contrib"
-      ],
-      "groupName": "All OpenTelemetry Collector Contrib packages",
-      "matchUpdateTypes": [
-        "major",
-        "minor",
-        "patch"
       ]
     },
     {
