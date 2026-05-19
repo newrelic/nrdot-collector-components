@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package usecasesetterextension // import "github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension"
+package usecasesetterextension // import "github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension"
 
 import (
 	"errors"

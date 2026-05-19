@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension
+module github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension
 
 go 1.25.0
 

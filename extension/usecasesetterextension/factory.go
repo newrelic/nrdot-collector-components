@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package usecasesetterextension // import "github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension"
+package usecasesetterextension // import "github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension"
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/extension"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension/internal/metadata"
 )
 
 // NewFactory creates a factory for the use case setter extension.

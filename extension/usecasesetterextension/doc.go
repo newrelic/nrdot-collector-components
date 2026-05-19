@@ -3,4 +3,4 @@
 
 //go:generate mdatagen metadata.yaml
 
-package usecasesetterextension // import "github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension"
+package usecasesetterextension // import "github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension"

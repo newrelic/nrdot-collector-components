@@ -8,7 +8,7 @@ import (
 
 var (
 	Type      = component.MustNewType("usecase_setter")
-	ScopeName = "github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension"
+	ScopeName = "github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension"
 )
 
 const (

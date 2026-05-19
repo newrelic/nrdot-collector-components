@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/collector/confmap/confmaptest"
 	"go.opentelemetry.io/collector/confmap/xconfmap"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension/internal/metadata"
+	"github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension/internal/metadata"
 )
 
 func TestLoadConfig(t *testing.T) {
