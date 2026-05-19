@@ -31,6 +31,10 @@ component_management:
     name: exporter_nop
     paths:
     - exporter/nopexporter/**
+  - component_id: extension_usecasesetter
+    name: extension_usecasesetter
+    paths:
+    - extension/usecasesetterextension/**
   - component_id: processor_adaptivetelemetry
     name: processor_adaptivetelemetry
     paths:
