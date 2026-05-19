@@ -11,6 +11,7 @@ dist:
 
 extensions:
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.150.0
+  - gomod: github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension v0.142.1
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.150.0
