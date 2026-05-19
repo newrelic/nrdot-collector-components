@@ -31,7 +31,7 @@ require (
 	go.opentelemetry.io/collector/extension/zpagesextension v0.150.0
 	go.opentelemetry.io/collector/otelcol v0.150.0
 	go.opentelemetry.io/collector/pdata v1.56.0
-	go.opentelemetry.io/collector/pipeline v1.56.0
+	go.opentelemetry.io/collector/pipeline v1.58.0
 	go.opentelemetry.io/collector/processor v1.56.0
 	go.opentelemetry.io/collector/processor/batchprocessor v0.150.0
 	go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.150.0
