@@ -1,0 +1,148 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
+
+package usecasesetterextension
+
+import (
+	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/confmap/confmaptest"
+	"go.opentelemetry.io/collector/confmap/xconfmap"
+
+	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/usecasesetterextension/internal/metadata"
+)
+
+func TestLoadConfig(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		id            component.ID
+		expected      component.Config
+		expectedError error
+	}{
+		{
+			id:            component.NewIDWithName(metadata.Type, ""),
+			expectedError: errMissingUseCaseConfig,
+		},
+		{
+			id: component.NewIDWithName(metadata.Type, "1"),
+			expected: &Config{
+				UseCaseConfig: &UseCaseConfig{
+					FromContext:  stringp("tenant_id"),
+					DefaultValue: opaquep("some_id"),
+				},
+			},
+		},
+		{
+			id: component.NewIDWithName(metadata.Type, "2"),
+			expected: &Config{
+				UseCaseConfig: &UseCaseConfig{
+					Value: stringp("static_value"),
+				},
+			},
+		},
+		{
+			id: component.NewIDWithName(metadata.Type, "3"),
+			expected: &Config{
+				UseCaseConfig: &UseCaseConfig{
+					FromContext: stringp("tenant_id"),
+				},
+			},
+		},
+		{
+			id: component.NewIDWithName(metadata.Type, "4"),
+			expected: &Config{
+				UseCaseConfig: &UseCaseConfig{
+					FromAttribute: stringp("attr_key"),
+				},
+			},
+		},
+		{
+			id:            component.NewIDWithName(metadata.Type, "5"),
+			expectedError: errConflictingSources,
+		},
+		{
+			id:            component.NewIDWithName(metadata.Type, "6"),
+			expectedError: errMissingSource,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.id.String(), func(t *testing.T) {
+			cm, err := confmaptest.LoadConf(filepath.Join("testdata", "config.yaml"))
+			require.NoError(t, err)
+			factory := NewFactory()
+			cfg := factory.CreateDefaultConfig()
+			sub, err := cm.Sub(tt.id.String())
+
+			require.NoError(t, err)
+			require.NoError(t, sub.Unmarshal(cfg))
+
+			if tt.expectedError != nil {
+				assert.ErrorIs(t, xconfmap.Validate(cfg), tt.expectedError)
+				return
+			}
+			assert.NoError(t, xconfmap.Validate(cfg))
+			assert.Equal(t, tt.expected, cfg)
+		})
+	}
+}
+
+func TestValidateConfig(t *testing.T) {
+	tests := []struct {
+		name        string
+		usecase     *UseCaseConfig
+		expectedErr error
+	}{
+		{
+			name:        "use case value from config property",
+			usecase:     &UseCaseConfig{Value: stringp("from config")},
+			expectedErr: nil,
+		},
+		{
+			name:        "use case value from context",
+			usecase:     &UseCaseConfig{FromContext: stringp("from context")},
+			expectedErr: nil,
+		},
+		{
+			name:        "use case value from attribute",
+			usecase:     &UseCaseConfig{FromAttribute: stringp("attr_key")},
+			expectedErr: nil,
+		},
+		{
+			name: "use case value from context and value",
+			usecase: &UseCaseConfig{
+				Value:       stringp("from config"),
+				FromContext: stringp("from context"),
+			},
+			expectedErr: errConflictingSources,
+		},
+		{
+			name:        "use case source is missing",
+			usecase:     &UseCaseConfig{},
+			expectedErr: errMissingSource,
+		},
+		{
+			name: "use case value from context with default value",
+			usecase: &UseCaseConfig{
+				FromContext:  stringp("from context"),
+				DefaultValue: opaquep("default"),
+			},
+			expectedErr: nil,
+		},
+		{
+			name:        "use case configuration is missing",
+			usecase:     nil,
+			expectedErr: errMissingUseCaseConfig,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := Config{UseCaseConfig: tt.usecase}
+			require.ErrorIs(t, cfg.Validate(), tt.expectedErr)
+		})
+	}
+}
