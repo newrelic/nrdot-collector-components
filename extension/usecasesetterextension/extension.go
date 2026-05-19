@@ -13,9 +13,7 @@ import (
 	"github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension/internal/source"
 )
 
-var (
-	_ extension.Extension = (*useCaseSetterExtension)(nil)
-)
+var _ extension.Extension = (*useCaseSetterExtension)(nil)
 
 type useCaseSetterExtension struct {
 	component.StartFunc
