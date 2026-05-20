@@ -26,7 +26,7 @@ type testAuth struct {
 }
 
 func (a testAuth) GetAttribute(s string) any   { return a.attrs[s] }
-func (a testAuth) GetAttributeNames() []string { return nil }
+func (_ testAuth) GetAttributeNames() []string { return nil }
 
 // newTestRT creates a round tripper from the given source config and returns
 // it alongside the mock transport so callers can inspect the forwarded request.
