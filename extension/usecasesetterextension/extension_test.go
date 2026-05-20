@@ -64,6 +64,11 @@ func TestNewUseCaseSetterExtension(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:      "nil use case config returns error",
+			cfg:       &Config{},
+			expectErr: true,
+		},
 	}
 
 	for _, tt := range tests {

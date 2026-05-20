@@ -19,7 +19,7 @@ func (a authData) GetAttribute(s string) any {
 }
 
 func (a authData) GetAttributeNames() []string {
-	keys := make([]string, len(a.attrs))
+	keys := make([]string, 0, len(a.attrs))
 	for key := range a.attrs {
 		keys = append(keys, key)
 	}
@@ -52,6 +52,19 @@ func TestAttributeSourceSuccessStruct(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.JSONEq(t, "{\"Foo\":\"bar\"}", val)
+}
+
+func TestAttributeSourceMarshalError(t *testing.T) {
+	ts := &AttributeSource{Key: "X-Scope-OrgID"}
+	cl := client.FromContext(t.Context())
+	// channels cannot be marshaled to JSON, triggering the error path
+	cl.Auth = authData{attrs: map[string]any{"X-Scope-OrgID": make(chan int)}}
+	ctx := client.NewContext(t.Context(), cl)
+
+	val, err := ts.Get(ctx)
+
+	assert.Error(t, err)
+	assert.Empty(t, val)
 }
 
 func TestAttributeSourceNotFound(t *testing.T) {
