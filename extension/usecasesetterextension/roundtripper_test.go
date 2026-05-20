@@ -25,7 +25,7 @@ type testAuth struct {
 	attrs map[string]any
 }
 
-func (a testAuth) GetAttribute(s string) any   { return a.attrs[s] }
+func (a testAuth) GetAttribute(s string) any { return a.attrs[s] }
 func (testAuth) GetAttributeNames() []string { return nil }
 
 // newTestRT creates a round tripper from the given source config and returns
