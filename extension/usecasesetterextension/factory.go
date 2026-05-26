@@ -8,17 +8,15 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/extension"
-
-	"github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension/internal/metadata"
 )
 
 // NewFactory creates a factory for the use case setter extension.
 func NewFactory() extension.Factory {
 	return extension.NewFactory(
-		metadata.Type,
+		component.MustNewType("usecase_setter"),
 		createDefaultConfig,
 		createExtension,
-		metadata.ExtensionStability,
+		component.StabilityLevelBeta,
 	)
 }
 

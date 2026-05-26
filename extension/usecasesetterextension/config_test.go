@@ -12,8 +12,6 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap/confmaptest"
 	"go.opentelemetry.io/collector/confmap/xconfmap"
-
-	"github.com/newrelic/nrdot-collector-components/extension/usecasesetterextension/internal/metadata"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -25,11 +23,11 @@ func TestLoadConfig(t *testing.T) {
 		expectedError error
 	}{
 		{
-			id:            component.NewIDWithName(metadata.Type, ""),
+			id:            component.NewIDWithName(component.MustNewType("usecase_setter"), ""),
 			expectedError: errMissingUseCaseConfig,
 		},
 		{
-			id: component.NewIDWithName(metadata.Type, "1"),
+			id: component.NewIDWithName(component.MustNewType("usecase_setter"), "1"),
 			expected: &Config{
 				UseCaseConfig: &UseCaseConfig{
 					FromContext:  stringp("tenant_id"),
@@ -38,7 +36,7 @@ func TestLoadConfig(t *testing.T) {
 			},
 		},
 		{
-			id: component.NewIDWithName(metadata.Type, "2"),
+			id: component.NewIDWithName(component.MustNewType("usecase_setter"), "2"),
 			expected: &Config{
 				UseCaseConfig: &UseCaseConfig{
 					Value: stringp("static_value"),
@@ -46,7 +44,7 @@ func TestLoadConfig(t *testing.T) {
 			},
 		},
 		{
-			id: component.NewIDWithName(metadata.Type, "3"),
+			id: component.NewIDWithName(component.MustNewType("usecase_setter"), "3"),
 			expected: &Config{
 				UseCaseConfig: &UseCaseConfig{
 					FromContext: stringp("tenant_id"),
@@ -54,7 +52,7 @@ func TestLoadConfig(t *testing.T) {
 			},
 		},
 		{
-			id: component.NewIDWithName(metadata.Type, "4"),
+			id: component.NewIDWithName(component.MustNewType("usecase_setter"), "4"),
 			expected: &Config{
 				UseCaseConfig: &UseCaseConfig{
 					FromAttribute: stringp("attr_key"),
@@ -62,11 +60,11 @@ func TestLoadConfig(t *testing.T) {
 			},
 		},
 		{
-			id:            component.NewIDWithName(metadata.Type, "5"),
+			id:            component.NewIDWithName(component.MustNewType("usecase_setter"), "5"),
 			expectedError: errConflictingSources,
 		},
 		{
-			id:            component.NewIDWithName(metadata.Type, "6"),
+			id:            component.NewIDWithName(component.MustNewType("usecase_setter"), "6"),
 			expectedError: errMissingSource,
 		},
 	}

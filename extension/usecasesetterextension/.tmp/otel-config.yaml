@@ -1,0 +1,29 @@
+extensions:
+  usecase_setter:
+    usecase:
+      value: "my-use-case"
+
+receivers:
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      memory:
+      load:
+      filesystem:
+
+exporters:
+  otlphttp:
+    endpoint: ${env:OTEL_EXPORTER_OTLP_ENDPOINT}
+    headers:
+      api-key: ${env:NEW_RELIC_LICENSE_KEY}
+    auth:
+      authenticator: usecase_setter
+  debug:
+    verbosity: detailed
+
+service:
+  extensions: [usecase_setter]
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      exporters: [otlphttp, debug]
