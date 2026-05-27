@@ -124,7 +124,7 @@ gogci:
 	$(MAKE) $(FOR_GROUP_TARGET) TARGET="gci"
 
 .PHONY: tidylist
-tidylist: $(CROSSLINK)
+tidylist:
 	cd internal/tidylist && \
 	$(CROSSLINK) tidylist \
 		--validate \
@@ -197,7 +197,7 @@ gogovulncheck:
 	$(MAKE) $(FOR_GROUP_TARGET) TARGET="govulncheck"
 
 .PHONY: goporto
-goporto: $(PORTO)
+goporto:
 	$(PORTO) -w --include-internal --skip-dirs "^cmd$$" ./
 
 .PHONY: for-all
@@ -220,7 +220,7 @@ COMMIT?=HEAD
 MODSET?=contrib-core
 REMOTE?=git@github.com:open-telemetry/opentelemetry-collector-contrib.git
 .PHONY: push-tags
-push-tags: $(MULTIMOD)
+push-tags:
 	$(MULTIMOD) verify
 	set -e; for tag in `$(MULTIMOD) tag -m ${MODSET} -c ${COMMIT} --print-tags | grep -v "Using" `; do \
 		echo "pushing tag $${tag}"; \
@@ -305,14 +305,14 @@ docker-golden:
 
 
 .PHONY: gengithub
-gengithub: $(GITHUBGEN)
+gengithub:
 	$(GITHUBGEN) -default-codeowner "@newrelic/otelcomm" -github-org "newrelic"
 
 .PHONY: gendistributions
-gendistributions: $(GITHUBGEN)
+gendistributions:
 	$(GITHUBGEN) distributions
 
-gencodecov: $(CODECOVGEN)
+gencodecov:
 	$(CODECOVGEN) --base-prefix github.com/newrelic/nrdot-collector-components --skipped-modules **/*test,**/examples/**,pkg/**,cmd/**,internal/**,*/encoding/**
 
 .PHONY: update-codeowners
@@ -347,28 +347,28 @@ endif
 	$(MAKE) fix-readme-links
 
 .PHONY: generate-chloggen-components
-generate-chloggen-components: $(GITHUBGEN)
+generate-chloggen-components:
 	$(GITHUBGEN) chloggen-components
 
 FILENAME?=$(shell git branch --show-current)
 .PHONY: chlog-new
-chlog-new: $(CHLOGGEN)
+chlog-new:
 	$(CHLOGGEN) new --config $(CHLOGGEN_CONFIG) --filename $(FILENAME)
 
 .PHONY: chlog-validate
-chlog-validate: $(CHLOGGEN)
+chlog-validate:
 	$(CHLOGGEN) validate --config $(CHLOGGEN_CONFIG)
 
 .PHONY: chlog-preview
-chlog-preview: $(CHLOGGEN)
+chlog-preview:
 	$(CHLOGGEN) update --config $(CHLOGGEN_CONFIG) --dry
 
 .PHONY: chlog-update
-chlog-update: $(CHLOGGEN)
+chlog-update:
 	$(CHLOGGEN) update --config $(CHLOGGEN_CONFIG) --version $(VERSION)
 
 .PHONY: gennrdotcol
-gennrdotcol: $(BUILDER)
+gennrdotcol:
 	./internal/buildscripts/ocb-add-replaces.sh nrdotcol
 	$(BUILDER) --skip-compilation --config cmd/nrdotcol/builder-config-replaced.yaml
 
@@ -385,7 +385,7 @@ nrdotcollite: gennrdotcol
 		-tags $(GO_BUILD_TAGS) -ldflags $(GO_BUILD_LDFLAGS) .
 
 .PHONY: genoteltestbedcol
-genoteltestbedcol: $(BUILDER)
+genoteltestbedcol:
 	./internal/buildscripts/ocb-add-replaces.sh oteltestbedcol
 	$(BUILDER) --skip-compilation --config cmd/oteltestbedcol/builder-config-replaced.yaml
 
@@ -451,7 +451,7 @@ endif
 	@./.github/workflows/scripts/update-golang.sh -v $(VERSION)
 
 .PHONY: update-otel
-update-otel:$(MULTIMOD)
+update-otel:
 	# Make sure cmd/nrdotcol/go.mod and cmd/oteltestbedcol/go.mod are present
 	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
@@ -603,7 +603,7 @@ check-builder-integration:
 	done
 
 .PHONY: checkapi
-checkapi: $(CHECKAPI)
+checkapi:
 	$(CHECKAPI) -folder . -config .checkapi.yaml
 
 .PHONY: kind-ready
@@ -660,22 +660,22 @@ certs:
 	$(foreach dir, $(CERT_DIRS), $(call exec-command, @internal/buildscripts/gen-certs.sh -o $(dir)))
 
 .PHONY: multimod-verify
-multimod-verify: $(MULTIMOD)
+multimod-verify:
 	@echo "Validating versions.yaml"
 	$(MULTIMOD) verify
 
 .PHONY: multimod-prerelease
-multimod-prerelease: $(MULTIMOD)
+multimod-prerelease:
 	$(MULTIMOD) prerelease -s=true -b=false -v ./versions.yaml -m beta
 	$(MAKE) gotidy
 
 .PHONY: multimod-sync
-multimod-sync: $(MULTIMOD)
+multimod-sync:
 	$(MULTIMOD) sync -a=true -s=true -o ../opentelemetry-collector
 	$(MAKE) gotidy
 
 .PHONY: crosslink
-crosslink: $(CROSSLINK)
+crosslink:
 	@echo "Executing crosslink"
 	$(CROSSLINK) --root=$(shell pwd) --prune
 
@@ -702,7 +702,7 @@ clean-cols:
 	cd cmd/oteltestbedcol && git clean -fX
 
 .PHONY: generate-gh-issue-templates
-generate-gh-issue-templates: $(GITHUBGEN)
+generate-gh-issue-templates:
 	$(GITHUBGEN) issue-templates
 
 .PHONY: checks

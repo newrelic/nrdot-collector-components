@@ -233,7 +233,7 @@ benchmark:
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: addlicense
-addlicense: $(NRLICENSE) addthirdparty
+addlicense: addthirdparty
 	@echo "Adding/updating license headers with nrlicense..."
 	@$(NRLICENSE) --fix --fork-commit 51061db5838300734ff23888e2396263f61146d9 $$($(ALL_SRC_AND_SHELL_CMD))
 
@@ -253,7 +253,7 @@ addoverrides:
 	popd
 
 .PHONY: addthirdparty
-addthirdparty: $(LICENSE_DETECTOR) addoverrides
+addthirdparty: addoverrides
 	@echo "Generating third-party notices..."
 	@rules_file="$(SRC_ROOT)/internal/assets/license/rules.json"; \
 	for dir in $$($(ALL_GO_MOD_DIR_CMD)); do \
@@ -271,7 +271,7 @@ addthirdparty: $(LICENSE_DETECTOR) addoverrides
 	done
 
 .PHONY: checklicense
-checklicense: $(NRLICENSE) addthirdparty
+checklicense: addthirdparty
 	@echo "Checking third party notices..."
 	@(git diff --name-only; git ls-files --others --exclude-standard) | grep -q -e "THIRD_PARTY_NOTICES.md" -e "overrides.jsonl" && { \
 		echo "Third party notices or overrides out of date, please run \"make addlicense\" and commit the changes in this PR."; \
@@ -298,7 +298,7 @@ fmt:
 	$(GOIMPORTS) -w -local github.com/newrelic/nrdot-collector-components ./
 
 .PHONY: generate-tools
-generate-tools: $(MDATAGEN) $(GENQLIENT)
+generate-tools:
 ifeq ($(GOOS),windows)
 	@echo Adding "exe" extensions to generate tools
 	@for f in $^; do \
