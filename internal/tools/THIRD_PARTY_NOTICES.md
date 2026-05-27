@@ -188,14 +188,6 @@ Distributed under the following license(s):
 
 
 
-## [golang.org/x/tools/gopls](https://golang.org/x/tools/gopls)
-
-Distributed under the following license(s):
-
-* BSD-3-Clause
-
-
-
 ## [golang.org/x/vuln](https://golang.org/x/vuln)
 
 Distributed under the following license(s):
