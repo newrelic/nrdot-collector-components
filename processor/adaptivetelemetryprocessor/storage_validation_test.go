@@ -335,7 +335,8 @@ func TestGetAllowedStorageDirectory(t *testing.T) {
 		if allowedDir != "" {
 			assert.Contains(t, allowedDir, "nrdot-collector", "Path should contain nrdot-collector")
 			assert.True(t, filepath.IsAbs(allowedDir), "Path should be absolute")
-			assert.True(t,
+			assert.True(
+				t,
 				strings.HasSuffix(allowedDir, "/"),
 				"Path should end with /",
 			)

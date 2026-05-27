@@ -20,7 +20,8 @@ func NewFactory() receiver.Factory {
 		func() component.Config { return &Config{} },
 		receiver.WithTraces(createTraces, metadata.TracesStability),
 		receiver.WithMetrics(createMetrics, metadata.MetricsStability),
-		receiver.WithLogs(createLogs, metadata.LogsStability))
+		receiver.WithLogs(createLogs, metadata.LogsStability),
+	)
 }
 
 func createTraces(context.Context, receiver.Settings, component.Config, consumer.Traces) (receiver.Traces, error) {
