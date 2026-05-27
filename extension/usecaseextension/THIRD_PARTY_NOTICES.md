@@ -20,14 +20,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/client](https://go.opentelemetry.io/collector/client)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/component](https://go.opentelemetry.io/collector/component)
 
 Distributed under the following license(s):
@@ -37,14 +29,6 @@ Distributed under the following license(s):
 
 
 ## [go.opentelemetry.io/collector/component/componenttest](https://go.opentelemetry.io/collector/component/componenttest)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
-## [go.opentelemetry.io/collector/config/configopaque](https://go.opentelemetry.io/collector/config/configopaque)
 
 Distributed under the following license(s):
 
