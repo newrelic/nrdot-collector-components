@@ -91,9 +91,58 @@ install-tools: $(TOOLS_BIN_DIR)
 $(TOOLS_BIN_DIR):
 	mkdir -p $@
 
-# Individual binary targets (used by workflows that build a single tool on demand).
+# Individual binary targets — allow Make to build a single tool on demand
+# (e.g. when a target lists $(GITHUBGEN) as a prerequisite).
+$(TOOLS_BIN_DIR)/actionlint: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/rhysd/actionlint/cmd/actionlint
+$(TOOLS_BIN_DIR)/addlicense: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/google/addlicense
+$(TOOLS_BIN_DIR)/checkapi: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/checkapi
+$(TOOLS_BIN_DIR)/checkfile: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/checkfile
+$(TOOLS_BIN_DIR)/chloggen: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/chloggen
+$(TOOLS_BIN_DIR)/codecovgen: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/newrelic/nrdot-collector-components/cmd/codecovgen
+$(TOOLS_BIN_DIR)/crosslink: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/crosslink
+$(TOOLS_BIN_DIR)/gci: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/daixiang0/gci
+$(TOOLS_BIN_DIR)/genqlient: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/Khan/genqlient
+$(TOOLS_BIN_DIR)/githubgen: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/githubgen
+$(TOOLS_BIN_DIR)/go-junit-report: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/jstemmer/go-junit-report/v2
+$(TOOLS_BIN_DIR)/go-licence-detector: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.elastic.co/go-licence-detector
+$(TOOLS_BIN_DIR)/gofumpt: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ mvdan.cc/gofumpt
+$(TOOLS_BIN_DIR)/goimports: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ golang.org/x/tools/cmd/goimports
+$(TOOLS_BIN_DIR)/golangci-lint: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 $(TOOLS_BIN_DIR)/gotestsum: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
 	$(_TOOL_BUILD) -o $@ gotest.tools/gotestsum
+$(TOOLS_BIN_DIR)/govulncheck: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ golang.org/x/vuln/cmd/govulncheck
+$(TOOLS_BIN_DIR)/issuegenerator: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/issuegenerator
+$(TOOLS_BIN_DIR)/mdatagen: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/collector/cmd/mdatagen
+$(TOOLS_BIN_DIR)/misspell: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/client9/misspell/cmd/misspell
+$(TOOLS_BIN_DIR)/modernize: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ golang.org/x/tools/go/analysis/passes/modernize/cmd/modernize
+$(TOOLS_BIN_DIR)/multimod: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/build-tools/multimod
+$(TOOLS_BIN_DIR)/nrlicense: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/newrelic/nrdot-collector-components/cmd/nrlicense
+$(TOOLS_BIN_DIR)/porto: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ github.com/jcchavezs/porto/cmd/porto
+$(TOOLS_BIN_DIR)/builder: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ go.opentelemetry.io/collector/cmd/builder
 
 ACTIONLINT          := $(TOOLS_BIN_DIR)/actionlint
 ADDLICENSE          := $(TOOLS_BIN_DIR)/addlicense
