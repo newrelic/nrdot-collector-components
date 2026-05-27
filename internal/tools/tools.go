@@ -10,10 +10,11 @@
 
 package tools // import "github.com/newrelic/nrdot-collector-components/internal/tools"
 
-// This file follows the recommendation at
-// https://go.dev/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
-// on how to pin tooling dependencies to a go.mod file.
-// This ensures that all systems use the same version of tools in addition to regular dependencies.
+// This file pins tool dependencies as direct imports so go-licence-detector
+// and go list correctly classify them as direct (not indirect) dependencies.
+// The go.mod `tool` directive is the canonical declaration; these blank imports
+// keep the packages visible as direct deps for tooling that doesn't yet
+// understand the tool directive (e.g. go-licence-detector).
 
 import (
 	_ "github.com/Khan/genqlient"

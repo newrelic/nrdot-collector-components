@@ -43,29 +43,57 @@ DOCKERCMD ?= docker
 
 CURR_MOD := $(shell go list -m | tr '/' '-' )
 
-# In order to help reduce toil related to managing tooling for the open telemetry collector
-# this section of the makefile looks at only requiring command definitions to be defined
-# as part of $(TOOLS_MOD_DIR)/tools.go, following the existing practice.
+# Tools are declared in $(TOOLS_MOD_DIR)/go.mod using tool directives.
 # Modifying the tools' `go.mod` file will trigger a rebuild of the tools to help
 # ensure that all contributors are using the most recent version to make builds repeatable everywhere.
-TOOLS_MOD_DIR    := $(SRC_ROOT)/internal/tools
-TOOLS_MOD_REGEX  := "\s+_\s+\".*\""
-TOOLS_PKG_NAMES  := $(shell grep -E $(TOOLS_MOD_REGEX) < $(TOOLS_MOD_DIR)/tools.go | tr -d " _\"")
-TOOLS_BIN_DIR    := $(SRC_ROOT)/.tools
-TOOLS_BIN_NAMES  := $(addprefix $(TOOLS_BIN_DIR)/, $(notdir $(TOOLS_PKG_NAMES)))
-CHLOGGEN_CONFIG  := .chloggen/config.yaml
+TOOLS_MOD_DIR   := $(SRC_ROOT)/internal/tools
+TOOLS_MOD_FILE  := $(TOOLS_MOD_DIR)/go.mod
+TOOLS_BIN_DIR   := $(SRC_ROOT)/.tools
+CHLOGGEN_CONFIG := .chloggen/config.yaml
 
 # no trailing slash
 JUNIT_OUT_DIR ?= $(TOOLS_MOD_DIR)/testresults
 
+# GO_TOOL invokes a tool declared in the tools module via the Go tool directive.
+# Usage: $(GO_TOOL) -n <package>  → returns the path to the tool binary
+GO_TOOL = GOOS= GOARCH= $(GOCMD) tool -modfile=$(TOOLS_MOD_FILE)
+
+_TOOL_BUILD = cd $(TOOLS_MOD_DIR) && GOOS="" GOARCH="" $(GOCMD) build -trimpath
+
 .PHONY: install-tools
-install-tools: $(TOOLS_BIN_NAMES)
+install-tools: $(TOOLS_BIN_DIR)
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/actionlint            github.com/rhysd/actionlint/cmd/actionlint
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/addlicense            github.com/google/addlicense
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/checkapi              go.opentelemetry.io/build-tools/checkapi
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/checkfile             go.opentelemetry.io/build-tools/checkfile
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/chloggen              go.opentelemetry.io/build-tools/chloggen
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/codecovgen            github.com/newrelic/nrdot-collector-components/cmd/codecovgen
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/crosslink             go.opentelemetry.io/build-tools/crosslink
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/gci                   github.com/daixiang0/gci
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/genqlient             github.com/Khan/genqlient
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/githubgen             go.opentelemetry.io/build-tools/githubgen
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/go-junit-report       github.com/jstemmer/go-junit-report/v2
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/go-licence-detector   go.elastic.co/go-licence-detector
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/gofumpt               mvdan.cc/gofumpt
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/goimports             golang.org/x/tools/cmd/goimports
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/golangci-lint         github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/gotestsum             gotest.tools/gotestsum
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/govulncheck           golang.org/x/vuln/cmd/govulncheck
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/issuegenerator        go.opentelemetry.io/build-tools/issuegenerator
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/mdatagen              go.opentelemetry.io/collector/cmd/mdatagen
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/misspell              github.com/client9/misspell/cmd/misspell
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/modernize             golang.org/x/tools/go/analysis/passes/modernize/cmd/modernize
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/multimod              go.opentelemetry.io/build-tools/multimod
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/nrlicense             github.com/newrelic/nrdot-collector-components/cmd/nrlicense
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/porto                 github.com/jcchavezs/porto/cmd/porto
+	$(_TOOL_BUILD) -o $(TOOLS_BIN_DIR)/builder               go.opentelemetry.io/collector/cmd/builder
 
 $(TOOLS_BIN_DIR):
 	mkdir -p $@
 
-$(TOOLS_BIN_NAMES): $(TOOLS_BIN_DIR) $(TOOLS_MOD_DIR)/go.mod
-	cd $(TOOLS_MOD_DIR) && GOOS="" GOARCH="" $(GOCMD) build -o $@ -trimpath $(filter %/$(notdir $@),$(TOOLS_PKG_NAMES))
+# Individual binary targets (used by workflows that build a single tool on demand).
+$(TOOLS_BIN_DIR)/gotestsum: $(TOOLS_BIN_DIR) $(TOOLS_MOD_FILE)
+	$(_TOOL_BUILD) -o $@ gotest.tools/gotestsum
 
 ACTIONLINT          := $(TOOLS_BIN_DIR)/actionlint
 ADDLICENSE          := $(TOOLS_BIN_DIR)/addlicense
