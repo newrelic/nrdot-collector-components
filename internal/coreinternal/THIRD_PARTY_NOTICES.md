@@ -20,14 +20,6 @@ Distributed under the following license(s):
 
 
 
-## [github.com/docker/go-connections](https://github.com/docker/go-connections)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [github.com/elastic/lunes](https://github.com/elastic/lunes)
 
 Distributed under the following license(s):

@@ -20,7 +20,6 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/pmetrictest"
 	"github.com/stretchr/testify/assert"
@@ -274,7 +273,7 @@ func (ci *ContainerInfo) MappedPort(t *testing.T, port string) string {
 
 func (ci *ContainerInfo) MappedPortForNamedContainer(t *testing.T, containerName, port string) string {
 	c := ci.container(t, containerName)
-	p, err := c.MappedPort(t.Context(), nat.Port(port))
+	p, err := c.MappedPort(t.Context(), port)
 	require.NoErrorf(t, err, "get port %q for container %q: %v", port, containerName, err)
 	return p.Port()
 }
