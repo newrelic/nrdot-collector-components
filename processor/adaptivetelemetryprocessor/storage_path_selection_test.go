@@ -120,7 +120,8 @@ func TestGetAllowedStorageDirectory_XDGPathPrecedence(t *testing.T) {
 		varLibPath := "/var/lib/nrdot-collector/"
 
 		// The allowed directory should be either XDG or /var/lib
-		assert.True(t,
+		assert.True(
+			t,
 			allowedDir == xdgPath || allowedDir == varLibPath || allowedDir == "",
 			"Allowed directory should be XDG path, /var/lib path, or empty string",
 		)
@@ -145,7 +146,8 @@ func TestGetAllowedStorageDirectory_FallbackToVarLib(t *testing.T) {
 		// Verify it's a valid absolute path
 		assert.True(t, filepath.IsAbs(allowedDir), "Allowed directory should be absolute")
 		assert.Contains(t, allowedDir, "nrdot-collector", "Path should contain nrdot-collector")
-		assert.True(t,
+		assert.True(
+			t,
 			allowedDir == "/var/lib/nrdot-collector/" ||
 				filepath.Dir(filepath.Clean(allowedDir)) != "/var/lib",
 			"Should be /var/lib/nrdot-collector/ or an XDG path",

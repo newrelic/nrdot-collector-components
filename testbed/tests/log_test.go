@@ -217,7 +217,8 @@ func TestLogOtlpSendingQueue(t *testing.T) {
 			}, 10,
 			performanceResultsSummary,
 			nil,
-			nil)
+			nil,
+		)
 	})
 
 	otlpreceiver100 := testbed.NewOTLPDataReceiver(testutil.GetAvailablePort(t))
@@ -246,7 +247,8 @@ func TestLogOtlpSendingQueue(t *testing.T) {
 			}, 10,
 			performanceResultsSummary,
 			nil,
-			nil)
+			nil,
+		)
 	})
 }
 
@@ -431,7 +433,8 @@ func TestMemoryLimiterHit(t *testing.T) {
 					Parallel:           1,
 					MaxDelay:           20 * time.Second,
 				},
-				performanceResultsSummary, 100, processors)
+				performanceResultsSummary, 100, processors,
+			)
 		})
 	}
 }
