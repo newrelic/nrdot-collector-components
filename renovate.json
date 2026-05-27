@@ -2,6 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "automerge": false,
   "dependencyDashboard": false,
+  "osvVulnerabilityAlerts": true,
+  "postUpdateOptions": ["gomodTidy"],
   "semanticCommits": "enabled",
   "semanticCommitType": "chore",
   "semanticCommitScope": "deps",
