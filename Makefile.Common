@@ -148,7 +148,7 @@ pwd:
 common: lint test
 
 .PHONY: test
-test: $(GOTESTSUM)
+test:
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." -- $(GOTEST_OPT)
 
 # This target is used in scoped tests.
@@ -156,27 +156,27 @@ test: $(GOTESTSUM)
 # and run each changed test two times.
 #
 # This helps us catch flakes more easily before they land on main.
-test-twice: $(GOTESTSUM)
+test-twice:
 	$(GOTESTSUM) --packages="./..." -- $(GOTEST_OPT) -count=2
 
 .PHONY: test-with-cover
-test-with-cover: $(GOTESTSUM)
+test-with-cover:
 	mkdir -p $(PWD)/coverage/unit
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." -- $(GOTEST_OPT) -cover -covermode=atomic -args -test.gocoverdir="$(PWD)/coverage/unit"
 
 .PHONY: do-unit-tests-with-cover
-do-unit-tests-with-cover: $(GOTESTSUM)
+do-unit-tests-with-cover:
 	@echo "running $(GOCMD) unit test ./... + coverage in `pwd`"
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." -- $(GOTEST_OPT) ./... $(COVER_OPT)
 	$(GOCMD) tool cover -html=coverage.txt -o coverage.html
 
 .PHONY: test-with-junit
-test-with-junit: $(GOTESTSUM)
+test-with-junit:
 	mkdir -p $(JUNIT_OUT_DIR)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." --junitfile $(JUNIT_OUT_DIR)/$(CURR_MOD)-junit.xml -- $(GOTEST_OPT) ./...
 
 .PHONY: test-with-junit-and-cover
-test-with-junit-and-cover: $(GOTESTSUM)
+test-with-junit-and-cover:
 	mkdir -p $(COVER_DIR_ABS)
 	mkdir -p $(JUNIT_OUT_DIR)
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." --junitfile $(JUNIT_OUT_DIR)/$(CURR_MOD)-junit.xml -- $(GOTEST_OPT) ./... $(COVER_OPT)
@@ -188,7 +188,7 @@ ifneq (,$(wildcard ./*.go))
 endif
 
 .PHONY: runbuilttest
-runbuilttest: $(GOTESTSUM)
+runbuilttest:
 ifneq (,$(wildcard ./builtunitetest.test))
 	$(GOTESTSUM) --raw-command -- $(GOCMD) tool test2json -p "./..." -t ./builtunitetest.test -test.v -test.failfast -test.timeout $(GOTEST_TIMEOUT)
 endif
@@ -196,7 +196,7 @@ endif
 INTEGRATION_TEST_FILES := $(shell find . -name *integration_test.go)
 INTEGRATION_TESTS := $(if $(INTEGRATION_TEST_FILES),$(shell cat $(INTEGRATION_TEST_FILES) | sed -n "s/func \(Test[A-Za-z0-9_]*\).*/\1/p" | xargs | sed "s/ /|/g"))
 .PHONY: mod-integration-test
-mod-integration-test: $(GOTESTSUM)
+mod-integration-test:
 	@echo "running $(GOCMD) integration test $(INTEGRATION_TESTS) in `pwd`"
 	@if [ -n "$(INTEGRATION_TESTS)" ]; then \
 		$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." -- -run "$(INTEGRATION_TESTS)" $(GOTEST_OPT_WITH_INTEGRATION); \
@@ -208,7 +208,7 @@ mod-integration-test: $(GOTESTSUM)
 	fi
 
 .PHONY: mod-integration-sudo-test
-mod-integration-sudo-test: $(GOTESTSUM)
+mod-integration-sudo-test:
 	@echo "running $(GOCMD) integration sudo (root/privileged) test $(INTEGRATION_TESTS) in `pwd`"
 	@if [ -n "$(INTEGRATION_TESTS)" ]; then \
 		$(GOTESTSUM) $(GOTESTSUM_OPT) --format standard-verbose --packages="./..." -- -run "$(INTEGRATION_TESTS)" $(GOTEST_OPT_WITH_INTEGRATION_SUDO); \
@@ -217,7 +217,7 @@ mod-integration-sudo-test: $(GOTESTSUM)
 	fi
 
 .PHONY: do-integration-tests-with-cover
-do-integration-tests-with-cover: $(GOTESTSUM)
+do-integration-tests-with-cover:
 	@echo "running $(GOCMD) integration test $(INTEGRATION_TESTS) + coverage in `pwd`"
 	@if [ -n "$(INTEGRATION_TESTS)" ]; then \
 		$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="./..." -- -run "$(INTEGRATION_TESTS)" $(GOTEST_OPT_WITH_INTEGRATION_COVERAGE); \
@@ -229,7 +229,7 @@ do-integration-tests-with-cover: $(GOTESTSUM)
 	fi
 
 .PHONY: benchmark
-benchmark: $(GOTESTSUM)
+benchmark:
 	$(GOTESTSUM) $(GOTESTSUM_OPT) --packages="$$(find . -name 'go.mod' -not -path '*/third_party/*' -not -path '*/local/*' -type f | xargs dirname | sort | uniq | xargs -L 1 bash -c 'cd $$0 && go list -f "{{ .Dir }}"' | xargs echo)" -- -bench=. -run=notests --tags=$(GO_BUILD_TAGS)
 
 .PHONY: addlicense
@@ -293,7 +293,7 @@ checklinks:
 		--no-progress './**/*.md'
 
 .PHONY: fmt
-fmt: $(GOFUMPT) $(GOIMPORTS)
+fmt:
 	$(GOFUMPT) -l -w -extra .
 	$(GOIMPORTS) -w -local github.com/newrelic/nrdot-collector-components ./
 
