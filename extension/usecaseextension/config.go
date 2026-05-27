@@ -19,6 +19,9 @@ type Config struct {
 
 type UseCaseConfig struct {
 	Value *string `mapstructure:"value"`
+
+	// prevent unkeyed literal initialization
+	_ struct{}
 }
 
 // Validate checks if the extension configuration is valid
