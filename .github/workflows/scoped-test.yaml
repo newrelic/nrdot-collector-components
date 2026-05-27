@@ -81,11 +81,7 @@ jobs:
         run: make -j2 gomoddownload
       - name: Install Tools
         if: steps.go-setup.outputs.cache-hit != 'true'
-        run: make install-tools
-
-      - name: Build gotestsum
-        shell: bash
-        run: make "$PWD/.tools/gotestsum"
+        run: make -j2 gomoddownload
 
       - name: Run changed tests
         if: needs.changedfiles.outputs.go_tests
