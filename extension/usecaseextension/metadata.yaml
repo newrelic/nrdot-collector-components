@@ -1,0 +1,15 @@
+type: usecase
+github_project: newrelic/nrdot-collector-components
+
+status:
+  class: extension
+  stability:
+    beta: [extension]
+  distributions: [nrdot]
+  codeowners:
+    active: [emiliaFer]
+    seeking_new: false
+tests:
+  config:
+    usecase:
+      value: "test_value"
