@@ -27,7 +27,7 @@ require (
 	golang.org/x/tools v0.45.0
 	golang.org/x/vuln v1.3.0
 	gotest.tools/gotestsum v1.13.0
-	mvdan.cc/gofumpt v0.9.2
+	mvdan.cc/gofumpt v0.10.0
 )
 
 require (
