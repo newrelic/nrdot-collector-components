@@ -1,0 +1,6 @@
+usecase:
+usecase/1:
+  usecase:
+    value: "static_value"
+usecase/2:
+  usecase: {}
