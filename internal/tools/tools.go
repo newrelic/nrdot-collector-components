@@ -2,7 +2,7 @@
 // Modifications copyright New Relic, Inc.
 //
 // Modifications can be found at the following URL:
-// https://github.com/newrelic/nrdot-collector-components/commits/main/internal/tools/tools.go?since=2025-11-26
+// https://github.com/newrelic/nrdot-collector-components/commits/main/tools.go?since=2025-11-26
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -10,11 +10,11 @@
 
 package tools // import "github.com/newrelic/nrdot-collector-components/internal/tools"
 
-// This file pins tool dependencies as direct imports so go-licence-detector
-// and go list correctly classify them as direct (not indirect) dependencies.
-// The go.mod `tool` directive is the canonical declaration; these blank imports
-// keep the packages visible as direct deps for tooling that doesn't yet
-// understand the tool directive (e.g. go-licence-detector).
+// This file keeps tool dependencies as direct imports so that go-licence-detector
+// classifies them as direct (not indirect) for THIRD_PARTY_NOTICES generation.
+// go-licence-detector skips indirect deps; without these blank imports go mod tidy
+// would mark all tool packages as // indirect, causing them to be omitted from notices.
+// The go.mod `tool` directive remains the canonical tool declaration.
 
 import (
 	_ "github.com/Khan/genqlient"
