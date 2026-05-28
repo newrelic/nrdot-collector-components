@@ -513,7 +513,7 @@ endif
 	$(MAKE) gotidy
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotcol/go.mod,./cmd/nrdotcol/builder-config.yaml)
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/oteltestbedcol/go.mod,./cmd/oteltestbedcol/builder-config.yaml)
-	$(MAKE) -B install-tools
+
 	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
 	$(MAKE) generate

@@ -59,33 +59,6 @@ JUNIT_OUT_DIR ?= $(TOOLS_MOD_DIR)/testresults
 # On Windows, `go tool -n` returns paths with backslashes; $(subst \,/,...) normalises them.
 GO_TOOL = GOOS= GOARCH= $(GOCMD) -C $(TOOLS_MOD_DIR) tool
 
-.PHONY: install-tools
-install-tools:
-	$(GO_TOOL) -n github.com/rhysd/actionlint/cmd/actionlint > /dev/null
-	$(GO_TOOL) -n github.com/google/addlicense > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/checkapi > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/checkfile > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/chloggen > /dev/null
-	$(GO_TOOL) -n github.com/newrelic/nrdot-collector-components/cmd/codecovgen > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/crosslink > /dev/null
-	$(GO_TOOL) -n github.com/daixiang0/gci > /dev/null
-	$(GO_TOOL) -n github.com/Khan/genqlient > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/githubgen > /dev/null
-	$(GO_TOOL) -n github.com/jstemmer/go-junit-report/v2 > /dev/null
-	$(GO_TOOL) -n go.elastic.co/go-licence-detector > /dev/null
-	$(GO_TOOL) -n mvdan.cc/gofumpt > /dev/null
-	$(GO_TOOL) -n golang.org/x/tools/cmd/goimports > /dev/null
-	$(GO_TOOL) -n github.com/golangci/golangci-lint/v2/cmd/golangci-lint > /dev/null
-	$(GO_TOOL) -n gotest.tools/gotestsum > /dev/null
-	$(GO_TOOL) -n golang.org/x/vuln/cmd/govulncheck > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/issuegenerator > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/collector/cmd/mdatagen > /dev/null
-	$(GO_TOOL) -n github.com/client9/misspell/cmd/misspell > /dev/null
-	$(GO_TOOL) -n golang.org/x/tools/go/analysis/passes/modernize/cmd/modernize > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/build-tools/multimod > /dev/null
-	$(GO_TOOL) -n github.com/newrelic/nrdot-collector-components/cmd/nrlicense > /dev/null
-	$(GO_TOOL) -n github.com/jcchavezs/porto/cmd/porto > /dev/null
-	$(GO_TOOL) -n go.opentelemetry.io/collector/cmd/builder > /dev/null
 
 ACTIONLINT          = $(subst \,/,$(shell $(GO_TOOL) -n github.com/rhysd/actionlint/cmd/actionlint))
 ADDLICENSE          = $(subst \,/,$(shell $(GO_TOOL) -n github.com/google/addlicense))
