@@ -6,7 +6,7 @@
 | Distributions | [nrdot](https://github.com/newrelic/nrdot-collector-releases/releases)                                        |
 | [Code Owners](https://github.com/newrelic/nrdot-collector-releases/blob/main/CONTRIBUTING.md) | [@emiliaFer](https://www.github.com/emiliaFer)                                                                |
 
-The `usecase` extension appends a use case identifier to the `User-Agent` header of outgoing HTTP requests.
+The `usecase` extension appends a use case identifier to the `User-Agent` header of outgoing HTTP requests to improve analytics and troubleshooting support by New Relic.
 
 ## Configuration
 
