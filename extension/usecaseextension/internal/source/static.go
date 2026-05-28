@@ -8,9 +8,9 @@ import "context"
 var _ Source = (*StaticSource)(nil)
 
 type StaticSource struct {
-	Id string
+	ID string
 }
 
 func (ss *StaticSource) Get(_ context.Context) (string, error) {
-	return ss.Id, nil
+	return ss.ID, nil
 }

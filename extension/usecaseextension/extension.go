@@ -26,13 +26,13 @@ func newUseCaseSetterExtension(cfg *Config) (*useCaseSetterExtension, error) {
 	if cfg == nil {
 		return nil, errors.New("extension configuration is not provided")
 	}
-	if cfg.Id == nil {
+	if cfg.ID == nil {
 		return nil, errMissingSource
 	}
 
 	return &useCaseSetterExtension{
 		source: &source.StaticSource{
-			Id: *cfg.Id,
+			ID: *cfg.ID,
 		},
 	}, nil
 }

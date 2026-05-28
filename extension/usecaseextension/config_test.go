@@ -29,7 +29,7 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id: component.NewIDWithName(component.MustNewType("usecase"), "1"),
 			expected: &Config{
-				Id: stringp("host-monitoring/1.15.1"),
+				ID: stringp("host-monitoring/1.15.1"),
 			},
 		},
 		{
@@ -112,7 +112,7 @@ func TestValidateConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := Config{Id: tt.id}
+			cfg := Config{ID: tt.id}
 			require.ErrorIs(t, cfg.Validate(), tt.expectedErr)
 		})
 	}

@@ -20,7 +20,7 @@ var (
 )
 
 type Config struct {
-	Id *string `mapstructure:"id"`
+	ID *string `mapstructure:"id"`
 
 	// prevent unkeyed literal initialization
 	_ struct{}
@@ -28,11 +28,11 @@ type Config struct {
 
 // Validate checks if the extension configuration is valid
 func (cfg *Config) Validate() error {
-	if cfg.Id == nil {
+	if cfg.ID == nil {
 		return errMissingSource
 	}
 
-	id := *cfg.Id
+	id := *cfg.ID
 	if id == "" {
 		return errEmptyUseCaseID
 	}

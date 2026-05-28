@@ -24,7 +24,7 @@ func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 // it alongside the mock transport so callers can inspect the forwarded request.
 func newTestRT(t *testing.T, id *string) (http.RoundTripper, *mockRoundTripper) {
 	t.Helper()
-	ext, err := newUseCaseSetterExtension(&Config{Id: id})
+	ext, err := newUseCaseSetterExtension(&Config{ID: id})
 	require.NoError(t, err)
 	mock := &mockRoundTripper{}
 	rt, err := ext.RoundTripper(mock)

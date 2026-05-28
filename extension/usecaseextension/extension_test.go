@@ -24,7 +24,7 @@ func TestNewUseCaseSetterExtension(t *testing.T) {
 		{
 			name: "static id source",
 			cfg: &Config{
-				Id: stringp("host-monitoring/1.15.1"),
+				ID: stringp("host-monitoring/1.15.1"),
 			},
 		},
 		{
