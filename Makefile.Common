@@ -89,6 +89,8 @@ LICENSE_DETECTOR    = $(subst \,/,$(shell $(GO_TOOL) -n go.elastic.co/go-licence
 MDATAGEN  = $(subst \,/,$(shell $(GO_TOOL) -n go.opentelemetry.io/collector/cmd/mdatagen))
 GENQLIENT = $(subst \,/,$(shell $(GO_TOOL) -n github.com/Khan/genqlient))
 
+MDATAGEN_METADATA_YAML?= metadata.yaml
+
 .PHONY: mdatagen
 mdatagen:
 	@$(MDATAGEN) $(MDATAGEN_METADATA_YAML)
