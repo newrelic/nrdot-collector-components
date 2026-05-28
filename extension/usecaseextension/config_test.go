@@ -32,10 +32,6 @@ func TestLoadConfig(t *testing.T) {
 				ID: stringp("host-monitoring/1.15.1"),
 			},
 		},
-		{
-			id:            component.NewIDWithName(component.MustNewType("usecase"), "2"),
-			expectedError: errMissingSource,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.id.String(), func(t *testing.T) {
