@@ -11,6 +11,6 @@ type StaticSource struct {
 	Value string
 }
 
-func (ts *StaticSource) Get(_ context.Context) (string, error) {
-	return ts.Value, nil
+func (ss *StaticSource) Get(_ context.Context) (string, error) {
+	return ss.Value, nil
 }
