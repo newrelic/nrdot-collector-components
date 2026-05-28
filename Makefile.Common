@@ -47,7 +47,6 @@ CURR_MOD := $(shell go list -m | tr '/' '-' )
 # Modifying the tools' `go.mod` file will trigger a rebuild of the tools to help
 # ensure that all contributors are using the most recent version to make builds repeatable everywhere.
 TOOLS_MOD_DIR   := $(SRC_ROOT)/internal/tools
-TOOLS_MOD_FILE  := $(TOOLS_MOD_DIR)/go.mod
 CHLOGGEN_CONFIG := .chloggen/config.yaml
 
 # no trailing slash
@@ -272,14 +271,6 @@ fmt:
 	$(GOFUMPT) -l -w -extra .
 	$(GOIMPORTS) -w -local github.com/newrelic/nrdot-collector-components ./
 
-.PHONY: generate-tools
-generate-tools:
-ifeq ($(GOOS),windows)
-	@echo Adding "exe" extensions to generate tools
-	@for f in $^; do \
-		cp -u "$$f" "$$f.exe"; \
-	done
-endif
 
 .PHONY: generate
 generate: generate-tools

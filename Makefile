@@ -336,7 +336,7 @@ fix-readme-links:
 
 # Override generate from Makefile.Common to also fix README links
 .PHONY: generate
-generate: generate-tools
+generate:
 ifeq ($(CURDIR),$(SRC_ROOT))
 	$(MAKE) for-all CMD="$(GOCMD) generate ./..."
 	$(MAKE) gofmt
@@ -513,7 +513,6 @@ endif
 	$(MAKE) gotidy
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/nrdotcol/go.mod,./cmd/nrdotcol/builder-config.yaml)
 	$(call updatehelper,$(CORE_VERSIONS),./cmd/oteltestbedcol/go.mod,./cmd/oteltestbedcol/builder-config.yaml)
-
 	$(MAKE) gennrdotcol
 	$(MAKE) genoteltestbedcol
 	$(MAKE) generate
@@ -567,17 +566,17 @@ otel-from-lib:
 
 # Verify existence of READMEs for components specified as default components in the collector.
 .PHONY: checkdoc
-checkdoc: $(CHECKFILE)
+checkdoc:
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "README.md"
 
 # Verify existence of metadata.yaml for components specified as default components in the collector.
 .PHONY: checkmetadata
-checkmetadata: $(CHECKFILE)
+checkmetadata:
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "metadata.yaml"
 
 # Run all component file checks to enforce required files per docs/ADDING_COMPONENTS.md
 .PHONY: check-component-files
-check-component-files: checkdoc checkmetadata $(CHECKFILE)
+check-component-files: checkdoc checkmetadata
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "doc.go"
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "go.mod"
 	$(CHECKFILE) --project-path $(CURDIR) --component-rel-path $(COMP_REL_PATH) --module-name $(MOD_NAME) --file-name "Makefile"
