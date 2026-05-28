@@ -16,7 +16,7 @@ func NewFactory() extension.Factory {
 		component.MustNewType("usecase"),
 		createDefaultConfig,
 		createExtension,
-		component.StabilityLevelBeta,
+		component.StabilityLevelAlpha,
 	)
 }
 
