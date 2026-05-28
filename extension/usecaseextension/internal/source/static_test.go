@@ -10,8 +10,8 @@ import (
 )
 
 func TestStaticSource(t *testing.T) {
-	ts := &StaticSource{Value: "acme"}
-	tenant, err := ts.Get(t.Context())
+	ss := &StaticSource{Value: "use-case"}
+	useCase, err := ts.Get(t.Context())
 	assert.NoError(t, err)
-	assert.Equal(t, "acme", tenant)
+	assert.Equal(t, "use-case", useCase)
 }
