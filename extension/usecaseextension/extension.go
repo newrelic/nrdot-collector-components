@@ -32,7 +32,7 @@ func newUseCaseSetterExtension(cfg *Config) (*useCaseSetterExtension, error) {
 
 	return &useCaseSetterExtension{
 		source: &source.StaticSource{
-			Value: *cfg.UseCaseConfig.Value,
+			Id: *cfg.UseCaseConfig.Id,
 		},
 	}, nil
 }

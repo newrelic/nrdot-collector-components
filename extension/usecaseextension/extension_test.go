@@ -22,10 +22,10 @@ func TestNewUseCaseSetterExtension(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name: "static value source",
+			name: "static id source",
 			cfg: &Config{
 				UseCaseConfig: &UseCaseConfig{
-					Value: stringp("some-value"),
+					Id: stringp("host-monitoring/1.15.1"),
 				},
 			},
 		},

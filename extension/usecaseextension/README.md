@@ -13,7 +13,7 @@ The `usecase` extension appends a use case identifier to the `User-Agent` header
 The following settings are required:
 
 - `usecase`: A single use case configuration object with the following property:
-    - `value`: A static string. The use case identifier is taken directly from this value.
+    - `id`: A static string. The use case identifier is taken directly from this value.
 
 ## Configuration Example
 
@@ -21,5 +21,5 @@ The following settings are required:
 extensions:
   usecase:
     usecase:
-      value: my-use-case
+      id: my-use-case
 ```

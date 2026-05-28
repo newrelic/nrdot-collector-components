@@ -30,7 +30,7 @@ func TestLoadConfig(t *testing.T) {
 			id: component.NewIDWithName(component.MustNewType("usecase"), "1"),
 			expected: &Config{
 				UseCaseConfig: &UseCaseConfig{
-					Value: stringp("static_value"),
+					Id: stringp("host-monitoring/1.15.1"),
 				},
 			},
 		},
@@ -67,8 +67,8 @@ func TestValidateConfig(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name:        "use case value from config property",
-			usecase:     &UseCaseConfig{Value: stringp("from config")},
+			name:        "use case id from config property",
+			usecase:     &UseCaseConfig{Id: stringp("from config")},
 			expectedErr: nil,
 		},
 		{

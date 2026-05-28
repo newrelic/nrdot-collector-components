@@ -1,6 +1,6 @@
 usecase:
 usecase/1:
   usecase:
-    value: "static_value"
+    id: "host-monitoring/1.15.1"
 usecase/2:
   usecase: {}

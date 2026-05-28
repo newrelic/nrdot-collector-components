@@ -7,7 +7,7 @@ import "errors"
 
 var (
 	errMissingUseCaseConfig = errors.New("missing use case configuration")
-	errMissingSource        = errors.New("missing use case source, must set 'value'")
+	errMissingSource        = errors.New("missing use case source, must set 'id'")
 )
 
 type Config struct {
@@ -18,7 +18,7 @@ type Config struct {
 }
 
 type UseCaseConfig struct {
-	Value *string `mapstructure:"value"`
+	Id *string `mapstructure:"id"`
 
 	// prevent unkeyed literal initialization
 	_ struct{}
@@ -29,7 +29,7 @@ func (cfg *Config) Validate() error {
 	if cfg.UseCaseConfig == nil {
 		return errMissingUseCaseConfig
 	}
-	if cfg.UseCaseConfig.Value == nil {
+	if cfg.UseCaseConfig.Id == nil {
 		return errMissingSource
 	}
 	return nil

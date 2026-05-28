@@ -40,7 +40,7 @@ func newTestRequest(t *testing.T) *http.Request {
 }
 
 func TestRoundTripperAppendsUseCaseToExistingUserAgent(t *testing.T) {
-	rt, mock := newTestRT(t, &UseCaseConfig{Value: stringp("my-use-case")})
+	rt, mock := newTestRT(t, &UseCaseConfig{Id: stringp("my-use-case")})
 	req := newTestRequest(t)
 	req.Header.Set("User-Agent", "existing-agent")
 
@@ -51,7 +51,7 @@ func TestRoundTripperAppendsUseCaseToExistingUserAgent(t *testing.T) {
 }
 
 func TestRoundTripperSetsUseCaseWhenNoUserAgent(t *testing.T) {
-	rt, mock := newTestRT(t, &UseCaseConfig{Value: stringp("my-use-case")})
+	rt, mock := newTestRT(t, &UseCaseConfig{Id: stringp("my-use-case")})
 	req := newTestRequest(t)
 
 	_, err := rt.RoundTrip(req)
@@ -61,7 +61,7 @@ func TestRoundTripperSetsUseCaseWhenNoUserAgent(t *testing.T) {
 }
 
 func TestRoundTripperSkipsEmptyUseCase(t *testing.T) {
-	rt, mock := newTestRT(t, &UseCaseConfig{Value: stringp("")})
+	rt, mock := newTestRT(t, &UseCaseConfig{Id: stringp("")})
 	req := newTestRequest(t)
 	req.Header.Set("User-Agent", "existing-agent")
 

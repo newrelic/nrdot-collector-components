@@ -4,12 +4,12 @@ github_project: newrelic/nrdot-collector-components
 status:
   class: extension
   stability:
-    beta: [extension]
+    alpha: [extension]
   distributions: [nrdot]
   codeowners:
-    active: [emiliaFer]
+    active: [newrelic/otelcomm]
     seeking_new: false
 tests:
   config:
     usecase:
-      value: "test_value"
+      id: "host-monitoring/1.15.1"
