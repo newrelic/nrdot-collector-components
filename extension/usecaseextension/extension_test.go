@@ -24,13 +24,11 @@ func TestNewUseCaseSetterExtension(t *testing.T) {
 		{
 			name: "static id source",
 			cfg: &Config{
-				UseCaseConfig: &UseCaseConfig{
-					Id: stringp("host-monitoring/1.15.1"),
-				},
+				Id: stringp("host-monitoring/1.15.1"),
 			},
 		},
 		{
-			name:      "nil use case config returns error",
+			name:      "nil use case id returns error",
 			cfg:       &Config{},
 			expectErr: true,
 		},

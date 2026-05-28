@@ -13,5 +13,5 @@ func TestStaticSource(t *testing.T) {
 	ss := &StaticSource{Id: "use_case"}
 	useCase, err := ss.Get(t.Context())
 	assert.NoError(t, err)
-	assert.Equal(t, "use-case", useCase)
+	assert.Equal(t, "use_case", useCase)
 }

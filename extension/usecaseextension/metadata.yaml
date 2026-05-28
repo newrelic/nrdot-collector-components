@@ -11,5 +11,4 @@ status:
     seeking_new: false
 tests:
   config:
-    usecase:
-      id: "host-monitoring/1.15.1"
+    id: "host-monitoring/1.15.1"

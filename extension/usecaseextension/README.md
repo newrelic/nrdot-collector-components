@@ -12,14 +12,13 @@ The `usecase` extension appends a use case identifier to the `User-Agent` header
 
 The following settings are required:
 
-- `usecase`: A single use case configuration object with the following property:
-    - `id`: A static string. The use case identifier is taken directly from this value.
+- `id`: A static string. The use case identifier that will be appended to the User-Agent header.
+  - Only alphanumeric characters, forward slash (`/`), underscore (`_`), hyphen (`-`), and period (`.`) are allowed.
 
 ## Configuration Example
 
 ```yaml
 extensions:
   usecase:
-    usecase:
-      id: my-use-case
+    id: my-use-case
 ```

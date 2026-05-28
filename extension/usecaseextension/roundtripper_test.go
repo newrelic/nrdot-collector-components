@@ -20,11 +20,11 @@ func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	return &http.Response{StatusCode: http.StatusOK}, nil
 }
 
-// newTestRT creates a round tripper from the given source config and returns
+// newTestRT creates a round tripper from the given ID and returns
 // it alongside the mock transport so callers can inspect the forwarded request.
-func newTestRT(t *testing.T, cfg *UseCaseConfig) (http.RoundTripper, *mockRoundTripper) {
+func newTestRT(t *testing.T, id *string) (http.RoundTripper, *mockRoundTripper) {
 	t.Helper()
-	ext, err := newUseCaseSetterExtension(&Config{UseCaseConfig: cfg})
+	ext, err := newUseCaseSetterExtension(&Config{Id: id})
 	require.NoError(t, err)
 	mock := &mockRoundTripper{}
 	rt, err := ext.RoundTripper(mock)
@@ -40,7 +40,7 @@ func newTestRequest(t *testing.T) *http.Request {
 }
 
 func TestRoundTripperAppendsUseCaseToExistingUserAgent(t *testing.T) {
-	rt, mock := newTestRT(t, &UseCaseConfig{Id: stringp("my-use-case")})
+	rt, mock := newTestRT(t, stringp("my-use-case"))
 	req := newTestRequest(t)
 	req.Header.Set("User-Agent", "existing-agent")
 
@@ -51,7 +51,7 @@ func TestRoundTripperAppendsUseCaseToExistingUserAgent(t *testing.T) {
 }
 
 func TestRoundTripperSetsUseCaseWhenNoUserAgent(t *testing.T) {
-	rt, mock := newTestRT(t, &UseCaseConfig{Id: stringp("my-use-case")})
+	rt, mock := newTestRT(t, stringp("my-use-case"))
 	req := newTestRequest(t)
 
 	_, err := rt.RoundTrip(req)
@@ -61,7 +61,7 @@ func TestRoundTripperSetsUseCaseWhenNoUserAgent(t *testing.T) {
 }
 
 func TestRoundTripperSkipsEmptyUseCase(t *testing.T) {
-	rt, mock := newTestRT(t, &UseCaseConfig{Id: stringp("")})
+	rt, mock := newTestRT(t, stringp(""))
 	req := newTestRequest(t)
 	req.Header.Set("User-Agent", "existing-agent")
 

@@ -24,14 +24,12 @@ func TestLoadConfig(t *testing.T) {
 	}{
 		{
 			id:            component.NewIDWithName(component.MustNewType("usecase"), ""),
-			expectedError: errMissingUseCaseConfig,
+			expectedError: errMissingSource,
 		},
 		{
 			id: component.NewIDWithName(component.MustNewType("usecase"), "1"),
 			expected: &Config{
-				UseCaseConfig: &UseCaseConfig{
-					Id: stringp("host-monitoring/1.15.1"),
-				},
+				Id: stringp("host-monitoring/1.15.1"),
 			},
 		},
 		{
@@ -63,28 +61,58 @@ func TestLoadConfig(t *testing.T) {
 func TestValidateConfig(t *testing.T) {
 	tests := []struct {
 		name        string
-		usecase     *UseCaseConfig
+		id          *string
 		expectedErr error
 	}{
 		{
 			name:        "use case id from config property",
-			usecase:     &UseCaseConfig{Id: stringp("from config")},
+			id:          stringp("from-config"),
+			expectedErr: nil,
+		},
+		{
+			name:        "use case id with valid special characters",
+			id:          stringp("host-monitoring/1.15.1"),
+			expectedErr: nil,
+		},
+		{
+			name:        "use case id with underscores and hyphens",
+			id:          stringp("my_use-case.v1"),
 			expectedErr: nil,
 		},
 		{
 			name:        "use case source is missing",
-			usecase:     &UseCaseConfig{},
+			id:          nil,
 			expectedErr: errMissingSource,
 		},
 		{
-			name:        "use case configuration is missing",
-			usecase:     nil,
-			expectedErr: errMissingUseCaseConfig,
+			name:        "empty use case id",
+			id:          stringp(""),
+			expectedErr: errEmptyUseCaseID,
+		},
+		{
+			name:        "use case id with newline",
+			id:          stringp("test\n"),
+			expectedErr: errInvalidUseCaseIDChars,
+		},
+		{
+			name:        "use case id with parentheses",
+			id:          stringp("test(prod)"),
+			expectedErr: errInvalidUseCaseIDChars,
+		},
+		{
+			name:        "use case id with spaces",
+			id:          stringp("test case"),
+			expectedErr: errInvalidUseCaseIDChars,
+		},
+		{
+			name:        "use case id with special chars",
+			id:          stringp("test@case"),
+			expectedErr: errInvalidUseCaseIDChars,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := Config{UseCaseConfig: tt.usecase}
+			cfg := Config{Id: tt.id}
 			require.ErrorIs(t, cfg.Validate(), tt.expectedErr)
 		})
 	}

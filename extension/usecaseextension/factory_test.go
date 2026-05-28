@@ -22,9 +22,7 @@ func TestCreateDefaultConfig(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	cfg := createDefaultConfig().(*Config)
-	cfg.UseCaseConfig = &UseCaseConfig{
-		Id: stringp("host-monitoring/1.15.1"),
-	}
+	cfg.Id = stringp("host-monitoring/1.15.1")
 
 	ext, err := createExtension(t.Context(), extensiontest.NewNopSettings(extensiontest.NopType), cfg)
 	assert.NoError(t, err)
