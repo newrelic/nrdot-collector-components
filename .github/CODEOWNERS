@@ -21,7 +21,7 @@ cmd/codecovgen/                       @newrelic/otelcomm
 cmd/nrdotcol/                         @newrelic/otelcomm
 cmd/oteltestbedcol/                   @newrelic/otelcomm
 exporter/nopexporter/                 @newrelic/otelcomm
-extension/usecaseextension/           @newrelic/otelcomm @emiliaFer
+extension/usecaseextension/           @newrelic/otelcomm
 internal/common/                      @newrelic/otelcomm
 internal/coreinternal/                @newrelic/otelcomm
 internal/tools/                       @newrelic/otelcomm
