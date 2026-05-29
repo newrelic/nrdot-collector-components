@@ -4,7 +4,9 @@ exporter/nopexporter
 .
 internal/common
 internal/coreinternal
+internal/sqlquery
 internal/tools
 processor/adaptivetelemetryprocessor
 receiver/nopreceiver
+receiver/sqlserverreceiver
 testbed

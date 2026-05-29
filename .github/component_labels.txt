@@ -5,7 +5,9 @@ cmd/oteltestbedcol cmd/oteltestbedcol
 exporter/nopexporter exporter/nop
 internal/common internal/common
 internal/coreinternal internal/core
+internal/sqlquery internal/sqlquery
 internal/tools internal/tools
 processor/adaptivetelemetryprocessor processor/adaptivetelemetry
 receiver/nopreceiver receiver/nop
+receiver/sqlserverreceiver receiver/sqlserver
 testbed testbed

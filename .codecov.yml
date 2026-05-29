@@ -39,6 +39,10 @@ component_management:
     name: receiver_nop
     paths:
     - receiver/nopreceiver/**
+  - component_id: receiver_sqlserver
+    name: receiver_sqlserver
+    paths:
+    - receiver/sqlserverreceiver/**
   - component_id: testbed
     name: testbed
     paths:

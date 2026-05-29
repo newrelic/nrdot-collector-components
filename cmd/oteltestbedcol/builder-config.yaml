@@ -26,6 +26,7 @@ processors:
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.150.0
   - gomod: github.com/newrelic/nrdot-collector-components/receiver/nopreceiver v0.150.0
+  - gomod: github.com/newrelic/nrdot-collector-components/receiver/sqlserverreceiver v0.150.0
 
 providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.56.0
@@ -38,3 +39,5 @@ providers:
 # file before passing it to OCB, to ensure that local versions are used for all
 # nrdot modules.
 replaces:
+  - github.com/newrelic/nrdot-collector-components/internal/common => ../../internal/common
+  - github.com/newrelic/nrdot-collector-components/internal/sqlquery => ../../internal/sqlquery

@@ -283,6 +283,10 @@ ifeq ($(GOOS),windows)
 	done
 endif
 
+.PHONY: mdatagen
+mdatagen: $(MDATAGEN)
+	$(MDATAGEN) metadata.yaml
+
 # On Windows changing path with absolute path includes ':' even escaping it is not enough to get it to correctly
 # update PATH, so use a relative path when pre-pending to PATH on Windows. Unfortunately, realpath is not portable
 # between mac and GNU based bash so keeping the full path on non-Windows OSes.
@@ -304,6 +308,12 @@ endif
 
 .PHONY: lint
 lint: $(LINT) checklicense misspell
+	$(LINT) run
+
+# lint-no-checklicense skips the license check. Used on Windows CI runners where
+# go list prunes build-tag-constrained modules, causing false THIRD_PARTY_NOTICES.md diffs.
+.PHONY: lint-no-checklicense
+lint-no-checklicense: $(LINT) misspell
 	$(LINT) run
 
 .PHONY: govulncheck
