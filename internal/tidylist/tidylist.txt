@@ -1,6 +1,7 @@
 cmd/codecovgen
 cmd/nrlicense
 exporter/nopexporter
+extension/usecaseextension
 .
 internal/common
 internal/coreinternal

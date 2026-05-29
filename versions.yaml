@@ -9,6 +9,7 @@ module-sets:
       - github.com/newrelic/nrdot-collector-components/cmd/codecovgen
       - github.com/newrelic/nrdot-collector-components/cmd/nrlicense
       - github.com/newrelic/nrdot-collector-components/exporter/nopexporter
+      - github.com/newrelic/nrdot-collector-components/extension/usecaseextension
       - github.com/newrelic/nrdot-collector-components/internal/common
       - github.com/newrelic/nrdot-collector-components/internal/coreinternal
       - github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor

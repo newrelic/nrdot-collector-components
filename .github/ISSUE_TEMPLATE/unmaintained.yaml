@@ -21,6 +21,7 @@ body:
       - cmd/nrdotcol
       - cmd/oteltestbedcol
       - exporter/nop
+      - extension/usecase
       - internal/common
       - internal/core
       - internal/tools

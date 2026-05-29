@@ -12,6 +12,7 @@ components:
     - cmd/nrdotcol
     - cmd/oteltestbedcol
     - exporter/nop
+    - extension/usecase
     - internal/common
     - internal/coreinternal
     - internal/tools

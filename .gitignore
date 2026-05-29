@@ -39,6 +39,7 @@ __debug_bin*
 
 # Coverage
 coverage/*
+coverage.out
 *-coverage.txt
 integration-coverage.html
 internal/tools/testresults/*
