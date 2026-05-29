@@ -11,32 +11,32 @@ dist:
   output_path: ./cmd/nrdotcol
 
 extensions:
-  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.150.0
+  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.153.1-0.20260528150546-fe2cf23ff222
 
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.150.0
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.150.0
-  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.150.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.153.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.153.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.153.1-0.20260528150546-fe2cf23ff222
   - gomod: github.com/newrelic/nrdot-collector-components/exporter/nopexporter v0.150.0
 
 processors:
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.150.0
-  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.150.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.153.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.153.1-0.20260528150546-fe2cf23ff222
   - gomod: github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor v0.150.0
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.150.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.153.1-0.20260528150546-fe2cf23ff222
   - gomod: github.com/newrelic/nrdot-collector-components/receiver/nopreceiver v0.150.0
 
 connectors:
-  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.150.0
+  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.153.1-0.20260528150546-fe2cf23ff222
 
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.56.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.56.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.56.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.56.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.56.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.59.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.59.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.59.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.59.1-0.20260528150546-fe2cf23ff222
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.59.1-0.20260528150546-fe2cf23ff222
 
 # When using `make gennrdotcol`, the `replaces` content is appended to this
 # file before passing it to OCB, to ensure that local versions are used for all
