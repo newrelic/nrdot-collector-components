@@ -17,4 +17,5 @@ components:
     - internal/tools
     - processor/adaptivetelemetry
     - receiver/nop
+    - receiver/nroracledb
     - testbed

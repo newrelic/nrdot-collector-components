@@ -21,6 +21,7 @@ body:
       - internal/tools
       - processor/adaptivetelemetry
       - receiver/nop
+      - receiver/oracledb
       - testbed
       # End components list
   - type: textarea

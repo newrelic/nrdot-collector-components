@@ -8,4 +8,5 @@ internal/coreinternal internal/core
 internal/tools internal/tools
 processor/adaptivetelemetryprocessor processor/adaptivetelemetry
 receiver/nopreceiver receiver/nop
+receiver/oracledbreceiver receiver/oracledb
 testbed testbed

@@ -26,6 +26,7 @@ internal/coreinternal/                @newrelic/otelcomm
 internal/tools/                       @newrelic/otelcomm
 processor/adaptivetelemetryprocessor/ @newrelic/otelcomm @newrelic/dbi @newrelic/ohai
 receiver/nopreceiver/                 @newrelic/otelcomm
+receiver/oracledbreceiver/            @newrelic/otelcomm @newrelic/dbi
 testbed/                              @newrelic/otelcomm
 
 # End components list

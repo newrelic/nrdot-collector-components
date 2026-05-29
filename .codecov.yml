@@ -39,6 +39,10 @@ component_management:
     name: receiver_nop
     paths:
     - receiver/nopreceiver/**
+  - component_id: receiver_oracledb
+    name: receiver_oracledb
+    paths:
+    - receiver/oracledbreceiver/**
   - component_id: testbed
     name: testbed
     paths:
