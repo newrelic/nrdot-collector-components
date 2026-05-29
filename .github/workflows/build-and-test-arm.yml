@@ -33,9 +33,6 @@ jobs:
       - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
-      - name: Install Tools
-        if: steps.go-setup.outputs.cache-hit != 'true'
-        run: make install-tools
   arm-unittest-matrix:
     needs: [setup-environment]
     if: ${{ github.actor != 'dependabot[bot]' && (!contains(github.event.pull_request.labels.*.name, 'Skip ARM') || github.event_name == 'push' || github.event_name == 'merge_group') }}
@@ -129,5 +126,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          make install-tools
-          ./.tools/issuegenerator -path ./internal/tools/testresults/ -labels "flaky tests,needs triage"
+          go -C ./internal/tools tool go.opentelemetry.io/build-tools/issuegenerator -path ./internal/tools/testresults/ -labels "flaky tests,needs triage"

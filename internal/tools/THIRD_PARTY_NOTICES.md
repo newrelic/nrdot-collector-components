@@ -60,7 +60,7 @@ Distributed under the following license(s):
 
 
 
-## [github.com/jstemmer/go-junit-report](https://github.com/jstemmer/go-junit-report)
+## [github.com/jstemmer/go-junit-report/v2](https://github.com/jstemmer/go-junit-report)
 
 Distributed under the following license(s):
 

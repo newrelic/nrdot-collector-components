@@ -2,6 +2,34 @@ module github.com/newrelic/nrdot-collector-components/internal/tools
 
 go 1.25.0
 
+tool (
+	github.com/Khan/genqlient
+	github.com/client9/misspell/cmd/misspell
+	github.com/daixiang0/gci
+	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+	github.com/google/addlicense
+	github.com/jcchavezs/porto/cmd/porto
+	github.com/jstemmer/go-junit-report/v2
+	github.com/newrelic/nrdot-collector-components/cmd/codecovgen
+	github.com/newrelic/nrdot-collector-components/cmd/nrlicense
+	github.com/rhysd/actionlint/cmd/actionlint
+	go.elastic.co/go-licence-detector
+	go.opentelemetry.io/build-tools/checkapi
+	go.opentelemetry.io/build-tools/checkfile
+	go.opentelemetry.io/build-tools/chloggen
+	go.opentelemetry.io/build-tools/crosslink
+	go.opentelemetry.io/build-tools/githubgen
+	go.opentelemetry.io/build-tools/issuegenerator
+	go.opentelemetry.io/build-tools/multimod
+	go.opentelemetry.io/collector/cmd/builder
+	go.opentelemetry.io/collector/cmd/mdatagen
+	golang.org/x/tools/cmd/goimports
+	golang.org/x/tools/go/analysis/passes/modernize/cmd/modernize
+	golang.org/x/vuln/cmd/govulncheck
+	gotest.tools/gotestsum
+	mvdan.cc/gofumpt
+)
+
 require (
 	github.com/Khan/genqlient v0.8.1
 	github.com/client9/misspell v0.3.4
@@ -9,7 +37,7 @@ require (
 	github.com/golangci/golangci-lint/v2 v2.1.6
 	github.com/google/addlicense v1.2.0
 	github.com/jcchavezs/porto v0.6.0
-	github.com/jstemmer/go-junit-report v1.0.0
+	github.com/jstemmer/go-junit-report/v2 v2.1.0
 	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.150.0
 	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.150.0
 	github.com/rhysd/actionlint v1.7.8

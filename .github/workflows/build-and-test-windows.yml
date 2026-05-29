@@ -41,9 +41,6 @@ jobs:
       - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
-      - name: Install Tools
-        if: steps.go-setup.outputs.cache-hit != 'true'
-        run: make install-tools
 
   windows-smoke-build:
     needs: [setup-environment]
@@ -63,9 +60,6 @@ jobs:
       - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
-      - name: Install Tools
-        if: steps.go-setup.outputs.cache-hit != 'true'
-        run: make install-tools
       - name: Generate nrdotcol files
         run: make gennrdotcol
       - name: Build Collector
@@ -106,11 +100,11 @@ jobs:
       - name: Ensure required ports in the dynamic range are available
         run: |
           & ${{ github.workspace }}\.github\workflows\scripts\win-required-ports.ps1
-      - name: Build shared test tools
-        # If component tests share Makefile targets they need to be added here to avoid
-        # concurrent component tests clashing when building such targets. This applies
+      - name: Pre-build shared test tools
+        # Pre-warms the go tool cache for gotestsum to avoid concurrent builds when
+        # multiple test matrix jobs start simultaneously on Windows.
         # specifically to Windows, see https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/34691
-        run: make "$(${PWD} -replace '\\', '/')/.tools/gotestsum"
+        run: go -C ./internal/tools tool -n gotest.tools/gotestsum | Out-Null
       
       # Unit tests without JUnit output are much faster, so it's fine to run on every PR.
       # The only time we don't run them is when we already ran them with JUnit output.
@@ -179,9 +173,6 @@ jobs:
       - name: Install dependencies
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make -j2 gomoddownload
-      - name: Install Tools
-        if: steps.go-setup.outputs.cache-hit != 'true'
-        run: make install-tools
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           merge-multiple: true
@@ -191,5 +182,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          make install-tools
-          ./.tools/issuegenerator -path ./internal/tools/testresults/ -labels "flaky tests,needs triage"
+          go -C ./internal/tools tool go.opentelemetry.io/build-tools/issuegenerator -path ./internal/tools/testresults/ -labels "flaky tests,needs triage"

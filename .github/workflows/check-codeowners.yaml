@@ -43,10 +43,6 @@ jobs:
           go-version: oldstable
           cache-dependency-path: "**/*.sum"
 
-      - name: Install tools
-        run: |
-          make install-tools
-
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           ref: ${{github.event.pull_request.head.ref}}
@@ -56,5 +52,5 @@ jobs:
       - name: Gen CODEOWNERS
         run: |
           cd pr
-          GITHUB_TOKEN=${{ secrets.OTELCOMBOT_TOKEN }} ../.tools/githubgen --default-codeowner="@newrelic/otelcomm" --github-org="newrelic" codeowners
+          GITHUB_TOKEN=${{ secrets.OTELCOMBOT_TOKEN }} go -C ../internal/tools tool go.opentelemetry.io/build-tools/githubgen --default-codeowner="@newrelic/otelcomm" --github-org="newrelic" codeowners
           git diff -s --exit-code || (echo 'Generated code is out of date, please run "make gencodeowners" or apply this diff and commit the changes in this PR.' && git diff && exit 1)
