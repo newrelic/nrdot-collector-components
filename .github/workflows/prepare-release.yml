@@ -37,6 +37,7 @@ jobs:
         with:
           path: nrdot-collector-components
           fetch-tags: true
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Close pending update-otel PRs
         run: |
@@ -56,7 +57,7 @@ jobs:
             done
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
@@ -153,7 +154,7 @@ jobs:
         if: steps.check-prerequisites.outputs.meets-prereqs == 'true'
         working-directory: nrdot-collector-components
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           REPO: ${{ github.repository }}
           CANDIDATE_BETA: ${{ steps.versions.outputs.candidate-beta }}
           CURRENT_BETA: ${{ steps.versions.outputs.current-beta }}
