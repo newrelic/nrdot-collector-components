@@ -1,0 +1,16 @@
+# OSV-Scanner configuration for testbed/go.mod
+# Reference: https://google.github.io/osv-scanner/configuration/
+#
+# Suppress vulnerabilities that have no upstream fix and are confirmed
+# unreachable by govulncheck. Remove an entry when a patched version becomes
+# available in the upstream package.
+
+[[IgnoredVulns]]
+id = "GO-2022-0635"
+ignoreUntil = 2027-01-01
+reason = "github.com/aws/aws-sdk-go is an indirect dependency pulled in via otel-contrib/testbed/datareceivers -> prometheusreceiver -> prometheus/discovery/outscale -> outscale/osc-sdk-go. The vulnerable s3crypto subpackage is never imported. govulncheck -mode=source confirms 0 reachable call paths. No patched v1 release exists; upstream fix requires migrating to aws-sdk-go-v2."
+
+[[IgnoredVulns]]
+id = "GO-2022-0646"
+ignoreUntil = 2027-01-01
+reason = "Same aws/aws-sdk-go s3crypto unreachability as GO-2022-0635 — different advisory ID against the same subpackage. govulncheck confirms zero reachable calls to the affected symbols. No patched v1 release exists."
