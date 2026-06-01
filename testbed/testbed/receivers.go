@@ -82,15 +82,15 @@ func (bor *BaseOTLPDataReceiver) Start(tc consumer.Traces, mc consumer.Metrics, 
 	factory := otlpreceiver.NewFactory()
 	cfg := factory.CreateDefaultConfig().(*otlpreceiver.Config)
 	if bor.exporterType == "otlp" {
-		if err := InsertDefault(&cfg.GRPC); err != nil {
+		if err := InsertDefault(&cfg.Protocols.GRPC); err != nil {
 			return err
 		}
-		cfg.GRPC.Get().NetAddr = confignet.AddrConfig{Endpoint: fmt.Sprintf("127.0.0.1:%d", bor.Port), Transport: confignet.TransportTypeTCP}
+		cfg.Protocols.GRPC.Get().NetAddr = confignet.AddrConfig{Endpoint: fmt.Sprintf("127.0.0.1:%d", bor.Port), Transport: confignet.TransportTypeTCP}
 	} else {
-		if err := InsertDefault(&cfg.HTTP); err != nil {
+		if err := InsertDefault(&cfg.Protocols.HTTP); err != nil {
 			return err
 		}
-		cfg.HTTP.Get().ServerConfig.NetAddr = confignet.AddrConfig{Endpoint: fmt.Sprintf("127.0.0.1:%d", bor.Port), Transport: confignet.TransportTypeTCP}
+		cfg.Protocols.HTTP.Get().ServerConfig.NetAddr = confignet.AddrConfig{Endpoint: fmt.Sprintf("127.0.0.1:%d", bor.Port), Transport: confignet.TransportTypeTCP}
 	}
 
 	var err error
