@@ -16,13 +16,20 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors/routingdataconnector"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors/spanmetricsdataconnector"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers/jaegerdatareceiver"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers/prometheusdatareceiver"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers/stefdatareceiver"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers/zipkindatareceiver"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders/jaegerdatasender"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders/prometheusdatasender"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders/stefdatasender"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders/zipkindatasender"
 	"go.uber.org/zap"
 
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 type ProcessorNameAndConfigBody struct {
@@ -214,9 +221,9 @@ func ConstructTraceSender(t *testing.T, receiver string) testbed.DataSender {
 	case "otlp":
 		sender = testbed.NewOTLPTraceDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	case "jaeger":
-		sender = datasenders.NewJaegerGRPCDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
+		sender = jaegerdatasender.NewJaegerGRPCDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	case "zipkin":
-		sender = datasenders.NewZipkinDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
+		sender = zipkindatasender.NewZipkinDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	default:
 		t.Errorf("unknown receiver type: %s", receiver)
 	}
@@ -230,11 +237,11 @@ func ConstructMetricsSender(t *testing.T, receiver string) testbed.MetricDataSen
 	case "otlp":
 		sender = testbed.NewOTLPMetricDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	case "stef":
-		s := datasenders.NewStefDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
+		s := stefdatasender.NewStefDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 		s.Logger = newDbgLogger()
 		sender = s
 	case "prometheus":
-		sender = datasenders.NewPrometheusDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
+		sender = prometheusdatasender.NewPrometheusDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	default:
 		t.Errorf("unknown receiver type: %s", receiver)
 	}
@@ -245,18 +252,18 @@ func ConstructMetricsSender(t *testing.T, receiver string) testbed.MetricDataSen
 func ConstructReceiver(t *testing.T, exporter string) testbed.DataReceiver {
 	var receiver testbed.DataReceiver
 	switch exporter {
-	case "otlp":
+	case "otlp_grpc":
 		receiver = testbed.NewOTLPDataReceiver(testutil.GetAvailablePort(t))
 	case "stef":
-		r := datareceivers.NewStefDataReceiver(testutil.GetAvailablePort(t))
+		r := stefdatareceiver.NewStefDataReceiver(testutil.GetAvailablePort(t))
 		r.Logger = newDbgLogger()
 		receiver = r
 	case "jaeger":
-		receiver = datareceivers.NewJaegerDataReceiver(testutil.GetAvailablePort(t))
+		receiver = jaegerdatareceiver.NewJaegerDataReceiver(testutil.GetAvailablePort(t))
 	case "zipkin":
-		receiver = datareceivers.NewZipkinDataReceiver(testutil.GetAvailablePort(t))
+		receiver = zipkindatareceiver.NewZipkinDataReceiver(testutil.GetAvailablePort(t))
 	case "prometheus":
-		receiver = datareceivers.NewPrometheusDataReceiver(testutil.GetAvailablePort(t))
+		receiver = prometheusdatareceiver.NewPrometheusDataReceiver(testutil.GetAvailablePort(t))
 	default:
 		t.Errorf("unknown exporter type: %s", exporter)
 	}
@@ -267,9 +274,9 @@ func ConstructConnector(t *testing.T, connector, receiverType string) testbed.Da
 	var dataconnector testbed.DataConnector
 	switch connector {
 	case "spanmetrics":
-		dataconnector = dataconnectors.NewSpanMetricDataConnector(receiverType)
+		dataconnector = spanmetricsdataconnector.NewSpanMetricDataConnector(receiverType)
 	case "routing":
-		dataconnector = dataconnectors.NewRoutingDataConnector(receiverType)
+		dataconnector = routingdataconnector.NewRoutingDataConnector(receiverType)
 	default:
 		t.Errorf("unknown connector type: %s", connector)
 	}

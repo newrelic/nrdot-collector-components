@@ -13,9 +13,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/correctnesstests"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
 	"github.com/stretchr/testify/require"
+
+	"github.com/newrelic/nrdot-collector-components/testbed/correctnesstests"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 var correctnessResults testbed.TestResultsSummary = &testbed.CorrectnessResults{}
