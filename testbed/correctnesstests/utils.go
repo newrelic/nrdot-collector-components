@@ -16,10 +16,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"go.uber.org/zap"
-
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
 	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
@@ -198,14 +194,6 @@ func LoadPictOutputPipelineDefs(fileName string) ([]PipelineDef, error) {
 	return defs, err
 }
 
-func newDbgLogger() *zap.Logger {
-	logger, err := zap.NewDevelopment(zap.Fields(zap.String("type", "testbed")))
-	if err != nil {
-		panic("Cannot create logger " + err.Error())
-	}
-	return logger
-}
-
 // ConstructTraceSender creates a testbed trace sender from the passed-in trace sender identifier.
 func ConstructTraceSender(t *testing.T, receiver string) testbed.DataSender {
 	var sender testbed.DataSender
@@ -236,31 +224,8 @@ func ConstructReceiver(t *testing.T, exporter string) testbed.DataReceiver {
 	switch exporter {
 	case "otlp":
 		receiver = testbed.NewOTLPDataReceiver(testutil.GetAvailablePort(t))
-	case "stef":
-		r := datareceivers.NewStefDataReceiver(testutil.GetAvailablePort(t))
-		r.Logger = newDbgLogger()
-		receiver = r
-	case "jaeger":
-		receiver = datareceivers.NewJaegerDataReceiver(testutil.GetAvailablePort(t))
-	case "zipkin":
-		receiver = datareceivers.NewZipkinDataReceiver(testutil.GetAvailablePort(t))
-	case "prometheus":
-		receiver = datareceivers.NewPrometheusDataReceiver(testutil.GetAvailablePort(t))
 	default:
 		t.Errorf("unknown exporter type: %s", exporter)
 	}
 	return receiver
-}
-
-func ConstructConnector(t *testing.T, connector, receiverType string) testbed.DataConnector {
-	var dataconnector testbed.DataConnector
-	switch connector {
-	case "spanmetrics":
-		dataconnector = dataconnectors.NewSpanMetricDataConnector(receiverType)
-	case "routing":
-		dataconnector = dataconnectors.NewRoutingDataConnector(receiverType)
-	default:
-		t.Errorf("unknown connector type: %s", connector)
-	}
-	return dataconnector
 }
