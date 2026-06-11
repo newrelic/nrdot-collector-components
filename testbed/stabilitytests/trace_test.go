@@ -19,11 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
-
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	scenarios "github.com/newrelic/nrdot-collector-components/testbed/tests"
 )
 
@@ -53,57 +50,6 @@ func TestStabilityTracesOTLP(t *testing.T) {
 		testbed.ResourceSpec{
 			ExpectedMaxCPU:      20,
 			ExpectedMaxRAM:      80,
-			ResourceCheckPeriod: resourceCheckPeriod,
-		},
-		contribPerfResultsSummary,
-		processorsConfig,
-		nil,
-		nil,
-	)
-}
-
-func TestStabilityTracesJaegerGRPC(t *testing.T) {
-	scenarios.Scenario10kItemsPerSecond(
-		t,
-		datasenders.NewJaegerGRPCDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t)),
-		datareceivers.NewJaegerDataReceiver(testutil.GetAvailablePort(t)),
-		testbed.ResourceSpec{
-			ExpectedMaxCPU:      40,
-			ExpectedMaxRAM:      90,
-			ResourceCheckPeriod: resourceCheckPeriod,
-		},
-		contribPerfResultsSummary,
-		processorsConfig,
-		nil,
-		nil,
-	)
-}
-
-func TestStabilityTracesZipkin(t *testing.T) {
-	scenarios.Scenario10kItemsPerSecond(
-		t,
-		datasenders.NewZipkinDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t)),
-		datareceivers.NewZipkinDataReceiver(testutil.GetAvailablePort(t)),
-		testbed.ResourceSpec{
-			ExpectedMaxCPU:      80,
-			ExpectedMaxRAM:      110,
-			ResourceCheckPeriod: resourceCheckPeriod,
-		},
-		contribPerfResultsSummary,
-		processorsConfig,
-		nil,
-		nil,
-	)
-}
-
-func TestStabilityTracesDatadog(t *testing.T) {
-	scenarios.Scenario10kItemsPerSecond(
-		t,
-		datasenders.NewDatadogDataSender(),
-		datareceivers.NewDataDogDataReceiver(),
-		testbed.ResourceSpec{
-			ExpectedMaxCPU:      80,
-			ExpectedMaxRAM:      110,
 			ResourceCheckPeriod: resourceCheckPeriod,
 		},
 		contribPerfResultsSummary,

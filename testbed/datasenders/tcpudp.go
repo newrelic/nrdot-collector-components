@@ -16,11 +16,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/plog"
 
 	"github.com/newrelic/nrdot-collector-components/internal/coreinternal/traceutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 type TCPUDPWriter struct {

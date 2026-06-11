@@ -1,3 +1,2 @@
 Receiver	Exporter
-otlp	otlp_grpc
-stef	stef
+otlp	otlp
