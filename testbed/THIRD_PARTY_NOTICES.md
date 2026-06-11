@@ -300,6 +300,14 @@ Distributed under the following license(s):
 
 
 
+## [go.opentelemetry.io/otel](https://go.opentelemetry.io/otel)
+
+Distributed under the following license(s):
+
+* Apache-2.0
+
+
+
 ## [go.uber.org/goleak](https://go.uber.org/goleak)
 
 Distributed under the following license(s):
