@@ -17,10 +17,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
+
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 // FileLogK8sWriter represents abstract container k8s writer

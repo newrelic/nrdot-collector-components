@@ -19,9 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
-
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	scenarios "github.com/newrelic/nrdot-collector-components/testbed/tests"
 )
 

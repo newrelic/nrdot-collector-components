@@ -13,9 +13,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/newrelic/nrdot-collector-components/testbed/correctnesstests"
 	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
-	"github.com/stretchr/testify/require"
 )
 
 var correctnessResults testbed.TestResultsSummary = &testbed.CorrectnessResults{}

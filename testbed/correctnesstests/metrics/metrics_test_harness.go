@@ -12,12 +12,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 
 	"github.com/newrelic/nrdot-collector-components/internal/coreinternal/metricstestutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 // testHarness listens for datapoints from the receiver to which it is attached

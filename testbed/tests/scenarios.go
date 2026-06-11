@@ -21,12 +21,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/plog"
 
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 var (

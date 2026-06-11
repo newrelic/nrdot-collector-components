@@ -16,12 +16,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
 	"go.uber.org/zap"
 
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 )
 
 type ProcessorNameAndConfigBody struct {
