@@ -16,10 +16,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/newrelic/nrdot-collector-components/testbed/testbed"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/dataconnectors"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datareceivers"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/datasenders"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/testbed/testbed"
 	"go.uber.org/zap"
 
 	"github.com/newrelic/nrdot-collector-components/internal/common/testutil"
@@ -213,10 +212,6 @@ func ConstructTraceSender(t *testing.T, receiver string) testbed.DataSender {
 	switch receiver {
 	case "otlp":
 		sender = testbed.NewOTLPTraceDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
-	case "jaeger":
-		sender = datasenders.NewJaegerGRPCDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
-	case "zipkin":
-		sender = datasenders.NewZipkinDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	default:
 		t.Errorf("unknown receiver type: %s", receiver)
 	}
@@ -229,12 +224,6 @@ func ConstructMetricsSender(t *testing.T, receiver string) testbed.MetricDataSen
 	switch receiver {
 	case "otlp":
 		sender = testbed.NewOTLPMetricDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
-	case "stef":
-		s := datasenders.NewStefDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
-		s.Logger = newDbgLogger()
-		sender = s
-	case "prometheus":
-		sender = datasenders.NewPrometheusDataSender(testbed.DefaultHost, testutil.GetAvailablePort(t))
 	default:
 		t.Errorf("unknown receiver type: %s", receiver)
 	}
