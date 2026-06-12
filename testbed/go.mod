@@ -8,7 +8,7 @@ require (
 	github.com/newrelic/nrdot-collector-components/internal/coreinternal v0.153.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.153.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.153.0
-	github.com/shirou/gopsutil/v4 v4.26.4
+	github.com/shirou/gopsutil/v4 v4.26.5
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/collector/component v1.59.0
 	go.opentelemetry.io/collector/component/componenttest v0.153.0
