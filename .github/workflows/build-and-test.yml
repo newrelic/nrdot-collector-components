@@ -556,10 +556,12 @@ jobs:
           docker run nrdotcol:latest --version
 
   # Publishing tags automatically triggers sourcecode-publish workflow
-  publish-tags:
+  push-tags:
     needs: [publish-check]
     if: needs.publish-check.outputs.publish == 'true'
     uses: ./.github/workflows/push-release-tags.yml
     with:
       version: ${{ needs.publish-check.outputs.version }}
     secrets: inherit
+    permissions:
+      contents: write
