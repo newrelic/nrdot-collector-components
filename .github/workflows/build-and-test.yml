@@ -512,8 +512,8 @@ jobs:
       - name: Set publish status
         id: set-publish
         if: >-
-          github.ref == 'refs/heads/main'
-          && github.repository == 'newrelic/nrdot-collector-components'
+          github.repository == 'newrelic/nrdot-collector-components'
+          && github.ref == 'refs/heads/main'
           && github.event_name == 'push'
           && startsWith(github.event.head_commit.message, '[chore] Prepare release')
         run: echo "publish=true" >> "$GITHUB_OUTPUT"
