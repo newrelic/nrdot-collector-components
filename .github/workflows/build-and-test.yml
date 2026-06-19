@@ -2,8 +2,6 @@ name: build-and-test
 on:
   push:
     branches: [main]
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
   merge_group:
   pull_request:
 
@@ -494,6 +492,9 @@ jobs:
   publish-check:
     runs-on: ubuntu-24.04
     needs: [lint, unittest, integration-tests]
+    outputs:
+      publish: ${{ steps.set-publish.outputs.publish}}
+      version: ${{ steps.determine-version.outputs.version }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
@@ -508,6 +509,23 @@ jobs:
       - name: Verify Distribution Files Exist
         id: check
         run: ./.github/workflows/scripts/verify-dist-files-exist.sh
+      - name: Set publish status
+        id: set-publish
+        if: >-
+          github.ref == 'refs/heads/main'
+          && github.repository == 'newrelic/nrdot-collector-components'
+          && github.event_name == 'push'
+          && startsWith(github.event.head_commit.message, '[chore] Prepare release')
+        run: echo "publish=true" >> "$GITHUB_OUTPUT"
+      - name: Determine version
+        id: determine-version
+        if: steps.set-publish.outputs.publish == 'true'
+        env:
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          VERSION=$(echo "$HEAD_COMMIT_MESSAGE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
   publish-dev:
     runs-on: ubuntu-24.04
     needs: [lint, unittest, integration-tests]
@@ -536,54 +554,12 @@ jobs:
       - name: Validate Docker Image
         run: |
           docker run nrdotcol:latest --version
-  publish-stable:
-    runs-on: ubuntu-24.04
-    needs: [lint, unittest, integration-tests]
-    env:
-      RELEASE_NOTES: release-notes.md
-    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'newrelic/nrdot-collector-components'
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          fetch-depth: 0
 
-      - run: ./.github/workflows/scripts/free-disk-space.sh
-      - run: |
-          cp ../configs/build-and-test/package.json .
-          cp ../configs/build-and-test/package-lock.json .
-          npm ci
-        working-directory: ./.github/workflows/scripts
-
-      - name: Set current and previous tags
-        id: github_tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./.github/workflows/scripts/set_release_tag.sh
-
-      - name: Prepare release notes
-        env:
-          RELEASE_TAG: ${{ steps.github_tag.outputs.tag }}
-        run: ./.github/workflows/scripts/prepare-release-notes.sh
-
-      - name: Generate new contributor celebration text
-        id: new-contributor-text
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        with:
-          result-encoding: 'string'
-          script: |
-            const { default: script } = await import('${{ github.workspace }}/.github/workflows/scripts/generate-new-contributors.js')
-            return await script(github, '${{ steps.github_tag.outputs.tag }}', '${{ steps.github_tag.outputs.previous_tag }}')
-
-      - name: Prepare full release notes
-        run: |
-          echo "" >> ${{ env.RELEASE_NOTES }}
-          echo "${{ steps.new-contributor-text.outputs.result }}" >> ${{ env.RELEASE_NOTES }}
-
-      - name: Create Github Release
-        run: |
-          gh release create "$RELEASE_TAG" -t "$RELEASE_TAG" -F ${{ env.RELEASE_NOTES }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.github_tag.outputs.tag }}
+  # Publishing tags automatically triggers sourcecode-publish workflow
+  publish-tags:
+    needs: [publish-check]
+    if: needs.publish-check.outputs.publish == 'true'
+    uses: ./.github/workflows/push-release-tags.yml
+    with:
+      version: ${{ needs.publish-check.outputs.version }}
+    secrets: inherit
