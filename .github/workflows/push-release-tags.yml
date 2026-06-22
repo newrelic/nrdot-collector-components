@@ -41,25 +41,10 @@ jobs:
           go-version: oldstable
           cache: false
 
-      - name: Determine version and commit
-        id: determine
-        run: |
-          VERSION="${{ inputs.version }}"
-          echo "Using provided version: $VERSION"
-
-          COMMIT="${{ inputs.commit }}"
-          if [ -n "$COMMIT" ]; then
-            echo "Using provided commit SHA: $COMMIT"
-          else
-            echo "No commit provided; will resolve from versions.yaml"
-          fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
-
       - name: Verify version format
         run: |
-          if ! [[ "${{ steps.determine.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+          echo "Using provided version: ${{ inputs.version }}"
+          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
             echo "Error: Version must follow semver format without 'v' prefix (e.g., 0.140.0)"
             exit 1
           fi
@@ -67,10 +52,15 @@ jobs:
       - name: Find release commit
         id: find-commit
         run: |
-          COMMIT="${{ steps.determine.outputs.commit }}"
-          [ -z "$COMMIT" ] && COMMIT=$(git log --all -G "version: v${{ steps.determine.outputs.version }}" --format="%H" -- versions.yaml | head -n 1)
-          [ -z "$COMMIT" ] && { echo "Error: Could not find commit for v${{ steps.determine.outputs.version }}"; exit 1; }
-          git show $COMMIT:versions.yaml | grep -q "version: v${{ steps.determine.outputs.version }}" || { echo "Error: Commit doesn't contain v${{ steps.determine.outputs.version }}"; exit 1; }
+          COMMIT="${{ inputs.commit }}"
+          if [ -n "$COMMIT" ]; then
+            echo "Using provided commit SHA: $COMMIT"
+          else
+            echo "No commit provided; resolving from versions.yaml"
+            COMMIT=$(git log --all -G "version: v${{ inputs.version }}" --format="%H" -- versions.yaml | head -n 1)
+          fi
+          [ -z "$COMMIT" ] && { echo "Error: Could not find commit for v${{ inputs.version }}"; exit 1; }
+          git show $COMMIT:versions.yaml | grep -q "version: v${{ inputs.version }}" || { echo "Error: Commit doesn't contain v${{ inputs.version }}"; exit 1; }
           echo "commit=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Import GPG key
@@ -92,10 +82,10 @@ jobs:
           # Use the commit we found
           make push-tags MODSET=beta COMMIT=${{ steps.find-commit.outputs.commit }} REMOTE=origin
 
-          echo "✅ Successfully pushed all module tags for version ${{ steps.determine.outputs.version }}"
+          echo "✅ Successfully pushed all module tags for version ${{ inputs.version }}"
           echo ""
           echo "Tags pushed:"
-          git tag -l "*${{ steps.determine.outputs.version }}"
+          git tag -l "*${{ inputs.version }}"
 
       - name: Send notification to Slack
         if: ${{ failure() }}
