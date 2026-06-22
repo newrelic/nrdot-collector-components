@@ -20,6 +20,27 @@ jobs:
     permissions:
       contents: write # Grant write permissions to repository contents
     steps:
+      - name: Check if release exists
+        id: check-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          if gh release view "$TAG" --repo ${{ github.repository }} &>/dev/null; then
+            echo "Release for $TAG already exists, skipping"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Checkout Repo
+        if: steps.check-release.outputs.exists == 'false'
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          fetch-depth: 0
+      
       - run: ./.github/workflows/scripts/free-disk-space.sh
       - run: |
           cp ../configs/build-and-test/package.json .
@@ -27,37 +48,18 @@ jobs:
           npm ci
         working-directory: ./.github/workflows/scripts
 
-      - name: Get current and previous tags
-        id: github_tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./.github/workflows/scripts/set_release_tag.sh
-
-      - name: Check if release exists
-        id: check-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.github_tag.outputs.tag }}
-        run: |
-          if gh release view "$RELEASE_TAG" --repo ${{ github.repository }} &>/dev/null; then
-            echo "Release for $RELEASE_TAG already exists, skipping"
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-       
       - name: Prepare release notes
         env:
-          RELEASE_TAG: ${{ steps.github_tag.outputs.tag }}
+          RELEASE_TAG: ${{ steps.check-release.outputs.tag }}
         run: ./.github/workflows/scripts/prepare-release-notes.sh
 
       - name: Create Github Release
-        run: |
-          gh release create "$RELEASE_TAG" -t "$RELEASE_TAG" -F ${{ env.RELEASE_NOTES }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.github_tag.outputs.tag }}
-
+          RELEASE_TAG: ${{ steps.check-release.outputs.tag }}
+        run: |
+          gh release create "$RELEASE_TAG" -t "$RELEASE_TAG" -F ${{ env.RELEASE_NOTES }}
+        
       - name: Send failure notification to Slack
         if: failure()
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
