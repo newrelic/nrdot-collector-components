@@ -59,7 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.check-release.outputs.tag }}
         run: |
-          gh release create "$RELEASE_TAG" -t "$RELEASE_TAG" -F ${{ env.RELEASE_NOTES }}
+          gh release create "$RELEASE_TAG" -t "$RELEASE_TAG" -F release-notes.md
         
       - name: Send failure notification to Slack
         if: ${{ failure() && !env.ACT }}
