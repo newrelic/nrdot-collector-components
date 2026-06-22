@@ -3,5 +3,6 @@
 -P ubuntu-latest=act-certs
 --container-architecture=linux/arm64
 --pull=false
+-e .act/event.json
 --artifact-server-path $PWD/.artifacts
 --cache-server-addr host.docker.internal

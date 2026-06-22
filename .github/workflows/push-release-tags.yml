@@ -73,6 +73,7 @@ jobs:
           git_tag_gpgsign: true
 
       - name: Push tags
+        if: ${{ !env.ACT }} # skip pushing tags when running locally with act
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
@@ -88,7 +89,7 @@ jobs:
           git tag -l "*${{ inputs.version }}"
 
       - name: Send notification to Slack
-        if: failure()
+        if: ${{ failure() && !env.ACT }} # skip Slack notification when running locally with act
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
