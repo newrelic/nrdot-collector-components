@@ -28,17 +28,14 @@ jobs:
         run: |
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           if gh release view "$TAG" --repo ${{ github.repository }} &>/dev/null; then
-            echo "Release for $TAG already exists, skipping"
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Error: release for $TAG already exists"
+            exit 1
           fi
-      
+
       - name: Checkout Repo
-        if: steps.check-release.outputs.exists == 'false'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{ inputs.tag || github.ref_name }}
+          ref: ${{ steps.check-release.outputs.tag }}
           fetch-depth: 0
       
       - run: ./.github/workflows/scripts/free-disk-space.sh
