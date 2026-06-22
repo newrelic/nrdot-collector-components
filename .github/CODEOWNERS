@@ -13,7 +13,6 @@
 # Files owned by release maintainers
 .github/workflows/prepare-release.yml                            @newrelic/otelcomm
 .github/workflows/scripts/release-prepare-release.sh             @newrelic/otelcomm
-.github/workflows/scripts/set_release_tag.sh                     @newrelic/otelcomm
 
 # Start components list
 
