@@ -494,7 +494,7 @@ jobs:
     needs: [lint, unittest, integration-tests]
     outputs:
       publish: ${{ steps.set-publish.outputs.publish}}
-      version: ${{ steps.determine-version.outputs.version }}
+      version: ${{ steps.set-version.outputs.version }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
@@ -509,7 +509,7 @@ jobs:
       - name: Verify Distribution Files Exist
         id: check
         run: ./.github/workflows/scripts/verify-dist-files-exist.sh
-      - name: Set publish status
+      - name: Determine if release should publish
         id: set-publish
         if: >-
           github.repository == 'newrelic/nrdot-collector-components'
@@ -518,7 +518,7 @@ jobs:
           && startsWith(github.event.head_commit.message, '[chore] Prepare release')
         run: echo "publish=true" >> "$GITHUB_OUTPUT"
       - name: Determine version
-        id: determine-version
+        id: set-version
         if: steps.set-publish.outputs.publish == 'true'
         env:
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
