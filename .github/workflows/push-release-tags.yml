@@ -43,11 +43,11 @@ jobs:
 
       - name: Verify version format
         run: |
-          echo "Using provided version: ${{ inputs.version }}"
           if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
             echo "Error: Version must follow semver format without 'v' prefix (e.g., 0.140.0)"
             exit 1
           fi
+          echo "Using provided version: ${{ inputs.version }}"
 
       - name: Find release commit
         id: find-commit
