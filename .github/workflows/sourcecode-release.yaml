@@ -54,6 +54,7 @@ jobs:
         run: ./.github/workflows/scripts/prepare-release-notes.sh
 
       - name: Create Github Release
+        if: ${{ !env.ACT }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.check-release.outputs.tag }}
@@ -61,7 +62,7 @@ jobs:
           gh release create "$RELEASE_TAG" -t "$RELEASE_TAG" -F ${{ env.RELEASE_NOTES }}
         
       - name: Send failure notification to Slack
-        if: failure()
+        if: ${{ failure() && !env.ACT }}
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}

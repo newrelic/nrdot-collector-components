@@ -51,3 +51,6 @@ internal/tools/testresults/*
 go.work*
 
 /result
+
+# Act
+*.secrets
