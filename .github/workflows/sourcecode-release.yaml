@@ -38,7 +38,6 @@ jobs:
           ref: ${{ steps.check-release.outputs.tag }}
           fetch-depth: 0
       
-      - run: ./.github/workflows/scripts/free-disk-space.sh
       - run: |
           cp ../configs/build-and-test/package.json .
           cp ../configs/build-and-test/package-lock.json .
