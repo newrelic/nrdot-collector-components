@@ -493,13 +493,14 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [lint, unittest, integration-tests]
     outputs:
-      publish: ${{ steps.set-publish.outputs.publish }}
-      version: ${{ steps.set-version.outputs.version }}
+      publish: ${{ steps.set-publish-version.outputs.publish }}
+      version: ${{ steps.set-publish-version.outputs.version }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           sparse-checkout: |
             .github/workflows/scripts/verify-dist-files-exist.sh
+            versions.yaml
       - name: Download Binaries
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
@@ -509,22 +510,18 @@ jobs:
       - name: Verify Distribution Files Exist
         id: check
         run: ./.github/workflows/scripts/verify-dist-files-exist.sh
-      - name: Determine if release should publish
-        id: set-publish
+      - name: Sets version and whether to publish
+        id: set-publish-version
         if: >-
           github.repository == 'newrelic/nrdot-collector-components'
           && github.ref == 'refs/heads/main'
           && github.event_name == 'push'
-          && startsWith(github.event.head_commit.message, '[chore] Prepare release')
-        run: echo "publish=true" >> "$GITHUB_OUTPUT"
-      - name: Determine version
-        id: set-version
-        if: steps.set-publish.outputs.publish == 'true'
-        env:
-          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          VERSION=$(echo "$HEAD_COMMIT_MESSAGE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          version=$(yq '.module-sets.beta.version' versions.yaml)
+          if ! git ls-remote --exit-code --tags origin "refs/tags/${version}" >/dev/null 2>&1; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "version=${version#v}" >> "$GITHUB_OUTPUT"
+          fi
 
   publish-dev:
     runs-on: ubuntu-24.04
