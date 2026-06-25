@@ -8,6 +8,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 touch release-notes.md
+echo "### Images and binaries here: https://github.com/newrelic/nrdot-collector-releases/releases/tag/$RELEASE_TAG" >> release-notes.md
+echo "" >> release-notes.md
 echo "## End User Changelog" >> release-notes.md
 
 awk '/<!-- next version -->/,/<!-- previous-version -->/' CHANGELOG.md > tmp-chlog.md # select changelog of latest version only

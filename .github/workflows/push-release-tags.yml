@@ -1,6 +1,16 @@
 name: Push Release Tags
 
 on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to tag (e.g., 0.140.0 - without v prefix)'
+        required: true
+        type: string
+      commit:
+        description: 'Optional: Commit SHA to tag'
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       version:
@@ -11,10 +21,6 @@ on:
         description: 'Optional: Commit SHA to tag'
         required: false
         type: string
-  pull_request:
-    types: [closed]
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -24,9 +30,6 @@ jobs:
     permissions:
       contents: write # required for creating and pushing tags
     runs-on: ubuntu-24.04
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.title, '[chore] Prepare release'))
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
@@ -38,45 +41,26 @@ jobs:
           go-version: oldstable
           cache: false
 
-      - name: Determine version and commit
-        id: determine
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
-        run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            VERSION="${{ inputs.version }}"
-            echo "Using provided version: $VERSION"
-          else
-            VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-            echo "Extracted from PR title: version=$VERSION"
-          fi
-
-          if [ -n "${{ inputs.commit }}" ]; then
-            COMMIT="${{ inputs.commit }}"
-            echo "Using provided commit SHA: $COMMIT"
-          else
-            COMMIT="$MERGE_COMMIT"
-            echo "Using PR merge commit: $COMMIT"
-          fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
-
       - name: Verify version format
         run: |
-          if ! [[ "${{ steps.determine.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
             echo "Error: Version must follow semver format without 'v' prefix (e.g., 0.140.0)"
             exit 1
           fi
+          echo "Using provided version: ${{ inputs.version }}"
 
       - name: Find release commit
         id: find-commit
         run: |
-          COMMIT="${{ steps.determine.outputs.commit }}"
-          [ -z "$COMMIT" ] && COMMIT=$(git log --all -G "version: v${{ steps.determine.outputs.version }}" --format="%H" -- versions.yaml | head -n 1)
-          [ -z "$COMMIT" ] && { echo "Error: Could not find commit for v${{ steps.determine.outputs.version }}"; exit 1; }
-          git show $COMMIT:versions.yaml | grep -q "version: v${{ steps.determine.outputs.version }}" || { echo "Error: Commit doesn't contain v${{ steps.determine.outputs.version }}"; exit 1; }
+          COMMIT="${{ inputs.commit }}"
+          if [ -n "$COMMIT" ]; then
+            echo "Using provided commit SHA: $COMMIT"
+          else
+            echo "No commit provided; resolving from versions.yaml"
+            COMMIT=$(git log --all -G "version: v${{ inputs.version }}" --format="%H" -- versions.yaml | head -n 1)
+          fi
+          [ -z "$COMMIT" ] && { echo "Error: Could not find commit for v${{ inputs.version }}"; exit 1; }
+          git show $COMMIT:versions.yaml | grep -q "version: v${{ inputs.version }}" || { echo "Error: Commit doesn't contain v${{ inputs.version }}"; exit 1; }
           echo "commit=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Import GPG key
@@ -89,6 +73,7 @@ jobs:
           git_tag_gpgsign: true
 
       - name: Push tags
+        if: ${{ !env.ACT }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
@@ -98,13 +83,13 @@ jobs:
           # Use the commit we found
           make push-tags MODSET=beta COMMIT=${{ steps.find-commit.outputs.commit }} REMOTE=origin
 
-          echo "✅ Successfully pushed all module tags for version ${{ steps.determine.outputs.version }}"
+          echo "✅ Successfully pushed all module tags for version ${{ inputs.version }}"
           echo ""
           echo "Tags pushed:"
-          git tag -l "*${{ steps.determine.outputs.version }}"
+          git tag -l "*${{ inputs.version }}"
 
       - name: Send notification to Slack
-        if: failure()
+        if: ${{ failure() && !env.ACT }}
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
