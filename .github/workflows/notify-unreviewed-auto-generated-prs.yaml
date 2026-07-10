@@ -83,4 +83,4 @@ jobs:
           webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
           webhook-type: incoming-webhook
           payload: |
-            text: ":warning: *Auto-generated PRs awaiting review*\n\n*${{ steps.analyze.outputs.count }}* open auto-generated PR(s) in <https://github.com/${{ github.repository }}/pulls|${{ github.repository }}> have not been approved yet:\n\n${{ steps.analyze.outputs.pr_list }}\n\nPlease review or close them."
+            text: ":warning: *Auto-generated PRs awaiting review*\n\n*${{ steps.analyze.outputs.count }}* open auto-generated PR(s) in <https://github.com/${{ github.repository }}/pulls|${{ github.repository }}> have not been approved+merged yet:\n\n${{ steps.analyze.outputs.pr_list }}\n\nPlease review or close them."
