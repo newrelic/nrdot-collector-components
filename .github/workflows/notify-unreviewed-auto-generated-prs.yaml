@@ -3,6 +3,7 @@ name: 🔔 Notify | Unreviewed Auto-Generated PRs
 on:
   workflow_dispatch:
   schedule:
+    # Monday's (at least 3 days after update-otel runs) at summer 2pm ET/ 11am PT, winter 1pm ET/ 10am PT
     - cron: "17 18 * * 1"
 
 permissions:
@@ -42,18 +43,15 @@ jobs:
               | ([.labels[]?.name]) as $labels
               | if   ($branch | startswith("update-otel-"))        or ($title == "[chore] Update core dependencies") then "update-otel"
                 elif ($branch | startswith("prepare-release-prs/")) or ($title | startswith("[chore] Prepare release")) then "prepare-release"
-                elif ($branch | startswith("renovate/")) or ($author == "renovate[bot]") or ($labels | index("renovatebot")) then "renovate"
                 else "" end;
 
             (now) as $now
             | map(. + {type: classify})
             | map(select(.type != ""))
-            | map(select(.reviewDecision != "APPROVED"))
             | map(
                 ((($now - (.createdAt | fromdateiso8601)) / 86400) | floor) as $age
                 | (.title | gsub("\""; "\\\"")) as $title
                 | "• [\(.type)] <\(.url)|#\(.number) \($title)> — \($age)d"
-                  + (if .isDraft then " · draft" else "" end)
                   + " · \(.reviewDecision // "REVIEW_REQUIRED")"
               )
             | .[]
