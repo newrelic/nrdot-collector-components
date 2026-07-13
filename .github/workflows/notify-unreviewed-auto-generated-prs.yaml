@@ -1,0 +1,86 @@
+name: 🔔 Notify | Unreviewed Auto-Generated PRs
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Monday's (at least 3 days after update-otel runs) at summer 2pm ET/ 11am PT, winter 1pm ET/ 10am PT
+    - cron: "17 18 * * 1"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    name: Report unreviewed auto-generated PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: List open PRs
+        id: prs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          out="${RUNNER_TEMP}/open-prs.json"
+          gh pr list \
+            --repo "${{ github.repository }}" \
+            --state open \
+            --limit 200 \
+            --json number,title,url,headRefName,isDraft,createdAt,updatedAt,reviewDecision,author,labels \
+            > "$out"
+          echo "file=${out}" >> "$GITHUB_OUTPUT"
+          echo "Fetched $(jq 'length' "$out") open PR(s)"
+
+      - name: Classify auto-generated PRs
+        id: analyze
+        run: |
+          prs="${{ steps.prs.outputs.file }}"
+
+          bullets=$(jq -r '
+            def classify:
+              (.headRefName) as $branch
+              | (.title) as $title
+              | (.author.login // "") as $author
+              | ([.labels[]?.name]) as $labels
+              | if   ($branch | startswith("update-otel-"))        or ($title == "[chore] Update core dependencies") then "update-otel"
+                elif ($branch | startswith("prepare-release-prs/")) or ($title | startswith("[chore] Prepare release")) then "prepare-release"
+                else "" end;
+
+            (now) as $now
+            | map(. + {type: classify})
+            | map(select(.type != ""))
+            | map(
+                ((($now - (.createdAt | fromdateiso8601)) / 86400) | floor) as $age
+                | (.title | gsub("\""; "\\\"")) as $title
+                | "• [\(.type)] <\(.url)|#\(.number) \($title)> — \($age)d"
+                  + " · \(.reviewDecision // "REVIEW_REQUIRED")"
+              )
+            | .[]
+          ' "$prs")
+
+          if [ -z "$bullets" ]; then
+            echo "No unreviewed auto-generated PRs found."
+            echo "has_matches=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          count=$(printf '%s\n' "$bullets" | grep -c '^•')
+
+          list=$(printf '%s\n' "$bullets" | sed ':a;N;$!ba;s/\n/\\n/g')
+
+          {
+            echo "has_matches=true"
+            echo "count=${count}"
+            echo "pr_list<<PR_LIST_EOF"
+            echo "$list"
+            echo "PR_LIST_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Found ${count} unreviewed auto-generated PR(s)"
+
+      - name: Send Slack notification
+        if: steps.analyze.outputs.has_matches == 'true'
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+        with:
+          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":warning: *Auto-generated PRs awaiting review*\n\n*${{ steps.analyze.outputs.count }}* open auto-generated PR(s) in <https://github.com/${{ github.repository }}/pulls|${{ github.repository }}> have not been approved+merged yet:\n\n${{ steps.analyze.outputs.pr_list }}\n\nPlease review or close them."
