@@ -143,7 +143,7 @@ jobs:
               echo "Found upstream version: ${HIGHEST_CORE_BETA_VERSION} . Proceeding..."
             fi
 
-            HIGHEST_CONTRIB_BETA_VERSION=$(go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden 2>/dev/null | tr ' ' '\n' | grep "^v${CANDIDATE_MINOR}\." | grep -v -- '-' | sort -V | tail -1)
+            HIGHEST_CONTRIB_BETA_VERSION=$(cd internal/coreinternal && go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden 2>/dev/null | tr ' ' '\n' | grep "^v${CANDIDATE_MINOR}\." | grep -v -- '-' | sort -V | tail -1)
             if [ -z "$HIGHEST_CONTRIB_BETA_VERSION" ]; then
               echo "No published contrib beta version found for v${CANDIDATE_MINOR}.x on the Go module proxy. Skipping release preparation."
               MEETS_PREREQS=false
