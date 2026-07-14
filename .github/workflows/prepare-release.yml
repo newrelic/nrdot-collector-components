@@ -134,13 +134,22 @@ jobs:
           if [ "$MEETS_PREREQS" = "true" ] && [ "${{ steps.versions.outputs.sync-upstream }}" = "true" ]; then
             echo "Checking upstream version availability..."
             CANDIDATE_MINOR=$(echo "${CANDIDATE_BETA}" | cut -d. -f1-2)
-            HIGHEST_OTEL_VERSION=$(cd cmd/nrdotcol && go list -m -versions go.opentelemetry.io/collector 2>/dev/null | tr ' ' '\n' | grep "^v${CANDIDATE_MINOR}\." | grep -v -- '-' | sort -V | tail -1)
-            if [ -z "$HIGHEST_OTEL_VERSION" ]; then
-              echo "No published version found for v${CANDIDATE_MINOR}.x on the Go module proxy. Skipping release preparation."
+            HIGHEST_CORE_BETA_VERSION=$(cd cmd/nrdotcol && go list -m -versions go.opentelemetry.io/collector 2>/dev/null | tr ' ' '\n' | grep "^v${CANDIDATE_MINOR}\." | grep -v -- '-' | sort -V | tail -1)
+            if [ -z "$HIGHEST_CORE_BETA_VERSION" ]; then
+              echo "No published core beta version found for v${CANDIDATE_MINOR}.x on the Go module proxy. Skipping release preparation."
               MEETS_PREREQS=false
               exit 0
             else
-              echo "Found upstream version: ${HIGHEST_OTEL_VERSION} . Proceeding..."
+              echo "Found upstream version: ${HIGHEST_CORE_BETA_VERSION} . Proceeding..."
+            fi
+
+            HIGHEST_CONTRIB_BETA_VERSION=$(cd internal/coreinternal && go list -m -versions github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden 2>/dev/null | tr ' ' '\n' | grep "^v${CANDIDATE_MINOR}\." | grep -v -- '-' | sort -V | tail -1)
+            if [ -z "$HIGHEST_CONTRIB_BETA_VERSION" ]; then
+              echo "No published contrib beta version found for v${CANDIDATE_MINOR}.x on the Go module proxy. Skipping release preparation."
+              MEETS_PREREQS=false
+              exit 0
+            else
+              echo "Found upstream contrib version: ${HIGHEST_CONTRIB_BETA_VERSION} . Proceeding..."
             fi
           fi
 
