@@ -7,7 +7,7 @@ name: changelog
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
     branches:
       - main
 
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   changelog:
     runs-on: ubuntu-24.04
-    if: ${{ github.actor != 'dependabot[bot]' }}
+    if: ${{ github.actor != 'dependabot[bot]' && (github.event.action != 'edited' || github.event.changes.title) }}
     env:
       PR_HEAD: ${{ github.event.pull_request.head.sha }}
 
