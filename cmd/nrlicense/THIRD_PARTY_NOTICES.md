@@ -12,3 +12,19 @@ can be found at https://github.com/newrelic/nrdot-collector-components.
 
 
 
+## [github.com/stretchr/testify](https://github.com/stretchr/testify)
+
+Distributed under the following license(s):
+
+* MIT
+
+
+
+## [gopkg.in/yaml.v3](https://gopkg.in/yaml.v3)
+
+Distributed under the following license(s):
+
+* MIT
+
+
+
