@@ -1,6 +1,8 @@
 name: 🔄 Lint | Renovate
 on:
-  pull_request
+  pull_request:
+    paths:
+      - "renovate.json"
 
 permissions:
   contents: read
@@ -12,7 +14,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Install Renovate config validator
-        run: npm install --global renovate
       - name: Test that the config is valid
-        run: renovate-config-validator
+        run: |
+          # renovate: datasource=docker
+          export RENOVATE_IMAGE=ghcr.io/renovatebot/renovate:44.26.0@sha256:eca4654d90229b8a87323c9a13154d8a0f3b0d398b9b7da036fef662601eaff2
+          docker run --rm --entrypoint "renovate-config-validator" \
+            -v "${{ github.workspace }}/renovate.json":"/renovate.json" \
+            "${RENOVATE_IMAGE}" "/renovate.json"
