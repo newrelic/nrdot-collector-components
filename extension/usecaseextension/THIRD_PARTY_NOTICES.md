@@ -44,14 +44,6 @@ Distributed under the following license(s):
 
 
 
-## [go.opentelemetry.io/collector/confmap/xconfmap](https://go.opentelemetry.io/collector/confmap/xconfmap)
-
-Distributed under the following license(s):
-
-* Apache-2.0
-
-
-
 ## [go.opentelemetry.io/collector/extension](https://go.opentelemetry.io/collector/extension)
 
 Distributed under the following license(s):
