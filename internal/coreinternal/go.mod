@@ -1,6 +1,6 @@
 module github.com/newrelic/nrdot-collector-components/internal/coreinternal
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0
