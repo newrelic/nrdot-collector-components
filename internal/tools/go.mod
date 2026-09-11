@@ -1,6 +1,6 @@
 module github.com/newrelic/nrdot-collector-components/internal/tools
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/Khan/genqlient v0.8.1
