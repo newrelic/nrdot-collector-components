@@ -7,6 +7,14 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
 
 <!-- next version -->
 
+## v0.159.0
+
+### 🧰 Bug fixes 🧰
+
+- `internal/coreinternal`: Fix GO-2026-6253, GO-2026-6354, GO-2026-6355 (#996)
+
+<!-- previous-version -->
+
 ## v0.158.0
 
 <!-- previous-version -->
