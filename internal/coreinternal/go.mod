@@ -9,15 +9,15 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.161.0
 	github.com/stretchr/testify v1.12.1
 	github.com/testcontainers/testcontainers-go v0.42.0
-	go.opentelemetry.io/collector/client v1.67.0
-	go.opentelemetry.io/collector/component v1.67.0
+	go.opentelemetry.io/collector/client v1.67.1-0.20260924205005-ee42c62804c0
+	go.opentelemetry.io/collector/component v1.67.1-0.20260924205005-ee42c62804c0
 	go.opentelemetry.io/collector/component/componenttest v0.161.0
-	go.opentelemetry.io/collector/consumer v1.67.0
+	go.opentelemetry.io/collector/consumer v1.67.1-0.20260924205005-ee42c62804c0
 	go.opentelemetry.io/collector/consumer/consumererror v0.161.0
 	go.opentelemetry.io/collector/consumer/consumertest v0.161.0
-	go.opentelemetry.io/collector/pdata v1.67.0
+	go.opentelemetry.io/collector/pdata v1.67.1-0.20260924205005-ee42c62804c0
 	go.opentelemetry.io/collector/pdata/pprofile v0.161.0
-	go.opentelemetry.io/collector/receiver v1.67.0
+	go.opentelemetry.io/collector/receiver v1.67.1-0.20260924205005-ee42c62804c0
 	go.opentelemetry.io/collector/receiver/receivertest v0.161.0
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/trace v1.46.0
@@ -75,10 +75,10 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/collector/consumer/xconsumer v0.161.0 // indirect
-	go.opentelemetry.io/collector/featuregate v1.67.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.67.1-0.20260924205005-ee42c62804c0 // indirect
 	go.opentelemetry.io/collector/internal/componentalias v0.161.0 // indirect
 	go.opentelemetry.io/collector/pdata/xpdata v0.161.0 // indirect
-	go.opentelemetry.io/collector/pipeline v1.67.0 // indirect
+	go.opentelemetry.io/collector/pipeline v1.67.1-0.20260924205005-ee42c62804c0 // indirect
 	go.opentelemetry.io/collector/receiver/xreceiver v0.161.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
 	go.opentelemetry.io/otel/metric v1.46.0 // indirect
