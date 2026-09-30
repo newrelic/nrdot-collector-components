@@ -6,6 +6,4 @@ note: Pass full `processor.Settings` and context to `newProcessor` to fix mdatag
 
 issues: [372]
 
-subtext:
-
-change_logs: []
+change_logs: [user]
