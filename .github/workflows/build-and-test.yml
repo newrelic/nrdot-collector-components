@@ -315,7 +315,7 @@ jobs:
   CodeQL:
     runs-on: ubuntu-24.04
     needs: [changes]
-    if: always() && needs.changes.outputs.src != 'true'
+    if: always()
     steps:
       - name: No source changes
         run: echo "No Go source files changed. CodeQL analysis not required."
