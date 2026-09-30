@@ -14,6 +14,7 @@ import (
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/processor"
+	"go.opentelemetry.io/collector/processor/processortest"
 	"go.uber.org/zap/zaptest"
 
 	"github.com/newrelic/nrdot-collector-components/processor/adaptivetelemetryprocessor/internal/metadata"
@@ -68,7 +69,6 @@ func TestCreateDefaultConfig(t *testing.T) {
 }
 
 func TestCreateProcessor(t *testing.T) {
-	logger := zaptest.NewLogger(t)
 	mockConsumer := newMockMetricsConsumer()
 
 	tests := []struct {
@@ -110,7 +110,7 @@ func TestCreateProcessor(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			test.config.Normalize()
-			proc, err := newProcessor(logger, test.config, mockConsumer)
+			proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), test.config, mockConsumer)
 
 			if test.errorExpected {
 				require.Error(t, err)
@@ -124,7 +124,6 @@ func TestCreateProcessor(t *testing.T) {
 }
 
 func TestCapabilities(t *testing.T) {
-	logger := zaptest.NewLogger(t)
 	mockConsumer := newMockMetricsConsumer()
 
 	config := &Config{
@@ -133,7 +132,7 @@ func TestCapabilities(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 	}
 
-	proc, err := newProcessor(logger, config, mockConsumer)
+	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, mockConsumer)
 	require.NoError(t, err)
 
 	caps := proc.Capabilities()
@@ -141,7 +140,6 @@ func TestCapabilities(t *testing.T) {
 }
 
 func TestStartShutdown(t *testing.T) {
-	logger := zaptest.NewLogger(t)
 	mockConsumer := newMockMetricsConsumer()
 
 	config := &Config{
@@ -150,7 +148,7 @@ func TestStartShutdown(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 	}
 
-	proc, err := newProcessor(logger, config, mockConsumer)
+	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, mockConsumer)
 	require.NoError(t, err)
 
 	// Start should succeed

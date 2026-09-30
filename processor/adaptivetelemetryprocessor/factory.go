@@ -49,17 +49,17 @@ func createDefaultConfig() component.Config {
 
 // createMetricsProcessor constructs the processor for metrics pipelines.
 func createMetricsProcessor(
-	_ context.Context, // Fixed: marked as unused
+	ctx context.Context,
 	set processor.Settings,
 	cfg component.Config,
 	nextConsumer consumer.Metrics,
 ) (processor.Metrics, error) {
-	pCfg, ok := cfg.(*Config) // Fixed: proper type assertion
+	pCfg, ok := cfg.(*Config)
 	if !ok {
 		return nil, fmt.Errorf("invalid config type: expected *Config, got %T", cfg)
 	}
 
-	proc, err := newProcessor(set.Logger, pCfg, nextConsumer)
+	proc, err := newProcessor(ctx, set, pCfg, nextConsumer)
 	if err != nil {
 		return nil, err
 	}
