@@ -110,7 +110,7 @@ func TestCreateProcessor(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			test.config.Normalize()
-			proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), test.config, mockConsumer)
+			proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), test.config, mockConsumer)
 
 			if test.errorExpected {
 				require.Error(t, err)
@@ -132,7 +132,7 @@ func TestCapabilities(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 	}
 
-	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, mockConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, mockConsumer)
 	require.NoError(t, err)
 
 	caps := proc.Capabilities()
@@ -148,7 +148,7 @@ func TestStartShutdown(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for test
 	}
 
-	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, mockConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, mockConsumer)
 	require.NoError(t, err)
 
 	// Start should succeed

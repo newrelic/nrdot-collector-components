@@ -4,7 +4,6 @@
 package adaptivetelemetryprocessor
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -83,7 +82,7 @@ func TestNewProcessor(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), tc.config, nextConsumer)
+			proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), tc.config, nextConsumer)
 
 			if tc.expectedErr != "" {
 				require.Error(t, err)
@@ -128,7 +127,7 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for this test
 	}
 
-	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, nextConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 	assert.NotNil(t, proc)
 	assert.True(t, proc.persistenceEnabled)
@@ -156,7 +155,7 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify data was persisted by creating a new processor and checking
-	proc2, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, nextConsumer)
+	proc2, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 
 	// Verify entity was loaded
@@ -177,7 +176,7 @@ func TestProcessorCleanupExpiredEntities(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for this test
 	}
 
-	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, nextConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 
 	now := time.Now()
@@ -250,7 +249,7 @@ func TestConsumeMetricsBasic(t *testing.T) {
 		EnableStorage: func() *bool { b := false; return &b }(), // Disable storage
 	}
 
-	proc, err := newProcessor(context.Background(), processortest.NewNopSettings(typ), config, nextConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 
 	// Create test metrics that exceed threshold
