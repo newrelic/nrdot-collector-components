@@ -207,10 +207,8 @@ func (p *processorImp) performMaintenanceTasks() {
 
 // forwardMetricsToNextConsumer sends processed metrics to the next consumer
 func (p *processorImp) forwardMetricsToNextConsumer(ctx context.Context, filteredMetrics pmetric.Metrics, stats outputStats) error {
-	// Call the next consumer with appropriate timeout handling
+	// Call the next consumer
 	nextStart := time.Now()
-	consumeCtx, cancelConsume := context.WithTimeout(ctx, 10*time.Second)
-	defer cancelConsume()
 
 	// Always log what we're about to send to the next consumer
 	p.logger.Info("SENDING METRICS to next consumer",
@@ -218,7 +216,7 @@ func (p *processorImp) forwardMetricsToNextConsumer(ctx context.Context, filtere
 		zap.Int("metric_count", stats.TotalMetricCount),
 		zap.Any("metric_types", stats.MetricTypeCount))
 
-	err := p.nextConsumer.ConsumeMetrics(consumeCtx, filteredMetrics)
+	err := p.nextConsumer.ConsumeMetrics(ctx, filteredMetrics)
 	consumeDuration := time.Since(nextStart)
 
 	// Always log at INFO level regardless of the result
