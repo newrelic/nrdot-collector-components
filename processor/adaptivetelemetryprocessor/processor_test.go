@@ -12,11 +12,11 @@ import (
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
+	"go.opentelemetry.io/collector/processor/processortest"
 	"go.uber.org/zap/zaptest"
 )
 
 func TestNewProcessor(t *testing.T) {
-	logger := zaptest.NewLogger(t)
 	nextConsumer := consumertest.NewNop()
 
 	testCases := []struct {
@@ -82,7 +82,7 @@ func TestNewProcessor(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			proc, err := newProcessor(logger, tc.config, nextConsumer)
+			proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), tc.config, nextConsumer)
 
 			if tc.expectedErr != "" {
 				require.Error(t, err)
@@ -93,7 +93,7 @@ func TestNewProcessor(t *testing.T) {
 				require.NotNil(t, proc)
 
 				// Verify processor fields are set correctly
-				assert.Equal(t, logger, proc.logger)
+				assert.NotNil(t, proc.logger)
 				assert.Equal(t, tc.config, proc.config)
 				assert.Equal(t, nextConsumer, proc.nextConsumer)
 				assert.NotNil(t, proc.trackedEntities)
@@ -120,7 +120,6 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 	// Skip this test - storage now uses default platform paths, not temp directories
 	t.Skip("Storage now uses default platform-specific paths")
 
-	logger := zaptest.NewLogger(t)
 	nextConsumer := consumertest.NewNop()
 
 	config := &Config{
@@ -128,7 +127,7 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for this test
 	}
 
-	proc, err := newProcessor(logger, config, nextConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 	assert.NotNil(t, proc)
 	assert.True(t, proc.persistenceEnabled)
@@ -156,7 +155,7 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify data was persisted by creating a new processor and checking
-	proc2, err := newProcessor(logger, config, nextConsumer)
+	proc2, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 
 	// Verify entity was loaded
@@ -170,7 +169,6 @@ func TestProcessorStartShutdownWithStorage(t *testing.T) {
 }
 
 func TestProcessorCleanupExpiredEntities(t *testing.T) {
-	logger := zaptest.NewLogger(t)
 	nextConsumer := consumertest.NewNop()
 
 	config := &Config{
@@ -178,7 +176,7 @@ func TestProcessorCleanupExpiredEntities(t *testing.T) {
 		EnableStorage:    func() *bool { b := false; return &b }(), // Disable storage for this test
 	}
 
-	proc, err := newProcessor(logger, config, nextConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 
 	now := time.Now()
@@ -242,7 +240,6 @@ func createTestMetrics(resourceAttrs map[string]string, metrics map[string]float
 }
 
 func TestConsumeMetricsBasic(t *testing.T) {
-	logger := zaptest.NewLogger(t)
 	nextConsumer := consumertest.NewNop()
 
 	config := &Config{
@@ -252,7 +249,7 @@ func TestConsumeMetricsBasic(t *testing.T) {
 		EnableStorage: func() *bool { b := false; return &b }(), // Disable storage
 	}
 
-	proc, err := newProcessor(logger, config, nextConsumer)
+	proc, err := newProcessor(t.Context(), processortest.NewNopSettings(typ), config, nextConsumer)
 	require.NoError(t, err)
 
 	// Create test metrics that exceed threshold

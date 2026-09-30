@@ -10,5 +10,3 @@ status:
   codeowners:
     active: [newrelic/dbi, newrelic/ohai]
 
-tests:
-  skip_context_propagation: true

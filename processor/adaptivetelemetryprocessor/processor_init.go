@@ -10,11 +10,13 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
+	"go.opentelemetry.io/collector/processor"
 	"go.uber.org/zap"
 )
 
 // newProcessor constructs the processor with configured features and storage.
-func newProcessor(logger *zap.Logger, config *Config, nextConsumer consumer.Metrics) (*processorImp, error) {
+func newProcessor(_ context.Context, set processor.Settings, config *Config, nextConsumer consumer.Metrics) (*processorImp, error) {
+	logger := set.Logger
 	// Normalize & validate config first
 	config.Normalize()
 	if err := config.Validate(); err != nil {
