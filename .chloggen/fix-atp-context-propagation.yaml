@@ -4,7 +4,7 @@ component: processor/adaptivetelemetry
 
 note: Pass full `processor.Settings` and context to `newProcessor` to fix mdatagen-generated component lifecycle tests that assert correct context propagation.
 
-issues: []
+issues: [372]
 
 subtext:
 
