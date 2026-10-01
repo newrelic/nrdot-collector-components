@@ -7,6 +7,14 @@ If you are looking for developer-facing changes, check out [CHANGELOG-API.md](./
 
 <!-- next version -->
 
+## v0.162.1
+
+### 🧰 Bug fixes 🧰
+
+- `processor/adaptivetelemetry`: Pass full `processor.Settings` and context to `newProcessor` to fix mdatagen-generated component lifecycle tests that assert correct context propagation. (#373)
+
+<!-- previous-version -->
+
 ## v0.162.0
 
 <!-- previous-version -->
