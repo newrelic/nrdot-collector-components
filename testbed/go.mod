@@ -3,7 +3,7 @@ module github.com/newrelic/nrdot-collector-components/testbed
 go 1.26.0
 
 require (
-	github.com/fluent/fluent-logger-golang v1.10.1
+	github.com/fluent/fluent-logger-golang v1.10.2
 	github.com/newrelic/nrdot-collector-components/internal/common v0.162.1
 	github.com/newrelic/nrdot-collector-components/internal/coreinternal v0.162.1
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.162.0
