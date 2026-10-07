@@ -3,7 +3,7 @@ module github.com/newrelic/nrdot-collector-components/internal/coreinternal
 go 1.26.0
 
 require (
-	github.com/cenkalti/backoff/v4 v4.3.0
+	github.com/cenkalti/backoff/v7 v7.0.1
 	github.com/elastic/lunes v0.2.2
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.162.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.162.0
