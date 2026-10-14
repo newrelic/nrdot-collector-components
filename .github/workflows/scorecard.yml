@@ -54,6 +54,12 @@ jobs:
           #     of the value entered here.
           publish_results: true
 
+      # We are not pursuing an OpenSSF Best Practices badge, so drop that check's alert.
+      - name: "Drop CII-Best-Practices result"
+        run: |
+          jq '.runs[].results |= map(select(.ruleId != "CIIBestPracticesID"))' results.sarif > results.sarif.tmp
+          mv results.sarif.tmp results.sarif
+
       # Upload the results as artifacts (optional). Commenting out will disable uploads of run results in SARIF
       # format to the repository Actions tab.
       - name: "Upload artifact"
