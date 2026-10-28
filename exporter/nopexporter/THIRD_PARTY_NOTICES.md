@@ -36,6 +36,14 @@ Distributed under the following license(s):
 
 
 
+## [go.opentelemetry.io/collector/config/configoptional](https://go.opentelemetry.io/collector/config/configoptional)
+
+Distributed under the following license(s):
+
+* Apache-2.0
+
+
+
 ## [go.opentelemetry.io/collector/confmap](https://go.opentelemetry.io/collector/confmap)
 
 Distributed under the following license(s):
@@ -53,6 +61,14 @@ Distributed under the following license(s):
 
 
 ## [go.opentelemetry.io/collector/exporter](https://go.opentelemetry.io/collector/exporter)
+
+Distributed under the following license(s):
+
+* Apache-2.0
+
+
+
+## [go.opentelemetry.io/collector/exporter/exporterhelper](https://go.opentelemetry.io/collector/exporter/exporterhelper)
 
 Distributed under the following license(s):
 
