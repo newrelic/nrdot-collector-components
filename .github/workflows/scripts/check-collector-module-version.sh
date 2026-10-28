@@ -32,7 +32,7 @@ get_collector_version() {
       grep "$collector_module" "$main_mod_file" | (read -r mod version rest;
          echo "$version")
    else
-      echo "Error: failed to retrieve the \"$collector_module\" version from \"$main_mod_file\"."
+      echo "Error: failed to retrieve the \"$collector_module\" version from \"$main_mod_file\"." >&2
       exit 1
    fi
 }
@@ -58,7 +58,7 @@ MAIN_MOD_FILE="./cmd/nrdotcol/go.mod"
 BETA_MODULE="go.opentelemetry.io/collector"
 # Note space at end of string. This is so it filters for the exact string
 # only and does not return string which contains this string as a substring.
-BETA_MOD_VERSION=$(get_collector_version "$BETA_MODULE " "$MAIN_MOD_FILE")
+BETA_MOD_VERSION=$(get_collector_version "go.opentelemetry.io/collector/otelcol " "$MAIN_MOD_FILE")
 check_collector_versions_correct "$BETA_MODULE" "$BETA_MOD_VERSION"
 for mod in "${beta_modules[@]}"; do
    check_collector_versions_correct "$mod" "$BETA_MOD_VERSION"
