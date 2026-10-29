@@ -8,27 +8,27 @@
 # https://help.github.com/en/articles/about-code-owners
 #
 
-* @newrelic/otelcomm
+* @newrelic/otelcomm @newrelic/ac
 
 # Files owned by release maintainers
-.github/workflows/prepare-release.yml                            @newrelic/otelcomm
-.github/workflows/scripts/release-prepare-release.sh             @newrelic/otelcomm
+.github/workflows/prepare-release.yml                            @newrelic/otelcomm @newrelic/ac
+.github/workflows/scripts/release-prepare-release.sh             @newrelic/otelcomm @newrelic/ac
 
 # Start components list
 
-cmd/codecovgen/                       @newrelic/otelcomm
-cmd/nrdotcol/                         @newrelic/otelcomm
-cmd/oteltestbedcol/                   @newrelic/otelcomm
-exporter/nopexporter/                 @newrelic/otelcomm
-extension/usecaseextension/           @newrelic/otelcomm @newrelic/otelcomm
-internal/common/                      @newrelic/otelcomm
-internal/coreinternal/                @newrelic/otelcomm
-internal/tools/                       @newrelic/otelcomm
-processor/adaptivetelemetryprocessor/ @newrelic/otelcomm @newrelic/dbi @newrelic/ohai
-receiver/nopreceiver/                 @newrelic/otelcomm
-testbed/                              @newrelic/otelcomm
+cmd/codecovgen/                       @newrelic/otelcomm @newrelic/ac
+cmd/nrdotcol/                         @newrelic/otelcomm @newrelic/ac
+cmd/oteltestbedcol/                   @newrelic/otelcomm @newrelic/ac
+exporter/nopexporter/                 @newrelic/otelcomm @newrelic/ac
+extension/usecaseextension/           @newrelic/otelcomm @newrelic/ac @newrelic/otelcomm
+internal/common/                      @newrelic/otelcomm @newrelic/ac
+internal/coreinternal/                @newrelic/otelcomm @newrelic/ac
+internal/tools/                       @newrelic/otelcomm @newrelic/ac
+processor/adaptivetelemetryprocessor/ @newrelic/otelcomm @newrelic/ac @newrelic/dbi @newrelic/ohai
+receiver/nopreceiver/                 @newrelic/otelcomm @newrelic/ac
+testbed/                              @newrelic/otelcomm @newrelic/ac
 
 # End components list
 
 # Changelog ownership for components
-.chloggen/atp_*.yaml        @newrelic/otelcomm @newrelic/dbi @newrelic/ohai
+.chloggen/atp_*.yaml        @newrelic/otelcomm @newrelic/ac @newrelic/dbi @newrelic/ohai
