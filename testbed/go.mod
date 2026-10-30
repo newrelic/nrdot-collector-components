@@ -6,8 +6,8 @@ require (
 	github.com/fluent/fluent-logger-golang v1.10.1
 	github.com/newrelic/nrdot-collector-components/internal/common v0.163.0
 	github.com/newrelic/nrdot-collector-components/internal/coreinternal v0.163.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.163.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.163.0
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/core/xidutils v0.164.1
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.164.1
 	github.com/shirou/gopsutil/v4 v4.26.9
 	github.com/stretchr/testify v1.12.1
 	go.opentelemetry.io/collector/component v1.70.0
