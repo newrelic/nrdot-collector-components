@@ -491,7 +491,7 @@ jobs:
 
   publish-check:
     runs-on: ubuntu-24.04
-    needs: [lint, unittest, integration-tests]
+    needs: [lint, unittest, integration-tests, cross-compile]
     outputs:
       publish: ${{ steps.set-publish-version.outputs.publish }}
       version: ${{ steps.set-publish-version.outputs.version }}
