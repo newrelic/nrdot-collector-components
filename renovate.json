@@ -1,5 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "customManagers:githubActionsVersions",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "schedule": ["on tuesday"],
   "automerge": false,
   "dependencyDashboard": false,
   "osvVulnerabilityAlerts": true,
@@ -7,26 +13,24 @@
   "semanticCommits": "enabled",
   "semanticCommitType": "chore",
   "semanticCommitScope": "deps",
-  "labels": [
-    "renovatebot",
-    "dependencies"
-  ],
-  "constraints": {
-    "go": "1.25"
-  },
-  "schedule": [
-    "on tuesday"
-  ],
-  "extends": [
-    "config:recommended",
-    "customManagers:githubActionsVersions",
-    "helpers:pinGitHubActionDigests"
-  ],
+  "labels": ["renovatebot", "dependencies"],
+  "prConcurrentLimit": 200,
+  "suppressNotifications": ["prEditedNotification"],
   "packageRules": [
     {
-      "matchManagers": [
-        "gomod"
-      ],
+      "description": "Single group for all Dockerfile updates",
+      "matchManagers": ["dockerfile"],
+      "groupName": "dockerfile deps"
+    },
+    {
+      "description": "Single group for all GitHub Actions updates, pinned by digest",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true,
+      "groupName": "github actions"
+    },
+    {
+      "description": "Disable Go update types we do not want Renovate to manage",
+      "matchManagers": ["gomod"],
       "matchUpdateTypes": [
         "pin",
         "pinDigest",
@@ -40,9 +44,7 @@
     },
     {
       "description": "OpenTelemetry collector core and contrib modules are managed by the update-otel workflow",
-      "matchManagers": [
-        "gomod"
-      ],
+      "matchManagers": ["gomod"],
       "matchPackageNames": [
         "go.opentelemetry.io/collector{/,}**",
         "github.com/open-telemetry/opentelemetry-collector-contrib{/,}**"
@@ -50,71 +52,17 @@
       "enabled": false
     },
     {
-      "matchManagers": [
-        "gomod"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "prBodyNotes": [
-        ":warning: MAJOR VERSION UPDATE :warning: - please manually update this package"
-      ],
-      "labels": [
-        "dependency-major-update"
-      ]
+      "description": "Single group for all major Go updates, so they land in one PR",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "All go major updates",
+      "labels": ["dependency-major-update"]
     },
     {
-      "matchManagers": [
-        "dockerfile"
-      ],
-      "groupName": "dockerfile deps"
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "pinDigests": true,
-      "groupName": "github actions"
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "groupName": "All google.golang.org packages",
-      "matchSourceUrls": [
-        "https://google.golang.org{/,}**"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "groupName": "All golang.org/x packages",
-      "matchPackageNames": [
-        "golang.org/x{/,}**"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "groupName": "All go.opentelemetry.io/build-tools packages",
-      "matchPackageNames": [
-        "go.opentelemetry.io/build-tools{/,}**"
-      ]
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-go-contrib"
-      ],
-      "groupName": "All opentelemetry-go-contrib packages"
+      "description": "Single group for all non-major Go updates, so they land in one PR",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "All other go packages"
     }
-  ],
-  "prConcurrentLimit": 200,
-  "suppressNotifications": [
-    "prEditedNotification"
   ]
 }
