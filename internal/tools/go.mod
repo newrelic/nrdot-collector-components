@@ -13,7 +13,7 @@ require (
 	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.163.0
 	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.163.0
 	github.com/rhysd/actionlint v1.7.8
-	go.elastic.co/go-licence-detector v0.10.0
+	go.elastic.co/go-licence-detector v0.11.1
 	go.opentelemetry.io/build-tools/checkapi v0.29.0
 	go.opentelemetry.io/build-tools/checkfile v0.29.0
 	go.opentelemetry.io/build-tools/chloggen v0.29.0
@@ -82,7 +82,7 @@ require (
 	github.com/ckaznocha/intrange v0.3.1 // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/curioswitch/go-reassign v0.3.0 // indirect
-	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
+	github.com/cyphar/filepath-securejoin v0.7.0 // indirect
 	github.com/dave/dst v0.27.3 // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
@@ -126,7 +126,7 @@ require (
 	github.com/google/go-github/v76 v76.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/jsonschema-go v0.4.3 // indirect
-	github.com/google/licenseclassifier v0.0.0-20250213175939-b5d1a3369749 // indirect
+	github.com/google/licenseclassifier v0.0.0-20260218193730-3cfbab2d0e0d // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect
 	github.com/gostaticanalysis/analysisutil v0.7.1 // indirect
