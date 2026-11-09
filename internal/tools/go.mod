@@ -10,8 +10,8 @@ require (
 	github.com/google/addlicense v1.2.0
 	github.com/jcchavezs/porto v0.6.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.164.1
-	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.164.1
+	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.165.0
+	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.165.0
 	github.com/rhysd/actionlint v1.7.8
 	go.elastic.co/go-licence-detector v0.11.1
 	go.opentelemetry.io/build-tools/checkapi v0.29.0
@@ -21,8 +21,8 @@ require (
 	go.opentelemetry.io/build-tools/githubgen v0.29.0
 	go.opentelemetry.io/build-tools/issuegenerator v0.29.0
 	go.opentelemetry.io/build-tools/multimod v0.30.0
-	go.opentelemetry.io/collector/cmd/builder v0.164.0
-	go.opentelemetry.io/collector/cmd/mdatagen v0.164.0
+	go.opentelemetry.io/collector/cmd/builder v0.165.0
+	go.opentelemetry.io/collector/cmd/mdatagen v0.165.0
 	go.uber.org/goleak v1.3.0
 	golang.org/x/tools v0.52.0
 	golang.org/x/vuln v1.3.0
@@ -70,7 +70,7 @@ require (
 	github.com/butuzov/mirror v1.3.0 // indirect
 	github.com/catenacyber/perfsprint v0.9.1 // indirect
 	github.com/ccojocar/zxcvbn-go v1.0.2 // indirect
-	github.com/cenkalti/backoff/v7 v7.0.1 // indirect
+	github.com/cenkalti/backoff/v7 v7.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charithe/durationcheck v0.0.10 // indirect
 	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
@@ -162,7 +162,7 @@ require (
 	github.com/knadh/koanf/providers/env/v2 v2.0.2 // indirect
 	github.com/knadh/koanf/providers/file v1.2.1 // indirect
 	github.com/knadh/koanf/providers/fs v1.0.1 // indirect
-	github.com/knadh/koanf/v2 v2.3.8 // indirect
+	github.com/knadh/koanf/v2 v2.4.1 // indirect
 	github.com/kulti/thelper v0.6.3 // indirect
 	github.com/kunwardeep/paralleltest v1.0.14 // indirect
 	github.com/lasiar/canonicalheader v1.1.2 // indirect
@@ -258,34 +258,35 @@ require (
 	go-simpler.org/sloglint v0.11.0 // indirect
 	go.augendre.info/fatcontext v0.8.0 // indirect
 	go.opentelemetry.io/build-tools v0.30.0 // indirect
-	go.opentelemetry.io/collector/client v1.70.0 // indirect
-	go.opentelemetry.io/collector/component v1.70.0 // indirect
-	go.opentelemetry.io/collector/config/configoptional v1.70.0 // indirect
-	go.opentelemetry.io/collector/config/configretry v1.70.0 // indirect
-	go.opentelemetry.io/collector/confmap v1.70.0 // indirect
-	go.opentelemetry.io/collector/confmap/provider/fileprovider v1.70.0 // indirect
-	go.opentelemetry.io/collector/consumer v1.70.0 // indirect
-	go.opentelemetry.io/collector/consumer/consumererror v0.164.0 // indirect
-	go.opentelemetry.io/collector/exporter v1.70.0 // indirect
-	go.opentelemetry.io/collector/exporter/exporterhelper v0.164.0 // indirect
-	go.opentelemetry.io/collector/extension v1.70.0 // indirect
-	go.opentelemetry.io/collector/extension/xextension v0.164.0 // indirect
-	go.opentelemetry.io/collector/featuregate v1.70.0 // indirect
-	go.opentelemetry.io/collector/filter v0.164.0 // indirect
-	go.opentelemetry.io/collector/internal/componentalias v0.164.0 // indirect
-	go.opentelemetry.io/collector/internal/schemagen v0.164.0 // indirect
-	go.opentelemetry.io/collector/pdata v1.70.0 // indirect
-	go.opentelemetry.io/collector/pdata/pprofile v0.164.0 // indirect
-	go.opentelemetry.io/collector/pdata/xpdata v0.164.0 // indirect
-	go.opentelemetry.io/collector/pipeline v1.70.0 // indirect
-	go.opentelemetry.io/collector/pipeline/xpipeline v0.164.0 // indirect
+	go.opentelemetry.io/collector/client v1.71.0 // indirect
+	go.opentelemetry.io/collector/component v1.71.0 // indirect
+	go.opentelemetry.io/collector/config/configoptional v1.71.0 // indirect
+	go.opentelemetry.io/collector/config/configretry v1.71.0 // indirect
+	go.opentelemetry.io/collector/confmap v1.71.0 // indirect
+	go.opentelemetry.io/collector/confmap/provider/fileprovider v1.71.0 // indirect
+	go.opentelemetry.io/collector/consumer v1.71.0 // indirect
+	go.opentelemetry.io/collector/consumer/consumererror v0.165.0 // indirect
+	go.opentelemetry.io/collector/exporter v1.71.0 // indirect
+	go.opentelemetry.io/collector/exporter/exporterhelper v0.165.0 // indirect
+	go.opentelemetry.io/collector/extension v1.71.0 // indirect
+	go.opentelemetry.io/collector/extension/xextension v0.165.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.71.0 // indirect
+	go.opentelemetry.io/collector/filter v0.165.0 // indirect
+	go.opentelemetry.io/collector/internal/componentalias v0.165.0 // indirect
+	go.opentelemetry.io/collector/internal/schemagen v0.165.0 // indirect
+	go.opentelemetry.io/collector/internal/telemetry v0.165.0 // indirect
+	go.opentelemetry.io/collector/pdata v1.71.0 // indirect
+	go.opentelemetry.io/collector/pdata/pprofile v0.165.0 // indirect
+	go.opentelemetry.io/collector/pdata/xpdata v0.165.0 // indirect
+	go.opentelemetry.io/collector/pipeline v1.71.0 // indirect
+	go.opentelemetry.io/collector/pipeline/xpipeline v0.165.0 // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260312153236-7ab1446f8b90 // indirect
@@ -297,8 +298,8 @@ require (
 	golang.org/x/telemetry v0.0.0-20261009151841-97e8ea77aa2a // indirect
 	golang.org/x/term v0.47.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/grpc v1.84.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260928230214-8a89bd6388cc // indirect
+	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
