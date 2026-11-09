@@ -7,6 +7,10 @@ If you are looking for user-facing changes, check out [CHANGELOG.md](./CHANGELOG
 
 <!-- next version -->
 
+## v0.165.0
+
+<!-- previous-version -->
+
 ## v0.164.1
 
 <!-- previous-version -->
