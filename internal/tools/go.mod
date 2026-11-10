@@ -10,6 +10,7 @@ require (
 	github.com/google/addlicense v1.2.0
 	github.com/jcchavezs/porto v0.6.0
 	github.com/jstemmer/go-junit-report v1.0.0
+	github.com/jstemmer/go-junit-report/v2 v2.1.0
 	github.com/newrelic/nrdot-collector-components/cmd/codecovgen v0.164.1
 	github.com/newrelic/nrdot-collector-components/cmd/nrlicense v0.164.1
 	github.com/rhysd/actionlint v1.7.8
@@ -300,8 +301,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	go.yaml.in/yaml/v4 v4.0.0-rc.6 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
+	go.yaml.in/yaml/v4 v4.0.0 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260811152304-ee035b5b010f // indirect
 	golang.org/x/mod v0.42.0 // indirect
