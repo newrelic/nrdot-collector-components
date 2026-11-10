@@ -30,7 +30,7 @@ permissions: read-all
 jobs:
   check-codeowners:
     timeout-minutes: 30
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # SECURITY: Use github.event.pull_request.user.login instead of github.actor to prevent actor impersonation attacks
     # Additionally, ensure the PR is not from a fork to prevent execution of untrusted code with repo secrets
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && github.repository == 'newrelic/nrdot-collector-components' && github.event.pull_request.head.repo.fork == false }}
