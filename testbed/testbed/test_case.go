@@ -107,7 +107,7 @@ func NewLoadGeneratorTestCase(t *testing.T, loadGenerator LoadGenerator, receive
 	var err error
 	tc.Duration, err = time.ParseDuration(duration)
 	if err != nil {
-		log.Fatalf("Invalid "+testcaseDurationVar+": %v. Expecting a valid duration string.", duration)
+		log.Fatalf("Invalid "+testcaseDurationVar+": %v. Expecting a valid duration string.", duration) //nolint:gosec // Reason: test-only value set by the developer running the testbed
 	}
 
 	// Apply all provided options.
