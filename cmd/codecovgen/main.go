@@ -1,4 +1,9 @@
 // Copyright The OpenTelemetry Authors
+// Modifications copyright New Relic, Inc.
+//
+// Modifications can be found at the following URL:
+// https://github.com/newrelic/nrdot-collector-components/commits/main/cmd/codecovgen/main.go?since=2025-11-26
+//
 // SPDX-License-Identifier: Apache-2.0
 
 package main
@@ -254,7 +259,7 @@ func addComponentList(config *codecovConfig) error {
 	}
 
 	codecovCfg = bytes.ReplaceAll(codecovCfg, oldContent[0], replacement)
-	err = os.WriteFile(codecovFileName, codecovCfg, 0o600)
+	err = os.WriteFile(codecovFileName, codecovCfg, 0o600) //nolint:gosec // Reason: path is the codecov file this dev tool was invoked to update
 	if err != nil {
 		return fmt.Errorf("failed to write to %q: %w", codecovFileName, err)
 	}

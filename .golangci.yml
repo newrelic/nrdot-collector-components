@@ -54,6 +54,13 @@ linters:
       - legacy
       - std-error-handling
 
+    rules:
+      # Test fixtures use fake credentials in URLs.
+      - path: _test\.go
+        linters:
+          - gosec
+        text: G101
+
     # Log a warning if an exclusion rule is unused.
     warn-unused: true
 
