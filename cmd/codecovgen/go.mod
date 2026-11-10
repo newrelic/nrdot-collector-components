@@ -4,7 +4,8 @@ go 1.25.0
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
-	go.yaml.in/yaml/v3 v3.0.4
+	go.yaml.in/yaml/v3 v3.0.6
+	go.yaml.in/yaml/v4 v4.0.0
 	golang.org/x/mod v0.40.0
 )
 
