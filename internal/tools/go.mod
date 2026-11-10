@@ -334,8 +334,9 @@ replace github.com/newrelic/nrdot-collector-components/cmd/codecovgen => ../../c
 replace github.com/newrelic/nrdot-collector-components/cmd/nrlicense => ../../cmd/nrlicense
 
 // TODO: remove once actionlint ships a release compatible with go.yaml.in/yaml/v4 >= rc.6.
-// golangci-lint v2.15.0 requires yaml/v4 rc.6, but actionlint <= v1.7.12 is written against
-// rc.2 and fails to compile (undefined: yaml.ParserError). Waiting on:
+// golangci-lint v2.15.0 requires yaml/v4 rc.6, but actionlint v1.7.12 is written against
+// rc.3 and fails to compile against rc.6 (undefined: yaml.ParserError). Keep this pinned to
+// the yaml/v4 rc that the actionlint version in this file requires. Waiting on:
 //   - https://github.com/rhysd/actionlint/pull/735
 //   - https://github.com/rhysd/actionlint/issues/765
-replace go.yaml.in/yaml/v4 v4.0.0-rc.6 => go.yaml.in/yaml/v4 v4.0.0-rc.2
+replace go.yaml.in/yaml/v4 v4.0.0-rc.6 => go.yaml.in/yaml/v4 v4.0.0-rc.3
