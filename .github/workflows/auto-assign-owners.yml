@@ -16,7 +16,7 @@ jobs:
   add-owner:
     permissions:
       pull-requests: write # required for assigning reviewers to PRs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # SECURITY: Use github.event.pull_request.user.login instead of github.actor to prevent actor impersonation attacks
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && github.event.pull_request.draft == false }}
     steps:

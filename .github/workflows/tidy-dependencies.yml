@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write # required for pushing changes
     timeout-minutes: 30
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # SECURITY: Use github.event.pull_request.user.login instead of github.actor to prevent actor impersonation attacks
     # See: https://www.synacktiv.com/publications/github-actions-exploitation-dependabot
     # Additionally, ensure the PR is not from a fork to prevent execution of untrusted code with repo secrets

@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: ${{ github.actor != 'dependabot[bot]' }}
     permissions:
       contents: read
@@ -40,7 +40,7 @@ jobs:
               - '.codecov.yml'
   setup-environment:
     timeout-minutes: 30
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -56,7 +56,7 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
   check-collector-module-version:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -80,7 +80,7 @@ jobs:
           - pkg
           - cmd
           - other
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -100,7 +100,7 @@ jobs:
         run: GOOS=${{ matrix.goos }} GOARCH=amd64 make -j2 golint GROUP=${{ matrix.group }}
   lint:
     if: ${{ github.actor != 'dependabot[bot]' && always() }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment, lint-matrix]
     steps:
       - name: Print result
@@ -127,7 +127,7 @@ jobs:
           - internal
           - pkg
           - cmd
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     needs: [setup-environment]
     steps:
@@ -153,7 +153,7 @@ jobs:
                          <(grep -v '^#' .govulncheck-exceptions | sort -u))
           [[ -z "$new" ]] || { echo "::error::New vulnerabilities found: $new"; exit 1; }
   checks:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -295,7 +295,7 @@ jobs:
 
   unittest:
     if: ${{ github.actor != 'dependabot[bot]' && always() }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment, unittest-matrix]
     steps:
       - name: Print result
@@ -313,7 +313,7 @@ jobs:
   # This job satisfies the required "CodeQL" branch protection status check in that case.
   # always() is required so this job runs even when the changes job was skipped (e.g. Dependabot).
   CodeQL:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [changes]
     if: always() && needs.changes.outputs.src != 'true'
     steps:
@@ -321,7 +321,7 @@ jobs:
         run: echo "No Go source files changed. CodeQL analysis not required."
 
   coverage:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [changes, unittest]
     if: needs.changes.outputs.src == 'true' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
     steps:
@@ -348,7 +348,7 @@ jobs:
           - internal
           - pkg
           - cmd
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -370,7 +370,7 @@ jobs:
 
   integration-tests:
     if: ${{ github.actor != 'dependabot[bot]' && always() }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment, integration-tests-matrix]
     steps:
       - name: Print result
@@ -386,7 +386,7 @@ jobs:
           fi
 
   correctness-traces:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -405,7 +405,7 @@ jobs:
       - name: Correctness
         run: make -C testbed run-correctness-traces-tests
   correctness-metrics:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -425,7 +425,7 @@ jobs:
         run: make -C testbed run-correctness-metrics-tests
 
   cross-compile:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [setup-environment]
     strategy:
       fail-fast: false
@@ -490,7 +490,7 @@ jobs:
           path: ./bin/*
 
   publish-check:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [lint, unittest, integration-tests, cross-compile]
     outputs:
       publish: ${{ steps.set-publish-version.outputs.publish }}
@@ -524,7 +524,7 @@ jobs:
           fi
 
   publish-dev:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [lint, unittest, integration-tests]
     if: github.ref == 'refs/heads/main' && github.repository == 'newrelic/nrdot-collector-components'
     steps:
