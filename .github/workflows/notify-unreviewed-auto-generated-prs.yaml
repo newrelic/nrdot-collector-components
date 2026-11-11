@@ -80,7 +80,7 @@ jobs:
         if: steps.analyze.outputs.has_matches == 'true'
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
-          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook: ${{ secrets.AC_SLACK_WEBHOOK }}
           webhook-type: incoming-webhook
           payload: |
             text: ":warning: *Auto-generated PRs awaiting review*\n\n*${{ steps.analyze.outputs.count }}* open auto-generated PR(s) in <https://github.com/${{ github.repository }}/pulls|${{ github.repository }}> have not been approved+merged yet:\n\n${{ steps.analyze.outputs.pr_list }}\n\nPlease review or close them."
