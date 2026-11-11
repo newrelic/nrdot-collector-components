@@ -92,7 +92,7 @@ jobs:
         if: ${{ failure() && !env.ACT }}
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
-          webhook: ${{ secrets.OTELCOMM_BOTS_SLACK_HOOK }}
+          webhook: ${{ secrets.AC_SLACK_WEBHOOK }}
           webhook-type: incoming-webhook
           payload: |
             text: ":rotating_light: push-release-tags workflow failed - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} :rotating_light:"
