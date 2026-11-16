@@ -38,6 +38,7 @@ jobs:
               - '**/go.mod'
               - '**/go.sum'
               - '.codecov.yml'
+              - '.github/workflows/build-and-test.yml'
   setup-environment:
     timeout-minutes: 30
     runs-on: ubuntu-24.04
