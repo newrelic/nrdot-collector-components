@@ -324,6 +324,9 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, unittest]
     if: needs.changes.outputs.src == 'true' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
@@ -332,8 +335,8 @@ jobs:
           pattern: coverage-artifacts-*
       - name: Upload coverage report
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          use_oidc: true
 
   integration-tests-matrix:
     strategy:
