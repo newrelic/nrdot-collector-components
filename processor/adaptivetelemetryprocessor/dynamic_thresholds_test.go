@@ -330,6 +330,82 @@ func TestUpdateDynamicThresholdsExtended_WithMinMax(t *testing.T) {
 	assert.GreaterOrEqual(t, processor.dynamicCustomThresholds["process.cpu.utilization"], 15.0)
 }
 
+// hostmetrics reports byte counts as integer data points, mostly as Sums. Non-monotonic Sums
+// such as process.memory.usage are point-in-time values and should move dynamic thresholds.
+// Monotonic Sums such as process.disk.io are running totals and should not.
+func TestUpdateDynamicThresholdsIntegerAndSumMetrics(t *testing.T) {
+	testCases := []struct {
+		name       string
+		metricName string
+		metricType pmetric.MetricType
+		monotonic  bool
+		intValue   int64
+		threshold  float64
+		expected   float64
+	}{
+		{
+			name:       "Non-monotonic integer sum moves the threshold",
+			metricName: "process.memory.usage",
+			metricType: pmetric.MetricTypeSum,
+			intValue:   100_000_000,
+			threshold:  50_000_000,
+			expected:   54_000_000, // target = 50M + (100M*0.2) = 70M; new = (0.2*70M) + (0.8*50M) = 54M
+		},
+		{
+			name:       "Integer gauge moves the threshold",
+			metricName: "process.threads",
+			metricType: pmetric.MetricTypeGauge,
+			intValue:   40,
+			threshold:  10,
+			expected:   11.6, // target = 10 + (40*0.2) = 18; new = (0.2*18) + (0.8*10) = 11.6
+		},
+		{
+			name:       "Monotonic sum leaves the threshold at its configured value",
+			metricName: "process.disk.io",
+			metricType: pmetric.MetricTypeSum,
+			monotonic:  true,
+			intValue:   5_000_000_000,
+			threshold:  1_000_000,
+			expected:   1_000_000,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := &Config{
+				EnableDynamicThresholds: true,
+				DynamicSmoothingFactor:  0.2,
+				MetricThresholds:        map[string]float64{tc.metricName: tc.threshold},
+			}
+			proc := &processorImp{
+				logger:                   zaptest.NewLogger(t),
+				config:                   config,
+				dynamicThresholdsEnabled: true,
+				dynamicCustomThresholds:  map[string]float64{tc.metricName: tc.threshold},
+				lastThresholdUpdate:      time.Now().Add(-1 * time.Hour),
+			}
+
+			md := pmetric.NewMetrics()
+			metric := md.ResourceMetrics().AppendEmpty().ScopeMetrics().AppendEmpty().Metrics().AppendEmpty()
+			metric.SetName(tc.metricName)
+			var dp pmetric.NumberDataPoint
+			if tc.metricType == pmetric.MetricTypeSum {
+				sum := metric.SetEmptySum()
+				sum.SetIsMonotonic(tc.monotonic)
+				sum.SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
+				dp = sum.DataPoints().AppendEmpty()
+			} else {
+				dp = metric.SetEmptyGauge().DataPoints().AppendEmpty()
+			}
+			dp.SetIntValue(tc.intValue)
+
+			proc.updateDynamicThresholds(md)
+
+			assert.InDelta(t, tc.expected, proc.dynamicCustomThresholds[tc.metricName], 0.001)
+		})
+	}
+}
+
 // Helper function to create test metrics with process.cpu.utilization
 func createExtendedTestMetricsWithCPUUtilization(value float64) pmetric.Metrics {
 	return createExtendedTestMetricsWithName("process.cpu.utilization", value)
