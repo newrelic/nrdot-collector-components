@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   changelog:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: ${{ github.actor != 'dependabot[bot]' && (github.event.action != 'edited' || github.event.changes.title) }}
     env:
       PR_HEAD: ${{ github.event.pull_request.head.sha }}
