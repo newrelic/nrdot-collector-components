@@ -156,6 +156,14 @@ processors:
     anomaly_history_size: 15                 # Number of historical data points
     anomaly_change_threshold: 50.0           # 50% change triggers anomaly
     anomaly_min_data_points: 3               # Minimum data points before detection
+
+    # Output
+    # Write threshold, multi-metric and filtering summary details to the process.atp
+    # resource attribute. Off by default: the details change on every scrape, so each
+    # kept process gets a new resource identity every scrape. That raises series
+    # cardinality and, with cumulativetodelta after this processor, drops counters
+    # such as process.cpu.time. process.atp.enabled is written either way.
+    enable_process_atp_attribute: false
 ```
 
 ### Complete Working Example with Full Pipeline

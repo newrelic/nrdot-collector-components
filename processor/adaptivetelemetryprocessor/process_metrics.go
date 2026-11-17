@@ -530,6 +530,10 @@ func (p *processorImp) checkStaticThresholds(resource pcommon.Resource, id strin
 // addMultiMetricData adds multi-metric data to process.atp attribute
 // This is called separately from the inclusion check to ensure data is always present
 func (p *processorImp) addMultiMetricData(resource pcommon.Resource, values map[string]float64) {
+	if !p.config.EnableProcessATPAttribute {
+		return
+	}
+
 	compScore, _ := p.calculateCompositeGeneric(values)
 	threshold := p.config.CompositeThreshold
 	if threshold <= 0 {
@@ -808,15 +812,17 @@ func (p *processorImp) generateFilteringSummaryMetrics(filtered *pmetric.Metrics
 
 	// Add filtering summary only to targeted resources' process.atp attribute
 	// This matches the pattern used by multi_metric and threshold_details
-	for i := 0; i < filtered.ResourceMetrics().Len(); i++ {
-		rm := filtered.ResourceMetrics().At(i)
+	if p.config.EnableProcessATPAttribute {
+		for i := 0; i < filtered.ResourceMetrics().Len(); i++ {
+			rm := filtered.ResourceMetrics().At(i)
 
-		// Extract metric values to check if this resource is targeted
-		values := p.extractMetricValues(rm)
+			// Extract metric values to check if this resource is targeted
+			values := p.extractMetricValues(rm)
 
-		// Only add filtering summary to resources that are targeted by the processor
-		if p.isResourceTargeted(values) {
-			updateProcessATPAttribute(rm.Resource(), "filtering_summary", summaryDetails, p.logger)
+			// Only add filtering summary to resources that are targeted by the processor
+			if p.isResourceTargeted(values) {
+				updateProcessATPAttribute(rm.Resource(), "filtering_summary", summaryDetails, p.logger)
+			}
 		}
 	}
 
