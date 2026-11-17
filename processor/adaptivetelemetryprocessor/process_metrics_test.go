@@ -5,6 +5,7 @@ package adaptivetelemetryprocessor
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -327,4 +328,77 @@ func createExtendedTestMetrics(resourceAttrs map[string]string, metricValues map
 	}
 
 	return metrics
+}
+
+// process.atp holds per-scrape values. As a resource attribute it would give a kept process a new
+// series identity on every scrape, so by default it is not written and the resource stays stable.
+func TestProcessATPAttributeIsOffByDefault(t *testing.T) {
+	cfg := createDefaultConfig().(*Config)
+	cfg.MetricThresholds = map[string]float64{"process.cpu.utilization": 0.5}
+	cfg.EnableMultiMetric = true
+	cfg.Weights = map[string]float64{"process.cpu.utilization": 1.0}
+
+	processor := &processorImp{
+		logger:             zaptest.NewLogger(t),
+		config:             cfg,
+		multiMetricEnabled: true,
+		trackedEntities:    make(map[string]*trackedEntity),
+	}
+	attrs := map[string]string{
+		"host.name":               "test-host",
+		"process.pid":             "4242",
+		"process.executable.name": "java",
+	}
+
+	first, err := processor.processMetrics(t.Context(), createExtendedTestMetrics(attrs, map[string]float64{"process.cpu.utilization": 0.9}))
+	assert.NoError(t, err)
+	second, err := processor.processMetrics(t.Context(), createExtendedTestMetrics(attrs, map[string]float64{"process.cpu.utilization": 0.8}))
+	assert.NoError(t, err)
+
+	assert.Equal(t, 1, first.ResourceMetrics().Len())
+	assert.Equal(t, 1, second.ResourceMetrics().Len())
+	firstAttrs := first.ResourceMetrics().At(0).Resource().Attributes()
+	secondAttrs := second.ResourceMetrics().At(0).Resource().Attributes()
+
+	enabled, ok := firstAttrs.Get("process.atp.enabled")
+	assert.True(t, ok, "process.atp.enabled should still be set")
+	assert.True(t, enabled.Bool())
+	_, ok = firstAttrs.Get("process.atp")
+	assert.False(t, ok, "process.atp should not be written by default")
+	assert.Equal(t, firstAttrs.AsRaw(), secondAttrs.AsRaw(), "Resource attributes should not change between scrapes")
+}
+
+func TestProcessATPAttributeOptIn(t *testing.T) {
+	cfg := createDefaultConfig().(*Config)
+	cfg.MetricThresholds = map[string]float64{"process.cpu.utilization": 0.5}
+	cfg.EnableMultiMetric = true
+	cfg.Weights = map[string]float64{"process.cpu.utilization": 1.0}
+	cfg.EnableProcessATPAttribute = true
+
+	processor := &processorImp{
+		logger:             zaptest.NewLogger(t),
+		config:             cfg,
+		multiMetricEnabled: true,
+		trackedEntities:    make(map[string]*trackedEntity),
+	}
+	metrics := createExtendedTestMetrics(
+		map[string]string{
+			"host.name":               "test-host",
+			"process.pid":             "4242",
+			"process.executable.name": "java",
+		},
+		map[string]float64{"process.cpu.utilization": 0.9},
+	)
+
+	result, err := processor.processMetrics(t.Context(), metrics)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, result.ResourceMetrics().Len())
+
+	atp, ok := result.ResourceMetrics().At(0).Resource().Attributes().Get("process.atp")
+	assert.True(t, ok, "process.atp should be written when enabled")
+	var atpData map[string]any
+	assert.NoError(t, json.Unmarshal([]byte(atp.Str()), &atpData))
+	assert.Contains(t, atpData, "threshold_details")
+	assert.Contains(t, atpData, "multi_metric")
+	assert.Contains(t, atpData, "filtering_summary")
 }

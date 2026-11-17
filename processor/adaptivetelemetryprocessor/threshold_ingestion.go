@@ -64,6 +64,10 @@ func (p *processorImp) captureUsedMetricThresholds(resource pcommon.Resource, va
 		return
 	}
 
+	if !p.config.EnableProcessATPAttribute {
+		return
+	}
+
 	capturedCount := 0
 	thresholdsDetails := make(map[string]any)
 

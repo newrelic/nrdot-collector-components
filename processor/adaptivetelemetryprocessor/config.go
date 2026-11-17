@@ -56,6 +56,10 @@ import (
 //     #   - Linux/Unix: /var/lib/nrdot-collector/adaptiveprocess.db
 //     #   - Windows: %LOCALAPPDATA%\nrdot-collector\adaptiveprocess.db
 //     # The directory will be created automatically if it doesn't exist.
+//
+//     # Output (optional)
+//     enable_process_atp_attribute: false # write per-scrape details to the process.atp resource attribute
+//                                         # off by default: the attribute changes every scrape
 //     # If storage creation fails, the processor will continue without persistence.
 //
 // Example pipeline wiring:
@@ -96,6 +100,12 @@ type Config struct {
 
 	// Include list - processes that should always be monitored (bypass all filters)
 	IncludeProcessList []string `mapstructure:"include_process_list"`
+
+	// Output options
+	// EnableProcessATPAttribute writes threshold, multi-metric and filtering summary details to the
+	// process.atp resource attribute. The details change on every scrape, so each kept process gets a
+	// new resource identity every scrape, which breaks cumulativetodelta and raises series cardinality.
+	EnableProcessATPAttribute bool `mapstructure:"enable_process_atp_attribute"`
 
 	// Debug options
 	DebugShowAllFilterStages bool `mapstructure:"debug_show_all_filter_stages"`
