@@ -255,6 +255,81 @@ func TestProcessMetricsExtended(t *testing.T) {
 	})
 }
 
+func TestProcessMetricsIntegerSumAboveThresholdIsKept(t *testing.T) {
+	processor := &processorImp{
+		logger: zaptest.NewLogger(t),
+		config: &Config{
+			MetricThresholds: map[string]float64{
+				"process.memory.usage": 100_000_000, // 100 MB
+			},
+		},
+		trackedEntities: make(map[string]*trackedEntity),
+	}
+
+	// 200 MB, reported the way hostmetrics does: an integer Sum
+	metrics := createProcessMetricsWithIntSum("process.memory.usage", 200_000_000)
+
+	result, err := processor.processMetrics(t.Context(), metrics)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, countNonSummaryResources(result), "Process above an integer threshold should be kept")
+}
+
+func TestProcessMetricsIntegerSumAnomalyIsKept(t *testing.T) {
+	processor := &processorImp{
+		logger: zaptest.NewLogger(t),
+		config: &Config{
+			MetricThresholds: map[string]float64{
+				"process.memory.usage": 1_000_000_000, // 1 GB, not crossed
+			},
+			EnableAnomalyDetection: true,
+			AnomalyHistorySize:     10,
+			AnomalyChangeThreshold: 200,
+			AnomalyMinDataPoints:   3,
+			RetentionMinutes:       30,
+		},
+		trackedEntities: make(map[string]*trackedEntity),
+	}
+
+	// Jump from a steady 100 MB to 400 MB, a 300% change
+	metrics := createProcessMetricsWithIntSum("process.memory.usage", 400_000_000)
+	id := buildResourceIdentity(metrics.ResourceMetrics().At(0).Resource())
+	processor.trackedEntities[id] = &trackedEntity{
+		Identity:      id,
+		FirstSeen:     time.Now().Add(-1 * time.Hour),
+		CurrentValues: map[string]float64{"process.memory.usage": 100_000_000},
+		MaxValues:     map[string]float64{"process.memory.usage": 100_000_000},
+		MetricHistory: map[string][]float64{
+			"process.memory.usage": {100_000_000, 100_000_000, 100_000_000},
+		},
+	}
+
+	result, err := processor.processMetrics(t.Context(), metrics)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, countNonSummaryResources(result), "Process with an integer metric spike should be kept as an anomaly")
+}
+
+// Helper function to create one process resource with a single integer Sum datapoint
+func createProcessMetricsWithIntSum(name string, value int64) pmetric.Metrics {
+	metrics := pmetric.NewMetrics()
+	rm := metrics.ResourceMetrics().AppendEmpty()
+	rm.Resource().Attributes().PutStr("host.name", "test-host")
+	rm.Resource().Attributes().PutInt("process.pid", 4242)
+	rm.Resource().Attributes().PutStr("process.executable.name", "java")
+
+	metric := rm.ScopeMetrics().AppendEmpty().Metrics().AppendEmpty()
+	metric.SetName(name)
+	sum := metric.SetEmptySum()
+	sum.SetIsMonotonic(false)
+	sum.SetAggregationTemporality(pmetric.AggregationTemporalityCumulative)
+	dp := sum.DataPoints().AppendEmpty()
+	dp.SetIntValue(value)
+	dp.SetTimestamp(pcommon.NewTimestampFromTime(time.Now()))
+
+	return metrics
+}
+
 // Helper function to count metrics in a batch, excluding summary metrics
 func countMetrics(metrics pmetric.Metrics) int {
 	count := 0

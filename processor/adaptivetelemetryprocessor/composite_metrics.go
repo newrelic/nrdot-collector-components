@@ -88,14 +88,14 @@ func extractGaugeValue(g pmetric.Gauge) float64 {
 	}
 
 	if dataPoints.Len() == 1 {
-		return dataPoints.At(0).DoubleValue()
+		return numberDataPointValue(dataPoints.At(0))
 	}
 
 	// Aggregate all data points (sum them up)
 	// This covers cases where multiple data points are present for the same gauge
 	var total float64
 	for i := 0; i < dataPoints.Len(); i++ {
-		total += dataPoints.At(i).DoubleValue()
+		total += numberDataPointValue(dataPoints.At(i))
 	}
 	return total
 }
@@ -110,15 +110,24 @@ func extractSumValue(s pmetric.Sum) float64 {
 	}
 
 	if dataPointCount == 1 {
-		return dataPoints.At(0).DoubleValue()
+		return numberDataPointValue(dataPoints.At(0))
 	}
 
 	// Aggregate all data points
 	var total float64
 	for k := 0; k < dataPointCount; k++ {
-		total += dataPoints.At(k).DoubleValue()
+		total += numberDataPointValue(dataPoints.At(k))
 	}
 	return total
+}
+
+// numberDataPointValue returns the value of a data point as float64, whether it holds an int or a double.
+// DoubleValue() returns 0 for int data points, which hostmetrics uses for byte counts such as process.memory.usage.
+func numberDataPointValue(dp pmetric.NumberDataPoint) float64 {
+	if dp.ValueType() == pmetric.NumberDataPointValueTypeInt {
+		return float64(dp.IntValue())
+	}
+	return dp.DoubleValue()
 }
 
 // calculateCompositeGeneric calculates a composite score based on weighted metrics

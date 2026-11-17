@@ -130,18 +130,24 @@ func (p *processorImp) processMetricForAverages(m pmetric.Metric, metricAvgs map
 		return
 	}
 
-	if m.Type() != pmetric.MetricTypeGauge {
+	// Monotonic sums are running totals, so averaging them would only ever raise the threshold
+	var dataPoints pmetric.NumberDataPointSlice
+	switch {
+	case m.Type() == pmetric.MetricTypeGauge:
+		dataPoints = m.Gauge().DataPoints()
+	case m.Type() == pmetric.MetricTypeSum && !m.Sum().IsMonotonic():
+		dataPoints = m.Sum().DataPoints()
+	default:
 		return
 	}
 
-	g := m.Gauge()
-	if g.DataPoints().Len() == 0 {
+	if dataPoints.Len() == 0 {
 		return
 	}
 
 	var sum float64
-	for d := 0; d < g.DataPoints().Len(); d++ {
-		sum += g.DataPoints().At(d).DoubleValue()
+	for d := 0; d < dataPoints.Len(); d++ {
+		sum += numberDataPointValue(dataPoints.At(d))
 	}
 
 	val := metricAvgs[name]
