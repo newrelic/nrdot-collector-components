@@ -188,3 +188,65 @@ func TestExtractMetricValuesComprehensive(t *testing.T) {
 		})
 	}
 }
+
+// hostmetrics reports most process and system byte counts as integer data points,
+// e.g. process.memory.usage is an int Sum. They must be read as integers, not as 0.
+func TestExtractMetricValuesIntegerDataPoints(t *testing.T) {
+	logger := zaptest.NewLogger(t)
+
+	testCases := []struct {
+		name       string
+		metricType pmetric.MetricType
+		intPoints  []int64
+		expected   float64
+	}{
+		{
+			name:       "Integer sum with one datapoint",
+			metricType: pmetric.MetricTypeSum,
+			intPoints:  []int64{137_000_000},
+			expected:   137_000_000,
+		},
+		{
+			name:       "Integer sum with multiple datapoints",
+			metricType: pmetric.MetricTypeSum,
+			intPoints:  []int64{4096, 8192},
+			expected:   12288,
+		},
+		{
+			name:       "Integer gauge with one datapoint",
+			metricType: pmetric.MetricTypeGauge,
+			intPoints:  []int64{42},
+			expected:   42,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			proc := &processorImp{
+				logger: logger,
+				config: &Config{
+					MetricThresholds: map[string]float64{"process.memory.usage": 1},
+				},
+			}
+
+			metrics := pmetric.NewMetrics()
+			resourceMetrics := metrics.ResourceMetrics().AppendEmpty()
+			metric := resourceMetrics.ScopeMetrics().AppendEmpty().Metrics().AppendEmpty()
+			metric.SetName("process.memory.usage")
+
+			var dps pmetric.NumberDataPointSlice
+			if tc.metricType == pmetric.MetricTypeSum {
+				dps = metric.SetEmptySum().DataPoints()
+			} else {
+				dps = metric.SetEmptyGauge().DataPoints()
+			}
+			for _, v := range tc.intPoints {
+				dps.AppendEmpty().SetIntValue(v)
+			}
+
+			values := proc.extractMetricValues(resourceMetrics)
+
+			assert.Equal(t, tc.expected, values["process.memory.usage"])
+		})
+	}
+}
