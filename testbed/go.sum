@@ -296,6 +296,7 @@ go.opentelemetry.io/collector/pipeline v1.70.0 h1:jo9xgCZCUtLkiWhMm6pkNCalWUZNwu
 go.opentelemetry.io/collector/pipeline v1.70.0/go.mod h1:4S7iD/7hGDNXg4yPi+5es5WTvwo/Uie2OoHio79xokI=
 go.opentelemetry.io/collector/pipeline/xpipeline v0.164.0 h1:cBwdUTWUBuToDVDCyyu2T4tfmRMffYjDoCd+gXzEoxE=
 go.opentelemetry.io/collector/pipeline/xpipeline v0.164.0/go.mod h1:GKxS+HduHod+QD5CIKcxNcfnHgUcF4/7fA8ZCe6nhOQ=
+go.opentelemetry.io/collector/pipeline/xpipeline v0.165.0/go.mod h1:SwLzuqjdWe1IgfWQLt5ZpP0hbA7yKPLZBZFTx8w/s9A=
 go.opentelemetry.io/collector/processor v1.70.0 h1:WXEBPSNiB0zDqP0JL0WNJ5S/hBhfxnW5LwtrYjrNR3k=
 go.opentelemetry.io/collector/processor v1.70.0/go.mod h1:zfBuQTGZYs9hYTh7tyF8uRk2L9QS2+IRnUu2q6Im7Gs=
 go.opentelemetry.io/collector/processor/batchprocessor v0.164.0 h1:Z4/FR2X6mHOz61uMA+qHlXRLffkuLOvDBZsLjUq1F9s=
@@ -390,6 +391,8 @@ go.opentelemetry.io/otel/sdk v1.47.0 h1:zWXEr4j2lFefG87TU6Yg8a7ngfohIKFZHKp0Hf5h
 go.opentelemetry.io/otel/sdk v1.47.0/go.mod h1:VUc24kiOeoGsxG8G9ULx3fWKvB7jMhnGE8Oi607lgR0=
 go.opentelemetry.io/otel/sdk/log v0.21.0 h1:QsE7XSR0ktQdKmRKGnR+f1ObGF32WG+7MER/P9KgmYc=
 go.opentelemetry.io/otel/sdk/log v0.21.0/go.mod h1:m9mApjCoD2/1QuKCAptjv+BrG9WKOvQLVdNx+iBldTo=
+go.opentelemetry.io/otel/sdk/log v1.47.0 h1:W4N/ZfgpkRRnmARnqYoQ6BrWA0mrj8IzVDNLlpmUJZY=
+go.opentelemetry.io/otel/sdk/log v1.47.0/go.mod h1:Wu74Z2EmOKXi2FleSNAb0Hyau2G+r5kubSEMJw5aAMs=
 go.opentelemetry.io/otel/sdk/log/logtest v0.21.0 h1:X+JBBgKlswCGYsmgL0CnoUUtlE//VB345c84jYAYkdQ=
 go.opentelemetry.io/otel/sdk/log/logtest v0.21.0/go.mod h1:HD1575K8e6sIFBBDd5tZB3t9DlMytWXq9FuR+Y4rfjE=
 go.opentelemetry.io/otel/sdk/metric v1.47.0 h1:lfISg2j93VT6yqdk9OfUaZmw/GfcZqCCV3jdXtsPnKw=
