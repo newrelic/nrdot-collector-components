@@ -24,7 +24,7 @@ require (
 	go.opentelemetry.io/collector/cmd/builder v0.165.1-0.20261119222305-0c7a74cd0a4a
 	go.opentelemetry.io/collector/cmd/mdatagen v0.165.1-0.20261119222305-0c7a74cd0a4a
 	go.uber.org/goleak v1.3.0
-	golang.org/x/tools v0.52.0
+	golang.org/x/tools v0.53.0
 	golang.org/x/vuln v1.9.0
 	gotest.tools/gotestsum v1.13.0
 	mvdan.cc/gofumpt v0.12.0
@@ -246,7 +246,7 @@ require (
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
-	github.com/spf13/pflag v1.0.10 // indirect
+	github.com/spf13/pflag v1.1.0 // indirect
 	github.com/spf13/viper v1.21.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.3.1 // indirect
@@ -279,6 +279,7 @@ require (
 	go.opentelemetry.io/collector/component v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/config/configoptional v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/config/configretry v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
+	go.opentelemetry.io/collector/config/configstorage v0.165.0 // indirect
 	go.opentelemetry.io/collector/confmap v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/confmap/provider/fileprovider v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/consumer v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
@@ -307,11 +308,11 @@ require (
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260811152304-ee035b5b010f // indirect
 	golang.org/x/mod v0.43.0 // indirect
-	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/net v0.63.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
-	golang.org/x/telemetry v0.0.0-20261010193011-f71dc92da45e // indirect
+	golang.org/x/telemetry v0.0.0-20261116191925-e77a43154acb // indirect
 	golang.org/x/term v0.48.0 // indirect
 	golang.org/x/text v0.44.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260928230214-8a89bd6388cc // indirect

@@ -37,6 +37,7 @@ require (
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/collector/client v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/config/configretry v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
+	go.opentelemetry.io/collector/config/configstorage v0.165.0 // indirect
 	go.opentelemetry.io/collector/consumer v1.71.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/consumer/consumererror v0.165.1-0.20261119222305-0c7a74cd0a4a // indirect
 	go.opentelemetry.io/collector/consumer/xconsumer v0.165.1-0.20261119222305-0c7a74cd0a4a // indirect
