@@ -156,7 +156,7 @@ require (
 	github.com/hashicorp/go-version v1.9.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/iimos/ucum v0.0.3 // indirect
+	github.com/iimos/ucum v0.0.4 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jgautheron/goconst v1.11.0 // indirect
@@ -278,6 +278,7 @@ require (
 	go.opentelemetry.io/collector/component v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/config/configoptional v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/config/configretry v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
+	go.opentelemetry.io/collector/config/configstorage v0.166.0 // indirect
 	go.opentelemetry.io/collector/confmap v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/confmap/provider/fileprovider v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/consumer v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
@@ -287,7 +288,6 @@ require (
 	go.opentelemetry.io/collector/extension v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/extension/xextension v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/featuregate v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
-	go.opentelemetry.io/collector/filter v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/internal/componentalias v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/internal/schemagen v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/internal/telemetry v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
@@ -296,6 +296,7 @@ require (
 	go.opentelemetry.io/collector/pdata/xpdata v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/pipeline v1.72.1-0.20261126161120-4c6c46bf6bc6 // indirect
 	go.opentelemetry.io/collector/pipeline/xpipeline v0.166.1-0.20261126161120-4c6c46bf6bc6 // indirect
+	go.opentelemetry.io/collector/strmatch v0.0.0-20261126142948-f0f78f7b395a // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
